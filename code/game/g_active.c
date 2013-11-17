@@ -84,7 +84,6 @@ void P_DamageFeedback( gentity_t *player ) {
 	//
 	client->damage_blood = 0;
 	client->damage_armor = 0;
-	client->damage_knockback = 0;
 }
 
 

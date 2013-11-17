@@ -998,7 +998,6 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 		}
 		client->damage_armor += asave;
 		client->damage_blood += take;
-		client->damage_knockback += knockback;
 		if ( dir ) {
 			VectorCopy ( dir, client->damage_from );
 			client->damage_fromWorld = qfalse;
