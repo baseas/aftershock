@@ -264,7 +264,7 @@ void Cmd_Give_f (gentity_t *ent)
 	if (give_all || Q_stricmp(name, "ammo") == 0)
 	{
 		for ( i = 0 ; i < MAX_WEAPONS ; i++ ) {
-			ent->client->ps.ammo[i] = 999;
+			ent->client->ps.ammo[i] = -1;
 		}
 		if (!give_all)
 			return;

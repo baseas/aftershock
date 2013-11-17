@@ -38,6 +38,7 @@ void CG_CheckAmmo( void ) {
 	int		i;
 	int		total;
 	int		previous;
+	int		ammo;
 	int		weapons;
 
 	// see about how many seconds of ammo we have remaining
@@ -47,6 +48,12 @@ void CG_CheckAmmo( void ) {
 		if ( ! ( weapons & ( 1 << i ) ) ) {
 			continue;
 		}
+
+		ammo = cg.snap->ps.ammo[i];
+		if (ammo == -1) {
+			ammo = 999;
+		}
+
 		switch ( i ) {
 		case WP_ROCKET_LAUNCHER:
 		case WP_GRENADE_LAUNCHER:
@@ -55,10 +62,10 @@ void CG_CheckAmmo( void ) {
 #ifdef MISSIONPACK
 		case WP_PROX_LAUNCHER:
 #endif
-			total += cg.snap->ps.ammo[i] * 1000;
+			total += ammo * 1000;
 			break;
 		default:
-			total += cg.snap->ps.ammo[i] * 200;
+			total += ammo * 200;
 			break;
 		}
 		if ( total >= 5000 ) {
