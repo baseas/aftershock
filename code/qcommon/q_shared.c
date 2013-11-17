@@ -1433,3 +1433,45 @@ char *Com_SkipTokens( char *s, int numTokens, char *sep )
 	else
 		return s;
 }
+
+int ColorIndex(char c)
+{
+	if (c >= '0' && c <= '9') {
+		return c - '0';
+	}
+
+	if (c >= 'a' && c <= 'z') {
+		return c - 'a' + 10;
+	}
+
+	if (c >= 'A' && c <= 'Z') {
+		return c - 'A' + 36;
+	}
+
+	return 0;
+}
+
+// TODO allow hex color like in xonotic and return color string length?
+int Q_IsColorString(const char *str)
+{
+	if (!str || *str != Q_COLOR_ESCAPE) {
+		return 0;
+	}
+
+	++str;
+
+	if (*str >= '0' && *str <= '9') {
+		return 2;
+	}
+
+	if (*str >= 'a' && *str <= 'z') {
+		return 2;
+	}
+
+	if (*str >= 'A' && *str <= 'Z') {
+		return 2;
+	}
+
+	return 0;
+}
+
