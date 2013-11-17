@@ -1882,7 +1882,8 @@ static void CG_DrawCrosshair(void)
 		trap_R_SetColor( NULL );
 	}
 
-	w = h = cg_crosshairSize.value;
+	h = cg_crosshairSize.value;
+	w = cg_crosshairSize.value * cgs.screenYScale / cgs.screenXScale;
 
 	// pulse the size of the crosshair when picking up items
 	f = cg.time - cg.itemPickupBlendTime;
