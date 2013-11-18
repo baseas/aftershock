@@ -715,7 +715,6 @@ typedef struct {
 	qhandle_t	machinegunBrassModel;
 	qhandle_t	shotgunBrassModel;
 
-	qhandle_t	railRingsShader;
 	qhandle_t	railCoreShader;
 
 	qhandle_t	lightningShader;
@@ -1168,9 +1167,6 @@ extern  vmCvar_t		cg_smallFont;
 extern  vmCvar_t		cg_bigFont;
 extern	vmCvar_t		cg_noTaunt;
 extern	vmCvar_t		cg_noProjectileTrail;
-extern	vmCvar_t		cg_oldRail;
-extern	vmCvar_t		cg_oldRocket;
-extern	vmCvar_t		cg_oldPlasma;
 extern	vmCvar_t		cg_trueLightning;
 #ifdef MISSIONPACK
 extern	vmCvar_t		cg_redTeamName;

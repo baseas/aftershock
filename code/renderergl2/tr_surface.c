@@ -676,96 +676,6 @@ static void DoRailCore( const vec3_t start, const vec3_t end, const vec3_t up, f
 	tess.indexes[tess.numIndexes++] = vbase + 3;
 }
 
-static void DoRailDiscs( int numSegs, const vec3_t start, const vec3_t dir, const vec3_t right, const vec3_t up )
-{
-	int i;
-	vec3_t	pos[4];
-	vec3_t	v;
-	int		spanWidth = r_railWidth->integer;
-	float c, s;
-	float		scale;
-
-	if ( numSegs > 1 )
-		numSegs--;
-	if ( !numSegs )
-		return;
-
-	scale = 0.25;
-
-	for ( i = 0; i < 4; i++ )
-	{
-		c = cos( DEG2RAD( 45 + i * 90 ) );
-		s = sin( DEG2RAD( 45 + i * 90 ) );
-		v[0] = ( right[0] * c + up[0] * s ) * scale * spanWidth;
-		v[1] = ( right[1] * c + up[1] * s ) * scale * spanWidth;
-		v[2] = ( right[2] * c + up[2] * s ) * scale * spanWidth;
-		VectorAdd( start, v, pos[i] );
-
-		if ( numSegs > 1 )
-		{
-			// offset by 1 segment if we're doing a long distance shot
-			VectorAdd( pos[i], dir, pos[i] );
-		}
-	}
-
-	for ( i = 0; i < numSegs; i++ )
-	{
-		int j;
-
-		RB_CHECKOVERFLOW( 4, 6 );
-
-		for ( j = 0; j < 4; j++ )
-		{
-			VectorCopy( pos[j], tess.xyz[tess.numVertexes] );
-			tess.texCoords[tess.numVertexes][0][0] = ( j < 2 );
-			tess.texCoords[tess.numVertexes][0][1] = ( j && j != 3 );
-			tess.vertexColors[tess.numVertexes][0] = backEnd.currentEntity->e.shaderRGBA[0] / 255.0f;
-			tess.vertexColors[tess.numVertexes][1] = backEnd.currentEntity->e.shaderRGBA[1] / 255.0f;
-			tess.vertexColors[tess.numVertexes][2] = backEnd.currentEntity->e.shaderRGBA[2] / 255.0f;
-			tess.numVertexes++;
-
-			VectorAdd( pos[j], dir, pos[j] );
-		}
-
-		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 0;
-		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 1;
-		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 3;
-		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 3;
-		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 1;
-		tess.indexes[tess.numIndexes++] = tess.numVertexes - 4 + 2;
-	}
-}
-
-/*
-** RB_SurfaceRailRinges
-*/
-static void RB_SurfaceRailRings( void ) {
-	refEntity_t *e;
-	int			numSegs;
-	int			len;
-	vec3_t		vec;
-	vec3_t		right, up;
-	vec3_t		start, end;
-
-	e = &backEnd.currentEntity->e;
-
-	VectorCopy( e->oldorigin, start );
-	VectorCopy( e->origin, end );
-
-	// compute variables
-	VectorSubtract( end, start, vec );
-	len = VectorNormalize( vec );
-	MakeNormalVectors( vec, right, up );
-	numSegs = ( len ) / r_railSegmentLength->value;
-	if ( numSegs <= 0 ) {
-		numSegs = 1;
-	}
-
-	VectorScale( vec, r_railSegmentLength->value, vec );
-
-	DoRailDiscs( numSegs, start, vec, right, up );
-}
-
 /*
 ** RB_SurfaceRailCore
 */
@@ -1544,9 +1454,6 @@ static void RB_SurfaceEntity( surfaceType_t *surfType ) {
 		break;
 	case RT_RAIL_CORE:
 		RB_SurfaceRailCore();
-		break;
-	case RT_RAIL_RINGS:
-		RB_SurfaceRailRings();
 		break;
 	case RT_LIGHTNING:
 		RB_SurfaceLightningBolt();
