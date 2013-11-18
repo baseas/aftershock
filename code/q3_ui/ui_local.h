@@ -684,8 +684,6 @@ void			trap_SetCDKey( char *buf );
 
 qboolean               trap_VerifyCDKey( const char *key, const char *chksum);
 
-void			trap_SetPbClStatus( int status );
-
 //
 // ui_addbots.c
 //

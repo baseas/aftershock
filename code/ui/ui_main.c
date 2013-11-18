@@ -3560,12 +3560,7 @@ static void UI_RunMenuScript(char **args) {
 			if (String_Parse(args, &name2)) {
 				UI_Update(name2);
 			}
-		} else if (Q_stricmp(name, "setPbClStatus") == 0) {
-			int stat;
-			if ( Int_Parse( args, &stat ) )
-				trap_SetPbClStatus( stat );
-		}
-		else {
+		} else {
 			Com_Printf("unknown UI script %s\n", name);
 		}
 	}
