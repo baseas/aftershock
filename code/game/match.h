@@ -109,7 +109,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ST_ATTACKER						2
 #define ST_ROAMER						4
 
-
 //word replacement variables
 #define THE_ENEMY						7
 #define THE_TEAM						7
@@ -130,5 +129,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define TIME							6
 #define NAME							6
 #define MORE							6
-
 

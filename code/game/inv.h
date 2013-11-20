@@ -78,13 +78,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define NUM_VISIBLE_ENEMIES			202
 #define NUM_VISIBLE_TEAMMATES		203
 
-// if running the mission pack
-#ifdef MISSIONPACK
-
-//#error "running mission pack"
-
-#endif
-
 //item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
 #define MODELINDEX_ARMORSHARD		1
 #define MODELINDEX_ARMORJACKET		2
@@ -127,31 +120,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MODELINDEX_REDFLAG			35
 #define MODELINDEX_BLUEFLAG			36
 
-// mission pack only defines
-
-#define MODELINDEX_KAMIKAZE			37
-#define MODELINDEX_PORTAL			38
-#define MODELINDEX_INVULNERABILITY	39
-
-#define MODELINDEX_NAILS			40
-#define MODELINDEX_MINES			41
-#define MODELINDEX_BELT				42
-
-#define MODELINDEX_SCOUT			43
-#define MODELINDEX_GUARD			44
-#define MODELINDEX_DOUBLER			45
-#define MODELINDEX_AMMOREGEN		46
-
-#define MODELINDEX_NEUTRALFLAG		47
-#define MODELINDEX_REDCUBE			48
-#define MODELINDEX_BLUECUBE			49
-
-#define MODELINDEX_NAILGUN			50
-#define MODELINDEX_PROXLAUNCHER		51
-#define MODELINDEX_CHAINGUN			52
-
-
-//
 #define WEAPONINDEX_GAUNTLET			1
 #define WEAPONINDEX_MACHINEGUN			2
 #define WEAPONINDEX_SHOTGUN				3
@@ -165,3 +133,4 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define WEAPONINDEX_NAILGUN				11
 #define WEAPONINDEX_PROXLAUNCHER		12
 #define WEAPONINDEX_CHAINGUN			13
+
