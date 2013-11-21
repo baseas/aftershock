@@ -992,6 +992,7 @@ extern vmCvar_t		cg_bigFont;
 extern vmCvar_t		cg_noTaunt;
 extern vmCvar_t		cg_noProjectileTrail;
 extern vmCvar_t		cg_trueLightning;
+extern vmCvar_t		cg_crosshairColor;
 
 //
 // cg_main.c
@@ -1046,6 +1047,7 @@ void	UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 void	CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
 void	CG_DrawSides(float x, float y, float w, float h, float size);
 void	CG_DrawTopBottom(float x, float y, float w, float h, float size);
+void	CG_SetRGBA(byte incolor[4], const char *str);
 
 //
 // cg_draw.c, cg_newDraw.c

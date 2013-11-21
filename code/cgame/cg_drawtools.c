@@ -735,3 +735,70 @@ void UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp);
 }
 
+void CG_SetRGBA(byte incolor[4], const char *str)
+{
+	if (strlen(str) == 1) {
+		vec_t *color = g_color_table[ColorIndex(str[0])];
+		incolor[0] = 255 * color[0];
+		incolor[1] = 255 * color[1];
+		incolor[2] = 255 * color[2];
+		incolor[3] = 255 * color[3];
+	} else if (! strcmp(str, "red")) {
+		CG_SetRGBA(incolor, "1");
+	} else if (! strcmp(str, "green")) {
+		CG_SetRGBA(incolor, "2");
+	} else if (! strcmp(str, "yellow")) {
+		CG_SetRGBA(incolor, "3");
+	} else if (! strcmp(str, "blue")) {
+		CG_SetRGBA(incolor, "4");
+	} else if (! strcmp(str, "cyan")) {
+		CG_SetRGBA(incolor, "5");
+	} else if (! strcmp(str, "purple")) {
+		CG_SetRGBA(incolor, "6");
+	} else if (! strcmp(str, "white")) {
+		CG_SetRGBA(incolor, "7");
+	} else if (! strcmp(str, "orange")) {
+		CG_SetRGBA(incolor, "8");
+	} else {
+		int i, len, hex;
+		if (str[0] != '0' || str[1] != 'x') {
+			goto error;
+		}
+
+		str = &str[2];
+		len = strlen(str);
+
+		if (len != 6 && len != 8) {
+			goto error;
+		}
+
+		for (i = 0; str[i]; ++i) {
+			if ((str[i] < '0' || str[i] > '9') && (str[i] < 'a' || str[i] > 'f')
+				&& (str[i] < 'A' || str[i] > 'F'))
+			{
+				goto error;
+			}
+		}
+
+		hex = strtol(str, NULL, 16);
+		if (len == 6) {
+			incolor[0] = (hex >> 16);
+			incolor[1] = ((hex << 8) >> 16);
+			incolor[2] = ((hex << 16) >> 16);
+			incolor[3] = 255;
+		} else if (len == 8) {
+			incolor[0] = (hex >> 24);
+			incolor[1] = ((hex << 8) >> 24);
+			incolor[2] = ((hex << 16) >> 24);
+			incolor[3] = ((hex << 24) >> 24);
+		}
+	}
+
+	return;
+error:
+	incolor[0] = 255;
+	incolor[1] = 255;
+	incolor[2] = 255;
+	incolor[3] = 255;
+}
+

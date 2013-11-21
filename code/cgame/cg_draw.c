@@ -1344,6 +1344,7 @@ static void CG_DrawCrosshair(void)
 	float		f;
 	float		x, y;
 	int			ca;
+	vec4_t		color;
 
 	if (!cg_drawCrosshair.integer) {
 		return;
@@ -1359,13 +1360,17 @@ static void CG_DrawCrosshair(void)
 
 	// set color based on health
 	if (cg_crosshairHealth.integer) {
-		vec4_t		hcolor;
-
-		CG_ColorForHealth(hcolor);
-		trap_R_SetColor(hcolor);
+		CG_ColorForHealth(color);
 	} else {
-		trap_R_SetColor(NULL);
+		byte rgba[4];
+		CG_SetRGBA(rgba, cg_crosshairColor.string);
+		color[0] = rgba[0] / 255.0f;
+		color[1] = rgba[1] / 255.0f;
+		color[2] = rgba[2] / 255.0f;
+		color[3] = rgba[3] / 255.0f;
 	}
+
+	trap_R_SetColor(color);
 
 	h = cg_crosshairSize.value;
 	w = cg_crosshairSize.value * cgs.screenYScale / cgs.screenXScale;
