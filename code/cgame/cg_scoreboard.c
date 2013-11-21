@@ -64,16 +64,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 //	0   32   80  112  144   240  320  400   <-- pixel position
 //  bot head bot head score ping time name
-//  
+//
 //  wins/losses are drawn on bot icon now
 
 static qboolean	localClient;	// true if local client has been displayed
 
 static void CG_DrawClientScore(int y, score_t *score, float *color, float fade, qboolean largeFormat) {
-	char	string[1024];
-	vec3_t	headAngles;
+	char			string[1024];
 	clientInfo_t	*ci;
-	int iconx, headx;
+	int				iconx;
 
 	if (score->client < 0 || score->client >= cgs.maxclients) {
 		Com_Printf("Bad score->client: %i\n", score->client);
@@ -83,7 +82,6 @@ static void CG_DrawClientScore(int y, score_t *score, float *color, float fade, 
 	ci = &cgs.clientinfo[score->client];
 
 	iconx = SB_BOTICON_X + (SB_RATING_WIDTH / 2);
-	headx = SB_HEAD_X + (SB_RATING_WIDTH / 2);
 
 	// draw the handicap or bot skill marker (unless player has flag)
 	if (ci->powerups & (1 << PW_NEUTRALFLAG)) {
@@ -135,17 +133,6 @@ static void CG_DrawClientScore(int y, score_t *score, float *color, float fade, 
 				CG_DrawSmallStringColor(iconx, y, string, color);
 			}
 		}
-	}
-
-	// draw the face
-	VectorClear(headAngles);
-	headAngles[YAW] = 180;
-	if (largeFormat) {
-		CG_DrawHead(headx, y - (ICON_SIZE - BIGCHAR_HEIGHT) / 2, ICON_SIZE, ICON_SIZE, 
-			score->client, headAngles);
-	}
-	else {
-		CG_DrawHead(headx, y, 16, 16, score->client, headAngles);
 	}
 
 	// draw the score line

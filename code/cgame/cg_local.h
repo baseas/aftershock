@@ -339,8 +339,6 @@ typedef struct {
 	qhandle_t		headModel;
 	qhandle_t		headSkin;
 
-	qhandle_t		modelIcon;
-
 	animation_t		animations[MAX_TOTALANIMATIONS];
 
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
@@ -1062,7 +1060,6 @@ extern char		teamChat2[256];
 void		CG_AddLagometerFrameInfo(void);
 void		CG_AddLagometerSnapshotInfo(snapshot_t *snap);
 void		CG_CenterPrint(const char *str, int y, int charWidth);
-void		CG_DrawHead(float x, float y, float w, float h, int clientNum, vec3_t headAngles);
 void		CG_DrawActive(stereoFrame_t stereoView);
 void		CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D);
 void		CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team);

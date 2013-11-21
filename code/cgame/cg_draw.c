@@ -45,9 +45,9 @@ int	drawTeamOverlayModificationCount = -1;
 int	sortedTeamPlayers[TEAM_MAXOVERLAY];
 int	numSortedTeamPlayers;
 
-char systemChat[256];
-char teamChat1[256];
-char teamChat2[256];
+char	systemChat[256];
+char	teamChat1[256];
+char	teamChat2[256];
 
 /**
 Draws large numbers for status bar and powerups
@@ -150,50 +150,6 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model,
 /**
 Used for both the status bar and the scoreboard
 */
-void CG_DrawHead(float x, float y, float w, float h, int clientNum, vec3_t headAngles)
-{
-	clipHandle_t	cm;
-	clientInfo_t	*ci;
-	float			len;
-	vec3_t			origin;
-	vec3_t			mins, maxs;
-
-	ci = &cgs.clientinfo[ clientNum ];
-
-	if (cg_draw3dIcons.integer) {
-		cm = ci->headModel;
-		if (!cm) {
-			return;
-		}
-
-		// offset the origin y and z to center the head
-		trap_R_ModelBounds(cm, mins, maxs);
-
-		origin[2] = -0.5 * (mins[2] + maxs[2]);
-		origin[1] = 0.5 * (mins[1] + maxs[1]);
-
-		// calculate distance so the head nearly fills the box
-		// assume heads are taller than wide
-		len = 0.7 * (maxs[2] - mins[2]);
-		origin[0] = len / 0.268;	// len / tan(fov/2)
-
-		// allow per-model tweaking
-		VectorAdd(origin, ci->headOffset, origin);
-
-		CG_Draw3DModel(x, y, w, h, ci->headModel, ci->headSkin, origin, headAngles);
-	} else if (cg_drawIcons.integer) {
-		CG_DrawPic(x, y, w, h, ci->modelIcon);
-	}
-
-	// if they are deferred, draw a cross out
-	if (ci->deferred) {
-		CG_DrawPic(x, y, w, h, cgs.media.deferShader);
-	}
-}
-
-/**
-Used for both the status bar and the scoreboard
-*/
 void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D)
 {
 	qhandle_t		cm;
@@ -247,58 +203,6 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 		  CG_DrawPic(x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon);
 		}
 	}
-}
-
-static void CG_DrawStatusBarHead(float x)
-{
-	vec3_t		angles;
-	float		size, stretch;
-	float		frac;
-
-	VectorClear(angles);
-
-	if (cg.damageTime && cg.time - cg.damageTime < DAMAGE_TIME) {
-		frac = (float)(cg.time - cg.damageTime) / DAMAGE_TIME;
-		size = ICON_SIZE * 1.25 * (1.5 - frac * 0.5);
-
-		stretch = size - ICON_SIZE * 1.25;
-		// kick in the direction of damage
-		x -= stretch * 0.5 + cg.damageX * stretch * 0.5;
-
-		cg.headStartYaw = 180 + cg.damageX * 45;
-
-		cg.headEndYaw = 180 + 20 * cos(crandom()*M_PI);
-		cg.headEndPitch = 5 * cos(crandom()*M_PI);
-
-		cg.headStartTime = cg.time;
-		cg.headEndTime = cg.time + 100 + random() * 2000;
-	} else {
-		if (cg.time >= cg.headEndTime) {
-			// select a new head angle
-			cg.headStartYaw = cg.headEndYaw;
-			cg.headStartPitch = cg.headEndPitch;
-			cg.headStartTime = cg.headEndTime;
-			cg.headEndTime = cg.time + 100 + random() * 2000;
-
-			cg.headEndYaw = 180 + 20 * cos(crandom()*M_PI);
-			cg.headEndPitch = 5 * cos(crandom()*M_PI);
-		}
-
-		size = ICON_SIZE * 1.25;
-	}
-
-	// if the server was frozen for a while we may have a bad head start time
-	if (cg.headStartTime > cg.time) {
-		cg.headStartTime = cg.time;
-	}
-
-	frac = (cg.time - cg.headStartTime) / (float)(cg.headEndTime - cg.headStartTime);
-	frac = frac * frac * (3 - 2 * frac);
-	angles[YAW] = cg.headStartYaw + (cg.headEndYaw - cg.headStartYaw) * frac;
-	angles[PITCH] = cg.headStartPitch + (cg.headEndPitch - cg.headStartPitch) * frac;
-
-	CG_DrawHead(x, 480 - size, size, size,
-				cg.snap->ps.clientNum, angles);
 }
 
 static void CG_DrawStatusBarFlag(float x, int team)
@@ -365,8 +269,6 @@ static void CG_DrawStatusBar(void)
 		CG_Draw3DModel(CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
 					   cg_weapons[ cent->currentState.weapon ].ammoModel, 0, origin, angles);
 	}
-
-	CG_DrawStatusBarHead(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE);
 
 	if (cg.predictedPlayerState.powerups[PW_REDFLAG]) {
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_RED);
@@ -461,7 +363,6 @@ static float CG_DrawAttacker(float y)
 {
 	int			t;
 	float		size;
-	vec3_t		angles;
 	const char	*info;
 	const char	*name;
 	int			clientNum;
@@ -486,11 +387,6 @@ static float CG_DrawAttacker(float y)
 	}
 
 	size = ICON_SIZE * 1.25;
-
-	angles[PITCH] = 0;
-	angles[YAW] = 180;
-	angles[ROLL] = 0;
-	CG_DrawHead(640 - size, y, size, size, clientNum, angles);
 
 	info = CG_ConfigString(CS_PLAYERS + clientNum);
 	name = Info_ValueForKey( info, "n");
@@ -1189,7 +1085,8 @@ static void CG_DrawReward(void)
 
 /* LAGOMETER */
 
-/** Adds the current interpolate / extrapolate bar for this frame
+/**
+Adds the current interpolate / extrapolate bar for this frame
 */
 void CG_AddLagometerFrameInfo(void)
 {
