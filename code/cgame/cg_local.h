@@ -306,10 +306,6 @@ typedef struct {
 	int				powerups;		// so can display quad/flag status
 
 	int				medkitUsageTime;
-	int				invulnerabilityStartTime;
-	int				invulnerabilityStopTime;
-
-	int				breathPuffTime;
 
 	// when clientinfo is changed, the loading of models/skins/sounds
 	// can be deferred until you are dead, to prevent hitches in
