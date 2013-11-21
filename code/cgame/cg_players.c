@@ -1810,41 +1810,30 @@ Also called by CG_Missile for quad rockets, but nobody can tell...
 */
 void CG_AddRefEntityWithPowerups(refEntity_t *ent, entityState_t *state, int team)
 {
-
 	if (state->powerups & (1 << PW_INVIS)) {
-		ent->customShader = cgs.media.invisShader;
-		trap_R_AddRefEntityToScene(ent);
-	} else {
-		/*
-		if (state->eFlags & EF_KAMIKAZE) {
-			if (team == TEAM_BLUE)
-				ent->customShader = cgs.media.blueKamikazeShader;
-			else
-				ent->customShader = cgs.media.redKamikazeShader;
-			trap_R_AddRefEntityToScene(ent);
-		}
-		else {*/
-			trap_R_AddRefEntityToScene(ent);
-		//}
+		return;
+	}
 
-		if (state->powerups & (1 << PW_QUAD))
-		{
-			if (team == TEAM_RED)
-				ent->customShader = cgs.media.redQuadShader;
-			else
-				ent->customShader = cgs.media.quadShader;
+	trap_R_AddRefEntityToScene(ent);
+
+	if (state->powerups & (1 << PW_QUAD)) {
+		if (team == TEAM_RED)
+			ent->customShader = cgs.media.redQuadShader;
+		else
+			ent->customShader = cgs.media.quadShader;
+		trap_R_AddRefEntityToScene(ent);
+	}
+
+	if (state->powerups & (1 << PW_REGEN)) {
+		if (((cg.time / 100) % 10) == 1) {
+			ent->customShader = cgs.media.regenShader;
 			trap_R_AddRefEntityToScene(ent);
 		}
-		if (state->powerups & (1 << PW_REGEN)) {
-			if (((cg.time / 100) % 10) == 1) {
-				ent->customShader = cgs.media.regenShader;
-				trap_R_AddRefEntityToScene(ent);
-			}
-		}
-		if (state->powerups & (1 << PW_BATTLESUIT)) {
-			ent->customShader = cgs.media.battleSuitShader;
-			trap_R_AddRefEntityToScene(ent);
-		}
+	}
+
+	if (state->powerups & (1 << PW_BATTLESUIT)) {
+		ent->customShader = cgs.media.battleSuitShader;
+		trap_R_AddRefEntityToScene(ent);
 	}
 }
 
