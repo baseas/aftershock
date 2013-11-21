@@ -111,6 +111,7 @@ typedef enum {
 	G_CVAR_UPDATE,	// (vmCvar_t *vmCvar);
 	G_CVAR_SET,		// (const char *var_name, const char *value);
 	G_CVAR_VARIABLE_INTEGER_VALUE,	// (const char *var_name);
+	G_CVAR_CHECK_RANGE,
 
 	G_CVAR_VARIABLE_STRING_BUFFER,	// (const char *var_name, char *buffer, int bufsize);
 

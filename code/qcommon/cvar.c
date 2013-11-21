@@ -1205,6 +1205,31 @@ void Cvar_CheckRange( cvar_t *var, float min, float max, qboolean integral )
 	Cvar_Set( var->name, var->string );
 }
 
+void Cvar_CheckRangeSafe( const char *varName, float min, float max, qboolean integral )
+{
+	cvar_t *var;
+
+	var = Cvar_FindVar (varName);
+
+	if ( !var ) {
+		Com_Printf( "A VM tried to add range check to unregistered cvar %s\n", varName );
+		return;
+	}
+
+	if ( !( var->flags & ( CVAR_VM_CREATED | CVAR_USER_CREATED ) ) ) {
+		Com_Printf( "A VM tried to add range check to engine cvar %s\n", varName );
+		return;
+	}
+
+	var->validate = qtrue;
+	var->min = min;
+	var->max = max;
+	var->integral = integral;
+
+	// Force an initial range check
+	Cvar_Set( var->name, var->string );
+}
+
 /*
 =====================
 Cvar_Register

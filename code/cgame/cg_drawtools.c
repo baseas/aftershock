@@ -735,7 +735,11 @@ void UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp);
 }
 
-void CG_SetRGBA(byte incolor[4], const char *str)
+/**
+Return value is non-zero if color string is invalid.
+Fallback color is set to white.
+*/
+int CG_SetRGBA(byte incolor[4], const char *str)
 {
 	if (strlen(str) == 1) {
 		vec_t *color = g_color_table[ColorIndex(str[0])];
@@ -743,21 +747,21 @@ void CG_SetRGBA(byte incolor[4], const char *str)
 		incolor[1] = 255 * color[1];
 		incolor[2] = 255 * color[2];
 		incolor[3] = 255 * color[3];
-	} else if (! strcmp(str, "red")) {
+	} else if (!strcmp(str, "red")) {
 		CG_SetRGBA(incolor, "1");
-	} else if (! strcmp(str, "green")) {
+	} else if (!strcmp(str, "green")) {
 		CG_SetRGBA(incolor, "2");
-	} else if (! strcmp(str, "yellow")) {
+	} else if (!strcmp(str, "yellow")) {
 		CG_SetRGBA(incolor, "3");
-	} else if (! strcmp(str, "blue")) {
+	} else if (!strcmp(str, "blue")) {
 		CG_SetRGBA(incolor, "4");
-	} else if (! strcmp(str, "cyan")) {
+	} else if (!strcmp(str, "cyan")) {
 		CG_SetRGBA(incolor, "5");
-	} else if (! strcmp(str, "purple")) {
+	} else if (!strcmp(str, "purple")) {
 		CG_SetRGBA(incolor, "6");
-	} else if (! strcmp(str, "white")) {
+	} else if (!strcmp(str, "white")) {
 		CG_SetRGBA(incolor, "7");
-	} else if (! strcmp(str, "orange")) {
+	} else if (!strcmp(str, "orange")) {
 		CG_SetRGBA(incolor, "8");
 	} else {
 		int i, len, hex;
@@ -794,11 +798,12 @@ void CG_SetRGBA(byte incolor[4], const char *str)
 		}
 	}
 
-	return;
+	return 0;
 error:
 	incolor[0] = 255;
 	incolor[1] = 255;
 	incolor[2] = 255;
 	incolor[3] = 255;
+	return 1;
 }
 

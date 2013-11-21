@@ -1046,7 +1046,7 @@ void	UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 void	CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
 void	CG_DrawSides(float x, float y, float w, float h, float size);
 void	CG_DrawTopBottom(float x, float y, float w, float h, float size);
-void	CG_SetRGBA(byte incolor[4], const char *str);
+int		CG_SetRGBA(byte incolor[4], const char *str);
 
 //
 // cg_draw.c, cg_newDraw.c
@@ -1253,10 +1253,11 @@ void		trap_Error(const char *fmt) __attribute__((noreturn));
 int			trap_Milliseconds(void);
 
 // console variable interaction
-void		trap_Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags);
-void		trap_Cvar_Update(vmCvar_t *vmCvar);
-void		trap_Cvar_Set(const char *var_name, const char *value);
-void		trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
+void	trap_Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultValue, int flags);
+void	trap_Cvar_Update(vmCvar_t *vmCvar);
+void	trap_Cvar_Set(const char *var_name, const char *value);
+void	trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
+void	trap_Cvar_CheckRange(const char *var_name, float min, float max, qboolean integral);
 
 // ServerCommand and ConsoleCommand parameter access
 int			trap_Argc(void);
