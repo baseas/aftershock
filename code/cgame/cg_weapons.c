@@ -1008,6 +1008,7 @@ void CG_RunWeaponScript(void)
 	}
 
 	trap_SendConsoleCommand(configCvar->string);
+	trap_SendConsoleCommand("\n");
 }
 
 void CG_DrawWeaponSelect(void)
