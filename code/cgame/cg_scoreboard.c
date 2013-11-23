@@ -245,12 +245,10 @@ qboolean CG_DrawOldScoreboard(void) {
 
 	// don't draw amuthing if the menu or console is up
 	if (cg_paused.integer) {
-		cg.deferredPlayerLoading = 0;
 		return qfalse;
 	}
 
 	if (cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
-		cg.deferredPlayerLoading = 0;
 		return qfalse;
 	}
 
@@ -268,7 +266,6 @@ qboolean CG_DrawOldScoreboard(void) {
 		
 		if (!fadeColor) {
 			// next time scoreboard comes up, don't print killer
-			cg.deferredPlayerLoading = 0;
 			cg.killerName[0] = 0;
 			return qfalse;
 		}
@@ -382,11 +379,6 @@ qboolean CG_DrawOldScoreboard(void) {
 				break;
 			}
 		}
-	}
-
-	// load any models that have been deferred
-	if (++cg.deferredPlayerLoading > 10) {
-		CG_LoadDeferredPlayers();
 	}
 
 	return qtrue;

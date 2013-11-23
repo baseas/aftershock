@@ -170,8 +170,7 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
-	{ "startOrbit", CG_StartOrbit_f },
-	{ "loaddeferred", CG_LoadDeferredPlayers }
+	{ "startOrbit", CG_StartOrbit_f }
 };
 
 /**
@@ -232,6 +231,5 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand ("teamvote");
 	trap_AddCommand ("stats");
 	trap_AddCommand ("teamtask");
-	trap_AddCommand ("loaddefered");	// spelled wrong, but not changing for demo
 }
 

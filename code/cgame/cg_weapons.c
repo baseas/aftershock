@@ -523,21 +523,21 @@ void CG_RegisterItemVisuals(int itemNum) {
 static int CG_MapTorsoToWeaponFrame(clientInfo_t *ci, int frame) {
 
 	// change weapon
-	if (frame >= ci->animations[TORSO_DROP].firstFrame 
-		&& frame < ci->animations[TORSO_DROP].firstFrame + 9) {
-		return frame - ci->animations[TORSO_DROP].firstFrame + 6;
+	if (frame >= ci->model->animations[TORSO_DROP].firstFrame 
+		&& frame < ci->model->animations[TORSO_DROP].firstFrame + 9) {
+		return frame - ci->model->animations[TORSO_DROP].firstFrame + 6;
 	}
 
 	// stand attack
-	if (frame >= ci->animations[TORSO_ATTACK].firstFrame 
-		&& frame < ci->animations[TORSO_ATTACK].firstFrame + 6) {
-		return 1 + frame - ci->animations[TORSO_ATTACK].firstFrame;
+	if (frame >= ci->model->animations[TORSO_ATTACK].firstFrame 
+		&& frame < ci->model->animations[TORSO_ATTACK].firstFrame + 6) {
+		return 1 + frame - ci->model->animations[TORSO_ATTACK].firstFrame;
 	}
 
 	// stand attack 2
-	if (frame >= ci->animations[TORSO_ATTACK2].firstFrame 
-		&& frame < ci->animations[TORSO_ATTACK2].firstFrame + 6) {
-		return 1 + frame - ci->animations[TORSO_ATTACK2].firstFrame;
+	if (frame >= ci->model->animations[TORSO_ATTACK2].firstFrame 
+		&& frame < ci->model->animations[TORSO_ATTACK2].firstFrame + 6) {
+		return 1 + frame - ci->model->animations[TORSO_ATTACK2].firstFrame;
 	}
 	
 	return 0;

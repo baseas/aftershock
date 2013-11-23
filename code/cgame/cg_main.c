@@ -95,8 +95,6 @@ Q_EXPORT intptr_t vmMain(int command, int arg0, int arg1, int arg2, int arg3, in
 	return -1;
 }
 
-static int forceModelModificationCount = -1;
-
 cg_t			cg;
 cgs_t			cgs;
 centity_t		cg_entities[MAX_GENTITIES];
@@ -158,11 +156,9 @@ vmCvar_t	cg_teamChatTime;
 vmCvar_t	cg_teamChatHeight;
 vmCvar_t	cg_stats;
 vmCvar_t	cg_buildScript;
-vmCvar_t	cg_forceModel;
 vmCvar_t	cg_paused;
 vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
-vmCvar_t	cg_deferPlayers;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
 vmCvar_t	cg_drawFriend;
@@ -184,6 +180,29 @@ vmCvar_t	cg_noTaunt;
 vmCvar_t	cg_noProjectileTrail;
 vmCvar_t	cg_trueLightning;
 vmCvar_t	cg_crosshairColor;
+vmCvar_t	cg_teamModel;
+vmCvar_t	cg_teamSoundModel;
+vmCvar_t	cg_enemyModel;
+vmCvar_t	cg_enemySoundModel;
+vmCvar_t	cg_redTeamModel;
+vmCvar_t	cg_redTeamSoundModel;
+vmCvar_t	cg_blueTeamModel;
+vmCvar_t	cg_blueTeamSoundModel;
+vmCvar_t	cg_forceTeamModels;
+vmCvar_t	cg_deadBodyDarken;
+vmCvar_t	cg_deadBodyColor;
+vmCvar_t	cg_teamHeadColor;
+vmCvar_t	cg_teamTorsoColor;
+vmCvar_t	cg_teamLegsColor;
+vmCvar_t	cg_enemyHeadColor;
+vmCvar_t	cg_enemyTorsoColor;
+vmCvar_t	cg_enemyLegsColor;
+vmCvar_t	cg_redHeadColor;
+vmCvar_t	cg_redTorsoColor;
+vmCvar_t	cg_redLegsColor;
+vmCvar_t	cg_blueHeadColor;
+vmCvar_t	cg_blueTorsoColor;
+vmCvar_t	cg_blueLegsColor;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -237,9 +256,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", 0, RANGE_BOOL },
 	{ &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
 	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
-	{ &cg_forceModel, "cg_forceModel", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_deferPlayers, "cg_deferPlayers", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE, RANGE_INT(0, 3) },
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO, RANGE_BOOL },
 	{ &cg_stats, "cg_stats", "0", 0, RANGE_BOOL },
@@ -267,26 +284,34 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
-	{ &cg_crosshairColor, "cg_crosshairColor", "7", CVAR_ARCHIVE, RANGE_COLOR }
+	{ &cg_crosshairColor, "cg_crosshairColor", "7", CVAR_ARCHIVE, RANGE_COLOR },
+
+	{ &cg_teamModel, "cg_teamModel", "major/pm", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_teamSoundModel, "cg_teamSoundModel", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_enemyModel, "cg_enemyModel", "smarine/pm", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_enemySoundModel, "cg_enemySoundModel", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_redTeamModel, "cg_redTeamModel", "smarine/pm", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_redTeamSoundModel, "cg_redTeamSoundModel", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_blueTeamModel, "cg_blueTeamModel", "smarine/pm", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_blueTeamSoundModel, "cg_blueTeamSoundModel", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_forceTeamModels, "cg_forceTeamModels", "0", CVAR_ARCHIVE, RANGE_INT(0, 2) },
+	{ &cg_deadBodyDarken, "cg_deadBodyDarken", "1", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_deadBodyColor, "cg_deadBodyColor", "0x323232FF", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_teamHeadColor, "cg_teamHeadColor", "white", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_teamTorsoColor, "cg_teamTorsoColor", "white", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_teamLegsColor, "cg_teamLegsColor", "white", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_enemyHeadColor, "cg_enemyHeadColor", "green", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_enemyTorsoColor, "cg_enemyTorsoColor", "green", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_enemyLegsColor, "cg_enemyLegsColor", "white", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_redHeadColor, "cg_redHeadColor", "red", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_redTorsoColor, "cg_redTorsoColor", "red", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_redLegsColor, "cg_redLegsColor", "red", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_blueHeadColor, "cg_blueHeadColor", "blue", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_blueTorsoColor, "cg_blueTorsoColor", "blue", CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_blueLegsColor, "cg_blueLegsColor", "blue", CVAR_ARCHIVE, RANGE_COLOR }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
-
-static void CG_ForceModelChange(void)
-{
-	int		i;
-
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		const char		*clientInfo;
-
-		clientInfo = CG_ConfigString(CS_PLAYERS+i);
-		if (!clientInfo[0]) {
-			continue;
-		}
-
-		CG_NewClientInfo(i);
-	}
-}
 
 /**
 This function may execute for a couple of minutes with a slow disk.
@@ -332,7 +357,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
 
-	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
+	cgs.media.deferShader = trap_R_RegisterShader("gfx/2d/defer.tga");
 
 	cgs.media.scoreboardName = trap_R_RegisterShaderNoMip("menu/tab/name.tga");
 	cgs.media.scoreboardPing = trap_R_RegisterShaderNoMip("menu/tab/ping.tga");
@@ -666,6 +691,18 @@ static void CG_RegisterSounds(void)
 	cgs.media.hgrenb2aSound = trap_S_RegisterSound("sound/weapons/grenade/hgrenb2a.wav", qfalse);
 }
 
+static void CG_RegisterModels(void)
+{
+	CG_LoadCvarModel("cg_teamModel", &cg_teamModel);
+	CG_LoadCvarModel("cg_enemyModel", &cg_enemyModel);
+	CG_LoadCvarModel("cg_redTeamModel", &cg_redTeamModel);
+	CG_LoadCvarModel("cg_blueTeamModel", &cg_blueTeamModel);
+	CG_LoadCvarModel("cg_teamSoundModel", &cg_teamSoundModel);
+	CG_LoadCvarModel("cg_enemySoundModel", &cg_enemySoundModel);
+	CG_LoadCvarModel("cg_redTeamSoundModel", &cg_redTeamSoundModel);
+	CG_LoadCvarModel("cg_blueTeamSoundModel", &cg_blueTeamSoundModel);
+}
+
 static void CG_RegisterClients(void)
 {
 	int		i;
@@ -720,13 +757,6 @@ void CG_RegisterCvars(void)
 	// see if we are also running the server on this machine
 	trap_Cvar_VariableStringBuffer("sv_running", var, sizeof(var));
 	cgs.localServer = atoi(var);
-
-	forceModelModificationCount = cg_forceModel.modificationCount;
-
-	trap_Cvar_Register(NULL, "model", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
-	trap_Cvar_Register(NULL, "headmodel", DEFAULT_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
-	trap_Cvar_Register(NULL, "team_model", DEFAULT_TEAM_MODEL, CVAR_USERINFO | CVAR_ARCHIVE);
-	trap_Cvar_Register(NULL, "team_headmodel", DEFAULT_TEAM_HEAD, CVAR_USERINFO | CVAR_ARCHIVE);
 }
 
 void CG_BuildSpectatorString(void)
@@ -827,8 +857,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	trap_CM_LoadMap(cgs.mapname);
 
-	cg.loading = qtrue;		// force players to load instead of defer
-
 	CG_LoadingString("sounds");
 
 	CG_RegisterSounds();
@@ -837,11 +865,13 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_RegisterGraphics();
 
+	CG_LoadingString("models");
+
+	CG_RegisterModels();
+
 	CG_LoadingString("clients");
 
-	CG_RegisterClients();		// if low on memory, some clients will be deferred
-
-	cg.loading = qfalse;		// future players will be deferred
+	CG_RegisterClients();
 
 	CG_InitLocalEntities();
 
@@ -891,29 +921,27 @@ void CG_UpdateCvars(void)
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
 		modCount = cv->vmCvar->modificationCount;
 		trap_Cvar_Update(cv->vmCvar);
-		if (modCount != cv->vmCvar->modificationCount) {
-			CG_ValidateCvar(cv);
+		if (modCount == cv->vmCvar->modificationCount) {
+			continue;
 		}
-	}
 
-	// check for modications here
+		CG_ValidateCvar(cv);
 
-	// If team overlay is on, ask for updates from the server.  If it's off,
-	// let the server know so we don't receive it
-	if (drawTeamOverlayModificationCount != cg_drawTeamOverlay.modificationCount) {
-		drawTeamOverlayModificationCount = cg_drawTeamOverlay.modificationCount;
+		if (!CG_LoadCvarModel(cv->cvarName, cv->vmCvar)) {
+			continue;
+		}
 
-		if (cg_drawTeamOverlay.integer > 0) {
+		if (cv->vmCvar == &cg_forceTeamModels) {
+			CG_ForceModelChange();
+		}
+
+		// If team overlay is on, ask for updates from the server.  If it's off,
+		// let the server know so we don't receive it
+		if (cv->vmCvar == &cg_drawTeamOverlay && cv->vmCvar->integer) {
 			trap_Cvar_Set("teamoverlay", "1");
 		} else {
 			trap_Cvar_Set("teamoverlay", "0");
 		}
-	}
-
-	// if force model changed
-	if (forceModelModificationCount != cg_forceModel.modificationCount) {
-		forceModelModificationCount = cg_forceModel.modificationCount;
-		CG_ForceModelChange();
 	}
 }
 

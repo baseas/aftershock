@@ -278,6 +278,29 @@ typedef struct {
 #define MAX_CUSTOM_SOUNDS	32
 
 typedef struct {
+	char	*modelName;
+
+	qhandle_t	legsModel;
+	qhandle_t	legsSkin;
+
+	qhandle_t	torsoModel;
+	qhandle_t	torsoSkin;
+
+	qhandle_t	headModel;
+	qhandle_t	headSkin;
+
+	qboolean	fixedlegs;              // true if legs yaw is always the same as torso yaw
+	qboolean	fixedtorso;             // true if torso never changes yaw
+
+	vec3_t		headOffset;             // move head in icon views
+	footstep_t	footsteps;
+	gender_t	gender;                 // from model
+
+	animation_t	animations[MAX_TOTALANIMATIONS];
+	sfxHandle_t	sounds[MAX_CUSTOM_SOUNDS];
+} model_t;
+
+typedef struct {
 	qboolean		infoValid;
 
 	char			name[MAX_QPATH];
@@ -306,38 +329,7 @@ typedef struct {
 	int				powerups;		// so can display quad/flag status
 
 	int				medkitUsageTime;
-
-	// when clientinfo is changed, the loading of models/skins/sounds
-	// can be deferred until you are dead, to prevent hitches in
-	// gameplay
-	char			modelName[MAX_QPATH];
-	char			skinName[MAX_QPATH];
-	char			headModelName[MAX_QPATH];
-	char			headSkinName[MAX_QPATH];
-	char			redTeam[MAX_TEAMNAME];
-	char			blueTeam[MAX_TEAMNAME];
-	qboolean		deferred;
-
-	qboolean		newAnims;		// true if using the new mission pack animations
-	qboolean		fixedlegs;		// true if legs yaw is always the same as torso yaw
-	qboolean		fixedtorso;		// true if torso never changes yaw
-
-	vec3_t			headOffset;		// move head in icon views
-	footstep_t		footsteps;
-	gender_t		gender;			// from model
-
-	qhandle_t		legsModel;
-	qhandle_t		legsSkin;
-
-	qhandle_t		torsoModel;
-	qhandle_t		torsoSkin;
-
-	qhandle_t		headModel;
-	qhandle_t		headSkin;
-
-	animation_t		animations[MAX_TOTALANIMATIONS];
-
-	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
+	model_t			*model;
 } clientInfo_t;
 
 // each WP_* weapon enum has an associated weaponInfo_t
@@ -408,8 +400,6 @@ typedef struct {
 	
 	qboolean	demoPlayback;
 	qboolean	levelShot;			// taking a level menu screenshot
-	int			deferredPlayerLoading;
-	qboolean	loading;			// don't defer players at initial startup
 	qboolean	intermissionStarted;	// don't play voice rewards, because game will end shortly
 
 	// there are only one or two snapshot_t that are relevent at a time
@@ -964,12 +954,10 @@ extern vmCvar_t		cg_synchronousClients;
 extern vmCvar_t		cg_teamChatTime;
 extern vmCvar_t		cg_teamChatHeight;
 extern vmCvar_t		cg_stats;
-extern vmCvar_t		cg_forceModel;
 extern vmCvar_t		cg_buildScript;
 extern vmCvar_t		cg_paused;
 extern vmCvar_t		cg_blood;
 extern vmCvar_t		cg_predictItems;
-extern vmCvar_t		cg_deferPlayers;
 extern vmCvar_t		cg_drawFriend;
 extern vmCvar_t		cg_teamChatsOnly;
 extern vmCvar_t		cg_scorePlum;
@@ -988,6 +976,29 @@ extern vmCvar_t		cg_noTaunt;
 extern vmCvar_t		cg_noProjectileTrail;
 extern vmCvar_t		cg_trueLightning;
 extern vmCvar_t		cg_crosshairColor;
+extern vmCvar_t		cg_teamModel;
+extern vmCvar_t		cg_teamSoundModel;
+extern vmCvar_t		cg_enemyModel;
+extern vmCvar_t		cg_enemySoundModel;
+extern vmCvar_t		cg_redTeamModel;
+extern vmCvar_t		cg_redTeamSoundModel;
+extern vmCvar_t		cg_blueTeamModel;
+extern vmCvar_t		cg_blueTeamSoundModel;
+extern vmCvar_t		cg_forceTeamModels;
+extern vmCvar_t		cg_deadBodyDarken;
+extern vmCvar_t		cg_deadBodyColor;
+extern vmCvar_t		cg_teamHeadColor;
+extern vmCvar_t		cg_teamTorsoColor;
+extern vmCvar_t		cg_teamLegsColor;
+extern vmCvar_t		cg_enemyHeadColor;
+extern vmCvar_t		cg_enemyTorsoColor;
+extern vmCvar_t		cg_enemyLegsColor;
+extern vmCvar_t		cg_redHeadColor;
+extern vmCvar_t		cg_redTorsoColor;
+extern vmCvar_t		cg_redLegsColor;
+extern vmCvar_t		cg_blueHeadColor;
+extern vmCvar_t		cg_blueTorsoColor;
+extern vmCvar_t		cg_blueLegsColor;
 
 //
 // cg_main.c
@@ -1086,12 +1097,14 @@ qboolean	CG_OtherTeamHasFlag(void);
 qhandle_t	CG_StatusHandle(int task);
 
 //
-// cg_player.c
+// cg_players.c
 //
 void		CG_Player(centity_t *cent);
 void		CG_ResetPlayerEntity(centity_t *cent);
 void		CG_AddRefEntityWithPowerups(refEntity_t *ent, entityState_t *state, int team);
+int			CG_LoadCvarModel(const char *cvarName, vmCvar_t *cvar);
 void		CG_NewClientInfo(int clientNum);
+void		CG_ForceModelChange(void);
 sfxHandle_t	CG_CustomSound(int clientNum, const char *soundName);
 
 //
@@ -1101,7 +1114,6 @@ void	CG_BuildSolidList(void);
 int		CG_PointContents(const vec3_t point, int passEntityNum);
 void	CG_Trace(trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int skipNumber, int mask);
 void	CG_PredictPlayerState(void);
-void	CG_LoadDeferredPlayers(void);
 
 //
 // cg_events.c

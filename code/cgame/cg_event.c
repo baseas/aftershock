@@ -138,7 +138,7 @@ static void CG_Obituary(entityState_t *ent)
 	}
 
 	if (attacker == target) {
-		gender = ci->gender;
+		gender = ci->model->gender;
 		switch (mod) {
 		case MOD_GRENADE_SPLASH:
 			if (gender == GENDER_FEMALE)
@@ -461,7 +461,7 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 		DEBUGNAME("EV_FOOTSTEP");
 		if (cg_footsteps.integer) {
 			trap_S_StartSound (NULL, es->number, CHAN_BODY, 
-				cgs.media.footsteps[ ci->footsteps ][rand()&3]);
+				cgs.media.footsteps[ ci->model->footsteps ][rand()&3]);
 		}
 		break;
 	case EV_FOOTSTEP_METAL:

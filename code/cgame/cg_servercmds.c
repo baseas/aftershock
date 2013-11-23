@@ -386,12 +386,6 @@ static void CG_ServerCommand(void) {
 		return;
 	}
 
-	// loaddeferred can be both a servercmd and a consolecmd
-	if (!strcmp(cmd, "loaddefered")) {	// FIXME: spelled wrong, but not changing for demo
-		CG_LoadDeferredPlayers();
-		return;
-	}
-
 	// clientLevelShot is sent before taking a special screenshot for
 	// the menu system during development
 	if (!strcmp(cmd, "clientLevelShot")) {
