@@ -95,7 +95,7 @@ qboolean CheckGauntletAttack(gentity_t *ent)
 		s_quadFactor = 1;
 	}
 
-	damage = 50 * s_quadFactor;
+	damage = (g_instantgib.integer ? 500: 50 * s_quadFactor);
 	G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_GAUNTLET);
 
 	return qtrue;
@@ -300,7 +300,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 	int			passent;
 	gentity_t	*unlinkedEntities[MAX_RAIL_HITS];
 
-	damage = 100 * s_quadFactor;
+	damage = (g_instantgib.integer ? 800 : 80 * s_quadFactor);
 
 	VectorMA (muzzle, 8192, forward, end);
 
@@ -375,6 +375,10 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 		}
 		ent->client->accuracy_hits++;
 	}
+
+	if (g_instantgibRailjump.integer) {
+		G_RadiusKnockback(trace.endpos, ent, 100, 120.0f);
+	}
 }
 
 static void Weapon_GrapplingHook_Fire(gentity_t *ent)
@@ -392,7 +396,7 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
 
-	damage = 8 * s_quadFactor;
+	damage = 7 * s_quadFactor;
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {

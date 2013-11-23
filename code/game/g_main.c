@@ -83,6 +83,11 @@ vmCvar_t	pmove_msec;
 vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
 vmCvar_t	g_newItemHeight;
+vmCvar_t	g_instantgib;
+vmCvar_t	g_instantgibGauntlet;
+vmCvar_t	g_instantgibRailjump;
+vmCvar_t	g_rockets;
+vmCvar_t	g_selfDamage;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -146,7 +151,12 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
-	{ &g_newItemHeight, "g_newItemHeight", "1", 0, 0, qfalse }
+	{ &g_newItemHeight, "g_newItemHeight", "1", 0, 0, qfalse },
+	{ &g_instantgib, "g_instantgib", "0", CVAR_LATCH, 0, qfalse },
+	{ &g_instantgibGauntlet, "g_instantgibGauntlet", "1", CVAR_LATCH, 0, qfalse },
+	{ &g_instantgibRailjump, "g_instantgibRailjump", "1", 0, 0, qfalse },
+	{ &g_rockets, "g_rockets", "0", CVAR_LATCH, 0, qfalse },
+	{ &g_selfDamage, "g_selfDamage", "1", 0, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);

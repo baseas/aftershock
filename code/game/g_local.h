@@ -460,11 +460,12 @@ const	char *BuildShaderStateConfig(void);
 //
 // g_combat.c
 //
-void		player_die (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+void		player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 void		AddScore(gentity_t *ent, vec3_t origin, int score);
-qboolean	CanDamage (gentity_t *targ, vec3_t origin);
-void		G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
-qboolean	G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod);
+qboolean	CanDamage(gentity_t *targ, vec3_t origin);
+void		G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
+void		G_RadiusKnockback(vec3_t origin, gentity_t *attacker, int damage, float radius);
+qboolean	G_RadiusDamage(vec3_t origin, gentity_t *attacker, int damage, float radius, gentity_t *ignore, int mod);
 void		body_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath);
 void		TossClientItems(gentity_t *self);
 
@@ -692,6 +693,11 @@ extern vmCvar_t	g_enableBreath;
 extern vmCvar_t	g_singlePlayer;
 extern vmCvar_t	g_proxMineTimeout;
 extern vmCvar_t	g_newItemHeight;
+extern vmCvar_t	g_instantgib;
+extern vmCvar_t	g_instantgibGauntlet;
+extern vmCvar_t	g_instantgibRailjump;
+extern vmCvar_t	g_rockets;
+extern vmCvar_t	g_selfDamage;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

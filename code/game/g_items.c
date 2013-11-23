@@ -627,7 +627,6 @@ void SaveRegisteredItems(void)
 
 int G_ItemDisabled(gitem_t *item)
 {
-
 	char name[128];
 
 	Com_sprintf(name, sizeof(name), "disable_%s", item->classname);
@@ -646,6 +645,11 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item)
 	G_SpawnFloat("wait", "0", &ent->wait);
 
 	RegisterItem(item);
+
+	if (g_instantgib.integer || g_rockets.integer) {
+		return;
+	}
+
 	if (G_ItemDisabled(item))
 		return;
 

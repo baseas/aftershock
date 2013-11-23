@@ -180,7 +180,7 @@ static void CheckAlmostScored(gentity_t *self, gentity_t *attacker)
 	}
 }
 
-static int CheckArmor (gentity_t *ent, int damage, int dflags)
+static int CheckArmor(gentity_t *ent, int damage, int dflags)
 {
 	gclient_t	*client;
 	int			save;
@@ -209,6 +209,88 @@ static int CheckArmor (gentity_t *ent, int damage, int dflags)
 	client->ps.stats[STAT_ARMOR] -= save;
 
 	return save;
+}
+
+static void G_Knockback(gentity_t *targ, vec3_t dir, int damage)
+{
+	int	knockback;
+
+	if (! dir || targ->flags & FL_NO_KNOCKBACK) {
+		return;
+	}
+
+	VectorNormalize(dir);
+
+	knockback = damage;
+	if (knockback > 200) {
+		knockback = 200;
+	}
+
+	// figure momentum add, even if the damage won't be taken
+	if (knockback && targ->client) {
+		vec3_t	kvel;
+		float	mass;
+
+		mass = 200;
+
+		VectorScale(dir, g_knockback.value * (float) knockback / mass, kvel);
+		VectorAdd(targ->client->ps.velocity, kvel, targ->client->ps.velocity);
+
+		// set the timer so that the other client can't cancel
+		// out the movement immediately
+		if (!targ->client->ps.pm_time) {
+			int		t;
+
+			t = knockback * 2;
+			if (t < 50) {
+				t = 50;
+			}
+
+			if (t > 200) {
+				t = 200;
+			}
+
+			targ->client->ps.pm_time = t;
+			targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
+		}
+	}
+}
+
+void G_RadiusKnockback(vec3_t origin, gentity_t *attacker, int damage, float radius)
+{
+	int			dist;
+	vec3_t		v;
+	vec3_t		dir;
+	int			i;
+
+	if (radius < 1) {
+		radius = 1;
+	}
+
+	// find the distance from the edge of the bounding box
+	for (i = 0; i < 3; i++) {
+		if (origin[i] < attacker->r.absmin[i]) {
+			v[i] = attacker->r.absmin[i] - origin[i];
+		} else if (origin[i] > attacker->r.absmax[i]) {
+			v[i] = origin[i] - attacker->r.absmax[i];
+		} else {
+			v[i] = 0;
+		}
+	}
+
+	dist = VectorLength(v);
+	if (dist >= radius) {
+		return;
+	}
+
+	damage *= (1.0f - dist / radius);
+
+	VectorSubtract(attacker->r.currentOrigin, origin, dir);
+
+	// push the center of mass higher than the origin so players
+	// get knocked into the air more
+	dir[2] += 24;
+	G_Knockback(attacker, dir, damage);
 }
 
 void body_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath)
@@ -530,12 +612,12 @@ dflags		these flags are used to control how T_Damage works
 	DAMAGE_NO_ARMOR			armor does not protect from this damage
 	DAMAGE_NO_KNOCKBACK		do not affect velocity, just view angles
 	DAMAGE_NO_PROTECTION	kills godmode, armor, everything */
-void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod)
+void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir,
+	vec3_t point, int damage, int dflags, int mod)
 {
 	gclient_t	*client;
 	int			take;
 	int			asave;
-	int			knockback;
 	int			max;
 
 	if (!targ->takedamage) {
@@ -579,48 +661,12 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 		}
 	}
 
-	if (!dir) {
-		dflags |= DAMAGE_NO_KNOCKBACK;
-	} else {
-		VectorNormalize(dir);
+	if (!(dflags & DAMAGE_NO_KNOCKBACK)) {
+		G_Knockback(targ, dir, damage);
 	}
 
-	knockback = damage;
-	if (knockback > 200) {
-		knockback = 200;
-	}
-	if (targ->flags & FL_NO_KNOCKBACK) {
-		knockback = 0;
-	}
-	if (dflags & DAMAGE_NO_KNOCKBACK) {
-		knockback = 0;
-	}
-
-	// figure momentum add, even if the damage won't be taken
-	if (knockback && targ->client) {
-		vec3_t	kvel;
-		float	mass;
-
-		mass = 200;
-
-		VectorScale (dir, g_knockback.value * (float)knockback / mass, kvel);
-		VectorAdd (targ->client->ps.velocity, kvel, targ->client->ps.velocity);
-
-		// set the timer so that the other client can't cancel
-		// out the movement immediately
-		if (!targ->client->ps.pm_time) {
-			int		t;
-
-			t = knockback * 2;
-			if (t < 50) {
-				t = 50;
-			}
-			if (t > 200) {
-				t = 200;
-			}
-			targ->client->ps.pm_time = t;
-			targ->client->ps.pm_flags |= PMF_TIME_KNOCKBACK;
-		}
+	if (targ == attacker && !g_selfDamage.integer) {
+		return;
 	}
 
 	// check for completely getting out of the damage
@@ -695,7 +741,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 		client->damage_armor += asave;
 		client->damage_blood += take;
 		if (dir) {
-			VectorCopy (dir, client->damage_from);
+			VectorNormalize(dir);
+			VectorCopy(dir, client->damage_from);
 			client->damage_fromWorld = qfalse;
 		} else {
 			VectorCopy (targ->r.currentOrigin, client->damage_from);
@@ -729,13 +776,12 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 				targ->health = -999;
 
 			targ->enemy = attacker;
-			targ->die (targ, inflictor, attacker, take, mod);
+			targ->die(targ, inflictor, attacker, take, mod);
 			return;
 		} else if (targ->pain) {
-			targ->pain (targ, attacker, take);
+			targ->pain(targ, attacker, take);
 		}
 	}
-
 }
 
 /**
@@ -839,9 +885,10 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin)
 	return qfalse;
 }
 
-qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, int mod)
+qboolean G_RadiusDamage(vec3_t origin, gentity_t *attacker, int damage,
+	float radius, gentity_t *ignore, int mod)
 {
-	float		points, dist;
+	float		dist;
 	gentity_t	*ent;
 	int			entityList[MAX_GENTITIES];
 	int			numListedEntities;
@@ -886,17 +933,17 @@ qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float
 			continue;
 		}
 
-		points = damage * (1.0 - dist / radius);
+		damage *= (1.0f - dist / radius);
 
-		if (CanDamage (ent, origin)) {
+		if (CanDamage(ent, origin)) {
 			if (LogAccuracyHit(ent, attacker)) {
 				hitClient = qtrue;
 			}
-			VectorSubtract (ent->r.currentOrigin, origin, dir);
+			VectorSubtract(ent->r.currentOrigin, origin, dir);
 			// push the center of mass higher than the origin so players
 			// get knocked into the air more
 			dir[2] += 24;
-			G_Damage (ent, NULL, attacker, dir, origin, (int)points, DAMAGE_RADIUS, mod);
+			G_Damage(ent, NULL, attacker, dir, origin, damage, DAMAGE_RADIUS, mod);
 		}
 	}
 
