@@ -1435,8 +1435,8 @@ void SV_UserinfoChanged( client_t *cl ) {
 	{
 		i = atoi(val);
 		
-		if(i < 1)
-			i = 1;
+		if(i < 20)
+			i = 20;
 		else if(i > sv_fps->integer)
 			i = sv_fps->integer;
 
