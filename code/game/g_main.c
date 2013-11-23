@@ -151,7 +151,7 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
 	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
-	{ &g_newItemHeight, "g_newItemHeight", "1", 0, 0, qfalse },
+	{ &g_newItemHeight, "g_newItemHeight", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_instantgib, "g_instantgib", "0", CVAR_LATCH, 0, qfalse },
 	{ &g_instantgibGauntlet, "g_instantgibGauntlet", "1", CVAR_LATCH, 0, qfalse },
 	{ &g_instantgibRailjump, "g_instantgibRailjump", "1", 0, 0, qfalse },
