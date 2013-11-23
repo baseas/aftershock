@@ -25,7 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static void CG_ResetEntity(centity_t *cent) {
+static void CG_ResetEntity(centity_t *cent)
+{
 	// if the previous snapshot this entity was updated in is at least
 	// an event window back in time then we can reset the previous event
 	if (cent->snapShotTime < cg.time - EVENT_VALID_MSEC) {
@@ -41,7 +42,8 @@ static void CG_ResetEntity(centity_t *cent) {
 	}
 }
 
-static void CG_TransitionEntity(centity_t *cent) {
+static void CG_TransitionEntity(centity_t *cent)
+{
 	cent->currentState = cent->nextState;
 	cent->currentValid = qtrue;
 
@@ -57,9 +59,11 @@ static void CG_TransitionEntity(centity_t *cent) {
 	CG_CheckEvents(cent);
 }
 
-/** The transition point from snap to nextSnap has passed
+/**
+The transition point from snap to nextSnap has passed
 */
-static void CG_TransitionSnapshot(void) {
+static void CG_TransitionSnapshot(void)
+{
 	centity_t			*cent;
 	snapshot_t			*oldFrame;
 	int					i;
@@ -122,9 +126,11 @@ static void CG_TransitionSnapshot(void) {
 
 }
 
-/** A new snapshot has just been read in from the client system.
+/**
+A new snapshot has just been read in from the client system.
 */
-static void CG_SetNextSnap(snapshot_t *snap) {
+static void CG_SetNextSnap(snapshot_t *snap)
+{
 	int					num;
 	entityState_t		*es;
 	centity_t			*cent;
@@ -179,7 +185,8 @@ This may increment cgs.processedSnapshotNum multiple
 times if the client system fails to return a
 valid snapshot.
 */
-static snapshot_t *CG_ReadNextSnapshot(void) {
+static snapshot_t *CG_ReadNextSnapshot(void)
+{
 	qboolean	r;
 	snapshot_t	*dest;
 
@@ -234,7 +241,8 @@ CG_TransitionSnapshot instead.
 
 FIXME: Also called by map_restart?
 */
-void CG_SetInitialSnapshot(snapshot_t *snap) {
+void CG_SetInitialSnapshot(snapshot_t *snap)
+{
 	int				i;
 	centity_t		*cent;
 	entityState_t	*state;
@@ -282,7 +290,8 @@ Even if cg.snap is valid, cg.nextSnap may not be, if the snapshot
 hasn't arrived yet (it becomes an extrapolating situation instead
 of an interpolating one)
 */
-void CG_ProcessSnapshots(void) {
+void CG_ProcessSnapshots(void)
+{
 	snapshot_t		*snap;
 	int				n;
 

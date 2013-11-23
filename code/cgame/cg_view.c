@@ -63,7 +63,8 @@ console doesn't pause the game.
 Creates an entity in front of the current position, which
 can then be moved around
 */
-void CG_TestModel_f(void) {
+void CG_TestModel_f(void)
+{
 	vec3_t		angles;
 
 	memset(&cg.testModelEntity, 0, sizeof(cg.testModelEntity));
@@ -94,20 +95,24 @@ void CG_TestModel_f(void) {
 	cg.testGun = qfalse;
 }
 
-/** Replaces the current view weapon with the given model
+/**
+Replaces the current view weapon with the given model
 */
-void CG_TestGun_f (void) {
+void CG_TestGun_f(void)
+{
 	CG_TestModel_f();
 	cg.testGun = qtrue;
 	cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 }
 
-void CG_TestModelNextFrame_f(void) {
+void CG_TestModelNextFrame_f(void)
+{
 	cg.testModelEntity.frame++;
 	CG_Printf("frame %i\n", cg.testModelEntity.frame);
 }
 
-void CG_TestModelPrevFrame_f(void) {
+void CG_TestModelPrevFrame_f(void)
+{
 	cg.testModelEntity.frame--;
 	if (cg.testModelEntity.frame < 0) {
 		cg.testModelEntity.frame = 0;
@@ -115,12 +120,14 @@ void CG_TestModelPrevFrame_f(void) {
 	CG_Printf("frame %i\n", cg.testModelEntity.frame);
 }
 
-void CG_TestModelNextSkin_f(void) {
+void CG_TestModelNextSkin_f(void)
+{
 	cg.testModelEntity.skinNum++;
 	CG_Printf("skin %i\n", cg.testModelEntity.skinNum);
 }
 
-void CG_TestModelPrevSkin_f(void) {
+void CG_TestModelPrevSkin_f(void)
+{
 	cg.testModelEntity.skinNum--;
 	if (cg.testModelEntity.skinNum < 0) {
 		cg.testModelEntity.skinNum = 0;
@@ -128,7 +135,8 @@ void CG_TestModelPrevSkin_f(void) {
 	CG_Printf("skin %i\n", cg.testModelEntity.skinNum);
 }
 
-static void CG_AddTestModel(void) {
+static void CG_AddTestModel(void)
+{
 	int		i;
 
 	// re-register the model, because the level may have changed
@@ -156,9 +164,11 @@ static void CG_AddTestModel(void) {
 	trap_R_AddRefEntityToScene(&cg.testModelEntity);
 }
 
-/** Sets the coordinates of the rendered window
+/**
+Sets the coordinates of the rendered window
 */
-static void CG_CalcVrect (void) {
+static void CG_CalcVrect(void)
+{
 	int		size;
 
 	// the intermission should allways be full screen
@@ -187,7 +197,8 @@ static void CG_CalcVrect (void) {
 	cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height)/2;
 }
 
-static void CG_OffsetThirdPersonView(void) {
+static void CG_OffsetThirdPersonView(void)
+{
 	vec3_t		forward, right, up;
 	vec3_t		view;
 	vec3_t		focusAngles;
@@ -259,7 +270,8 @@ static void CG_OffsetThirdPersonView(void) {
 }
 
 // this causes a compiler bug on mac MrC compiler
-static void CG_StepOffset(void) {
+static void CG_StepOffset(void)
+{
 	int		timeDelta;
 	
 	// smooth out stair climbing
@@ -270,7 +282,8 @@ static void CG_StepOffset(void) {
 	}
 }
 
-static void CG_OffsetFirstPersonView(void) {
+static void CG_OffsetFirstPersonView(void)
+{
 	float			*origin;
 	float			*angles;
 	float			delta;
@@ -331,7 +344,8 @@ static void CG_OffsetFirstPersonView(void) {
 #endif
 }
 
-void CG_ZoomDown_f(void) { 
+void CG_ZoomDown_f(void)
+{
 	if (cg.zoomed) {
 		return;
 	}
@@ -339,7 +353,8 @@ void CG_ZoomDown_f(void) {
 	cg.zoomTime = cg.time;
 }
 
-void CG_ZoomUp_f(void) { 
+void CG_ZoomUp_f(void)
+{
 	if (!cg.zoomed) {
 		return;
 	}
@@ -350,7 +365,8 @@ void CG_ZoomUp_f(void) {
 /**
 Fixed fov at intermissions, otherwise account for fov variable and zooms.
 */
-static int CG_CalcFov(void) {
+static int CG_CalcFov(void)
+{
 	float	x;
 	float	phase;
 	float	v;
@@ -431,7 +447,8 @@ static int CG_CalcFov(void) {
 	return inwater;
 }
 
-static void CG_DamageBlendBlob(void) {
+static void CG_DamageBlendBlob(void)
+{
 	int			t;
 	int			maxTime;
 	refEntity_t		ent;
@@ -480,33 +497,17 @@ static void CG_DamageBlendBlob(void) {
 /**
 Sets cg.refdef view values
 */
-static int CG_CalcViewValues(void) {
+static int CG_CalcViewValues(void)
+{
 	playerState_t	*ps;
 
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
-
-	// strings for in game rendering
-	// Q_strncpyz(cg.refdef.text[0], "Park Ranger", sizeof(cg.refdef.text[0]));
-	// Q_strncpyz(cg.refdef.text[1], "19", sizeof(cg.refdef.text[1]));
 
 	// calculate size of 3D view
 	CG_CalcVrect();
 
 	ps = &cg.predictedPlayerState;
-/*
-	if (cg.cameraMode) {
-		vec3_t origin, angles;
-		if (trap_getCameraInfo(cg.time, &origin, &angles)) {
-			VectorCopy(origin, cg.refdef.vieworg);
-			angles[ROLL] = 0;
-			VectorCopy(angles, cg.refdefViewAngles);
-			AnglesToAxis(cg.refdefViewAngles, cg.refdef.viewaxis);
-			return CG_CalcFov();
-		} else {
-			cg.cameraMode = qfalse;
-		}
-	}
-*/
+
 	// intermission view
 	if (ps->pm_type == PM_INTERMISSION) {
 		VectorCopy(ps->origin, cg.refdef.vieworg);
@@ -561,7 +562,8 @@ static int CG_CalcViewValues(void) {
 	return CG_CalcFov();
 }
 
-static void CG_PowerupTimerSounds(void) {
+static void CG_PowerupTimerSounds(void)
+{
 	int		i;
 	int		t;
 
@@ -580,7 +582,8 @@ static void CG_PowerupTimerSounds(void) {
 	}
 }
 
-void CG_AddBufferedSound(sfxHandle_t sfx) {
+void CG_AddBufferedSound(sfxHandle_t sfx)
+{
 	if (!sfx)
 		return;
 	cg.soundBuffer[cg.soundBufferIn] = sfx;
@@ -590,7 +593,8 @@ void CG_AddBufferedSound(sfxHandle_t sfx) {
 	}
 }
 
-static void CG_PlayBufferedSounds(void) {
+static void CG_PlayBufferedSounds(void)
+{
 	if (cg.soundTime < cg.time) {
 		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
 			trap_S_StartLocalSound(cg.soundBuffer[cg.soundBufferOut], CHAN_ANNOUNCER);
@@ -601,9 +605,11 @@ static void CG_PlayBufferedSounds(void) {
 	}
 }
 
-/** Generates and draws a game scene and status information at the given time.
+/**
+Generates and draws a game scene and status information at the given time.
 */
-void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback) {
+void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoPlayback)
+{
 	int		inwater;
 
 	cg.time = serverTime;
@@ -712,7 +718,5 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	if (cg_stats.integer) {
 		CG_Printf("cg.clientFrame:%i\n", cg.clientFrame);
 	}
-
-
 }
 

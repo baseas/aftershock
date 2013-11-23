@@ -39,7 +39,8 @@ When a new cg.snap has been set, this function builds a sublist
 of the entities that are actually solid, to make for more
 efficient collision detection
 */
-void CG_BuildSolidList(void) {
+void CG_BuildSolidList(void)
+{
 	int			i;
 	centity_t	*cent;
 	snapshot_t	*snap;
@@ -72,7 +73,9 @@ void CG_BuildSolidList(void) {
 	}
 }
 
-static void CG_ClipMoveToEntities (const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int skipNumber, int mask, trace_t *tr) {
+static void CG_ClipMoveToEntities (const vec3_t start, const vec3_t mins, const vec3_t maxs,
+	const vec3_t end, int skipNumber, int mask, trace_t *tr)
+{
 	int			i, x, zd, zu;
 	trace_t		trace;
 	entityState_t	*ent;
@@ -125,7 +128,9 @@ static void CG_ClipMoveToEntities (const vec3_t start, const vec3_t mins, const 
 	}
 }
 
-void	CG_Trace(trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int skipNumber, int mask) {
+void CG_Trace(trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs,
+	const vec3_t end, int skipNumber, int mask)
+{
 	trace_t	t;
 
 	trap_CM_BoxTrace (&t, start, end, mins, maxs, 0, mask);
@@ -136,12 +141,13 @@ void	CG_Trace(trace_t *result, const vec3_t start, const vec3_t mins, const vec3
 	*result = t;
 }
 
-int		CG_PointContents(const vec3_t point, int passEntityNum) {
-	int			i;
+int CG_PointContents(const vec3_t point, int passEntityNum)
+{
+	int				i;
 	entityState_t	*ent;
-	centity_t	*cent;
-	clipHandle_t cmodel;
-	int			contents;
+	centity_t		*cent;
+	clipHandle_t	cmodel;
+	int				contents;
 
 	contents = trap_CM_PointContents (point, 0);
 
@@ -173,7 +179,8 @@ int		CG_PointContents(const vec3_t point, int passEntityNum) {
 Generates cg.predictedPlayerState by interpolating between
 cg.snap->player_state and cg.nextFrame->player_state
 */
-static void CG_InterpolatePlayerState(qboolean grabAngles) {
+static void CG_InterpolatePlayerState(qboolean grabAngles)
+{
 	float			f;
 	int				i;
 	playerState_t	*out;
@@ -225,7 +232,8 @@ static void CG_InterpolatePlayerState(qboolean grabAngles) {
 
 }
 
-static void CG_TouchItem(centity_t *cent) {
+static void CG_TouchItem(centity_t *cent)
+{
 	gitem_t		*item;
 
 	if (!cg_predictItems.integer) {
@@ -278,7 +286,8 @@ static void CG_TouchItem(centity_t *cent) {
 /**
 Predict push triggers and items
 */
-static void CG_TouchTriggerPrediction(void) {
+static void CG_TouchTriggerPrediction(void)
+{
 	int			i;
 	trace_t		trace;
 	entityState_t	*ent;
@@ -359,7 +368,8 @@ We detect prediction errors and allow them to be decayed off over several frames
 to ease the jerk.
 =================
 */
-void CG_PredictPlayerState(void) {
+void CG_PredictPlayerState(void)
+{
 	int			cmdNum, current;
 	playerState_t	oldPlayerState;
 	qboolean	moved;

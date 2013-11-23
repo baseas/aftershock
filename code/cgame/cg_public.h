@@ -20,16 +20,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+// cg_public.h
 
-
-#define	CMD_BACKUP			64	
-#define	CMD_MASK			(CMD_BACKUP - 1)
+#define CMD_BACKUP			64	
+#define CMD_MASK			(CMD_BACKUP - 1)
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
 // needs to be larger than PACKET_BACKUP
 
-
-#define	MAX_ENTITIES_IN_SNAPSHOT	256
+#define MAX_ENTITIES_IN_SNAPSHOT	256
 
 // snapshots are a view of the server at a given time
 
@@ -54,22 +53,15 @@ typedef struct {
 } snapshot_t;
 
 enum {
-  CGAME_EVENT_NONE,
-  CGAME_EVENT_TEAMMENU,
-  CGAME_EVENT_SCOREBOARD,
-  CGAME_EVENT_EDITHUD
+	CGAME_EVENT_NONE,
+	CGAME_EVENT_TEAMMENU,
+	CGAME_EVENT_SCOREBOARD,
+	CGAME_EVENT_EDITHUD
 };
 
+// Functions imported from the main executable
 
-/*
-==================================================================
-
-functions imported from the main executable
-
-==================================================================
-*/
-
-#define	CGAME_IMPORT_API_VERSION	4
+#define CGAME_IMPORT_API_VERSION	4
 
 typedef enum {
 	CG_PRINT,
@@ -137,7 +129,7 @@ typedef enum {
 	CG_KEY_GETCATCHER,
 	CG_KEY_SETCATCHER,
 	CG_KEY_GETKEY,
- 	CG_PC_ADD_GLOBAL_DEFINE,
+	CG_PC_ADD_GLOBAL_DEFINE,
 	CG_PC_LOAD_SOURCE,
 	CG_PC_FREE_SOURCE,
 	CG_PC_READ_TOKEN,
@@ -186,14 +178,7 @@ typedef enum {
 	CG_ACOS
 } cgameImport_t;
 
-
-/*
-==================================================================
-
-functions exported to the main executable
-
-==================================================================
-*/
+// Functions exported to the main executable
 
 typedef enum {
 	CG_INIT,
@@ -236,4 +221,3 @@ typedef enum {
 //	void (*CG_EventHandling)(int type);
 } cgameExport_t;
 
-//----------------------------------------------

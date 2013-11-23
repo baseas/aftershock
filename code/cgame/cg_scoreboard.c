@@ -62,14 +62,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // here's the layout
 
 //
-//	0   32   80  112  144   240  320  400   <-- pixel position
+//  0   32   80  112  144   240  320  400   <-- pixel position
 //  bot head bot head score ping time name
 //
 //  wins/losses are drawn on bot icon now
 
 static qboolean	localClient;	// true if local client has been displayed
 
-static void CG_DrawClientScore(int y, score_t *score, float *color, float fade, qboolean largeFormat) {
+static void CG_DrawClientScore(int y, score_t *score, float *color, float fade, qboolean largeFormat)
+{
 	char			string[1024];
 	clientInfo_t	*ci;
 	int				iconx;
@@ -191,7 +192,8 @@ static void CG_DrawClientScore(int y, score_t *score, float *color, float fade, 
 	}
 }
 
-static int CG_TeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight) {
+static int CG_TeamScoreboard(int y, team_t team, float fade, int maxClients, int lineHeight)
+{
 	int		i;
 	score_t	*score;
 	float	color[4];
@@ -218,7 +220,8 @@ static int CG_TeamScoreboard(int y, team_t team, float fade, int maxClients, int
 	return count;
 }
 
-static void CG_CenterGiantLine(float y, const char *string) {
+static void CG_CenterGiantLine(float y, const char *string)
+{
 	float		x;
 	vec4_t		color;
 
@@ -232,9 +235,11 @@ static void CG_CenterGiantLine(float y, const char *string) {
 	CG_DrawStringExt(x, y, string, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0);
 }
 
-/** Draw the normal in-game scoreboard
+/**
+Draw the normal in-game scoreboard
 */
-qboolean CG_DrawOldScoreboard(void) {
+qboolean CG_DrawOldScoreboard(void)
+{
 	int		x, y, w, i, n1, n2;
 	float	fade;
 	float	*fadeColor;
@@ -387,7 +392,8 @@ qboolean CG_DrawOldScoreboard(void) {
 /**
 Draw the oversize scoreboard for tournements
 */
-void CG_DrawOldTourneyScoreboard(void) {
+void CG_DrawOldTourneyScoreboard(void)
+{
 	const char		*s;
 	vec4_t			color;
 	int				min, tens, ones;

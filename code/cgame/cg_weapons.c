@@ -27,7 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MG_SPIN_SPEED	0.9
 #define MG_COAST_TIME	1000
 
-static void CG_MachineGunEjectBrass(centity_t *cent) {
+static void CG_MachineGunEjectBrass(centity_t *cent)
+{
 	localEntity_t	*le;
 	refEntity_t		*re;
 	vec3_t			velocity, xvelocity;
@@ -94,7 +95,8 @@ static void CG_MachineGunEjectBrass(centity_t *cent) {
 	le->leMarkType = LEMT_NONE;
 }
 
-static void CG_ShotgunEjectBrass(centity_t *cent) {
+static void CG_ShotgunEjectBrass(centity_t *cent)
+{
 	localEntity_t	*le;
 	refEntity_t		*re;
 	vec3_t			velocity, xvelocity;
@@ -166,7 +168,8 @@ static void CG_ShotgunEjectBrass(centity_t *cent) {
 	}
 }
 
-void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
+void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end)
+{
 	localEntity_t *le;
 	refEntity_t   *re;
  
@@ -200,7 +203,8 @@ void CG_RailTrail (clientInfo_t *ci, vec3_t start, vec3_t end) {
 	AxisClear(re->axis);
 }
 
-static void CG_RocketTrail(centity_t *ent, const weaponInfo_t *wi) {
+static void CG_RocketTrail(centity_t *ent, const weaponInfo_t *wi)
+{
 	int		step;
 	vec3_t	origin, lastPos;
 	int		t;
@@ -262,7 +266,8 @@ static void CG_RocketTrail(centity_t *ent, const weaponInfo_t *wi) {
 
 }
 
-void CG_GrappleTrail(centity_t *ent, const weaponInfo_t *wi) {
+void CG_GrappleTrail(centity_t *ent, const weaponInfo_t *wi)
+{
 	vec3_t	origin;
 	entityState_t	*es;
 	vec3_t			forward, up;
@@ -295,14 +300,16 @@ void CG_GrappleTrail(centity_t *ent, const weaponInfo_t *wi) {
 	trap_R_AddRefEntityToScene(&beam);
 }
 
-static void CG_GrenadeTrail(centity_t *ent, const weaponInfo_t *wi) {
+static void CG_GrenadeTrail(centity_t *ent, const weaponInfo_t *wi)
+{
 	CG_RocketTrail(ent, wi);
 }
 
 /**
 The server says this item is used on this level
 */
-void CG_RegisterWeapon(int weaponNum) {
+void CG_RegisterWeapon(int weaponNum)
+{
 	weaponInfo_t	*weaponInfo;
 	gitem_t			*item, *ammo;
 	char			path[MAX_QPATH];
@@ -481,7 +488,8 @@ void CG_RegisterWeapon(int weaponNum) {
 /**
 The server says this item is used on this level
 */
-void CG_RegisterItemVisuals(int itemNum) {
+void CG_RegisterItemVisuals(int itemNum)
+{
 	itemInfo_t		*itemInfo;
 	gitem_t			*item;
 
@@ -520,22 +528,23 @@ void CG_RegisterItemVisuals(int itemNum) {
 
 // VIEW WEAPON
 
-static int CG_MapTorsoToWeaponFrame(clientInfo_t *ci, int frame) {
+static int CG_MapTorsoToWeaponFrame(clientInfo_t *ci, int frame)
+{
 
 	// change weapon
-	if (frame >= ci->model->animations[TORSO_DROP].firstFrame 
+	if (frame >= ci->model->animations[TORSO_DROP].firstFrame
 		&& frame < ci->model->animations[TORSO_DROP].firstFrame + 9) {
 		return frame - ci->model->animations[TORSO_DROP].firstFrame + 6;
 	}
 
 	// stand attack
-	if (frame >= ci->model->animations[TORSO_ATTACK].firstFrame 
+	if (frame >= ci->model->animations[TORSO_ATTACK].firstFrame
 		&& frame < ci->model->animations[TORSO_ATTACK].firstFrame + 6) {
 		return 1 + frame - ci->model->animations[TORSO_ATTACK].firstFrame;
 	}
 
 	// stand attack 2
-	if (frame >= ci->model->animations[TORSO_ATTACK2].firstFrame 
+	if (frame >= ci->model->animations[TORSO_ATTACK2].firstFrame
 		&& frame < ci->model->animations[TORSO_ATTACK2].firstFrame + 6) {
 		return 1 + frame - ci->model->animations[TORSO_ATTACK2].firstFrame;
 	}
@@ -543,19 +552,21 @@ static int CG_MapTorsoToWeaponFrame(clientInfo_t *ci, int frame) {
 	return 0;
 }
 
-static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles) {
+static void CG_CalculateWeaponPosition(vec3_t origin, vec3_t angles)
+{
 	VectorCopy(cg.refdef.vieworg, origin);
 	VectorCopy(cg.refdefViewAngles, angles);
 }
 
-/*
+/**
 Origin will be the exact tag point, which is slightly
 different than the muzzle point used for determining hits.
 The cent should be the non-predicted cent if it is from the player,
 so the endpoint will reflect the simulated strike (lagging the predicted
 angle)
 */
-static void CG_LightningBolt(centity_t *cent, vec3_t origin) {
+static void CG_LightningBolt(centity_t *cent, vec3_t origin)
+{
 	trace_t		trace;
 	refEntity_t	beam;
 	vec3_t		forward;
@@ -649,7 +660,8 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin) {
 	}
 }
 
-static float	CG_MachinegunSpinAngle(centity_t *cent) {
+static float	CG_MachinegunSpinAngle(centity_t *cent)
+{
 	int		delta;
 	float	angle;
 	float	speed;
@@ -675,7 +687,8 @@ static float	CG_MachinegunSpinAngle(centity_t *cent) {
 	return angle;
 }
 
-static void CG_AddWeaponWithPowerups(refEntity_t *gun, int powerups) {
+static void CG_AddWeaponWithPowerups(refEntity_t *gun, int powerups)
+{
 	if (powerups & (1 << PW_INVIS)) {
 		return;
 	}
@@ -698,7 +711,8 @@ Used for both the view weapon (ps is valid) and the world modelother character m
 The main player will have this called for BOTH cases, so effects like light and
 sound should only be done on the world model case.
 */
-void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent, int team) {
+void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent, int team)
+{
 	refEntity_t	gun;
 	refEntity_t	barrel;
 	refEntity_t	flash;
@@ -849,9 +863,11 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent,
 	}
 }
 
-/** Add the weapon, and flash for the player's view
+/**
+Add the weapon, and flash for the player's view
 */
-void CG_AddViewWeapon(playerState_t *ps) {
+void CG_AddViewWeapon(playerState_t *ps)
+{
 	refEntity_t	hand;
 	centity_t	*cent;
 	clientInfo_t	*ci;
@@ -936,7 +952,8 @@ void CG_AddViewWeapon(playerState_t *ps) {
 
 // WEAPON SELECTION
 
-static qboolean CG_WeaponSelectable(int i) {
+static qboolean CG_WeaponSelectable(int i)
+{
 	if (!cg.snap->ps.ammo[i]) {
 		return qfalse;
 	}
@@ -947,7 +964,8 @@ static qboolean CG_WeaponSelectable(int i) {
 	return qtrue;
 }
 
-void CG_DrawWeaponSelect(void) {
+void CG_DrawWeaponSelect(void)
+{
 	int		i;
 	int		bits;
 	int		count;
@@ -1017,7 +1035,8 @@ void CG_DrawWeaponSelect(void) {
 	trap_R_SetColor(NULL);
 }
 
-void CG_NextWeapon_f(void) {
+void CG_NextWeapon_f(void)
+{
 	int		i;
 	int		original;
 
@@ -1048,7 +1067,8 @@ void CG_NextWeapon_f(void) {
 	}
 }
 
-void CG_PrevWeapon_f(void) {
+void CG_PrevWeapon_f(void)
+{
 	int		i;
 	int		original;
 
@@ -1079,7 +1099,8 @@ void CG_PrevWeapon_f(void) {
 	}
 }
 
-void CG_Weapon_f(void) {
+void CG_Weapon_f(void)
+{
 	int		num;
 
 	if (!cg.snap) {
@@ -1104,7 +1125,8 @@ void CG_Weapon_f(void) {
 	cg.weaponSelect = num;
 }
 
-void CG_OutOfAmmoChange(void) {
+void CG_OutOfAmmoChange(void)
+{
 	int		i;
 
 	cg.weaponSelectTime = cg.time;
@@ -1119,9 +1141,11 @@ void CG_OutOfAmmoChange(void) {
 
 // WEAPON EVENTS
 
-/** Caused by an EV_FIRE_WEAPON event
+/**
+Caused by an EV_FIRE_WEAPON event
 */
-void CG_FireWeapon(centity_t *cent) {
+void CG_FireWeapon(centity_t *cent)
+{
 	entityState_t *ent;
 	int				c;
 	weaponInfo_t	*weap;
@@ -1176,9 +1200,11 @@ void CG_FireWeapon(centity_t *cent) {
 	}
 }
 
-/** Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
+/**
+Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 */
-void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType) {
+void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType)
+{
 	qhandle_t		mod;
 	qhandle_t		mark;
 	qhandle_t		shader;
@@ -1329,7 +1355,8 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	}
 }
 
-void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum) {
+void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum)
+{
 	CG_Bleed(origin, entityNum);
 
 	// some weapons will make an explosion with the blood, while
@@ -1348,9 +1375,10 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum) {
 
 // SHOTGUN TRACING
 
-static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum) {
+static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum)
+{
 	trace_t		tr;
-	int sourceContentType, destContentType;
+	int			sourceContentType, destContentType;
 
 	CG_Trace(&tr, start, NULL, NULL, end, skipNum, MASK_SHOT);
 
@@ -1397,7 +1425,8 @@ static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum) {
 Perform the same traces the server did to locate the
 hit splashes
 */
-static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum) {
+static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
+{
 	int			i;
 	float		r, u;
 	vec3_t		end;
@@ -1421,7 +1450,8 @@ static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int other
 	}
 }
 
-void CG_ShotgunFire(entityState_t *es) {
+void CG_ShotgunFire(entityState_t *es)
+{
 	vec3_t	v;
 	int		contents;
 
@@ -1444,7 +1474,8 @@ void CG_ShotgunFire(entityState_t *es) {
 
 // BULLETS
 
-static qboolean	CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle) {
+static qboolean	CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle)
+{
 	vec3_t		forward;
 	centity_t	*cent;
 	int			anim;
@@ -1478,7 +1509,8 @@ static qboolean	CG_CalcMuzzlePoint(int entityNum, vec3_t muzzle) {
 
 }
 
-void CG_Tracer(vec3_t source, vec3_t dest) {
+void CG_Tracer(vec3_t source, vec3_t dest)
+{
 	vec3_t		forward, right;
 	polyVert_t	verts[4];
 	vec3_t		line;
@@ -1552,9 +1584,11 @@ void CG_Tracer(vec3_t source, vec3_t dest) {
 
 }
 
-/** Renders bullet effects.
+/**
+Renders bullet effects.
 */
-void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum) {
+void CG_Bullet(vec3_t end, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum)
+{
 	trace_t	trace;
 	int		sourceContentType, destContentType;
 	vec3_t	start;

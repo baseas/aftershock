@@ -26,7 +26,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static void CG_ParseScores(void) {
+static void CG_ParseScores(void)
+{
 	int		i, powerups;
 
 	cg.numScores = atoi(CG_Argv(1));
@@ -64,7 +65,8 @@ static void CG_ParseScores(void) {
 	}
 }
 
-static void CG_ParseTeamInfo(void) {
+static void CG_ParseTeamInfo(void)
+{
 	int		i;
 	int		client;
 
@@ -93,7 +95,8 @@ static void CG_ParseTeamInfo(void) {
 	}
 }
 
-static void CG_ParseWarmup(void) {
+static void CG_ParseWarmup(void)
+{
 	const char	*info;
 	int			warmup;
 
@@ -111,7 +114,8 @@ static void CG_ParseWarmup(void) {
 	cg.warmup = warmup;
 }
 
-static void CG_ConfigStringModified(void) {
+static void CG_ConfigStringModified(void)
+{
 	const char	*str;
 	int		num;
 
@@ -182,7 +186,8 @@ static void CG_ConfigStringModified(void) {
 	}
 }
 
-static void CG_AddToTeamChat(const char *str) {
+static void CG_AddToTeamChat(const char *str)
+{
 	int		len;
 	char	*p, *ls;
 	int		lastcolor;
@@ -257,7 +262,8 @@ is completely new and should not be interpolated to.
 A tournament restart will clear everything, but doesn't
 require a reload of all the media
 */
-static void CG_MapRestart(void) {
+static void CG_MapRestart(void)
+{
 	if (cg_showmiss.integer) {
 		CG_Printf("CG_MapRestart\n");
 	}
@@ -294,7 +300,8 @@ static void CG_MapRestart(void) {
 	trap_Cvar_Set("cg_thirdPerson", "0");
 }
 
-static void CG_RemoveChatEscapeChar(char *text) {
+static void CG_RemoveChatEscapeChar(char *text)
+{
 	int i, l;
 
 	l = 0;
@@ -310,7 +317,8 @@ static void CG_RemoveChatEscapeChar(char *text) {
 The string has been tokenized and can be retrieved with
 Cmd_Argc() / Cmd_Argv()
 */
-static void CG_ServerCommand(void) {
+static void CG_ServerCommand(void)
+{
 	const char	*cmd;
 	char		text[MAX_SAY_TEXT];
 
@@ -396,10 +404,12 @@ static void CG_ServerCommand(void) {
 	CG_Printf("Unknown client game command: %s\n", cmd);
 }
 
-/** This is called explicitly when the gamestate is first received,
+/**
+This is called explicitly when the gamestate is first received,
 and whenever the server updates any serverinfo flagged cvars
 */
-void CG_ParseServerinfo(void) {
+void CG_ParseServerinfo(void)
+{
 	const char	*info;
 	char		*mapname;
 
@@ -423,7 +433,8 @@ void CG_ParseServerinfo(void) {
 /**
 Called on load to set the initial values from configure strings
 */
-void CG_SetConfigValues(void) {
+void CG_SetConfigValues(void)
+{
 	const char *s;
 
 	cgs.scores1 = atoi(CG_ConfigString(CS_SCORES1));
@@ -438,7 +449,8 @@ void CG_SetConfigValues(void) {
 	cg.warmup = atoi(CG_ConfigString(CS_WARMUP));
 }
 
-void CG_ShaderStateChanged(void) {
+void CG_ShaderStateChanged(void)
+{
 	char originalShader[MAX_QPATH];
 	char newShader[MAX_QPATH];
 	char timeOffset[16];
@@ -477,7 +489,8 @@ void CG_ShaderStateChanged(void) {
 Execute all of the server commands that were received along
 with this this snapshot.
 */
-void CG_ExecuteNewServerCommands(int latestSequence) {
+void CG_ExecuteNewServerCommands(int latestSequence)
+{
 	while (cgs.serverCommandSequence < latestSequence) {
 		if (trap_GetServerCommand(++cgs.serverCommandSequence)) {
 			CG_ServerCommand();

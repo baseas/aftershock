@@ -612,7 +612,8 @@ void CG_PositionEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhan
 	entity->backlerp = parent->backlerp;
 }
 
-/* Modifies the entities position and axis by the given
+/**
+Modifies the entities position and axis by the given
 tag location
 */
 void CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *parent, qhandle_t parentModel, char *tagName)

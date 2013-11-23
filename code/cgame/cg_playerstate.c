@@ -29,7 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern char *eventnames[];
 
-static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
+static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount)
+{
 	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
 		cg.rewardStack++;
 		cg.rewardSound[cg.rewardStack] = sfx;
@@ -41,7 +42,8 @@ static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 /**
 If the ammo has gone low enough to generate the warning, play a sound
 */
-void CG_CheckAmmo(void) {
+void CG_CheckAmmo(void)
+{
 	int		i;
 	int		total;
 	int		previous;
@@ -92,7 +94,8 @@ void CG_CheckAmmo(void) {
 	}
 }
 
-void CG_DamageFeedback(int yawByte, int pitchByte, int damage) {
+void CG_DamageFeedback(int yawByte, int pitchByte, int damage)
+{
 	float		left, front, up;
 	float		kick;
 	int			health;
@@ -184,9 +187,11 @@ void CG_DamageFeedback(int yawByte, int pitchByte, int damage) {
 	cg.damageTime = cg.snap->serverTime;
 }
 
-/** A respawn happened this snapshot
+/**
+A respawn happened this snapshot
 */
-void CG_Respawn(void) {
+void CG_Respawn(void)
+{
 	// no error decay on player movement
 	cg.thisFrameTeleport = qtrue;
 
@@ -197,7 +202,8 @@ void CG_Respawn(void) {
 	cg.weaponSelect = cg.snap->ps.weapon;
 }
 
-void CG_CheckPlayerstateEvents(playerState_t *ps, playerState_t *ops) {
+void CG_CheckPlayerstateEvents(playerState_t *ps, playerState_t *ops)
+{
 	int			i;
 	int			event;
 	centity_t	*cent;
@@ -230,7 +236,8 @@ void CG_CheckPlayerstateEvents(playerState_t *ps, playerState_t *ops) {
 	}
 }
 
-void CG_CheckChangedPredictableEvents(playerState_t *ps) {
+void CG_CheckChangedPredictableEvents(playerState_t *ps)
+{
 	int i;
 	int event;
 	centity_t	*cent;
@@ -261,7 +268,8 @@ void CG_CheckChangedPredictableEvents(playerState_t *ps) {
 	}
 }
 
-void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops) {
+void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
+{
 	int			highScore, reward;
 	sfxHandle_t sfx;
 
@@ -412,7 +420,8 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops) {
 	}
 }
 
-void CG_TransitionPlayerState(playerState_t *ps, playerState_t *ops) {
+void CG_TransitionPlayerState(playerState_t *ps, playerState_t *ops)
+{
 	// check for changing follow mode
 	if (ps->clientNum != ops->clientNum) {
 		cg.thisFrameTeleport = qtrue;
