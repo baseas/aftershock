@@ -346,20 +346,21 @@ static void CG_OffsetFirstPersonView(void)
 
 void CG_ZoomDown_f(void)
 {
-	if (cg.zoomed) {
-		return;
+	if (cg_zoomToggle.integer) {
+		cg.zoomTime = cg.time;
+		cg.zoomed = !cg.zoomed;
+	} else if (!cg.zoomed) {
+		cg.zoomed = qtrue;
+		cg.zoomTime = cg.time;
 	}
-	cg.zoomed = qtrue;
-	cg.zoomTime = cg.time;
 }
 
 void CG_ZoomUp_f(void)
 {
-	if (!cg.zoomed) {
-		return;
+	if (!cg_zoomToggle.integer && cg.zoomed) {
+		cg.zoomed = qfalse;
+		cg.zoomTime = cg.time;
 	}
-	cg.zoomed = qfalse;
-	cg.zoomTime = cg.time;
 }
 
 /**
@@ -372,77 +373,61 @@ static int CG_CalcFov(void)
 	float	v;
 	int		contents;
 	float	fov_x, fov_y;
-	float	zoomFov;
-	float	f;
 	int		inwater;
 
 	if (cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
-		// if in intermission, use a fixed value
 		fov_x = 90;
 	} else {
-		// user selectable
-		if (cgs.dmflags & DF_FIXED_FOV) {
-			// dmflag to prevent wide fov for all clients
-			fov_x = 90;
-		} else {
-			fov_x = cg_fov.value;
-			if (fov_x < 1) {
-				fov_x = 1;
-			} else if (fov_x > 160) {
-				fov_x = 160;
-			}
-		}
+		float	zoomFov, normalFov;
+		float	f;
 
-		// account for zooms
+		normalFov = cg_fov.value;
+		fov_x = normalFov;
 		zoomFov = cg_zoomFov.value;
-		if (zoomFov < 1) {
-			zoomFov = 1;
-		} else if (zoomFov > 160) {
-			zoomFov = 160;
+
+		if (cg_zoomScaling.value > 0.0f) {
+			f = (cg.time - cg.zoomTime) / (cg_zoomScaling.value * ZOOM_TIME);
+		}
+		else {
+			f = 1.0f;
 		}
 
 		if (cg.zoomed) {
-			f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
-			if (f > 1.0) {
-				fov_x = zoomFov;
-			} else {
-				fov_x = fov_x + f * (zoomFov - fov_x);
-			}
+			fov_x = (f < 1.0f ? fov_x + f * (zoomFov - fov_x) : zoomFov);
+		} else if (f < 1.0f) {
+			fov_x = zoomFov + f * (fov_x - zoomFov);
+		}
+
+		if (cg_zoomSensitivity.value != 0.0f && fov_x != normalFov) {
+			float	aspect, fovarg1, fovarg2;
+			aspect = (float) cg.refdef.height / (float) cg.refdef.width;
+			fovarg1 = fov_x / 720.0f * M_PI;
+			fovarg2 = normalFov / 720.0f * M_PI;
+			cg.zoomSensitivity = atan(aspect * tan(fovarg1)) / atan(aspect * tan(fovarg2));
+			cg.zoomSensitivity *= cg_zoomSensitivity.value;
 		} else {
-			f = (cg.time - cg.zoomTime) / (float)ZOOM_TIME;
-			if (f <= 1.0) {
-				fov_x = zoomFov + f * (fov_x - zoomFov);
-			}
+			cg.zoomSensitivity = 1.0f;
 		}
 	}
 
-	x = cg.refdef.width / tan(fov_x / 360 * M_PI);
+	x = cg.refdef.width / tan(fov_x / 360.0f * M_PI);
 	fov_y = atan2(cg.refdef.height, x);
-	fov_y = fov_y * 360 / M_PI;
+	fov_y = fov_y * 360.0f / M_PI;
 
 	// warp if underwater
 	contents = CG_PointContents(cg.refdef.vieworg, -1);
 	if (contents & (CONTENTS_WATER | CONTENTS_SLIME | CONTENTS_LAVA)){
-		phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
+		phase = cg.time / 1000.0f * WAVE_FREQUENCY * M_PI * 2.0f;
 		v = WAVE_AMPLITUDE * sin(phase);
 		fov_x += v;
 		fov_y -= v;
 		inwater = qtrue;
-	}
-	else {
+	} else {
 		inwater = qfalse;
 	}
 
-
-	// set it
 	cg.refdef.fov_x = fov_x;
 	cg.refdef.fov_y = fov_y;
-
-	if (!cg.zoomed) {
-		cg.zoomSensitivity = 1;
-	} else {
-		cg.zoomSensitivity = cg.refdef.fov_y / 75.0;
-	}
 
 	return inwater;
 }

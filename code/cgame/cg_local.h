@@ -999,6 +999,10 @@ extern vmCvar_t		cg_redLegsColor;
 extern vmCvar_t		cg_blueHeadColor;
 extern vmCvar_t		cg_blueTorsoColor;
 extern vmCvar_t		cg_blueLegsColor;
+extern vmCvar_t		cg_zoomToggle;
+extern vmCvar_t		cg_zoomOutOnDeath;
+extern vmCvar_t		cg_zoomScaling;
+extern vmCvar_t		cg_zoomSensitivity;
 
 //
 // cg_main.c

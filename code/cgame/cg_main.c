@@ -203,12 +203,16 @@ vmCvar_t	cg_redLegsColor;
 vmCvar_t	cg_blueHeadColor;
 vmCvar_t	cg_blueTorsoColor;
 vmCvar_t	cg_blueLegsColor;
+vmCvar_t	cg_zoomToggle;
+vmCvar_t	cg_zoomOutOnDeath;
+vmCvar_t	cg_zoomScaling;
+vmCvar_t	cg_zoomSensitivity;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
 	{ &cg_autoswitch, "cg_autoswitch", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE, RANGE_INT(0, 3) },
-	{ &cg_zoomFov, "cg_zoomfov", "22.5", CVAR_ARCHIVE, RANGE_FLOAT(1, 160) },
+	{ &cg_zoomFov, "cg_zoomFov", "22.5", CVAR_ARCHIVE, RANGE_FLOAT(1, 160) },
 	{ &cg_fov, "cg_fov", "90", CVAR_ARCHIVE, RANGE_FLOAT(1, 160) },
 	{ &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE, RANGE_INT(30, 100) },
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE, RANGE_INT(0, 3) },
@@ -308,7 +312,12 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_redLegsColor, "cg_redLegsColor", "red", CVAR_ARCHIVE, RANGE_COLOR },
 	{ &cg_blueHeadColor, "cg_blueHeadColor", "blue", CVAR_ARCHIVE, RANGE_COLOR },
 	{ &cg_blueTorsoColor, "cg_blueTorsoColor", "blue", CVAR_ARCHIVE, RANGE_COLOR },
-	{ &cg_blueLegsColor, "cg_blueLegsColor", "blue", CVAR_ARCHIVE, RANGE_COLOR }
+	{ &cg_blueLegsColor, "cg_blueLegsColor", "blue", CVAR_ARCHIVE, RANGE_COLOR },
+
+	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_zoomOutOnDeath, "cg_zoomOutOnDeath", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_zoomScaling, "cg_zoomScaling", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
+	{ &cg_zoomSensitivity, "cg_zoomSensitivity", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
