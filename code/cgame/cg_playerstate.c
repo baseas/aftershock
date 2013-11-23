@@ -200,6 +200,7 @@ void CG_Respawn(void)
 
 	// select the weapon the server says we are using
 	cg.weaponSelect = cg.snap->ps.weapon;
+	CG_RunWeaponScript();
 }
 
 void CG_CheckPlayerstateEvents(playerState_t *ps, playerState_t *ops)

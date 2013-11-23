@@ -207,6 +207,17 @@ vmCvar_t	cg_zoomToggle;
 vmCvar_t	cg_zoomOutOnDeath;
 vmCvar_t	cg_zoomScaling;
 vmCvar_t	cg_zoomSensitivity;
+vmCvar_t	cg_weaponConfig;
+vmCvar_t	cg_weaponConfig_g;
+vmCvar_t	cg_weaponConfig_mg;
+vmCvar_t	cg_weaponConfig_sg;
+vmCvar_t	cg_weaponConfig_gl;
+vmCvar_t	cg_weaponConfig_rl;
+vmCvar_t	cg_weaponConfig_lg;
+vmCvar_t	cg_weaponConfig_rg;
+vmCvar_t	cg_weaponConfig_pg;
+vmCvar_t	cg_weaponConfig_bfg;
+vmCvar_t	cg_weaponConfig_gh;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -317,7 +328,19 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_zoomToggle, "cg_zoomToggle", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_zoomOutOnDeath, "cg_zoomOutOnDeath", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_zoomScaling, "cg_zoomScaling", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
-	{ &cg_zoomSensitivity, "cg_zoomSensitivity", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) }
+	{ &cg_zoomSensitivity, "cg_zoomSensitivity", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
+
+	{ &cg_weaponConfig, "cg_weaponConfig", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_g, "cg_weaponConfig_g", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_mg, "cg_weaponConfig_mg", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_sg, "cg_weaponConfig_sg", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_gl, "cg_weaponConfig_gl", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_rl, "cg_weaponConfig_rl", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_lg, "cg_weaponConfig_lg", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_rg, "cg_weaponConfig_rg", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_pg, "cg_weaponConfig_pg", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_bfg, "cg_weaponConfig_bfg", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_weaponConfig_gh, "cg_weaponConfig_gh", "", CVAR_ARCHIVE, RANGE_ALL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);

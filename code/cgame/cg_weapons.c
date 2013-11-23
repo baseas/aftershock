@@ -964,6 +964,52 @@ static qboolean CG_WeaponSelectable(int i)
 	return qtrue;
 }
 
+void CG_RunWeaponScript(void)
+{
+	vmCvar_t	*configCvar;
+
+	switch (cg.weaponSelect) {
+	case WP_GAUNTLET:
+		configCvar = &cg_weaponConfig_g;
+		break;
+	case WP_MACHINEGUN:
+		configCvar = &cg_weaponConfig_mg;
+		break;
+	case WP_SHOTGUN:
+		configCvar = &cg_weaponConfig_sg;
+		break;
+	case WP_GRENADE_LAUNCHER:
+		configCvar = &cg_weaponConfig_gl;
+		break;
+	case WP_ROCKET_LAUNCHER:
+		configCvar = &cg_weaponConfig_rl;
+		break;
+	case WP_LIGHTNING:
+		configCvar = &cg_weaponConfig_lg;
+		break;
+	case WP_RAILGUN:
+		configCvar = &cg_weaponConfig_rg;
+		break;
+	case WP_PLASMAGUN:
+		configCvar = &cg_weaponConfig_pg;
+		break;
+	case WP_BFG:
+		configCvar = &cg_weaponConfig_bfg;
+		break;
+	case WP_GRAPPLING_HOOK:
+		configCvar = &cg_weaponConfig_gh;
+		break;
+	default:
+		configCvar = &cg_weaponConfig;
+	}
+
+	if (configCvar->string[0] == '\0') {
+		configCvar = &cg_weaponConfig;
+	}
+
+	trap_SendConsoleCommand(configCvar->string);
+}
+
 void CG_DrawWeaponSelect(void)
 {
 	int		i;
@@ -1062,8 +1108,11 @@ void CG_NextWeapon_f(void)
 			break;
 		}
 	}
+
 	if (i == MAX_WEAPONS) {
 		cg.weaponSelect = original;
+	} else if (original != cg.weaponSelect) {
+		CG_RunWeaponScript();
 	}
 }
 
@@ -1094,8 +1143,11 @@ void CG_PrevWeapon_f(void)
 			break;
 		}
 	}
+
 	if (i == MAX_WEAPONS) {
 		cg.weaponSelect = original;
+	} else if (original != cg.weaponSelect) {
+		CG_RunWeaponScript();
 	}
 }
 
@@ -1122,7 +1174,10 @@ void CG_Weapon_f(void)
 		return;		// don't have the weapon
 	}
 
-	cg.weaponSelect = num;
+	if (cg.weaponSelect != num) {
+		cg.weaponSelect = num;
+		CG_RunWeaponScript();
+	}
 }
 
 void CG_OutOfAmmoChange(void)
@@ -1131,12 +1186,14 @@ void CG_OutOfAmmoChange(void)
 
 	cg.weaponSelectTime = cg.time;
 
-	for (i = MAX_WEAPONS-1; i > 0; i--) {
+	for (i = MAX_WEAPONS - 1; i > 0; i--) {
 		if (CG_WeaponSelectable(i)) {
 			cg.weaponSelect = i;
 			break;
 		}
 	}
+
+	CG_RunWeaponScript();
 }
 
 // WEAPON EVENTS

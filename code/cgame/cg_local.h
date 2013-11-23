@@ -1004,6 +1004,17 @@ extern vmCvar_t		cg_zoomToggle;
 extern vmCvar_t		cg_zoomOutOnDeath;
 extern vmCvar_t		cg_zoomScaling;
 extern vmCvar_t		cg_zoomSensitivity;
+extern vmCvar_t		cg_weaponConfig;
+extern vmCvar_t		cg_weaponConfig_g;
+extern vmCvar_t		cg_weaponConfig_mg;
+extern vmCvar_t		cg_weaponConfig_sg;
+extern vmCvar_t		cg_weaponConfig_gl;
+extern vmCvar_t		cg_weaponConfig_rl;
+extern vmCvar_t		cg_weaponConfig_lg;
+extern vmCvar_t		cg_weaponConfig_rg;
+extern vmCvar_t		cg_weaponConfig_pg;
+extern vmCvar_t		cg_weaponConfig_bfg;
+extern vmCvar_t		cg_weaponConfig_gh;
 
 //
 // cg_main.c
@@ -1141,6 +1152,7 @@ void	CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *paren
 //
 // cg_weapons.c
 //
+void	CG_RunWeaponScript(void);
 void	CG_NextWeapon_f(void);
 void	CG_PrevWeapon_f(void);
 void	CG_Weapon_f(void);
