@@ -181,27 +181,6 @@ const char *G_GetArenaInfoByMap(const char *map)
 	return NULL;
 }
 
-static void PlayerIntroSound(const char *modelAndSkin)
-{
-	char	model[MAX_QPATH];
-	char	*skin;
-
-	Q_strncpyz(model, modelAndSkin, sizeof(model));
-	skin = strrchr(model, '/');
-	if (skin) {
-		*skin++ = '\0';
-	}
-	else {
-		skin = model;
-	}
-
-	if (Q_stricmp(skin, "default") == 0) {
-		skin = model;
-	}
-
-	trap_SendConsoleCommand(EXEC_APPEND, va("play sound/player/announce/%s.wav\n", skin));
-}
-
 void G_AddRandomBot(int team)
 {
 	int		i, n, num;
@@ -416,7 +395,6 @@ void G_CheckMinimumPlayers(void)
 void G_CheckBotSpawn(void)
 {
 	int		n;
-	char	userinfo[MAX_INFO_VALUE];
 
 	G_CheckMinimumPlayers();
 
@@ -429,11 +407,6 @@ void G_CheckBotSpawn(void)
 		}
 		ClientBegin(botSpawnQueue[n].clientNum);
 		botSpawnQueue[n].spawnTime = 0;
-
-		if (g_gametype.integer == GT_SINGLE_PLAYER) {
-			trap_GetUserinfo(botSpawnQueue[n].clientNum, userinfo, sizeof(userinfo));
-			PlayerIntroSound(Info_ValueForKey (userinfo, "model"));
-		}
 	}
 }
 
@@ -495,8 +468,6 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	char			*key;
 	char			*s;
 	char			*botname;
-	char			*model;
-	char			*headmodel;
 	char			userinfo[MAX_INFO_STRING];
 
 	// have the server allocate a client slot
@@ -540,24 +511,6 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 	else if (skill >= 3 && skill < 4) {
 		Info_SetValueForKey(userinfo, "handicap", "90");
 	}
-
-	key = "model";
-	model = Info_ValueForKey(botinfo, key);
-	if (!*model) {
-		model = "visor/default";
-	}
-	Info_SetValueForKey(userinfo, key, model);
-	key = "team_model";
-	Info_SetValueForKey(userinfo, key, model);
-
-	key = "headmodel";
-	headmodel = Info_ValueForKey(botinfo, key);
-	if (!*headmodel) {
-		headmodel = model;
-	}
-	Info_SetValueForKey(userinfo, key, headmodel);
-	key = "team_headmodel";
-	Info_SetValueForKey(userinfo, key, headmodel);
 
 	key = "gender";
 	s = Info_ValueForKey(botinfo, key);
@@ -678,10 +631,9 @@ void Svcmd_BotList_f(void)
 	int i;
 	char name[MAX_TOKEN_CHARS];
 	char funname[MAX_TOKEN_CHARS];
-	char model[MAX_TOKEN_CHARS];
 	char aifile[MAX_TOKEN_CHARS];
 
-	trap_Print("^1name             model            aifile              funname\n");
+	trap_Print("^1name            aifile              funname\n");
 	for (i = 0; i < g_numBots; i++) {
 		strcpy(name, Info_ValueForKey(g_botInfos[i], "name"));
 		if (!*name) {
@@ -691,15 +643,11 @@ void Svcmd_BotList_f(void)
 		if (!*funname) {
 			strcpy(funname, "");
 		}
-		strcpy(model, Info_ValueForKey(g_botInfos[i], "model"));
-		if (!*model) {
-			strcpy(model, "visor/default");
-		}
 		strcpy(aifile, Info_ValueForKey(g_botInfos[i], "aifile"));
 		if (!*aifile) {
 			strcpy(aifile, "bots/default_c.c");
 		}
-		trap_Print(va("%-16s %-16s %-20s %-20s\n", name, model, aifile, funname));
+		trap_Print(va("%-16s %-20s %-20s\n", name, aifile, funname));
 	}
 }
 

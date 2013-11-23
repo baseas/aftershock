@@ -533,14 +533,10 @@ void ClientUserinfoChanged(int clientNum)
 	gentity_t *ent;
 	int		teamTask, teamLeader, team, health;
 	char	*s;
-	char	model[MAX_QPATH];
-	char	headModel[MAX_QPATH];
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
 	char	c1[MAX_INFO_STRING];
 	char	c2[MAX_INFO_STRING];
-	char	redTeam[MAX_INFO_STRING];
-	char	blueTeam[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
 
 	ent = g_entities + clientNum;
@@ -595,15 +591,6 @@ void ClientUserinfoChanged(int clientNum)
 	}
 	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
 
-	// set model
-	if (g_gametype.integer >= GT_TEAM) {
-		Q_strncpyz(model, Info_ValueForKey (userinfo, "team_model"), sizeof(model));
-		Q_strncpyz(headModel, Info_ValueForKey (userinfo, "team_headmodel"), sizeof(headModel));
-	} else {
-		Q_strncpyz(model, Info_ValueForKey (userinfo, "model"), sizeof(model));
-		Q_strncpyz(headModel, Info_ValueForKey (userinfo, "headmodel"), sizeof(headModel));
-	}
-
 	// bots set their team a few frames later
 	if (g_gametype.integer >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT) {
 		s = Info_ValueForKey(userinfo, "team");
@@ -637,20 +624,17 @@ void ClientUserinfoChanged(int clientNum)
 	strcpy(c1, Info_ValueForKey(userinfo, "color1"));
 	strcpy(c2, Info_ValueForKey(userinfo, "color2"));
 
-	strcpy(redTeam, Info_ValueForKey(userinfo, "g_redteam"));
-	strcpy(blueTeam, Info_ValueForKey(userinfo, "g_blueteam"));
-
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if (ent->r.svFlags & SVF_BOT) {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-			client->pers.netname, team, model, headModel, c1, c2,
+		s = va("n\\%s\\t\\%i\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses,
 			Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
 	}
 	else {
-		s = va("n\\%s\\t\\%i\\model\\%s\\hmodel\\%s\\g_redteam\\%s\\g_blueteam\\%s\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, client->sess.sessionTeam, model, headModel, redTeam, blueTeam, c1, c2,
+		s = va("n\\%s\\t\\%i\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, c1, c2,
 			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
