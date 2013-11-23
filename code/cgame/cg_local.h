@@ -827,6 +827,7 @@ typedef struct {
 	int				capturelimit;
 	int				timelimit;
 	int				maxclients;
+	qboolean		newItemHeight;
 	char			mapname[MAX_QPATH];
 	char			redTeam[MAX_QPATH];
 	char			blueTeam[MAX_QPATH];
