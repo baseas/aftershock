@@ -240,6 +240,12 @@ static void CG_TouchItem(centity_t *cent)
 		return;
 	}
 
+	if ((cent->currentState.eFlags & EF_DROPPED_ITEM)
+		&& cent->currentState.pos.trTime + DROPPED_PICKUP_DELAY > cg.time)
+	{
+		return;
+	}
+
 	if (!BG_PlayerTouchesItem(&cg.predictedPlayerState, &cent->currentState,
 		cg.time, cgs.newItemHeight))
 	{

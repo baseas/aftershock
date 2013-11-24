@@ -24,6 +24,48 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+static gitem_t *FindArmorForQuantity(int quantity)
+{
+	gitem_t	*it;
+
+	for (it = bg_itemlist + 1; it->classname; it++) {
+		if (it->giType == IT_ARMOR && it->quantity == quantity) {
+			return it;
+		}
+	}
+
+	Com_Error(ERR_DROP, "Couldn't find armor item for quantity %i", quantity);
+	return NULL;
+}
+
+static gitem_t *FindHealthForQuantity(int quantity)
+{
+	gitem_t	*it;
+
+	for (it = bg_itemlist + 1; it->classname; it++) {
+		if (it->giType == IT_HEALTH && it->quantity == quantity) {
+			return it;
+		}
+	}
+
+	Com_Error(ERR_DROP, "Couldn't find health item for quantity %i", quantity);
+	return NULL;
+}
+
+static gitem_t *FindAmmoForWeapon(weapon_t weapon)
+{
+	gitem_t	*it;
+
+	for (it = bg_itemlist + 1; it->classname; it++) {
+		if (it->giType == IT_AMMO && it->giTag == weapon) {
+			return it;
+		}
+	}
+
+	Com_Error(ERR_DROP, "Couldn't find item for weapon %i", weapon);
+	return NULL;
+}
+
 void DeathmatchScoreboardMessage(gentity_t *ent)
 {
 	char		entry[1024];
@@ -448,7 +490,7 @@ void SetTeam(gentity_t *ent, char *s)
 	clientNum = client - level.clients;
 	specClient = 0;
 	specState = SPECTATOR_NOT;
-	if (!Q_stricmp(s, "scoreboard") || !Q_stricmp(s, "score") ) {
+	if (!Q_stricmp(s, "scoreboard") || !Q_stricmp(s, "score")) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_SCOREBOARD;
 	} else if (!Q_stricmp(s, "follow1")) {
@@ -474,7 +516,7 @@ void SetTeam(gentity_t *ent, char *s)
 			team = PickTeam(clientNum);
 		}
 
-		if (g_teamForceBalance.integer ) {
+		if (g_teamForceBalance.integer) {
 			int		counts[TEAM_NUM_TEAMS];
 
 			counts[TEAM_BLUE] = TeamCount(clientNum, TEAM_BLUE);
@@ -1283,7 +1325,173 @@ void Cmd_SetViewpos_f(gentity_t *ent)
 
 void Cmd_Stats_f(gentity_t *ent) { }
 
-void ClientCommand(int clientNum) {
+void Cmd_DropArmor_f(gentity_t *ent)
+{
+	gitem_t	*item;
+	char	arg1[128];
+	int		amount;
+
+	if (!(g_itemDrop.integer & 16) || g_instantgib.integer) {
+		return;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	if (trap_Argc() > 1) {
+		trap_Argv(1, arg1, sizeof(arg1));
+		amount = atoi(arg1);
+    } else {
+		amount = 50;
+	}
+
+	if (amount >= 100) {
+		amount = 100;
+	} else if (amount >= 50) {
+		amount = 50;
+	} else if (amount >= 25) {
+		amount = 25;
+	} else {
+		amount = 5;
+	}
+
+	item = FindArmorForQuantity(amount);
+	Drop_Item_Armor(ent, item);
+}
+
+void Cmd_DropHealth_f(gentity_t *ent)
+{
+	gitem_t	*item;
+	char	arg1[128];
+	int		amount;
+
+	if (!(g_itemDrop.integer & 8) || g_instantgib.integer) {
+		return;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	if (trap_Argc() > 1) {
+		trap_Argv(1, arg1, sizeof(arg1));
+		amount = atoi(arg1);
+	} else {
+		amount = 25;
+	}
+
+	if (amount >= 100) {
+		amount = 100;
+	} else if (amount >= 50) {
+		amount = 50;
+	} else if (amount >= 25) {
+		amount = 25;
+	} else {
+		amount = 5;
+	}
+
+	item = FindHealthForQuantity(amount);
+	Drop_Item_Health(ent, item);
+}
+
+void Cmd_DropAmmo_f(gentity_t *ent)
+{
+	gitem_t	*item;
+	int		weapon;
+	char	arg1[128];
+
+	if (!(g_itemDrop.integer & 4) || g_instantgib.integer || g_rockets.integer) {
+		return;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	if (trap_Argc() > 1) {
+		trap_Argv(1, arg1, sizeof(arg1));
+		weapon = atoi(arg1);
+	} else {
+		weapon = ent->s.weapon;
+	}
+
+	if (weapon <= WP_GAUNTLET || weapon >= WP_NUM_WEAPONS) {
+		return;
+	}
+
+	item = FindAmmoForWeapon(weapon);
+	if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << item->giTag))) {
+		Drop_Item_Ammo(ent, item);
+	}
+}
+
+void Cmd_DropWeapon_f(gentity_t *ent)
+{
+	gitem_t	*item;
+	int		weapon;
+	char	arg1[128];
+
+	if (!(g_itemDrop.integer & 2) || g_instantgib.integer || g_rockets.integer) {
+		return;
+	}
+
+	if (ent->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	if (trap_Argc() > 1) {
+		trap_Argv(1, arg1, sizeof(arg1));
+		weapon = atoi(arg1);
+	} else {
+		weapon = ent->s.weapon;
+	}
+
+	if (weapon <= WP_GAUNTLET || weapon >= WP_NUM_WEAPONS) {
+		return;
+	}
+
+	item = BG_FindItemForWeapon(weapon);
+	if ((ent->client->ps.stats[STAT_WEAPONS] & (1 << item->giTag))) {
+		Drop_Item_Weapon(ent, item);
+	}
+}
+
+void Cmd_DropFlag_f(gentity_t *other)
+{
+	if (!(g_itemDrop.integer & 1)) {
+		return;
+	}
+
+	if (other->client->ps.pm_type == PM_DEAD) {
+		return;
+	}
+
+	if (other->client->ps.powerups[PW_NEUTRALFLAG]) {
+		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_NEUTRALFLAG));
+		other->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+	} else if (other->client->ps.powerups[PW_REDFLAG]) {
+		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_REDFLAG));
+		other->client->ps.powerups[PW_REDFLAG] = 0;
+	} else if (other->client->ps.powerups[PW_BLUEFLAG]) {
+		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_BLUEFLAG));
+		other->client->ps.powerups[PW_BLUEFLAG] = 0;
+	}
+}
+
+void Cmd_Drop_f(gentity_t *ent)
+{
+	if ((ent->client->ps.powerups[PW_NEUTRALFLAG] || ent->client->ps.powerups[PW_REDFLAG]
+		|| ent->client->ps.powerups[PW_BLUEFLAG]) && g_itemDrop.integer & 1)
+	{
+		Cmd_DropFlag_f(ent);
+	} else if (g_itemDrop.integer & 2) {
+		Cmd_DropWeapon_f(ent);
+	}
+}
+
+void ClientCommand(int clientNum)
+{
 	gentity_t *ent;
 	char	cmd[MAX_TOKEN_CHARS];
 
@@ -1357,6 +1565,18 @@ void ClientCommand(int clientNum) {
 		Cmd_SetViewpos_f(ent);
 	else if (Q_stricmp (cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
+	else if (Q_stricmp (cmd, "dropammo") == 0)
+		Cmd_DropAmmo_f(ent);
+	else if (Q_stricmp (cmd, "droparmor") == 0)
+		Cmd_DropArmor_f(ent);
+	else if (Q_stricmp (cmd, "drophealth") == 0)
+		Cmd_DropHealth_f(ent);
+	else if (Q_stricmp (cmd, "dropweapon") == 0)
+		Cmd_DropWeapon_f(ent);
+	else if (Q_stricmp (cmd, "dropflag") == 0)
+		Cmd_DropFlag_f(ent);
+	else if (Q_stricmp (cmd, "drop") == 0)
+		Cmd_Drop_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

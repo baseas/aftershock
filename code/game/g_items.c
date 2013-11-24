@@ -86,7 +86,7 @@ int Pickup_Powerup(gentity_t *ent, gentity_t *other)
 
 		// if same team in team game, no sound
 		// cannot use OnSameTeam as it expects to g_entities, not clients
-		if (g_gametype.integer >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam ) {
+		if (g_gametype.integer >= GT_TEAM && other->client->sess.sessionTeam == client->sess.sessionTeam) {
 			continue;
 		}
 
@@ -118,11 +118,6 @@ int Pickup_Powerup(gentity_t *ent, gentity_t *other)
 int Pickup_Holdable(gentity_t *ent, gentity_t *other)
 {
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
-
-	if (ent->item->giTag == HI_KAMIKAZE) {
-		other->client->ps.eFlags |= EF_KAMIKAZE;
-	}
-
 	return RESPAWN_HOLDABLE;
 }
 
@@ -309,6 +304,13 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 	if (other->health < 1)
 		return;		// dead people can't pickup
 
+	// prevent the dropper to pickup item before it lands on the ground
+	if ((ent->s.eFlags & EF_DROPPED_ITEM)
+		&& ent->s.pos.trTime + DROPPED_PICKUP_DELAY > level.time)
+	{
+		return;
+	}
+
 	// the same pickup rules are used for client side and server side
 	if (!BG_CanItemBeGrabbed(g_gametype.integer, &ent->s, &other->client->ps)) {
 		return;
@@ -439,7 +441,7 @@ gentity_t *LaunchItem(gitem_t *item, vec3_t origin, vec3_t velocity)
 
 	dropped->s.eType = ET_ITEM;
 	dropped->s.modelindex = item - bg_itemlist;	// store item number in modelindex
-	dropped->s.modelindex2 = 1; // This is non-zero is it's a dropped item
+	dropped->s.modelindex2 = 1; // This is non-zero if it's a dropped item
 
 	dropped->classname = item->classname;
 	dropped->item = item;
@@ -476,8 +478,9 @@ Spawns an item and tosses it forward
 */
 gentity_t *Drop_Item(gentity_t *ent, gitem_t *item, float angle)
 {
-	vec3_t	velocity;
-	vec3_t	angles;
+	vec3_t		velocity;
+	gentity_t	*dropped;
+	vec3_t		angles;
 
 	VectorCopy(ent->s.apos.trBase, angles);
 	angles[YAW] += angle;
@@ -487,7 +490,64 @@ gentity_t *Drop_Item(gentity_t *ent, gitem_t *item, float angle)
 	VectorScale(velocity, 150, velocity);
 	velocity[2] += 200 + crandom() * 50;
 
-	return LaunchItem(item, ent->s.pos.trBase, velocity);
+	dropped = LaunchItem(item, ent->s.pos.trBase, velocity);
+	return dropped;
+}
+
+void Drop_Item_Armor(gentity_t *ent, gitem_t *item)
+{
+	gentity_t *dropped;
+	if (ent->client->ps.stats[STAT_ARMOR] < item->quantity) {
+		return;
+	}
+
+	ent->client->ps.stats[STAT_ARMOR] -= item->quantity;
+	dropped = Drop_Item(ent, item, 0);
+	dropped->s.eFlags |= EF_DROPPED_ITEM;
+}
+
+void Drop_Item_Health(gentity_t *ent, gitem_t *item)
+{
+	gentity_t *dropped;
+	if (ent->client->ps.stats[STAT_HEALTH] <= item->quantity || ent->health <= item->quantity) {
+		return;
+	}
+
+	ent->client->ps.stats[STAT_HEALTH] -= item->quantity;
+	ent->health -= item->quantity;
+	dropped = Drop_Item(ent, item, 0);
+	dropped->s.eFlags |= EF_DROPPED_ITEM;
+}
+
+void Drop_Item_Ammo(gentity_t *ent, gitem_t *item)
+{
+	gentity_t *dropped;
+	if(ent->client->ps.ammo[item->giTag] < item->quantity) {
+		return;
+	}
+
+	ent->client->ps.ammo[item->giTag] -= item->quantity;
+	dropped = Drop_Item(ent, item, 0);
+	dropped->s.eFlags |= EF_DROPPED_ITEM;
+}
+
+void Drop_Item_Weapon(gentity_t *ent, gitem_t *item)
+{
+	gentity_t *dropped;
+
+	ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << item->giTag);
+	dropped = Drop_Item(ent, item, 0);
+	dropped->count = ent->client->ps.ammo[item->giTag];
+	dropped->s.eFlags |= EF_DROPPED_ITEM;
+	ent->client->ps.ammo[item->giTag] = 0;
+	G_AddEvent(ent, EV_NOAMMO, 0);
+}
+
+void Drop_Item_Flag(gentity_t *ent, gitem_t *item)
+{
+	gentity_t *dropped;
+	dropped = Drop_Item(ent, item, 0);
+	dropped->s.eFlags |= EF_DROPPED_ITEM;
 }
 
 /**

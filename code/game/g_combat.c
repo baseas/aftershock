@@ -82,24 +82,6 @@ static void LookAtKiller(gentity_t *self, gentity_t *inflictor, gentity_t *attac
 
 static void GibEntity(gentity_t *self, int killer)
 {
-	gentity_t *ent;
-	int i;
-
-	//if this entity still has kamikaze
-	if (self->s.eFlags & EF_KAMIKAZE) {
-		// check if there is a kamikaze timer around for this owner
-		for (i = 0; i < level.num_entities; i++) {
-			ent = &g_entities[i];
-			if (!ent->inuse)
-				continue;
-			if (ent->activator != self)
-				continue;
-			if (strcmp(ent->classname, "kamikaze timer"))
-				continue;
-			G_FreeEntity(ent);
-			break;
-		}
-	}
 	G_AddEvent(self, EV_GIB_PLAYER, killer);
 	self->takedamage = qfalse;
 	self->s.eType = ET_INVISIBLE;

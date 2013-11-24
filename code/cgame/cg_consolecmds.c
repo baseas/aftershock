@@ -209,27 +209,33 @@ void CG_InitConsoleCommands(void)
 	// the game server will interpret these commands, which will be automatically
 	// forwarded to the server after they are not recognized locally
 	//
-	trap_AddCommand ("kill");
-	trap_AddCommand ("say");
-	trap_AddCommand ("say_team");
-	trap_AddCommand ("tell");
-	trap_AddCommand ("give");
-	trap_AddCommand ("god");
-	trap_AddCommand ("notarget");
-	trap_AddCommand ("noclip");
-	trap_AddCommand ("where");
-	trap_AddCommand ("team");
-	trap_AddCommand ("follow");
-	trap_AddCommand ("follownext");
-	trap_AddCommand ("followprev");
-	trap_AddCommand ("levelshot");
-	trap_AddCommand ("addbot");
-	trap_AddCommand ("setviewpos");
-	trap_AddCommand ("callvote");
-	trap_AddCommand ("vote");
-	trap_AddCommand ("callteamvote");
-	trap_AddCommand ("teamvote");
-	trap_AddCommand ("stats");
-	trap_AddCommand ("teamtask");
+	trap_AddCommand("kill");
+	trap_AddCommand("say");
+	trap_AddCommand("say_team");
+	trap_AddCommand("tell");
+	trap_AddCommand("give");
+	trap_AddCommand("god");
+	trap_AddCommand("notarget");
+	trap_AddCommand("noclip");
+	trap_AddCommand("where");
+	trap_AddCommand("team");
+	trap_AddCommand("follow");
+	trap_AddCommand("follownext");
+	trap_AddCommand("followprev");
+	trap_AddCommand("levelshot");
+	trap_AddCommand("addbot");
+	trap_AddCommand("setviewpos");
+	trap_AddCommand("callvote");
+	trap_AddCommand("vote");
+	trap_AddCommand("callteamvote");
+	trap_AddCommand("teamvote");
+	trap_AddCommand("stats");
+	trap_AddCommand("teamtask");
+	trap_AddCommand("dropammo");
+	trap_AddCommand("droparmor");
+	trap_AddCommand("drophealth");
+	trap_AddCommand("dropweapon");
+	trap_AddCommand("dropflag");
+	trap_AddCommand("drop");
 }
 

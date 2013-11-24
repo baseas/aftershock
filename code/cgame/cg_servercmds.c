@@ -175,13 +175,24 @@ static void CG_ConfigStringModified(void)
 		CG_NewClientInfo(num - CS_PLAYERS);
 		CG_BuildSpectatorString();
 	} else if (num == CS_FLAGSTATUS) {
+		// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
 		if (cgs.gametype == GT_CTF) {
-			// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
+			team_t	team;
+			team = cgs.clientinfo[cg.clientNum].team;
+			if ((cgs.redflag == 1 && str[0] - '0' == 2 && team == TEAM_RED)
+				|| (cgs.blueflag == 1 && str[1] - '0' == 2 && team == TEAM_BLUE))
+			{
+				CG_CenterPrint("^2The enemy dropped your flag", 100, SMALLCHAR_WIDTH);
+			} else if ((cgs.redflag == 1 && str[0] - '0' == 2 && team == TEAM_BLUE)
+				|| (cgs.blueflag == 1 && str[1] - '0' == 2 && team == TEAM_RED))
+			{
+				CG_CenterPrint("^1You team dropped the flag", 100, SMALLCHAR_WIDTH);
+			}
+
 			cgs.redflag = str[0] - '0';
 			cgs.blueflag = str[1] - '0';
 		}
-	}
-	else if (num == CS_SHADERSTATE) {
+	} else if (num == CS_SHADERSTATE) {
 		CG_ShaderStateChanged();
 	}
 }
