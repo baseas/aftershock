@@ -35,7 +35,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 void S_Update_( void );
 void S_Base_StopAllSounds(void);
-void S_Base_StopBackgroundTrack( void );
 
 snd_stream_t	*s_backgroundStream = NULL;
 static char		s_backgroundLoop[MAX_QPATH];
@@ -722,9 +721,6 @@ void S_Base_StopAllSounds(void) {
 		return;
 	}
 
-	// stop the background music
-	S_Base_StopBackgroundTrack();
-
 	S_Base_ClearSoundBuffer ();
 }
 
@@ -1231,9 +1227,6 @@ void S_Base_Update( void ) {
 		Com_Printf ("----(%i)---- painted: %i\n", total, s_paintedtime);
 	}
 
-	// add raw data from streamed samples
-	S_UpdateBackgroundTrack();
-
 	// mix some sound
 	S_Update_();
 }
@@ -1355,161 +1348,6 @@ void S_Update_(void) {
 	lastTime = thisTime;
 }
 
-
-
-/*
-===============================================================================
-
-background music functions
-
-===============================================================================
-*/
-
-/*
-======================
-S_StopBackgroundTrack
-======================
-*/
-void S_Base_StopBackgroundTrack( void ) {
-	if(!s_backgroundStream)
-		return;
-	S_CodecCloseStream(s_backgroundStream);
-	s_backgroundStream = NULL;
-	s_rawend[0] = 0;
-}
-
-/*
-======================
-S_OpenBackgroundStream
-======================
-*/
-static void S_OpenBackgroundStream( const char *filename ) {
-	// close the background track, but DON'T reset s_rawend
-	// if restarting the same back ground track
-	if(s_backgroundStream)
-	{
-		S_CodecCloseStream(s_backgroundStream);
-		s_backgroundStream = NULL;
-	}
-
-	// Open stream
-	s_backgroundStream = S_CodecOpenStream(filename);
-	if(!s_backgroundStream) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: couldn't open music file %s\n", filename );
-		return;
-	}
-
-	if(s_backgroundStream->info.channels != 2 || s_backgroundStream->info.rate != 22050) {
-		Com_Printf(S_COLOR_YELLOW "WARNING: music file %s is not 22k stereo\n", filename );
-	}
-}
-
-/*
-======================
-S_StartBackgroundTrack
-======================
-*/
-void S_Base_StartBackgroundTrack( const char *intro, const char *loop ){
-	if ( !intro ) {
-		intro = "";
-	}
-	if ( !loop || !loop[0] ) {
-		loop = intro;
-	}
-	Com_DPrintf( "S_StartBackgroundTrack( %s, %s )\n", intro, loop );
-
-	if(!*intro)
-	{
-		S_Base_StopBackgroundTrack();
-		return;
-	}
-
-	Q_strncpyz( s_backgroundLoop, loop, sizeof( s_backgroundLoop ) );
-
-	S_OpenBackgroundStream( intro );
-}
-
-/*
-======================
-S_UpdateBackgroundTrack
-======================
-*/
-void S_UpdateBackgroundTrack( void ) {
-	int		bufferSamples;
-	int		fileSamples;
-	byte	raw[30000];		// just enough to fit in a mac stack frame
-	int		fileBytes;
-	int		r;
-
-	if(!s_backgroundStream) {
-		return;
-	}
-
-	// don't bother playing anything if musicvolume is 0
-	if ( s_musicVolume->value <= 0 ) {
-		return;
-	}
-
-	// see how many samples should be copied into the raw buffer
-	if ( s_rawend[0] < s_soundtime ) {
-		s_rawend[0] = s_soundtime;
-	}
-
-	while ( s_rawend[0] < s_soundtime + MAX_RAW_SAMPLES ) {
-		bufferSamples = MAX_RAW_SAMPLES - (s_rawend[0] - s_soundtime);
-
-		// decide how much data needs to be read from the file
-		fileSamples = bufferSamples * s_backgroundStream->info.rate / dma.speed;
-
-		if (!fileSamples)
-			return;
-
-		// our max buffer size
-		fileBytes = fileSamples * (s_backgroundStream->info.width * s_backgroundStream->info.channels);
-		if ( fileBytes > sizeof(raw) ) {
-			fileBytes = sizeof(raw);
-			fileSamples = fileBytes / (s_backgroundStream->info.width * s_backgroundStream->info.channels);
-		}
-
-		// Read
-		r = S_CodecReadStream(s_backgroundStream, fileBytes, raw);
-		if(r < fileBytes)
-		{
-			fileSamples = r / (s_backgroundStream->info.width * s_backgroundStream->info.channels);
-		}
-
-		if(r > 0)
-		{
-			// add to raw buffer
-			S_Base_RawSamples(0, fileSamples, s_backgroundStream->info.rate,
-				s_backgroundStream->info.width, s_backgroundStream->info.channels, raw, s_musicVolume->value, -1);
-		}
-		else
-		{
-			// loop
-			if(s_backgroundLoop[0])
-			{
-				S_OpenBackgroundStream( s_backgroundLoop );
-				if(!s_backgroundStream)
-					return;
-			}
-			else
-			{
-				S_Base_StopBackgroundTrack();
-				return;
-			}
-		}
-
-	}
-}
-
-
-/*
-======================
-S_FreeOldestSound
-======================
-*/
-
 void S_FreeOldestSound( void ) {
 	int	i, oldest, used;
 	sfx_t	*sfx;
@@ -1595,8 +1433,6 @@ qboolean S_Base_Init( soundInterface_t *si ) {
 	si->Shutdown = S_Base_Shutdown;
 	si->StartSound = S_Base_StartSound;
 	si->StartLocalSound = S_Base_StartLocalSound;
-	si->StartBackgroundTrack = S_Base_StartBackgroundTrack;
-	si->StopBackgroundTrack = S_Base_StopBackgroundTrack;
 	si->RawSamples = S_Base_RawSamples;
 	si->StopAllSounds = S_Base_StopAllSounds;
 	si->ClearLoopingSounds = S_Base_ClearLoopingSounds;

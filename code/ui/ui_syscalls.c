@@ -349,14 +349,6 @@ int trap_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
 	return syscall( UI_PC_SOURCE_FILE_AND_LINE, handle, filename, line );
 }
 
-void trap_S_StopBackgroundTrack( void ) {
-	syscall( UI_S_STOPBACKGROUNDTRACK );
-}
-
-void trap_S_StartBackgroundTrack( const char *intro, const char *loop) {
-	syscall( UI_S_STARTBACKGROUNDTRACK, intro, loop );
-}
-
 int trap_RealTime(qtime_t *qtime) {
 	return syscall( UI_REAL_TIME, qtime );
 }

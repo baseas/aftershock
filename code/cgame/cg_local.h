@@ -1023,7 +1023,6 @@ const char	*CG_ConfigString(int index);
 const char	*CG_Argv(int arg);
 void QDECL	CG_Printf(const char *msg, ...) __attribute__ ((format (printf, 1, 2)));
 void QDECL	CG_Error(const char *msg, ...) __attribute__ ((noreturn, format (printf, 1, 2)));
-void		CG_StartMusic(void);
 void		CG_UpdateCvars(void);
 int			CG_CrosshairPlayer(void);
 int			CG_LastAttacker(void);
@@ -1353,9 +1352,6 @@ void		trap_S_UpdateEntityPosition(int entityNum, const vec3_t origin);
 // given entityNum and position
 void		trap_S_Respatialize(int entityNum, const vec3_t origin, vec3_t axis[3], int inwater);
 sfxHandle_t	trap_S_RegisterSound(const char *sample, qboolean compressed);		// returns buzz if not found
-void		trap_S_StartBackgroundTrack(const char *intro, const char *loop);	// empty name stops music
-void	trap_S_StopBackgroundTrack(void);
-
 
 void		trap_R_LoadWorldMap(const char *mapname);
 

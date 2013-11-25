@@ -28,7 +28,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 cvar_t *s_volume;
 cvar_t *s_muted;
-cvar_t *s_musicVolume;
 cvar_t *s_doppler;
 cvar_t *s_backend;
 cvar_t *s_muteWhenMinimized;
@@ -46,8 +45,6 @@ static qboolean S_ValidSoundInterface( soundInterface_t *si )
 	if( !si->Shutdown ) return qfalse;
 	if( !si->StartSound ) return qfalse;
 	if( !si->StartLocalSound ) return qfalse;
-	if( !si->StartBackgroundTrack ) return qfalse;
-	if( !si->StopBackgroundTrack ) return qfalse;
 	if( !si->RawSamples ) return qfalse;
 	if( !si->StopAllSounds ) return qfalse;
 	if( !si->ClearLoopingSounds ) return qfalse;
@@ -96,30 +93,6 @@ void S_StartLocalSound( sfxHandle_t sfx, int channelNum )
 {
 	if( si.StartLocalSound ) {
 		si.StartLocalSound( sfx, channelNum );
-	}
-}
-
-/*
-=================
-S_StartBackgroundTrack
-=================
-*/
-void S_StartBackgroundTrack( const char *intro, const char *loop )
-{
-	if( si.StartBackgroundTrack ) {
-		si.StartBackgroundTrack( intro, loop );
-	}
-}
-
-/*
-=================
-S_StopBackgroundTrack
-=================
-*/
-void S_StopBackgroundTrack( void )
-{
-	if( si.StopBackgroundTrack ) {
-		si.StopBackgroundTrack( );
 	}
 }
 
@@ -425,47 +398,6 @@ void S_Play_f( void ) {
 
 /*
 =================
-S_Music_f
-=================
-*/
-void S_Music_f( void ) {
-	int		c;
-
-	if( !si.StartBackgroundTrack ) {
-		return;
-	}
-
-	c = Cmd_Argc();
-
-	if ( c == 2 ) {
-		si.StartBackgroundTrack( Cmd_Argv(1), NULL );
-	} else if ( c == 3 ) {
-		si.StartBackgroundTrack( Cmd_Argv(1), Cmd_Argv(2) );
-	} else {
-		Com_Printf ("Usage: music <musicfile> [loopfile]\n");
-		return;
-	}
-
-}
-
-/*
-=================
-S_Music_f
-=================
-*/
-void S_StopMusic_f( void )
-{
-	if(!si.StopBackgroundTrack)
-		return;
-
-	si.StopBackgroundTrack();
-}
-
-
-//=============================================================================
-
-/*
-=================
 S_Init
 =================
 */
@@ -477,7 +409,6 @@ void S_Init( void )
 	Com_Printf( "------ Initializing Sound ------\n" );
 
 	s_volume = Cvar_Get( "s_volume", "0.8", CVAR_ARCHIVE );
-	s_musicVolume = Cvar_Get( "s_musicvolume", "0.25", CVAR_ARCHIVE );
 	s_muted = Cvar_Get("s_muted", "0", CVAR_ROM);
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE );
 	s_backend = Cvar_Get( "s_backend", "", CVAR_ROM );
@@ -492,8 +423,6 @@ void S_Init( void )
 		S_CodecInit( );
 
 		Cmd_AddCommand( "play", S_Play_f );
-		Cmd_AddCommand( "music", S_Music_f );
-		Cmd_AddCommand( "stopmusic", S_StopMusic_f );
 		Cmd_AddCommand( "s_list", S_SoundList );
 		Cmd_AddCommand( "s_stop", S_StopAllSounds );
 		Cmd_AddCommand( "s_info", S_SoundInfo );
@@ -539,8 +468,6 @@ void S_Shutdown( void )
 	Com_Memset( &si, 0, sizeof( soundInterface_t ) );
 
 	Cmd_RemoveCommand( "play" );
-	Cmd_RemoveCommand( "music");
-	Cmd_RemoveCommand( "stopmusic");
 	Cmd_RemoveCommand( "s_list" );
 	Cmd_RemoveCommand( "s_stop" );
 	Cmd_RemoveCommand( "s_info" );

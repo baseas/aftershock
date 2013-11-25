@@ -140,9 +140,6 @@ static void UI_SoundOptionsMenu_Event( void* ptr, int event ) {
 		trap_Cvar_SetValue( "s_volume", soundOptionsInfo.sfxvolume.curvalue / 10 );
 		soundOptionsInfo.sfxvolume_original = soundOptionsInfo.sfxvolume.curvalue;
 
-		trap_Cvar_SetValue( "s_musicvolume", soundOptionsInfo.musicvolume.curvalue / 10 );
-		soundOptionsInfo.musicvolume_original = soundOptionsInfo.musicvolume.curvalue;
-
 		// Check if something changed that requires the sound system to be restarted.
 		if (soundOptionsInfo.quality_original != soundOptionsInfo.quality.curvalue
 			|| soundOptionsInfo.soundSystem_original != soundOptionsInfo.soundSystem.curvalue)

@@ -263,11 +263,6 @@ sfxHandle_t	trap_S_RegisterSound(const char *sample, qboolean compressed)
 	return syscall(CG_S_REGISTERSOUND, sample, compressed);
 }
 
-void trap_S_StartBackgroundTrack(const char *intro, const char *loop)
-{
-	syscall(CG_S_STARTBACKGROUNDTRACK, intro, loop);
-}
-
 void trap_R_LoadWorldMap(const char *mapname)
 {
 	syscall(CG_R_LOADWORLDMAP, mapname);
@@ -463,11 +458,6 @@ int trap_PC_ReadToken(int handle, pc_token_t *pc_token)
 int trap_PC_SourceFileAndLine(int handle, char *filename, int *line)
 {
 	return syscall(CG_PC_SOURCE_FILE_AND_LINE, handle, filename, line);
-}
-
-void trap_S_StopBackgroundTrack(void)
-{
-	syscall(CG_S_STOPBACKGROUNDTRACK);
 }
 
 int trap_RealTime(qtime_t *qtime)

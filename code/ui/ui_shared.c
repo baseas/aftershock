@@ -1226,15 +1226,6 @@ void Script_Play(itemDef_t *item, char **args) {
 	}
 }
 
-void Script_playLooped(itemDef_t *item, char **args) {
-	const char *val;
-	if (String_Parse(args, &val)) {
-		DC->stopBackgroundTrack();
-		DC->startBackgroundTrack(val, val);
-	}
-}
-
-
 commandDef_t commandList[] =
 {
   {"fadein", &Script_FadeIn},                   // group/name
@@ -1256,7 +1247,6 @@ commandDef_t commandList[] =
   {"setcvar", &Script_SetCvar},           // group/name
   {"exec", &Script_Exec},           // group/name
   {"play", &Script_Play},           // group/name
-  {"playlooped", &Script_playLooped},           // group/name
   {"orbit", &Script_Orbit}                      // group/name
 };
 
@@ -2525,13 +2515,7 @@ void  Menus_Activate(menuDef_t *menu) {
 		Item_RunScript(&item, menu->onOpen);
 	}
 
-	if (menu->soundName && *menu->soundName) {
-//		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
-		DC->startBackgroundTrack(menu->soundName, menu->soundName);
-	}
-
 	Display_CloseCinematics();
-
 }
 
 int Display_VisibleMenuCount( void ) {
@@ -5470,15 +5454,6 @@ qboolean MenuParse_outOfBounds( itemDef_t *item, int handle ) {
 	return qtrue;
 }
 
-qboolean MenuParse_soundLoop( itemDef_t *item, int handle ) {
-	menuDef_t *menu = (menuDef_t*)item;
-
-	if (!PC_String_Parse(handle, &menu->soundName)) {
-		return qfalse;
-	}
-	return qtrue;
-}
-
 qboolean MenuParse_fadeClamp( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
@@ -5748,12 +5723,7 @@ static void Menu_CacheContents(menuDef_t *menu) {
 		for (i = 0; i < menu->itemCount; i++) {
 			Item_CacheContents(menu->items[i]);
 		}
-
-		if (menu->soundName && *menu->soundName) {
-			DC->registerSound(menu->soundName, qfalse);
-		}
 	}
-
 }
 
 void Display_CacheAll(void) {

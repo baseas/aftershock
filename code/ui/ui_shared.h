@@ -263,7 +263,6 @@ typedef struct {
   const char *onOpen;								// run when the menu is first opened
   const char *onClose;							// run when the menu is closed
   const char *onESC;								// run when the menu is closed
-	const char *soundName;						// background loop sound for menu
 
   vec4_t focusColor;								// focus color for items
   vec4_t disableColor;							// focus color for items
@@ -359,8 +358,6 @@ typedef struct {
 	void (*Pause)(qboolean b);
 	int (*ownerDrawWidth)(int ownerDraw, float scale);
 	sfxHandle_t (*registerSound)(const char *name, qboolean compressed);
-	void (*startBackgroundTrack)( const char *intro, const char *loop);
-	void (*stopBackgroundTrack)( void );
 	int (*playCinematic)(const char *name, float x, float y, float w, float h);
 	void (*stopCinematic)(int handle);
 	void (*drawCinematic)(int handle, float x, float y, float w, float h);

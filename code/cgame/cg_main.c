@@ -817,19 +817,6 @@ const char *CG_ConfigString(int index)
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
 
-void CG_StartMusic(void)
-{
-	char	*s;
-	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
-
-	// start the background music
-	s = (char *)CG_ConfigString(CS_MUSIC);
-	Q_strncpyz(parm1, COM_Parse(&s), sizeof(parm1));
-	Q_strncpyz(parm2, COM_Parse(&s), sizeof(parm2));
-
-	trap_S_StartBackgroundTrack(parm1, parm2);
-}
-
 /**
 Called after every level change or subsystem restart
 Will perform callbacks to make the loading info screen update.
@@ -914,8 +901,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	// Make sure we have update values (scores)
 	CG_SetConfigValues();
-
-	CG_StartMusic();
 
 	CG_LoadingString("");
 

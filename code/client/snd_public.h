@@ -28,9 +28,6 @@ void S_Shutdown( void );
 void S_StartSound( vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
 void S_StartLocalSound( sfxHandle_t sfx, int channelNum );
 
-void S_StartBackgroundTrack( const char *intro, const char *loop );
-void S_StopBackgroundTrack( void );
-
 // cinematics and voice-over-network will send raw samples
 // 1.0 volume will be direct output of source samples
 void S_RawSamples(int stream, int samples, int rate, int width, int channels,
@@ -68,9 +65,6 @@ void S_DisplayFreeMemory(void);
 void S_ClearSoundBuffer( void );
 
 void SNDDMA_Activate( void );
-
-void S_UpdateBackgroundTrack( void );
-
 
 #ifdef USE_VOIP
 void S_StartCapture( void );
