@@ -786,24 +786,24 @@ int CG_SetRGBA(byte incolor[4], const char *str)
 
 		hex = strtol(str, NULL, 16);
 		if (len == 6) {
-			incolor[0] = (hex >> 16);
-			incolor[1] = ((hex << 8) >> 16);
-			incolor[2] = ((hex << 16) >> 16);
-			incolor[3] = 255;
+			incolor[0] = (hex >> 16) & 0xFF;
+			incolor[1] = (hex >> 8) & 0xFF;
+			incolor[2] = hex & 0xFF;
+			incolor[3] = 0xFF;
 		} else if (len == 8) {
-			incolor[0] = (hex >> 24);
-			incolor[1] = ((hex << 8) >> 24);
-			incolor[2] = ((hex << 16) >> 24);
-			incolor[3] = ((hex << 24) >> 24);
+			incolor[0] = (hex >> 24) & 0xFF;
+			incolor[1] = (hex >> 16) & 0xFF;
+			incolor[2] = (hex >> 8) & 0xFF;
+			incolor[3] = hex & 0xFF;
 		}
 	}
 
 	return 0;
 error:
-	incolor[0] = 255;
-	incolor[1] = 255;
-	incolor[2] = 255;
-	incolor[3] = 255;
+	incolor[0] = 0xFF;
+	incolor[1] = 0xFF;
+	incolor[2] = 0xFF;
+	incolor[3] = 0xFF;
 	return 1;
 }
 
