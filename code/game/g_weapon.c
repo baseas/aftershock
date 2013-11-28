@@ -376,7 +376,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 		ent->client->accuracy_hits++;
 	}
 
-	if (g_instantgibRailjump.integer) {
+	if (g_instantgib.integer && g_instantgibRailjump.integer) {
 		G_RadiusKnockback(trace.endpos, ent, 100, 120.0f);
 	}
 }
