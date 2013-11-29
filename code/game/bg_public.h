@@ -153,7 +153,6 @@ typedef enum {
 #define PMF_GRAPPLE_PULL	2048	// pull towards grapple location
 #define PMF_FOLLOW			4096	// spectate following another player
 #define PMF_SCOREBOARD		8192	// spectate as a scoreboard
-#define PMF_INVULEXPAND		16384	// invulnerability sphere set to full size
 
 #define PMF_ALL_TIMES	(PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
 
@@ -262,17 +261,9 @@ typedef enum {
 	PW_HASTE,
 	PW_INVIS,
 	PW_REGEN,
-	PW_FLIGHT,
 
 	PW_REDFLAG,
 	PW_BLUEFLAG,
-	PW_NEUTRALFLAG,
-
-	PW_SCOUT,
-	PW_GUARD,
-	PW_DOUBLER,
-	PW_AMMOREGEN,
-	PW_INVULNERABILITY,
 
 	PW_NUM_POWERUPS
 
@@ -283,9 +274,6 @@ typedef enum {
 
 	HI_TELEPORTER,
 	HI_MEDKIT,
-	HI_KAMIKAZE,
-	HI_PORTAL,
-	HI_INVULNERABILITY,
 
 	HI_NUM_HOLDABLE
 } holdable_t;
@@ -436,7 +424,6 @@ typedef enum {
 	GTS_REDTEAM_TOOK_LEAD,
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED,
-	GTS_KAMIKAZE
 } global_team_sound_t;
 
 // animations

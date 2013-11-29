@@ -223,9 +223,6 @@ void Team_CheckDroppedItem(gentity_t *dropped)
 	else if (dropped->item->giTag == PW_BLUEFLAG) {
 		Team_SetFlagStatus(TEAM_BLUE, FLAG_DROPPED);
 	}
-	else if (dropped->item->giTag == PW_NEUTRALFLAG) {
-		Team_SetFlagStatus(TEAM_FREE, FLAG_DROPPED);
-	}
 }
 
 void Team_ForceGesture(int team)
@@ -599,9 +596,6 @@ void Team_FreeEntity(gentity_t *ent)
 	else if (ent->item->giTag == PW_BLUEFLAG) {
 		Team_ReturnFlag(TEAM_BLUE);
 	}
-	else if (ent->item->giTag == PW_NEUTRALFLAG) {
-		Team_ReturnFlag(TEAM_FREE);
-	}
 }
 
 /**
@@ -618,9 +612,6 @@ void Team_DroppedFlagThink(gentity_t *ent)
 	}
 	else if (ent->item->giTag == PW_BLUEFLAG) {
 		team = TEAM_BLUE;
-	}
-	else if (ent->item->giTag == PW_NEUTRALFLAG) {
-		team = TEAM_FREE;
 	}
 
 	Team_ReturnFlagSound(Team_ResetFlag(team), team);

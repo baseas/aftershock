@@ -1467,10 +1467,7 @@ void Cmd_DropFlag_f(gentity_t *other)
 		return;
 	}
 
-	if (other->client->ps.powerups[PW_NEUTRALFLAG]) {
-		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_NEUTRALFLAG));
-		other->client->ps.powerups[PW_NEUTRALFLAG] = 0;
-	} else if (other->client->ps.powerups[PW_REDFLAG]) {
+	if (other->client->ps.powerups[PW_REDFLAG]) {
 		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_REDFLAG));
 		other->client->ps.powerups[PW_REDFLAG] = 0;
 	} else if (other->client->ps.powerups[PW_BLUEFLAG]) {
@@ -1481,8 +1478,8 @@ void Cmd_DropFlag_f(gentity_t *other)
 
 void Cmd_Drop_f(gentity_t *ent)
 {
-	if ((ent->client->ps.powerups[PW_NEUTRALFLAG] || ent->client->ps.powerups[PW_REDFLAG]
-		|| ent->client->ps.powerups[PW_BLUEFLAG]) && g_itemDrop.integer & 1)
+	if ((ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG])
+		&& g_itemDrop.integer & 1)
 	{
 		Cmd_DropFlag_f(ent);
 	} else if (g_itemDrop.integer & 2) {

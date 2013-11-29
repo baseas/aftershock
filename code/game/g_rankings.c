@@ -807,9 +807,6 @@ void G_RankPickupPowerup(int self, int powerup)
 	case PW_REGEN:
 		trap_RankReportInt(self, -1, QGR_KEY_REGEN, 1, 1);
 		break;
-	case PW_FLIGHT:
-		trap_RankReportInt(self, -1, QGR_KEY_FLIGHT, 1, 1);
-		break;
 	default:
 		break;
 	}

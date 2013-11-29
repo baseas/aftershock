@@ -95,9 +95,7 @@ static void CheckAlmostCapture(gentity_t *self, gentity_t *attacker)
 	char		*classname;
 
 	// if this player was carrying a flag
-	if (self->client->ps.powerups[PW_REDFLAG] ||
-		self->client->ps.powerups[PW_BLUEFLAG] ||
-		self->client->ps.powerups[PW_NEUTRALFLAG]) {
+	if (self->client->ps.powerups[PW_REDFLAG] || self->client->ps.powerups[PW_BLUEFLAG]) {
 		// get the goal flag this player should have been going for
 		if (g_gametype.integer == GT_CTF) {
 			if (self->client->sess.sessionTeam == TEAM_BLUE) {
@@ -471,11 +469,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	// if I committed suicide, the flag does not fall, it returns.
 	if (meansOfDeath == MOD_SUICIDE) {
-		if (self->client->ps.powerups[PW_NEUTRALFLAG]) {		// only happens in One Flag CTF
-			Team_ReturnFlag(TEAM_FREE);
-			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
-		}
-		else if (self->client->ps.powerups[PW_REDFLAG]) {		// only happens in standard CTF
+		if (self->client->ps.powerups[PW_REDFLAG]) {		// only happens in standard CTF
 			Team_ReturnFlag(TEAM_RED);
 			self->client->ps.powerups[PW_REDFLAG] = 0;
 		}

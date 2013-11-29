@@ -277,7 +277,6 @@ Key digits:
 #define QGR_KEY_HASTE					1111060300
 #define QGR_KEY_INVIS					1111060400
 #define QGR_KEY_REGEN					1111060500
-#define QGR_KEY_FLIGHT					1111060600
 
 // holdable item keys
 #define QGR_KEY_MEDKIT					1111070000

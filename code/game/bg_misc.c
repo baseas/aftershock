@@ -619,23 +619,6 @@ gitem_t	bg_itemlist[] = {
 /* sounds */ "sound/items/regen.wav"
 	},
 
-/*QUAKED item_flight (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
-*/
-	{
-		"item_flight",
-		"sound/items/flight.wav",
-        { "models/powerups/instant/flight.md3",
-		"models/powerups/instant/flight_ring.md3",
-		NULL, NULL },
-/* icon */		"icons/flight",
-/* pickup */	"Flight",
-		60,
-		IT_POWERUP,
-		PW_FLIGHT,
-/* precache */ "",
-/* sounds */ "sound/items/flight.wav"
-	},
-
 /*QUAKED team_CTF_redflag (1 0 0) (-16 -16 -16) (16 16 16)
 Only in CTF games
 */
@@ -759,17 +742,6 @@ char *eventnames[] = {
 
 	"EV_GIB_PLAYER",			// gib a previously living player
 	"EV_SCOREPLUM",			// score plum
-
-//#ifdef MISSIONPACK
-	"EV_PROXIMITY_MINE_STICK",
-	"EV_PROXIMITY_MINE_TRIGGER",
-	"EV_KAMIKAZE",			// kamikaze explodes
-	"EV_OBELISKEXPLODE",		// obelisk explodes
-	"EV_OBELISKPAIN",		// obelisk pain
-	"EV_INVUL_IMPACT",		// invulnerability sphere impact
-	"EV_JUICED",				// invulnerability juiced effect
-	"EV_LIGHTNINGBOLT",		// lightning bolt bounced of invulnerability sphere
-//#endif
 
 	"EV_DEBUG_LINE",
 	"EV_STOPLOOPINGSOUND",
@@ -1065,11 +1037,6 @@ void BG_TouchJumpPad(playerState_t *ps, entityState_t *jumppad)
 
 	// spectators don't use jump pads
 	if (ps->pm_type != PM_NORMAL) {
-		return;
-	}
-
-	// flying characters don't hit bounce pads
-	if (ps->powerups[PW_FLIGHT]) {
 		return;
 	}
 

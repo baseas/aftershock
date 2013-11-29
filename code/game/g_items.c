@@ -273,21 +273,6 @@ void RespawnItem(gentity_t *ent)
 		te->r.svFlags |= SVF_BROADCAST;
 	}
 
-	if (ent->item->giType == IT_HOLDABLE && ent->item->giTag == HI_KAMIKAZE) {
-		// play powerup spawn sound to all clients
-		gentity_t	*te;
-
-		// if the powerup respawn sound should Not be global
-		if (ent->speed) {
-			te = G_TempEntity(ent->s.pos.trBase, EV_GENERAL_SOUND);
-		}
-		else {
-			te = G_TempEntity(ent->s.pos.trBase, EV_GLOBAL_SOUND);
-		}
-		te->s.eventParm = G_SoundIndex("sound/items/kamikazerespawn.wav");
-		te->r.svFlags |= SVF_BROADCAST;
-	}
-
 	// play the normal respawn sound only to nearby clients
 	G_AddEvent(ent, EV_ITEM_RESPAWN, 0);
 

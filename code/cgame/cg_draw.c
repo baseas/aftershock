@@ -194,8 +194,6 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 			item = BG_FindItemForPowerup(PW_REDFLAG);
 		} else if (team == TEAM_BLUE) {
 			item = BG_FindItemForPowerup(PW_BLUEFLAG);
-		} else if (team == TEAM_FREE) {
-			item = BG_FindItemForPowerup(PW_NEUTRALFLAG);
 		} else {
 			return;
 		}
@@ -274,8 +272,6 @@ static void CG_DrawStatusBar(void)
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_RED);
 	} else if (cg.predictedPlayerState.powerups[PW_BLUEFLAG]) {
 		CG_DrawStatusBarFlag(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_BLUE);
-	} else if (cg.predictedPlayerState.powerups[PW_NEUTRALFLAG]) {
-		CG_DrawStatusBarFlag(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_FREE);
 	}
 
 	if (ps->stats[ STAT_ARMOR ]) {

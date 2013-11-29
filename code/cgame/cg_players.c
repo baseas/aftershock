@@ -1058,11 +1058,6 @@ static void CG_PlayerPowerups(centity_t *cent, refEntity_t *torso)
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1);
 	}
 
-	// flight plays a looped sound
-	if (powerups & (1 << PW_FLIGHT)) {
-		trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.flightSound);
-	}
-
 	// redflag
 	if (powerups & (1 << PW_REDFLAG)) {
 		CG_TrailItem(cent, cgs.media.redFlagModel);
@@ -1073,12 +1068,6 @@ static void CG_PlayerPowerups(centity_t *cent, refEntity_t *torso)
 	if (powerups & (1 << PW_BLUEFLAG)) {
 		CG_TrailItem(cent, cgs.media.blueFlagModel);
 		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0);
-	}
-
-	// neutralflag
-	if (powerups & (1 << PW_NEUTRALFLAG)) {
-		CG_TrailItem(cent, cgs.media.neutralFlagModel);
-		trap_R_AddLightToScene(cent->lerpOrigin, 200 + (rand()&31), 1.0, 1.0, 1.0);
 	}
 
 	// haste leaves smoke trails
