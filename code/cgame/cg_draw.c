@@ -1358,12 +1358,7 @@ static void CG_DrawCrosshair(void)
 	if (cg_crosshairHealth.integer) {
 		CG_ColorForHealth(color);
 	} else {
-		byte rgba[4];
-		CG_SetRGBA(rgba, cg_crosshairColor.string);
-		color[0] = rgba[0] / 255.0f;
-		color[1] = rgba[1] / 255.0f;
-		color[2] = rgba[2] / 255.0f;
-		color[3] = rgba[3] / 255.0f;
+		CG_ParseColor(color, cg_crosshairColor.string);
 	}
 
 	trap_R_SetColor(color);

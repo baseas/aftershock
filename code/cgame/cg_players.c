@@ -44,8 +44,6 @@ char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*taunt.wav"
 };
 
-static model_t teamModel, enemyModel, redTeamModel, blueTeamModel;
-
 sfxHandle_t CG_CustomSound(int clientNum, const char *soundName)
 {
 	clientInfo_t *ci;
@@ -276,60 +274,19 @@ static qboolean CG_ParseAnimationFile(const char *filename, model_t *model)
 	return qtrue;
 }
 
-void CG_SetModelColor(int clientNum, refEntity_t *head, refEntity_t *torso,
+void CG_SetModelColor(clientInfo_t *ci, refEntity_t *head, refEntity_t *torso,
 	refEntity_t *legs, int state)
 {
-	clientInfo_t	*ci;
-	int				localTeam;
-	qboolean		follow;
-
 	if ((state & EF_DEAD) && cg_deadBodyDarken.integer) {
-		CG_SetRGBA(legs->shaderRGBA, cg_deadBodyColor.string);
-		CG_SetRGBA(torso->shaderRGBA, cg_deadBodyColor.string);
-		CG_SetRGBA(head->shaderRGBA, cg_deadBodyColor.string);
+		CG_SetRGBA(head->shaderRGBA, cgs.media.deadBodyColor);
+		CG_SetRGBA(torso->shaderRGBA, cgs.media.deadBodyColor);
+		CG_SetRGBA(legs->shaderRGBA, cgs.media.deadBodyColor);
 		return;
 	}
 
-	if (cgs.gametype < GT_TEAM) {
-		if (clientNum == cg.snap->ps.clientNum) {
-			CG_SetRGBA(legs->shaderRGBA, cg_teamLegsColor.string);
-			CG_SetRGBA(torso->shaderRGBA, cg_teamTorsoColor.string);
-			CG_SetRGBA(head->shaderRGBA, cg_teamHeadColor.string);
-		} else {
-			CG_SetRGBA(legs->shaderRGBA, cg_enemyLegsColor.string);
-			CG_SetRGBA(torso->shaderRGBA, cg_enemyTorsoColor.string);
-			CG_SetRGBA(head->shaderRGBA, cg_enemyHeadColor.string);
-		}
-
-		return;
-	}
-
-	ci = &cgs.clientinfo[clientNum];
-	localTeam = cgs.clientinfo[cg.clientNum].team;
-	follow = cg.snap->ps.pm_flags & PMF_FOLLOW;
-
-	if (cg_forceTeamModels.integer == 1
-		|| (localTeam == TEAM_SPECTATOR && !follow)
-		|| (localTeam == TEAM_SPECTATOR && follow && cg_forceTeamModels.integer == 2))
-	{
-		if (ci->team == TEAM_RED) {
-			CG_SetRGBA(legs->shaderRGBA, cg_redLegsColor.string);
-			CG_SetRGBA(torso->shaderRGBA, cg_redTorsoColor.string);
-			CG_SetRGBA(head->shaderRGBA, cg_redHeadColor.string);
-		} else {
-			CG_SetRGBA(legs->shaderRGBA, cg_blueLegsColor.string);
-			CG_SetRGBA(torso->shaderRGBA, cg_blueTorsoColor.string);
-			CG_SetRGBA(head->shaderRGBA, cg_blueHeadColor.string);
-		}
-	} else if (ci->team == cgs.clientinfo[cg.snap->ps.clientNum].team) {
-			CG_SetRGBA(legs->shaderRGBA, cg_teamLegsColor.string);
-			CG_SetRGBA(torso->shaderRGBA, cg_teamTorsoColor.string);
-			CG_SetRGBA(head->shaderRGBA, cg_teamHeadColor.string);
-	} else {
-		CG_SetRGBA(legs->shaderRGBA, cg_enemyLegsColor.string);
-		CG_SetRGBA(torso->shaderRGBA, cg_enemyTorsoColor.string);
-		CG_SetRGBA(head->shaderRGBA, cg_enemyHeadColor.string);
-	}
+	CG_SetRGBA(head->shaderRGBA, ci->model->headColor);
+	CG_SetRGBA(torso->shaderRGBA, ci->model->torsoColor);
+	CG_SetRGBA(legs->shaderRGBA, ci->model->legsColor);
 }
 
 static void CG_ParseModelString(char *str, char **model, char **skin)
@@ -479,6 +436,46 @@ static int CG_RegisterSoundModel(model_t *model, char *modelString, const char *
 }
 
 /**
+If no snapshot has been reveived and player is in team spectator,
+assume that he does not follow (spectate) another player.
+*/
+static void CG_SetPlayerModel(int clientNum)
+{
+	clientInfo_t	*ci, *curci, *localci;
+	qboolean		follow;
+	int				i;
+
+	ci = &cgs.clientinfo[clientNum];
+	localci = &cgs.clientinfo[cg.clientNum];
+	curci = &cgs.clientinfo[cg.snap ? cg.snap->ps.clientNum : cg.clientNum];
+	follow = (cg.snap ? cg.snap->ps.pm_flags & PMF_FOLLOW : qfalse);
+
+	if (cgs.gametype >= GT_TEAM) {
+		if (cg_forceTeamModels.integer == 1
+			|| (localci->team == TEAM_SPECTATOR && !follow)
+			|| (localci->team == TEAM_SPECTATOR && follow && cg_forceTeamModels.integer == 2))
+		{
+			ci->model = (ci->team == TEAM_RED ? &cgs.media.redTeamModel : &cgs.media.blueTeamModel);
+		} else if (ci->team == curci->team) {
+			ci->model = &cgs.media.teamModel;
+		} else {
+			ci->model = &cgs.media.enemyModel;
+		}
+	} else {
+		ci->model = (ci == curci ? &cgs.media.teamModel : &cgs.media.enemyModel);
+	}
+
+	// reset any existing players and bodies, because they might be in bad
+	// frames for this new model
+	for (i = 0; i < MAX_GENTITIES; i++) {
+		if (cg_entities[i].currentState.clientNum == clientNum
+			&& cg_entities[i].currentState.eType == ET_PLAYER) {
+			CG_ResetPlayerEntity(&cg_entities[i]);
+		}
+	}
+}
+
+/**
 If cvar is a variable that specifies a model, load that model and
 return zero. Otherwise, return value is non-zero.
 */
@@ -494,16 +491,16 @@ int CG_LoadCvarModel(const char *cvarName, vmCvar_t *cvar)
 	}
 
 	if (cvar == &cg_teamModel || cvar == &cg_teamSoundModel) {
-		model = &teamModel;
+		model = &cgs.media.teamModel;
 		soundCvar = &cg_teamSoundModel;
 	} else if (cvar == &cg_enemyModel || cvar == &cg_enemySoundModel) {
-		model = &enemyModel;
+		model = &cgs.media.enemyModel;
 		soundCvar = &cg_enemySoundModel;
 	} else if (cvar == &cg_redTeamModel || cvar == &cg_redTeamSoundModel) {
-		model = &redTeamModel;
+		model = &cgs.media.redTeamModel;
 		soundCvar = &cg_redTeamSoundModel;
 	} else if (cvar == &cg_blueTeamModel || cvar == &cg_blueTeamSoundModel) {
-		model = &blueTeamModel;
+		model = &cgs.media.blueTeamModel;
 		soundCvar = &cg_blueTeamSoundModel;
 	} else {
 		return 1;
@@ -528,44 +525,42 @@ int CG_LoadCvarModel(const char *cvarName, vmCvar_t *cvar)
 	return 0;
 }
 
-/**
-If no snapshot has been reveived and player is in team spectator,
-assume that he does not follow (spectate) another player.
-*/
-static void CG_SetPlayerModel(int clientNum) {
-	clientInfo_t	*ci;
-	qboolean		follow;
-	int				i, curClientNum;
+int CG_LoadModelColor(vmCvar_t *cvar)
+{
+	vec_t	*color;
 
-	ci = &cgs.clientinfo[clientNum];
-	follow = (cg.snap ? cg.snap->ps.pm_flags & PMF_FOLLOW : qfalse);
-	curClientNum = (cg.snap ? cg.snap->ps.clientNum : cg.clientNum);
-
-	if (cgs.gametype >= GT_TEAM) {
-		int	localTeam;
-
-		localTeam = cgs.clientinfo[cg.clientNum].team;
-
-		if (cg_forceTeamModels.integer == 1
-			|| (localTeam == TEAM_SPECTATOR && !follow)
-			|| (localTeam == TEAM_SPECTATOR && follow && cg_forceTeamModels.integer == 2))
-		{
-			ci->model = (ci->team == TEAM_RED ? &redTeamModel : &blueTeamModel);
-		} else {
-			ci->model = (ci->team == cgs.clientinfo[curClientNum].team ? &teamModel : &enemyModel);
-		}
+	if (cvar == &cg_teamHeadColor) {
+		color = cgs.media.teamModel.headColor;
+	} else if (cvar == &cg_teamTorsoColor) {
+		color = cgs.media.teamModel.torsoColor;
+	} else if (cvar == &cg_teamLegsColor) {
+		color = cgs.media.teamModel.legsColor;
+	} else if (cvar == &cg_enemyHeadColor) {
+		color = cgs.media.enemyModel.headColor;
+	} else if (cvar == &cg_enemyTorsoColor) {
+		color = cgs.media.enemyModel.torsoColor;
+	} else if (cvar == &cg_enemyLegsColor) {
+		 color = cgs.media.enemyModel.legsColor;
+	} else if (cvar == &cg_redHeadColor) {
+		color = cgs.media.redTeamModel.headColor;
+	} else if (cvar == &cg_redTorsoColor) {
+		color = cgs.media.redTeamModel.torsoColor;
+	} else if (cvar == &cg_redLegsColor) {
+		color = cgs.media.redTeamModel.legsColor;
+	} else if (cvar == &cg_blueHeadColor) {
+		color = cgs.media.blueTeamModel.headColor;
+	} else if (cvar == &cg_blueTorsoColor) {
+		color = cgs.media.blueTeamModel.torsoColor;
+	} else if (cvar == &cg_blueLegsColor) {
+		color = cgs.media.blueTeamModel.legsColor;
+	} else if (cvar == &cg_deadBodyColor) {
+		color = cgs.media.deadBodyColor;
 	} else {
-		ci->model = (clientNum == curClientNum ? &teamModel : &enemyModel);
+		return 1;
 	}
 
-	// reset any existing players and bodies, because they might be in bad
-	// frames for this new model
-	for (i = 0; i < MAX_GENTITIES; i++) {
-		if (cg_entities[i].currentState.clientNum == clientNum
-			&& cg_entities[i].currentState.eType == ET_PLAYER) {
-			CG_ResetPlayerEntity(&cg_entities[i]);
-		}
-	}
+	CG_ParseColor(color, cvar->string);
+	return 0;
 }
 
 void CG_ForceModelChange(void)
@@ -1414,7 +1409,7 @@ void CG_Player(centity_t *cent)
 	memset(&torso, 0, sizeof(torso));
 	memset(&head, 0, sizeof(head));
 
-	CG_SetModelColor(clientNum, &head, &torso, &legs, cent->currentState.eFlags);
+	CG_SetModelColor(ci, &head, &torso, &legs, cent->currentState.eFlags);
 
 	// get the rotation information
 	CG_PlayerAngles(cent, legs.axis, torso.axis, head.axis);

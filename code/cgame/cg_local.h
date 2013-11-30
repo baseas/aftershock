@@ -273,14 +273,17 @@ typedef struct {
 typedef struct {
 	char	*modelName;
 
-	qhandle_t	legsModel;
-	qhandle_t	legsSkin;
+	qhandle_t	headModel;
+	qhandle_t	headSkin;
+	vec4_t		headColor;
 
 	qhandle_t	torsoModel;
 	qhandle_t	torsoSkin;
+	vec4_t		torsoColor;
 
-	qhandle_t	headModel;
-	qhandle_t	headSkin;
+	qhandle_t	legsModel;
+	qhandle_t	legsSkin;
+	vec4_t		legsColor;
 
 	qboolean	fixedlegs;              // true if legs yaw is always the same as torso yaw
 	qboolean	fixedtorso;             // true if torso never changes yaw
@@ -550,7 +553,7 @@ typedef struct {
 
 	// temp working variables for player view
 	float		xyspeed;
-	int     nextOrbitTime;
+	int			nextOrbitTime;
 
 	// development tool
 	refEntity_t		testModelEntity;
@@ -794,6 +797,13 @@ typedef struct {
 	sfxHandle_t	wstbimpmSound;
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
+
+	model_t	teamModel;
+	model_t	enemyModel;
+	model_t	redTeamModel;
+	model_t	blueTeamModel;
+
+	vec4_t	deadBodyColor;
 } cgMedia_t;
 
 // The client game static (cgs) structure hold everything
@@ -1061,7 +1071,8 @@ void	UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 void	CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
 void	CG_DrawSides(float x, float y, float w, float h, float size);
 void	CG_DrawTopBottom(float x, float y, float w, float h, float size);
-int		CG_SetRGBA(byte incolor[4], const char *str);
+void	CG_SetRGBA(byte incolor[4], vec4_t color);
+int		CG_ParseColor(vec4_t incolor, const char *str);
 
 //
 // cg_draw.c, cg_newDraw.c
@@ -1111,6 +1122,7 @@ void		CG_Player(centity_t *cent);
 void		CG_ResetPlayerEntity(centity_t *cent);
 void		CG_AddRefEntityWithPowerups(refEntity_t *ent, entityState_t *state, int team);
 int			CG_LoadCvarModel(const char *cvarName, vmCvar_t *cvar);
+int			CG_LoadModelColor(vmCvar_t *cvar);
 void		CG_NewClientInfo(int clientNum);
 void		CG_ForceModelChange(void);
 sfxHandle_t	CG_CustomSound(int clientNum, const char *soundName);

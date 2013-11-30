@@ -735,6 +735,21 @@ static void CG_RegisterModels(void)
 	CG_LoadCvarModel("cg_blueTeamSoundModel", &cg_blueTeamSoundModel);
 }
 
+static void CG_LoadModelColors(void) {
+	CG_LoadModelColor(&cg_teamHeadColor);
+	CG_LoadModelColor(&cg_teamTorsoColor);
+	CG_LoadModelColor(&cg_teamLegsColor);
+	CG_LoadModelColor(&cg_enemyHeadColor);
+	CG_LoadModelColor(&cg_enemyTorsoColor);
+	CG_LoadModelColor(&cg_enemyLegsColor);
+	CG_LoadModelColor(&cg_redHeadColor);
+	CG_LoadModelColor(&cg_redTorsoColor);
+	CG_LoadModelColor(&cg_redLegsColor);
+	CG_LoadModelColor(&cg_blueHeadColor);
+	CG_LoadModelColor(&cg_blueTorsoColor);
+	CG_LoadModelColor(&cg_blueLegsColor);
+}
+
 static void CG_RegisterClients(void)
 {
 	int		i;
@@ -764,10 +779,10 @@ static void CG_RegisterClients(void)
 static void CG_ValidateCvar(cvarTable_t *cv)
 {
 	if (cv->rangeType == RANGE_TYPE_COLOR) {
-		byte color[4];
-		if (CG_SetRGBA(color, cv->vmCvar->string)) {
+		vec4_t	color;
+		if (CG_ParseColor(color, cv->vmCvar->string)) {
 			trap_Cvar_Set(cv->cvarName, cv->defaultString);
-			Com_Printf("WARNING: Invalid color string, setting to 7 (white)\n");
+			Com_Printf("WARNING: Invalid color string - using default.\n");
 		}
 	}
 }
@@ -888,6 +903,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_RegisterModels();
 
+	CG_LoadModelColors();
+
 	CG_LoadingString("clients");
 
 	CG_RegisterClients();
@@ -945,6 +962,10 @@ void CG_UpdateCvars(void)
 		CG_ValidateCvar(cv);
 
 		if (!CG_LoadCvarModel(cv->cvarName, cv->vmCvar)) {
+			continue;
+		}
+
+		if (!CG_LoadModelColor(cv->vmCvar)) {
 			continue;
 		}
 

@@ -735,34 +735,42 @@ void UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 	UI_DrawProportionalString2(x, y, str, color, sizeScale, cgs.media.charsetProp);
 }
 
+void CG_SetRGBA(byte incolor[4], vec4_t color)
+{
+	incolor[0] = color[0] * 255.0f;
+	incolor[1] = color[1] * 255.0f;
+	incolor[2] = color[2] * 255.0f;
+	incolor[3] = color[3] * 255.0f;
+}
+
 /**
 Return value is non-zero if color string is invalid.
 Fallback color is set to white.
 */
-int CG_SetRGBA(byte incolor[4], const char *str)
+int CG_ParseColor(vec4_t incolor, const char *str)
 {
 	if (strlen(str) == 1) {
 		vec_t *color = g_color_table[ColorIndex(str[0])];
-		incolor[0] = 255 * color[0];
-		incolor[1] = 255 * color[1];
-		incolor[2] = 255 * color[2];
-		incolor[3] = 255 * color[3];
+		incolor[0] = color[0];
+		incolor[1] = color[1];
+		incolor[2] = color[2];
+		incolor[3] = color[3];
 	} else if (!strcmp(str, "red")) {
-		CG_SetRGBA(incolor, "1");
+		CG_ParseColor(incolor, "1");
 	} else if (!strcmp(str, "green")) {
-		CG_SetRGBA(incolor, "2");
+		CG_ParseColor(incolor, "2");
 	} else if (!strcmp(str, "yellow")) {
-		CG_SetRGBA(incolor, "3");
+		CG_ParseColor(incolor, "3");
 	} else if (!strcmp(str, "blue")) {
-		CG_SetRGBA(incolor, "4");
+		CG_ParseColor(incolor, "4");
 	} else if (!strcmp(str, "cyan")) {
-		CG_SetRGBA(incolor, "5");
+		CG_ParseColor(incolor, "5");
 	} else if (!strcmp(str, "purple")) {
-		CG_SetRGBA(incolor, "6");
+		CG_ParseColor(incolor, "6");
 	} else if (!strcmp(str, "white")) {
-		CG_SetRGBA(incolor, "7");
+		CG_ParseColor(incolor, "7");
 	} else if (!strcmp(str, "orange")) {
-		CG_SetRGBA(incolor, "8");
+		CG_ParseColor(incolor, "8");
 	} else {
 		int i, len, hex;
 		if (str[0] != '0' || str[1] != 'x') {
@@ -786,24 +794,24 @@ int CG_SetRGBA(byte incolor[4], const char *str)
 
 		hex = strtol(str, NULL, 16);
 		if (len == 6) {
-			incolor[0] = (hex >> 16) & 0xFF;
-			incolor[1] = (hex >> 8) & 0xFF;
-			incolor[2] = hex & 0xFF;
-			incolor[3] = 0xFF;
+			incolor[0] = ((hex >> 16) & 0xFF) / 255.0f;
+			incolor[1] = ((hex >> 8) & 0xFF) / 255.0f;
+			incolor[2] = (hex & 0xFF) / 255.0f;
+			incolor[3] = 1.0f;
 		} else if (len == 8) {
-			incolor[0] = (hex >> 24) & 0xFF;
-			incolor[1] = (hex >> 16) & 0xFF;
-			incolor[2] = (hex >> 8) & 0xFF;
-			incolor[3] = hex & 0xFF;
+			incolor[0] = ((hex >> 24) & 0xFF) / 255.0f;
+			incolor[1] = ((hex >> 16) & 0xFF) / 255.0f;
+			incolor[2] = ((hex >> 8) & 0xFF) / 255.0f;
+			incolor[3] = (hex & 0xFF) / 255.0f;
 		}
 	}
 
 	return 0;
 error:
-	incolor[0] = 0xFF;
-	incolor[1] = 0xFF;
-	incolor[2] = 0xFF;
-	incolor[3] = 0xFF;
+	incolor[0] = 1.0f;
+	incolor[1] = 1.0f;
+	incolor[2] = 1.0f;
+	incolor[3] = 1.0f;
 	return 1;
 }
 

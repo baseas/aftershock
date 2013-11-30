@@ -92,6 +92,10 @@ static void CG_TransitionSnapshot(void)
 	oldFrame = cg.snap;
 	cg.snap = cg.nextSnap;
 
+	if (cg.snap->ps.clientNum != oldFrame->ps.clientNum) {
+		CG_ForceModelChange();
+	}
+
 	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, qfalse);
 	cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
 
@@ -123,7 +127,6 @@ static void CG_TransitionSnapshot(void)
 			CG_TransitionPlayerState(ps, ops);
 		}
 	}
-
 }
 
 /**
