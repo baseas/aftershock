@@ -314,7 +314,6 @@ int BotSetLastOrderedTask(bot_state_t *bs) {
 		memcpy(&bs->teamgoal, &bs->lastgoal_teamgoal, sizeof(bot_goal_t));
 		bs->teammate = bs->lastgoal_teammate;
 		bs->teamgoal_time = FloatTime() + 300;
-		BotSetTeamStatus(bs);
 		//
 		if ( gametype == GT_CTF ) {
 			if ( bs->ltgtype == LTG_GETFLAG ) {
@@ -387,7 +386,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 				// don't use any alt route goal, just get the hell out of the base
 				bs->altroutegoal.areanum = 0;
 			}
-			BotSetUserInfo(bs, "teamtask", va("%d", TEAMTASK_OFFENSE));
 		}
 		else if (bs->rushbaseaway_time > FloatTime()) {
 			if (BotTeam(bs) == TEAM_RED) flagstatus = bs->redflagstatus;
@@ -441,7 +439,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					bs->teamgoal_time = FloatTime() + TEAM_ACCOMPANY_TIME;
 					bs->ltgtype = LTG_TEAMACCOMPANY;
 					bs->formation_dist = 3.5 * 32;		//3.5 meter
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = FloatTime() + 5;
 				}
 			}
@@ -484,7 +481,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 				//get an alternative route goal towards the enemy base
 				BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 				//
-				BotSetTeamStatus(bs);
 				bs->owndecision_time = FloatTime() + 5;
 			}
 		}
@@ -518,7 +514,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					bs->ltgtype = LTG_TEAMACCOMPANY;
 					bs->formation_dist = 3.5 * 32;		//3.5 meter
 					//
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = FloatTime() + 5;
 				}
 				else {
@@ -534,7 +529,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 					//get an alternative route goal towards the enemy base
 					BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 					//
-					BotSetTeamStatus(bs);
 					bs->owndecision_time = FloatTime() + 5;
 				}
 			}
@@ -605,7 +599,6 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 		bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
 		//get an alternative route goal towards the enemy base
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
-		BotSetTeamStatus(bs);
 	}
 	else if (rnd < l2 && ctf_redflag.areanum && ctf_blueflag.areanum) {
 		bs->decisionmaker = bs->client;
@@ -618,13 +611,11 @@ void BotCTFSeekGoals(bot_state_t *bs) {
 		//set the time the bot stops defending the base
 		bs->teamgoal_time = FloatTime() + TEAM_DEFENDKEYAREA_TIME;
 		bs->defendaway_time = 0;
-		BotSetTeamStatus(bs);
 	}
 	else {
 		bs->ltgtype = 0;
 		//set the time the bot will stop roaming
 		bs->ctfroam_time = FloatTime() + CTF_ROAM_TIME;
-		BotSetTeamStatus(bs);
 	}
 	bs->owndecision_time = FloatTime() + 5;
 #ifdef DEBUG
@@ -648,7 +639,6 @@ void BotCTFRetreatGoals(bot_state_t *bs) {
 			bs->rushbaseaway_time = 0;
 			bs->decisionmaker = bs->client;
 			bs->ordered = qfalse;
-			BotSetTeamStatus(bs);
 		}
 	}
 }

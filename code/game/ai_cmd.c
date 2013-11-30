@@ -578,7 +578,6 @@ void BotMatch_HelpAccompany(bot_state_t *bs, bot_match_t *match) {
 		bs->formation_dist = 3.5 * 32;		//3.5 meter
 		bs->arrive_time = 0;
 		//
-		BotSetTeamStatus(bs);
 		// remember last ordered task
 		BotRememberLastOrderedTask(bs);
 	}
@@ -627,7 +626,6 @@ void BotMatch_DefendKeyArea(bot_state_t *bs, bot_match_t *match) {
 	//away from defending
 	bs->defendaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -669,7 +667,6 @@ void BotMatch_GetItem(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time
 	bs->teamgoal_time = FloatTime() + TEAM_GETITEM_TIME;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -759,7 +756,6 @@ void BotMatch_Camp(bot_state_t *bs, bot_match_t *match) {
 	//not arrived yet
 	bs->arrive_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -798,7 +794,6 @@ void BotMatch_Patrol(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time if not set already
 	if (!bs->teamgoal_time) bs->teamgoal_time = FloatTime() + TEAM_PATROL_TIME;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -844,7 +839,6 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match) {
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 	}
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -885,7 +879,6 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match) {
 	bs->teamgoal_time = FloatTime() + TEAM_ATTACKENEMYBASE_TIME;
 	bs->attackaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 	// remember last ordered task
 	BotRememberLastOrderedTask(bs);
 #ifdef DEBUG
@@ -927,7 +920,6 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match) {
 	bs->teamgoal_time = FloatTime() + CTF_RUSHBASE_TIME;
 	bs->rushbaseaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -1010,7 +1002,6 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match) {
 	bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
 	bs->rushbaseaway_time = 0;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
@@ -1579,7 +1570,6 @@ void BotMatch_Kill(bot_state_t *bs, bot_match_t *match) {
 	//set the team goal time
 	bs->teamgoal_time = FloatTime() + TEAM_KILL_SOMEONE;
 	//
-	BotSetTeamStatus(bs);
 #ifdef DEBUG
 	BotPrintTeamGoal(bs);
 #endif //DEBUG
