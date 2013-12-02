@@ -218,6 +218,7 @@ vmCvar_t	cg_weaponConfig_rg;
 vmCvar_t	cg_weaponConfig_pg;
 vmCvar_t	cg_weaponConfig_bfg;
 vmCvar_t	cg_weaponConfig_gh;
+vmCvar_t	s_ambient;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -340,7 +341,9 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_weaponConfig_rg, "cg_weaponConfig_rg", "", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_weaponConfig_pg, "cg_weaponConfig_pg", "", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_weaponConfig_bfg, "cg_weaponConfig_bfg", "", CVAR_ARCHIVE, RANGE_ALL },
-	{ &cg_weaponConfig_gh, "cg_weaponConfig_gh", "", CVAR_ARCHIVE, RANGE_ALL }
+	{ &cg_weaponConfig_gh, "cg_weaponConfig_gh", "", CVAR_ARCHIVE, RANGE_ALL },
+
+	{ &s_ambient, "s_ambient", "0", CVAR_ARCHIVE, RANGE_BOOL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);

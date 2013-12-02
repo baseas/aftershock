@@ -1018,6 +1018,7 @@ extern vmCvar_t		cg_weaponConfig_rg;
 extern vmCvar_t		cg_weaponConfig_pg;
 extern vmCvar_t		cg_weaponConfig_bfg;
 extern vmCvar_t		cg_weaponConfig_gh;
+extern vmCvar_t		s_ambient;
 
 //
 // cg_main.c
