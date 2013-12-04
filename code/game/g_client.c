@@ -788,6 +788,9 @@ void ClientBegin(int clientNum)
 
 	// count current clients and rank for scoreboard
 	CalculateRanks();
+
+	ent->client->pers.lastTarget = -1;
+	ent->client->pers.lastKiller = -1;
 }
 
 /**
@@ -808,7 +811,6 @@ void ClientSpawn(gentity_t *ent)
 	gentity_t *tent;
 	int		flags;
 	int		savedPing;
-	int		accuracy_hits, accuracy_shots;
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
@@ -857,8 +859,7 @@ void ClientSpawn(gentity_t *ent)
 	saved = client->pers;
 	savedSess = client->sess;
 	savedPing = client->ps.ping;
-	accuracy_hits = client->accuracy_hits;
-	accuracy_shots = client->accuracy_shots;
+
 	for (i = 0; i < MAX_PERSISTANT; i++) {
 		persistant[i] = client->ps.persistant[i];
 	}
@@ -869,9 +870,6 @@ void ClientSpawn(gentity_t *ent)
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.ping = savedPing;
-	client->accuracy_hits = accuracy_hits;
-	client->accuracy_shots = accuracy_shots;
-	client->lastkilled_client = -1;
 
 	for (i = 0; i < MAX_PERSISTANT; i++) {
 		client->ps.persistant[i] = persistant[i];

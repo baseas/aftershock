@@ -423,10 +423,9 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	self->enemy = attacker;
 
 	self->client->ps.persistant[PERS_KILLED]++;
+	VectorCopy(self->r.currentOrigin, self->client->pers.lastDeathOrigin);
 
 	if (attacker && attacker->client) {
-		attacker->client->lastkilled_client = self->s.number;
-
 		if (attacker == self || OnSameTeam (self, attacker)) {
 			AddScore(attacker, self->r.currentOrigin, -1);
 		} else {
@@ -680,6 +679,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 		if (OnSameTeam(targ, attacker)) {
 			attacker->client->ps.persistant[PERS_HITS]--;
 		} else {
+			targ->client->pers.lastTarget = targ->s.number;
+
 			attacker->client->ps.persistant[PERS_HITS]++;
 		}
 		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);

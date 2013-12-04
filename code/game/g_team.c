@@ -761,16 +761,13 @@ int Pickup_Team(gentity_t *ent, gentity_t *other)
 /**
 Report a location for the player. Uses placed nearby target_location entities
 */
-gentity_t *Team_GetLocation(gentity_t *ent)
+static gentity_t *Team_GetLocation(vec3_t origin)
 {
 	gentity_t		*eloc, *best;
 	float			bestlen, len;
-	vec3_t			origin;
 
 	best = NULL;
-	bestlen = 3*8192.0*8192.0;
-
-	VectorCopy(ent->r.currentOrigin, origin);
+	bestlen = 3 * 8192.0 * 8192.0;
 
 	for (eloc = level.locationHead; eloc; eloc = eloc->nextTrain) {
 		len = (origin[0] - eloc->r.currentOrigin[0]) * (origin[0] - eloc->r.currentOrigin[0])
@@ -795,11 +792,11 @@ gentity_t *Team_GetLocation(gentity_t *ent)
 /**
 Report a location for the player. Uses placed nearby target_location entities
 */
-qboolean Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
+qboolean Team_GetLocationMsg(vec3_t origin, char *loc, int loclen)
 {
 	gentity_t *best;
 
-	best = Team_GetLocation(ent);
+	best = Team_GetLocation(origin);
 
 	if (!best)
 		return qfalse;
@@ -981,7 +978,7 @@ void CheckTeamStatus(void)
 		}
 
 		if (ent->inuse && (ent->client->sess.sessionTeam == TEAM_RED ||	ent->client->sess.sessionTeam == TEAM_BLUE)) {
-			loc = Team_GetLocation(ent);
+			loc = Team_GetLocation(ent->r.currentOrigin);
 			if (loc)
 				ent->client->pers.teamState.location = loc->health;
 			else

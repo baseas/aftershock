@@ -93,8 +93,8 @@ void DeathmatchScoreboardMessage(gentity_t *ent)
 			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
 		}
 
-		if (cl->accuracy_shots) {
-			accuracy = cl->accuracy_hits * 100 / cl->accuracy_shots;
+		if (cl->pers.accuracy_shots) {
+			accuracy = cl->pers.accuracy_hits * 100 / cl->pers.accuracy_shots;
 		}
 		else {
 			accuracy = 0;
@@ -794,11 +794,104 @@ static void G_SayTo(gentity_t *ent, gentity_t *other, int mode, int color, const
 		name, Q_COLOR_ESCAPE, color, message));
 }
 
+static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
+{
+	int		intval;
+	char	loc[MAX_SAY_TEXT];
+	int			i, written;
+	qboolean	first;
+	vec3_t		end, forward, right, up, muzzle;
+	gentity_t	*entNearCross;
+
+	text[0] = '\0';
+
+	switch (letter) {
+	case 'A':
+		intval = ent->client->ps.stats[STAT_ARMOR];
+		if (intval < 50) {
+			Com_sprintf(text, length, "^1%i", intval);
+		} else if (intval < 100) {
+			Com_sprintf(text, length, "^2%i", intval);
+		} else {
+			Com_sprintf(text, length, "^3%i", intval);
+		}
+		break;
+	case 'H':
+		intval = ent->client->ps.stats[STAT_HEALTH];
+		if (intval < 50) {
+			Com_sprintf(text, length, "^1%i", intval);
+		} else if (intval < 100) {
+			Com_sprintf(text, length, "^2%i", intval);
+		} else {
+			Com_sprintf(text, length, "^3%i", intval);
+		}
+		break;
+	case 'a':
+		Com_sprintf(text, length, "%i", ent->client->ps.stats[STAT_ARMOR]);
+		break;
+	case 'h':
+		Com_sprintf(text, length, "%i", ent->client->ps.stats[STAT_HEALTH]);
+		break;
+	case 'K':
+		if (ent->client->pers.lastKiller != -1) {
+			Q_strncpyz(text, g_entities[ent->client->pers.lastKiller].client->pers.netname, length);
+		}
+		break;
+	case 'T':
+		if (ent->client->pers.lastTarget != -1) {
+			Q_strncpyz(text, g_entities[ent->client->pers.lastTarget].client->pers.netname, length);
+		}
+		break;
+	case 'D':
+		if (ent->client->ps.persistant[PERS_KILLED]) {
+			intval = ent->client->ps.persistant[PERS_ATTACKER];
+			Q_strncpyz(text, g_entities[intval].client->pers.netname, length);
+		}
+		break;
+	case 'd':
+		if (ent->client->pers.lastDrop) {
+			Q_strncpyz(text, ent->client->pers.lastDrop->pickup_name, length);
+		}
+		break;
+	case 'P':
+		if (ent->client->pers.lastPickup) {
+			Q_strncpyz(text, ent->client->pers.lastPickup->pickup_name, length);
+		}
+		break;
+	case 'U':
+		first = qtrue;
+		written = 0;
+		for (i = 0; i < bg_numItems; ++i) {
+			if (bg_itemlist[i].giType != IT_POWERUP) {
+				continue;
+			}
+			written += Com_sprintf(text, length - written, text, bg_itemlist[i].pickup_name);
+			if (!first) {
+				written += Com_sprintf(text + written, length - written, ", ");
+			}
+			first = qfalse;
+		}
+		break;
+	case 'L':
+		Team_GetLocationMsg(ent->r.currentOrigin, loc, sizeof loc);
+		Q_strncpyz(text, loc, length);
+		break;
+	case 'C':
+		Team_GetLocationMsg(ent->client->pers.lastDeathOrigin, loc, sizeof loc);
+		Q_strncpyz(text, loc, length);
+		break;
+	default:
+		return 1;
+	}
+
+	return 0;
+}
+
 #define EC		"\x19"
 
 void G_Say(gentity_t *ent, gentity_t *target, int mode, const char *chatText)
 {
-	int			j;
+	int			j, k;
 	gentity_t	*other;
 	int			color;
 	char		name[64];
@@ -819,26 +912,46 @@ void G_Say(gentity_t *ent, gentity_t *target, int mode, const char *chatText)
 		break;
 	case SAY_TEAM:
 		G_LogPrintf("sayteam: %s: %s\n", ent->client->pers.netname, chatText);
-		if (Team_GetLocationMsg(ent, location, sizeof(location)))
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
+		if (Team_GetLocationMsg(ent->r.currentOrigin, location, sizeof(location)))
+			Com_sprintf(name, sizeof(name), EC"(%s%c%c"EC") (%s)"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
 		else
-			Com_sprintf (name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
+			Com_sprintf(name, sizeof(name), EC"(%s%c%c"EC")"EC": ",
 				ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 		color = COLOR_CYAN;
 		break;
 	case SAY_TELL:
 		if (target && target->inuse && target->client && g_gametype.integer >= GT_TEAM &&
 			target->client->sess.sessionTeam == ent->client->sess.sessionTeam &&
-			Team_GetLocationMsg(ent, location, sizeof(location)))
-			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"] (%s)"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
+			Team_GetLocationMsg(ent->r.currentOrigin, location, sizeof(location)))
+			Com_sprintf(name, sizeof(name), EC"[%s%c%c"EC"] (%s)"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE, location);
 		else
-			Com_sprintf (name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
+			Com_sprintf(name, sizeof(name), EC"[%s%c%c"EC"]"EC": ", ent->client->pers.netname, Q_COLOR_ESCAPE, COLOR_WHITE);
 		color = COLOR_MAGENTA;
 		break;
 	}
 
-	Q_strncpyz(text, chatText, sizeof(text));
+	if (mode != SAY_TEAM || ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		Q_strncpyz(text, chatText, sizeof text);
+	} else {
+		for (j = 0, k = 0; k < sizeof text && chatText[j]; ++j) {
+			char	token[MAX_SAY_TEXT];
+
+			if (chatText[j] != '#' || !chatText[j + 1]) {
+				text[k++] = chatText[j];
+				continue;
+			}
+
+			if (!G_ChatToken(ent, token, sizeof token, chatText[j + 1])) {
+				k += Com_sprintf(&text[k], sizeof text - k, "%s", token);
+				++j;
+			} else {
+				text[k++] = '#';
+			}
+		}
+
+		text[k] = '\0';
+	}
 
 	if (target) {
 		G_SayTo(ent, target, mode, color, name, text);

@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define BODY_QUEUE_SIZE		8
 
-#define INFINITE			1000000
+#define MAX_WEAPON_RANGE	8192
 
 #define FRAMETIME			100					// msec
 #define CARNAGE_REWARD_TIME	3000
@@ -236,6 +236,14 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
+
+	int			lastKiller;
+	int			lastTarget;
+	gitem_t		*lastPickup;
+	gitem_t		*lastDrop;
+	vec3_t		lastDeathOrigin;
+	int			accuracy_shots;		// total number of shots
+	int			accuracy_hits;		// total number of hits
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),
@@ -270,11 +278,6 @@ struct gclient_s {
 
 	int			accurateCount;		// for "impressive" reward sound
 
-	int			accuracy_shots;		// total number of shots
-	int			accuracy_hits;		// total number of hits
-
-	//
-	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
 

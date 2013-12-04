@@ -47,7 +47,7 @@ void G_BounceProjectile(vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout)
 	VectorMA(v, -2*dot, dir, newv);
 
 	VectorNormalize(newv);
-	VectorMA(impact, 8192, newv, endout);
+	VectorMA(impact, MAX_WEAPON_RANGE, newv, endout);
 }
 
 qboolean CheckGauntletAttack(gentity_t *ent)
@@ -120,7 +120,7 @@ void SnapVectorTowards(vec3_t v, vec3_t to)
 	}
 }
 
-static void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod)
+static void Bullet_Fire(gentity_t *ent, float spread, int damage, int mod)
 {
 	trace_t		tr;
 	vec3_t		end;
@@ -135,7 +135,7 @@ static void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod)
 	r = random() * M_PI * 2.0f;
 	u = sin(r) * crandom() * spread * 16;
 	r = cos(r) * crandom() * spread * 16;
-	VectorMA (muzzle, 8192*16, forward, end);
+	VectorMA (muzzle, MAX_WEAPON_RANGE, forward, end);
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
 
@@ -156,7 +156,7 @@ static void Bullet_Fire (gentity_t *ent, float spread, int damage, int mod)
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
 			tent->s.eventParm = traceEnt->s.number;
 			if (LogAccuracyHit(traceEnt, ent)) {
-				ent->client->accuracy_hits++;
+				ent->client->pers.accuracy_hits++;
 			}
 		} else {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
@@ -232,12 +232,12 @@ static void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *e
 	for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++) {
 		r = Q_crandom(&seed) * DEFAULT_SHOTGUN_SPREAD * 16;
 		u = Q_crandom(&seed) * DEFAULT_SHOTGUN_SPREAD * 16;
-		VectorMA(origin, 8192 * 16, forward, end);
-		VectorMA (end, r, right, end);
-		VectorMA (end, u, up, end);
+		VectorMA(origin, MAX_WEAPON_RANGE, forward, end);
+		VectorMA(end, r, right, end);
+		VectorMA(end, u, up, end);
 		if (ShotgunPellet(origin, end, ent) && !hitClient) {
 			hitClient = qtrue;
-			ent->client->accuracy_hits++;
+			ent->client->pers.accuracy_hits++;
 		}
 	}
 }
@@ -302,7 +302,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 
 	damage = (g_instantgib.integer ? 800 : 80 * s_quadFactor);
 
-	VectorMA (muzzle, 8192, forward, end);
+	VectorMA (muzzle, MAX_WEAPON_RANGE, forward, end);
 
 	// trace only against the solids, so the railgun will go through people
 	unlinked = 0;
@@ -373,7 +373,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 			ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
-		ent->client->accuracy_hits++;
+		ent->client->pers.accuracy_hits++;
 	}
 
 	if (g_instantgib.integer && g_instantgibRailjump.integer) {
@@ -420,7 +420,7 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.weapon = ent->s.weapon;
 			if (LogAccuracyHit(traceEnt, ent)) {
-				ent->client->accuracy_hits++;
+				ent->client->pers.accuracy_hits++;
 			}
 		} else if (!(tr.surfaceFlags & SURF_NOIMPACT)) {
 			tent = G_TempEntity(tr.endpos, EV_MISSILE_MISS);
@@ -518,7 +518,7 @@ void FireWeapon(gentity_t *ent)
 
 	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
 	if (ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET) {
-		ent->client->accuracy_shots++;
+		ent->client->pers.accuracy_shots++;
 	}
 
 	// set aiming directions

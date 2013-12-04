@@ -333,6 +333,8 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 		return;
 	}
 
+	other->client->pers.lastPickup = ent->item;
+
 	if (!respawn) {
 		return;
 	}
@@ -487,6 +489,7 @@ void Drop_Item_Armor(gentity_t *ent, gitem_t *item)
 	}
 
 	ent->client->ps.stats[STAT_ARMOR] -= item->quantity;
+	ent->client->pers.lastDrop = item;
 	dropped = Drop_Item(ent, item, 0);
 	dropped->s.eFlags |= EF_DROPPED_ITEM;
 }
@@ -499,6 +502,7 @@ void Drop_Item_Health(gentity_t *ent, gitem_t *item)
 	}
 
 	ent->client->ps.stats[STAT_HEALTH] -= item->quantity;
+	ent->client->pers.lastDrop = item;
 	ent->health -= item->quantity;
 	dropped = Drop_Item(ent, item, 0);
 	dropped->s.eFlags |= EF_DROPPED_ITEM;
@@ -512,6 +516,7 @@ void Drop_Item_Ammo(gentity_t *ent, gitem_t *item)
 	}
 
 	ent->client->ps.ammo[item->giTag] -= item->quantity;
+	ent->client->pers.lastDrop = item;
 	dropped = Drop_Item(ent, item, 0);
 	dropped->s.eFlags |= EF_DROPPED_ITEM;
 }
@@ -521,6 +526,7 @@ void Drop_Item_Weapon(gentity_t *ent, gitem_t *item)
 	gentity_t *dropped;
 
 	ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << item->giTag);
+	ent->client->pers.lastDrop = item;
 	dropped = Drop_Item(ent, item, 0);
 	dropped->count = ent->client->ps.ammo[item->giTag];
 	dropped->s.eFlags |= EF_DROPPED_ITEM;
@@ -532,6 +538,7 @@ void Drop_Item_Flag(gentity_t *ent, gitem_t *item)
 {
 	gentity_t *dropped;
 	dropped = Drop_Item(ent, item, 0);
+	ent->client->pers.lastDrop = item;
 	dropped->s.eFlags |= EF_DROPPED_ITEM;
 }
 
