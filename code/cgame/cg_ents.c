@@ -190,11 +190,6 @@ static void CG_Item(centity_t *cent)
 		cent->lerpOrigin[2] += 8;	// an extra height boost
 	}
 
-	if (item->giType == IT_WEAPON && item->giTag == WP_RAILGUN) {
-		clientInfo_t *ci = &cgs.clientinfo[cg.snap->ps.clientNum];
-		Byte4Copy(ci->c1RGBA, ent.shaderRGBA);
-	}
-
 	ent.hModel = cg_items[es->modelindex].models[0];
 
 	VectorCopy(cent->lerpOrigin, ent.origin);
@@ -265,7 +260,11 @@ static void CG_Missile(centity_t *cent)
 {
 	refEntity_t			ent;
 	entityState_t		*s1;
-	const weaponInfo_t		*weapon;
+	const weaponInfo_t	*weapon;
+	clientInfo_t		*ci;
+	vec4_t				color;
+
+	ci = &cgs.clientinfo[cg_entities[cent->currentState.otherEntityNum].currentState.number];
 
 	s1 = &cent->currentState;
 	if (s1->weapon >= WP_NUM_WEAPONS) {
@@ -301,13 +300,20 @@ static void CG_Missile(centity_t *cent)
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
-	if (cent->currentState.weapon == WP_PLASMAGUN) {
+	if (weapon->item->giTag == WP_PLASMAGUN) {
 		ent.reType = RT_SPRITE;
 		ent.radius = 16;
 		ent.rotation = 0;
+
 		ent.customShader = cgs.media.plasmaBallShader;
+		CG_GetWeaponColor(color, ci, WPCOLOR_PLASMA);
+		CG_SetRGBA(ent.shaderRGBA, color);
 		trap_R_AddRefEntityToScene(&ent);
 		return;
+	} else if (weapon->item->giTag == WP_GRENADE_LAUNCHER) {
+		ent.customShader = cgs.media.grenadeShader;
+		CG_GetWeaponColor(color, ci, WPCOLOR_GRENADE);
+		CG_SetRGBA(ent.shaderRGBA, color);
 	}
 
 	// flicker between two skins

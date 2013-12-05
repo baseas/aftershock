@@ -527,39 +527,42 @@ int CG_LoadCvarModel(const char *cvarName, vmCvar_t *cvar)
 
 int CG_LoadModelColor(vmCvar_t *cvar)
 {
-	vec_t	*color;
-
 	if (cvar == &cg_teamHeadColor) {
-		color = cgs.media.teamModel.headColor;
+		CG_ParseColor(cgs.media.teamModel.headColor, cvar->string);
 	} else if (cvar == &cg_teamTorsoColor) {
-		color = cgs.media.teamModel.torsoColor;
+		CG_ParseColor(cgs.media.teamModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_teamLegsColor) {
-		color = cgs.media.teamModel.legsColor;
+		CG_ParseColor(cgs.media.teamModel.legsColor, cvar->string);
 	} else if (cvar == &cg_enemyHeadColor) {
-		color = cgs.media.enemyModel.headColor;
+		CG_ParseColor(cgs.media.enemyModel.headColor, cvar->string);
 	} else if (cvar == &cg_enemyTorsoColor) {
-		color = cgs.media.enemyModel.torsoColor;
+		CG_ParseColor(cgs.media.enemyModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_enemyLegsColor) {
-		 color = cgs.media.enemyModel.legsColor;
+		 CG_ParseColor(cgs.media.enemyModel.legsColor, cvar->string);
 	} else if (cvar == &cg_redHeadColor) {
-		color = cgs.media.redTeamModel.headColor;
+		CG_ParseColor(cgs.media.redTeamModel.headColor, cvar->string);
 	} else if (cvar == &cg_redTorsoColor) {
-		color = cgs.media.redTeamModel.torsoColor;
+		CG_ParseColor(cgs.media.redTeamModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_redLegsColor) {
-		color = cgs.media.redTeamModel.legsColor;
+		CG_ParseColor(cgs.media.redTeamModel.legsColor, cvar->string);
 	} else if (cvar == &cg_blueHeadColor) {
-		color = cgs.media.blueTeamModel.headColor;
+		CG_ParseColor(cgs.media.blueTeamModel.headColor, cvar->string);
 	} else if (cvar == &cg_blueTorsoColor) {
-		color = cgs.media.blueTeamModel.torsoColor;
+		CG_ParseColor(cgs.media.blueTeamModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_blueLegsColor) {
-		color = cgs.media.blueTeamModel.legsColor;
+		CG_ParseColor(cgs.media.blueTeamModel.legsColor, cvar->string);
 	} else if (cvar == &cg_deadBodyColor) {
-		color = cgs.media.deadBodyColor;
+		CG_ParseColor(cgs.media.deadBodyColor, cvar->string);
+	} else if (cvar == &cg_teamWeaponColor) {
+		CG_ParseColor(cgs.media.teamModel.weaponColor, cvar->string);
+	} else if (cvar == &cg_enemyWeaponColor) {
+		CG_ParseColor(cgs.media.enemyModel.weaponColor, cvar->string);
+		CG_ParseColor(cgs.media.redTeamModel.weaponColor, cvar->string);
+		CG_ParseColor(cgs.media.blueTeamModel.weaponColor, cvar->string);
 	} else {
 		return 1;
 	}
 
-	CG_ParseColor(color, cvar->string);
 	return 0;
 }
 
@@ -1012,7 +1015,8 @@ static void CG_HasteTrail(centity_t *cent)
 	VectorCopy(cent->lerpOrigin, origin);
 	origin[2] -= 16;
 
-	smoke = CG_SmokePuff(origin, vec3_origin, 8, 1, 1, 1, 1, 500, cg.time, 0, 0, cgs.media.hastePuffShader);
+	smoke = CG_SmokePuff(origin, vec3_origin, 8, (vec4_t) { 1, 1, 1, 1 },
+		500, cg.time, 0, 0, cgs.media.hastePuffShader);
 
 	// use the optimized local entity add
 	smoke->leType = LE_SCALE_FADE;
@@ -1196,15 +1200,15 @@ static qboolean CG_PlayerShadow(centity_t *cent, float *shadowPlane)
 	}
 
 	// fade the shadow out with height
-	alpha = 1.0 - trace.fraction;
+	alpha = (1.0 - trace.fraction);
 
 	// hack / FPE - bogus planes?
 	//assert(DotProduct(trace.plane.normal, trace.plane.normal) != 0.0f) 
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
-	CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal, 
-		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, 24, qtrue);
+	CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
+		cent->pe.legs.yawAngle, (vec4_t) { alpha, alpha, alpha, 1}, qfalse, 24, qtrue);
 
 	return qtrue;
 }

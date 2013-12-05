@@ -531,7 +531,7 @@ void Drop_Item_Weapon(gentity_t *ent, gitem_t *item)
 	dropped->count = ent->client->ps.ammo[item->giTag];
 	dropped->s.eFlags |= EF_DROPPED_ITEM;
 	ent->client->ps.ammo[item->giTag] = 0;
-	G_AddEvent(ent, EV_NOAMMO, 0);
+	G_AddEvent(ent, EV_DROP_WEAPON, 0);
 }
 
 void Drop_Item_Flag(gentity_t *ent, gitem_t *item)

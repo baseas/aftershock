@@ -566,19 +566,6 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
 	case EV_JUMP_PAD:
 		DEBUGNAME("EV_JUMP_PAD");
-//		CG_Printf("EV_JUMP_PAD w/effect #%i\n", es->eventParm);
-		{
-			vec3_t			up = {0, 0, 1};
-
-
-			CG_SmokePuff(cent->lerpOrigin, up, 
-						  32, 
-						  1, 1, 1, 0.33f,
-						  1000, 
-						  cg.time, 0,
-						  LEF_PUFF_DONT_SCALE, 
-						  cgs.media.smokePuffShader);
-		}
 
 		// boing sound at origin, jump sound on player
 		trap_S_StartSound (cent->lerpOrigin, -1, CHAN_VOICE, cgs.media.jumpPadSound);
@@ -665,10 +652,17 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 	//
 	// weapon events
 	//
+	case EV_DROP_WEAPON:
+		DEBUGNAME("EV_DROP_WEAPON");
+		cg.snap->ps.stats[STAT_WEAPONS] &= ~(1 << cg.weaponSelect);
+		if (es->number == cg.snap->ps.clientNum) {
+			CG_OutOfAmmoChange();
+		}
+		break;
 	case EV_NOAMMO:
 		DEBUGNAME("EV_NOAMMO");
-//		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound);
-		if (es->number == cg.snap->ps.clientNum) {
+		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.noAmmoSound);
+		if (es->number == cg.snap->ps.clientNum && cg_switchOnEmpty.integer) {
 			CG_OutOfAmmoChange();
 		}
 		break;

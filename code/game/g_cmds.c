@@ -800,8 +800,6 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 	char	loc[MAX_SAY_TEXT];
 	int			i, written;
 	qboolean	first;
-	vec3_t		end, forward, right, up, muzzle;
-	gentity_t	*entNearCross;
 
 	text[0] = '\0';
 

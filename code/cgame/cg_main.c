@@ -101,7 +101,6 @@ centity_t		cg_entities[MAX_GENTITIES];
 weaponInfo_t	cg_weapons[MAX_WEAPONS];
 itemInfo_t		cg_items[MAX_ITEMS];
 
-vmCvar_t	cg_railTrailTime;
 vmCvar_t	cg_centertime;
 vmCvar_t	cg_swingSpeed;
 vmCvar_t	cg_shadows;
@@ -130,11 +129,9 @@ vmCvar_t	cg_nopredict;
 vmCvar_t	cg_noPlayerAnims;
 vmCvar_t	cg_showmiss;
 vmCvar_t	cg_footsteps;
-vmCvar_t	cg_addMarks;
-vmCvar_t	cg_brassTime;
+vmCvar_t	cg_marks;
 vmCvar_t	cg_viewsize;
 vmCvar_t	cg_drawGun;
-vmCvar_t	cg_gun_frame;
 vmCvar_t	cg_gun_x;
 vmCvar_t	cg_gun_y;
 vmCvar_t	cg_gun_z;
@@ -177,7 +174,6 @@ vmCvar_t	cg_timescale;
 vmCvar_t	cg_smallFont;
 vmCvar_t	cg_bigFont;
 vmCvar_t	cg_noTaunt;
-vmCvar_t	cg_noProjectileTrail;
 vmCvar_t	cg_trueLightning;
 vmCvar_t	cg_crosshairColor;
 vmCvar_t	cg_teamModel;
@@ -207,6 +203,7 @@ vmCvar_t	cg_zoomToggle;
 vmCvar_t	cg_zoomOutOnDeath;
 vmCvar_t	cg_zoomScaling;
 vmCvar_t	cg_zoomSensitivity;
+vmCvar_t	s_ambient;
 vmCvar_t	cg_weaponConfig;
 vmCvar_t	cg_weaponConfig_g;
 vmCvar_t	cg_weaponConfig_mg;
@@ -218,7 +215,25 @@ vmCvar_t	cg_weaponConfig_rg;
 vmCvar_t	cg_weaponConfig_pg;
 vmCvar_t	cg_weaponConfig_bfg;
 vmCvar_t	cg_weaponConfig_gh;
-vmCvar_t	s_ambient;
+vmCvar_t	cg_forceWeaponColor;
+vmCvar_t	cg_teamWeaponColor;
+vmCvar_t	cg_enemyWeaponColor;
+vmCvar_t	cg_flatGrenades;
+vmCvar_t	cg_rocketTrail;
+vmCvar_t	cg_rocketTrailTime;
+vmCvar_t	cg_rocketTrailRadius;
+vmCvar_t	cg_grenadeTrailRadius;
+vmCvar_t	cg_grenadeTrailTime;
+vmCvar_t	cg_grenadeTrail;
+vmCvar_t	cg_railTrail;
+vmCvar_t	cg_railTrailTime;
+vmCvar_t	cg_railTrailRadius;
+vmCvar_t	cg_lightningStyle;
+vmCvar_t	cg_muzzleFlash;
+vmCvar_t	cg_lightningExplosion;
+vmCvar_t	cg_weaponBobbing;
+vmCvar_t	cg_switchOnEmpty;
+vmCvar_t	cg_switchToEmpty;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -245,11 +260,9 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE, RANGE_INT(INT_MIN, INT_MAX) },
 	{ &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE, RANGE_INT(INT_MIN, INT_MAX) },
-	{ &cg_brassTime, "cg_brassTime", "2500", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
 	{ &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_addMarks, "cg_marks", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_marks, "cg_marks", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_lagometer, "cg_lagometer", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
 	{ &cg_gun_x, "cg_gunX", "0", 0, RANGE_BOOL },
 	{ &cg_gun_y, "cg_gunY", "0", 0, RANGE_BOOL },
 	{ &cg_gun_z, "cg_gunZ", "0", 0, RANGE_BOOL },
@@ -296,7 +309,6 @@ static cvarTable_t cvarTable[] = {
 	{ &pmove_fixed, "pmove_fixed", "1", CVAR_SYSTEMINFO, RANGE_BOOL },
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, RANGE_INT(8, 33) },
 	{ &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_noProjectileTrail, "cg_noProjectileTrail", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
@@ -331,6 +343,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_zoomScaling, "cg_zoomScaling", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_zoomSensitivity, "cg_zoomSensitivity", "1", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 
+	{ &s_ambient, "s_ambient", "0", CVAR_ARCHIVE, RANGE_BOOL },
+
 	{ &cg_weaponConfig, "cg_weaponConfig", "", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_weaponConfig_g, "cg_weaponConfig_g", "", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_weaponConfig_mg, "cg_weaponConfig_mg", "", CVAR_ARCHIVE, RANGE_ALL },
@@ -343,7 +357,25 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_weaponConfig_bfg, "cg_weaponConfig_bfg", "", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_weaponConfig_gh, "cg_weaponConfig_gh", "", CVAR_ARCHIVE, RANGE_ALL },
 
-	{ &s_ambient, "s_ambient", "0", CVAR_ARCHIVE, RANGE_BOOL }
+	{ &cg_forceWeaponColor, "cg_forceWeaponColor", "0",  CVAR_ARCHIVE, RANGE_INT(0, 63) },
+	{ &cg_teamWeaponColor, "cg_teamWeaponColor", "7",  CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_enemyWeaponColor, "cg_enemyWeaponColor", "7",  CVAR_ARCHIVE, RANGE_COLOR },
+	{ &cg_flatGrenades, "cg_flatGrenades", "0",  CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_rocketTrail, "cg_rocketTrail", "1",  CVAR_ARCHIVE, RANGE_INT(0, 3) },
+	{ &cg_rocketTrailTime, "cg_rocketTrailTime", "500",  CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_rocketTrailRadius, "cg_rocketTrailRadius", "5",  CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_grenadeTrail, "cg_grenadeTrail", "1",  CVAR_ARCHIVE, RANGE_INT(0, 3) },
+	{ &cg_grenadeTrailTime, "cg_grenadeTrailTime", "500",  CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_grenadeTrailRadius, "cg_grenadeTrailRadius", "5",  CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_railTrail, "cg_railTrail", "1", CVAR_ARCHIVE, RANGE_INT(0, 2) },
+	{ &cg_railTrailTime, "cg_railTrailTime", "400", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_railTrailRadius, "cg_railTrailRadius", "3", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_lightningStyle, "cg_lightningStyle", "1", CVAR_ARCHIVE, RANGE_INT(0, MAX_LGSTYLES - 1) },
+	{ &cg_muzzleFlash, "cg_muzzleFlash", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_lightningExplosion, "cg_lightningExplosion", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
@@ -401,8 +433,7 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShader("smokePuffRagePro");
-	cgs.media.shotgunSmokePuffShader = trap_R_RegisterShader("shotgunSmokePuff");
-	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1");
+	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1Color");
 	cgs.media.bloodTrailShader = trap_R_RegisterShader("bloodTrail");
 	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
 	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
@@ -411,6 +442,12 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
 	cgs.media.selectShader = trap_R_RegisterShader("gfx/2d/select");
+
+	if (cg_flatGrenades.integer) {
+		cgs.media.grenadeShader = trap_R_RegisterShader("models/players/flat");
+	} else {
+		cgs.media.grenadeShader = trap_R_RegisterShader("models/ammo/grenadeColor");
+	}
 
 	for (i = 0; i < NUM_CROSSHAIRS; i++) {
 		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/2d/crosshair%c", 'a'+i));
@@ -751,6 +788,8 @@ static void CG_LoadModelColors(void) {
 	CG_LoadModelColor(&cg_blueHeadColor);
 	CG_LoadModelColor(&cg_blueTorsoColor);
 	CG_LoadModelColor(&cg_blueLegsColor);
+	CG_LoadModelColor(&cg_teamWeaponColor);
+	CG_LoadModelColor(&cg_enemyWeaponColor);
 }
 
 static void CG_RegisterClients(void)
@@ -974,6 +1013,14 @@ void CG_UpdateCvars(void)
 
 		if (cv->vmCvar == &cg_forceTeamModels) {
 			CG_ForceModelChange();
+		}
+	
+		if (cv->vmCvar == &cg_flatGrenades) {
+			if (cg_flatGrenades.integer) {
+				cgs.media.grenadeShader = trap_R_RegisterShader("models/players/flat");
+			} else {
+				cgs.media.grenadeShader = trap_R_RegisterShader("models/ammo/grenadeColor");
+			}
 		}
 
 		// If team overlay is on, ask for updates from the server.  If it's off,

@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ITEM_SCALEUP_TIME	1000
 #define ZOOM_TIME			150
 #define ITEM_BLOB_TIME		200
-#define MUZZLE_FLASH_TIME	20
+#define MUZZLE_FLASH_TIME	50
 #define SINK_TIME			1000		// time for fragments to sink into ground before going away
 #define ATTACKER_HEAD_TIME	10000
 #define REWARD_TIME			3000
@@ -79,6 +79,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
+
+typedef enum {
+	WPCOLOR_GRENADE = (1 << 0),
+	WPCOLOR_GRENADETRAIL = (1 << 1),
+	WPCOLOR_ROCKETTRAIL = (1 << 2),
+	WPCOLOR_RAILTRAIL = (1 << 3),
+	WPCOLOR_PLASMA = (1 << 4),
+	WPCOLOR_LIGHTNING = (1 << 5)
+} weaponColor_t;
 
 typedef enum {
 	FOOTSTEP_NORMAL,
@@ -180,7 +189,7 @@ typedef struct markPoly_s {
 	int			time;
 	qhandle_t	markShader;
 	qboolean	alphaFade;		// fade alpha instead of rgb
-	float		color[4];
+	byte		color[4];
 	poly_t		poly;
 	polyVert_t	verts[MAX_VERTS_ON_POLY];
 } markPoly_t;
@@ -285,6 +294,8 @@ typedef struct {
 	qhandle_t	legsSkin;
 	vec4_t		legsColor;
 
+	vec4_t		weaponColor;
+
 	qboolean	fixedlegs;              // true if legs yaw is always the same as torso yaw
 	qboolean	fixedtorso;             // true if torso never changes yaw
 
@@ -304,12 +315,6 @@ typedef struct {
 
 	int				botSkill;		// 0 = not bot, 1-5 = bot
 
-	vec3_t			color1;
-	vec3_t			color2;
-	
-	byte c1RGBA[4];
-	byte c2RGBA[4];
-
 	int				score;			// updated by score servercmds
 	int				location;		// location index for team mode
 	int				health;			// you only get this info about your teammates
@@ -325,6 +330,7 @@ typedef struct {
 	int				powerups;		// so can display quad/flag status
 
 	int				medkitUsageTime;
+
 	model_t			*model;
 } clientInfo_t;
 
@@ -357,11 +363,6 @@ typedef struct weaponInfo_s {
 	float			missileDlight;
 	vec3_t			missileDlightColor;
 	int				missileRenderfx;
-
-	void			(*ejectBrassFunc)(centity_t *);
-
-	float			trailRadius;
-	float			wiTrailTime;
 
 	sfxHandle_t		readySound;
 	sfxHandle_t		firingSound;
@@ -561,6 +562,8 @@ typedef struct {
 	qboolean		testGun;
 } cg_t;
 
+#define MAX_LGSTYLES	4
+
 // all of the model, shader, and sound references that are
 // loaded at gamestate time are stored in cgMedia_t
 // Other media that can be tied to clients, weapons, or items are
@@ -616,7 +619,7 @@ typedef struct {
 
 	qhandle_t	railCoreShader;
 
-	qhandle_t	lightningShader;
+	qhandle_t	lightningShader[MAX_LGSTYLES];
 
 	qhandle_t	friendShader;
 
@@ -633,10 +636,10 @@ typedef struct {
 
 	qhandle_t	smokePuffShader;
 	qhandle_t	smokePuffRageProShader;
-	qhandle_t	shotgunSmokePuffShader;
 	qhandle_t	plasmaBallShader;
 	qhandle_t	waterBubbleShader;
 	qhandle_t	bloodTrailShader;
+	qhandle_t	grenadeShader;
 
 	qhandle_t	numberShaders[11];
 
@@ -927,15 +930,12 @@ extern vmCvar_t		cg_animSpeed;
 extern vmCvar_t		cg_debugAnim;
 extern vmCvar_t		cg_debugPosition;
 extern vmCvar_t		cg_debugEvents;
-extern vmCvar_t		cg_railTrailTime;
 extern vmCvar_t		cg_errorDecay;
 extern vmCvar_t		cg_nopredict;
 extern vmCvar_t		cg_noPlayerAnims;
 extern vmCvar_t		cg_showmiss;
 extern vmCvar_t		cg_footsteps;
-extern vmCvar_t		cg_addMarks;
-extern vmCvar_t		cg_brassTime;
-extern vmCvar_t		cg_gun_frame;
+extern vmCvar_t		cg_marks;
 extern vmCvar_t		cg_gun_x;
 extern vmCvar_t		cg_gun_y;
 extern vmCvar_t		cg_gun_z;
@@ -977,7 +977,6 @@ extern vmCvar_t		cg_cameraMode;
 extern vmCvar_t		cg_smallFont;
 extern vmCvar_t		cg_bigFont;
 extern vmCvar_t		cg_noTaunt;
-extern vmCvar_t		cg_noProjectileTrail;
 extern vmCvar_t		cg_trueLightning;
 extern vmCvar_t		cg_crosshairColor;
 extern vmCvar_t		cg_teamModel;
@@ -1007,6 +1006,7 @@ extern vmCvar_t		cg_zoomToggle;
 extern vmCvar_t		cg_zoomOutOnDeath;
 extern vmCvar_t		cg_zoomScaling;
 extern vmCvar_t		cg_zoomSensitivity;
+extern vmCvar_t		s_ambient;
 extern vmCvar_t		cg_weaponConfig;
 extern vmCvar_t		cg_weaponConfig_g;
 extern vmCvar_t		cg_weaponConfig_mg;
@@ -1018,7 +1018,25 @@ extern vmCvar_t		cg_weaponConfig_rg;
 extern vmCvar_t		cg_weaponConfig_pg;
 extern vmCvar_t		cg_weaponConfig_bfg;
 extern vmCvar_t		cg_weaponConfig_gh;
-extern vmCvar_t		s_ambient;
+extern vmCvar_t		cg_forceWeaponColor;
+extern vmCvar_t		cg_teamWeaponColor;
+extern vmCvar_t		cg_enemyWeaponColor;
+extern vmCvar_t		cg_flatGrenades;
+extern vmCvar_t		cg_rocketTrail;
+extern vmCvar_t		cg_rocketTrailTime;
+extern vmCvar_t		cg_rocketTrailRadius;
+extern vmCvar_t		cg_grenadeTrail;
+extern vmCvar_t		cg_grenadeTrailTime;
+extern vmCvar_t		cg_grenadeTrailRadius;
+extern vmCvar_t		cg_railTrail;
+extern vmCvar_t		cg_railTrailTime;
+extern vmCvar_t		cg_railTrailRadius;
+extern vmCvar_t		cg_lightningStyle;
+extern vmCvar_t		cg_muzzleFlash;
+extern vmCvar_t		cg_lightningExplosion;
+extern vmCvar_t		cg_weaponBobbing;
+extern vmCvar_t		cg_switchOnEmpty;
+extern vmCvar_t		cg_switchToEmpty;
 
 //
 // cg_main.c
@@ -1157,6 +1175,7 @@ void	CG_PositionRotatedEntityOnTag(refEntity_t *entity, const refEntity_t *paren
 //
 // cg_weapons.c
 //
+void	CG_GetWeaponColor(vec4_t color, clientInfo_t *ci, weaponColor_t wpcolor);
 void	CG_RunWeaponScript(void);
 void	CG_NextWeapon_f(void);
 void	CG_PrevWeapon_f(void);
@@ -1183,9 +1202,8 @@ void	CG_OutOfAmmoChange(void);
 //
 void	CG_InitMarkPolys(void);
 void	CG_AddMarks(void);
-void	CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir, 
-			float orientation, float r, float g, float b, float a, 
-			qboolean alphaFade, float radius, qboolean temporary);
+void	CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir,
+			float orientation, vec4_t color, qboolean alphaFade, float radius, qboolean temporary);
 
 //
 // cg_localents.c
@@ -1197,12 +1215,10 @@ void			CG_AddLocalEntities(void);
 //
 // cg_effects.c
 //
-localEntity_t	*CG_SmokePuff(const vec3_t p, const vec3_t vel, float radius, float r,
-					float g, float b, float a, float duration, int startTime,
-					int fadeInTime, int leFlags, qhandle_t hShader);
+localEntity_t	*CG_SmokePuff(const vec3_t p, const vec3_t vel, float radius, vec4_t color,
+	float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader);
 localEntity_t	*CG_MakeExplosion(vec3_t origin, vec3_t dir,
-					qhandle_t hModel, qhandle_t shader, int msec,
-					qboolean isSprite);
+	qhandle_t hModel, qhandle_t shader, int msec, qboolean isSprite);
 
 void	CG_BubbleTrail(vec3_t start, vec3_t end, float spacing);
 void	CG_SpawnEffect(vec3_t org);

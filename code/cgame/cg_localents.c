@@ -112,7 +112,7 @@ void CG_BloodTrail(localEntity_t *le) {
 
 		blood = CG_SmokePuff(newOrigin, vec3_origin,
 					  20,		// radius
-					  1, 1, 1, 1,	// color
+					  (vec4_t) { 1, 1, 1, 1 },	// color
 					  2000,		// trailTime
 					  t,		// startTime
 					  0,		// fadeInTime
@@ -130,15 +130,14 @@ void CG_FragmentBounceMark(localEntity_t *le, trace_t *trace)
 	int			radius;
 
 	if (le->leMarkType == LEMT_BLOOD) {
-
 		radius = 16 + (rand()&31);
 		CG_ImpactMark(cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, random()*360,
-			1,1,1,1, qtrue, radius, qfalse);
+			(vec4_t) { 1.0f, 1.0f, 1.0f, 1.0f }, qtrue, radius, qfalse);
 	} else if (le->leMarkType == LEMT_BURN) {
 
 		radius = 8 + (rand()&15);
 		CG_ImpactMark(cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, random()*360,
-			1,1,1,1, qtrue, radius, qfalse);
+			(vec4_t) { 1.0f, 1.0f, 1.0f, 1.0f }, qtrue, radius, qfalse);
 	}
 
 

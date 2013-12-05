@@ -104,19 +104,18 @@ temporary marks will not be stored or randomly oriented, but immediately
 passed to the renderer.
 */
 void CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir, float orientation,
-	float red, float green, float blue, float alpha, qboolean alphaFade, float radius, qboolean temporary)
+	vec4_t color, qboolean alphaFade, float radius, qboolean temporary)
 {
 	vec3_t			axis[3];
 	float			texCoordScale;
 	vec3_t			originalPoints[4];
-	byte			colors[4];
 	int				i, j;
 	int				numFragments;
 	markFragment_t	markFragments[MAX_MARK_FRAGMENTS], *mf;
 	vec3_t			markPoints[MAX_MARK_POINTS];
 	vec3_t			projection;
 
-	if (!cg_addMarks.integer) {
+	if (!cg_marks.integer) {
 		return;
 	}
 
@@ -146,11 +145,6 @@ void CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir, 
 					projection, MAX_MARK_POINTS, markPoints[0],
 					MAX_MARK_FRAGMENTS, markFragments);
 
-	colors[0] = red * 255;
-	colors[1] = green * 255;
-	colors[2] = blue * 255;
-	colors[3] = alpha * 255;
-
 	for (i = 0, mf = markFragments; i < numFragments; i++, mf++) {
 		polyVert_t	*v;
 		polyVert_t	verts[MAX_VERTS_ON_POLY];
@@ -169,7 +163,7 @@ void CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir, 
 			VectorSubtract(v->xyz, origin, delta);
 			v->st[0] = 0.5 + DotProduct(delta, axis[1]) * texCoordScale;
 			v->st[1] = 0.5 + DotProduct(delta, axis[2]) * texCoordScale;
-			*(int *)v->modulate = *(int *)colors;
+			CG_SetRGBA(v->modulate, color);
 		}
 
 		// if it is a temporary (shadow) mark, add it immediately and forget about it
@@ -184,10 +178,7 @@ void CG_ImpactMark(qhandle_t markShader, const vec3_t origin, const vec3_t dir, 
 		mark->alphaFade = alphaFade;
 		mark->markShader = markShader;
 		mark->poly.numVerts = mf->numPoints;
-		mark->color[0] = red;
-		mark->color[1] = green;
-		mark->color[2] = blue;
-		mark->color[3] = alpha;
+		Vector4Copy(color, mark->color);
 		memcpy(mark->verts, verts, mf->numPoints * sizeof(verts[0]));
 		markTotal++;
 	}
@@ -200,7 +191,7 @@ void CG_AddMarks(void)
 	int			t;
 	int			fade;
 
-	if (!cg_addMarks.integer) {
+	if (!cg_marks.integer) {
 		return;
 	}
 
