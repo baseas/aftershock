@@ -846,7 +846,6 @@ void FindIntermissionPoint(void)
 			}
 		}
 	}
-
 }
 
 void BeginIntermission(void)

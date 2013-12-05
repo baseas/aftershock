@@ -698,6 +698,10 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item)
 
 	RegisterItem(item);
 
+	if (g_gametype.integer == GT_ELIMINATION) {
+		return;
+	}
+
 	if (g_instantgib.integer || g_rockets.integer) {
 		return;
 	}

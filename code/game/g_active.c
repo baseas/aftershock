@@ -363,15 +363,17 @@ void ClientTimerActions(gentity_t *ent, int msec)
 				}
 				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
 			}
-		} else {
+		} else if (g_gametype.integer != GT_ELIMINATION
+			&& ent->health > client->ps.stats[STAT_MAX_HEALTH])
+		{
 			// count down health when over max
-			if (ent->health > client->ps.stats[STAT_MAX_HEALTH]) {
-				ent->health--;
-			}
+			ent->health--;
 		}
 
 		// count down armor when over max
-		if (client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH]) {
+		if (g_gametype.integer != GT_ELIMINATION
+			&& client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH])
+		{
 			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
@@ -711,7 +713,7 @@ void ClientThink_real(gentity_t *ent)
 	// check for respawning
 	if (client->ps.stats[STAT_HEALTH] <= 0) {
 		// wait for the attack button to be pressed
-		if (level.time > client->respawnTime) {
+		if (g_gametype.integer != GT_ELIMINATION && level.time > client->respawnTime) {
 			// forcerespawn is to prevent users from waiting out powerups
 			if (g_forcerespawn.integer > 0 &&
 				(level.time - client->respawnTime) > g_forcerespawn.integer * 1000) {

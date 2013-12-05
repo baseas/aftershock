@@ -278,7 +278,8 @@ gentity_t *SelectSpectatorSpawnPoint(vec3_t origin, vec3_t angles)
 	return NULL;
 }
 
-void InitBodyQue (void) {
+void InitBodyQue(void)
+{
 	int			i;
 	gentity_t	*ent;
 
@@ -928,15 +929,42 @@ void ClientSpawn(gentity_t *ent)
 	if (!g_rockets.integer && !g_instantgib.integer) {
 		client->ps.stats[STAT_WEAPONS] = (1 << WP_GAUNTLET);
 		client->ps.stats[STAT_WEAPONS] |= (1 << WP_MACHINEGUN);
-		if (g_gametype.integer == GT_TEAM) {
+
+		if (level.warmupTime == -1) {
+			for (i = WP_MACHINEGUN; i <= WP_BFG; ++i) {
+				client->ps.stats[STAT_WEAPONS] |= (1 << i);
+				client->ps.ammo[i] = -1;
+			}
+		} else if (g_gametype.integer == GT_TEAM) {
 			client->ps.ammo[WP_MACHINEGUN] = 50;
 		} else {
 			client->ps.ammo[WP_MACHINEGUN] = 100;
 		}
+
+		if (g_gametype.integer == GT_ELIMINATION) {
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_SHOTGUN);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE_LAUNCHER);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_LIGHTNING);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_PLASMAGUN);
+			client->ps.ammo[WP_SHOTGUN] = 30;
+			client->ps.ammo[WP_GRENADE_LAUNCHER] = 20;
+			client->ps.ammo[WP_ROCKET_LAUNCHER] = 50;
+			client->ps.ammo[WP_LIGHTNING] = 200;
+			client->ps.ammo[WP_RAILGUN] = 20;
+			client->ps.ammo[WP_PLASMAGUN] = 150;
+		}
 	}
 
-	// health will count down towards max_health
-	ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
+	if (g_gametype.integer == GT_ELIMINATION) {
+		client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] * 2;
+		client->ps.stats[STAT_ARMOR] = client->ps.stats[STAT_MAX_HEALTH] * 1.5;
+	} else {
+		client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
+	}
+
+	ent->health = client->ps.stats[STAT_HEALTH];
 
 	G_SetOrigin(ent, spawn_origin);
 	VectorCopy(spawn_origin, client->ps.origin);

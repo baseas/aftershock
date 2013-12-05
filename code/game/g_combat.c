@@ -640,7 +640,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 		G_Knockback(targ, dir, damage);
 	}
 
-	if (targ == attacker && !g_selfDamage.integer) {
+	if ((mod == MOD_FALLING || targ == attacker)
+		&& (!g_selfDamage.integer || g_gametype.integer == GT_ELIMINATION))
+	{
 		return;
 	}
 
@@ -673,14 +675,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 
 	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
 	if (attacker->client && client
-			&& targ != attacker && targ->health > 0
-			&& targ->s.eType != ET_MISSILE
-			&& targ->s.eType != ET_GENERAL) {
+		&& targ != attacker && targ->health > 0
+		&& targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL)
+	{
 		if (OnSameTeam(targ, attacker)) {
 			attacker->client->ps.persistant[PERS_HITS]--;
 		} else {
-			targ->client->pers.lastTarget = targ->s.number;
-
+			attacker->client->pers.lastTarget = targ->s.number;
 			attacker->client->ps.persistant[PERS_HITS]++;
 		}
 		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
