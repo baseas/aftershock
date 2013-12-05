@@ -353,11 +353,6 @@ void BotReportStatus(bot_state_t *bs) {
 			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: attacking the enemy base\n", netname, leader, flagstatus);
 			break;
 		}
-		case LTG_HARVEST:
-		{
-			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: harvesting\n", netname, leader, flagstatus);
-			break;
-		}
 		default:
 		{
 			BotAI_Print(PRT_MESSAGE, "%-20s%s%s: roaming\n", netname, leader, flagstatus);
@@ -486,11 +481,6 @@ void BotSetInfoConfigString(bot_state_t *bs) {
 		case LTG_ATTACKENEMYBASE:
 		{
 			Com_sprintf(action, sizeof(action), "attacking the enemy base");
-			break;
-		}
-		case LTG_HARVEST:
-		{
-			Com_sprintf(action, sizeof(action), "harvesting");
 			break;
 		}
 		default:

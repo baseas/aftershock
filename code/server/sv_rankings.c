@@ -121,15 +121,6 @@ void SV_RankBegin( char *gamekey )
 		case GT_CTF:
 			gamekey = "Q3 Capture the Flag";
 			break;
-		case GT_1FCTF:
-			gamekey = "Q3 One Flag CTF";
-			break;
-		case GT_OBELISK:
-			gamekey = "Q3 Overload";
-			break;
-		case GT_HARVESTER:
-			gamekey = "Q3 Harvester";
-			break;
 		default:
 			break;
 		}

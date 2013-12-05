@@ -104,9 +104,6 @@ typedef enum {
 
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
-	GT_1FCTF,
-	GT_OBELISK,
-	GT_HARVESTER,
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
@@ -418,8 +415,6 @@ typedef enum {
 	GTS_BLUE_RETURN,
 	GTS_RED_TAKEN,
 	GTS_BLUE_TAKEN,
-	GTS_REDOBELISK_ATTACKED,
-	GTS_BLUEOBELISK_ATTACKED,
 	GTS_REDTEAM_SCORED,
 	GTS_BLUETEAM_SCORED,
 	GTS_REDTEAM_TOOK_LEAD,

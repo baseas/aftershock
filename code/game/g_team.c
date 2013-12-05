@@ -40,7 +40,6 @@ typedef struct teamgame_s {
 
 static teamgame_t	teamgame;
 static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
-static char oneFlagStatusRemap[] = { '0', '1', '2', '3', '4' };
 
 void Team_SetFlagStatus(int team, flagStatus_t status);
 
@@ -201,15 +200,9 @@ void Team_SetFlagStatus(int team, flagStatus_t status)
 	if (modified) {
 		char st[4];
 
-		if (g_gametype.integer == GT_CTF) {
-			st[0] = ctfFlagStatusRemap[teamgame.redStatus];
-			st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
-			st[2] = 0;
-		}
-		else {		// GT_1FCTF
-			st[0] = oneFlagStatusRemap[teamgame.flagStatus];
-			st[1] = 0;
-		}
+		st[0] = ctfFlagStatusRemap[teamgame.redStatus];
+		st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
+		st[2] = 0;
 
 		trap_SetConfigstring(CS_FLAGSTATUS, st);
 	}
