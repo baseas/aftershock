@@ -614,9 +614,6 @@ typedef struct {
 
 	qhandle_t	smoke2;
 
-	qhandle_t	machinegunBrassModel;
-	qhandle_t	shotgunBrassModel;
-
 	qhandle_t	railCoreShader;
 
 	qhandle_t	lightningShader[MAX_LGSTYLES];
