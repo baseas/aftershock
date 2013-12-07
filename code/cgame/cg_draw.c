@@ -689,32 +689,6 @@ static void CG_DrawLowerRight(void)
 	y = CG_DrawPowerups(y);
 }
 
-static int CG_DrawPickupItem(int y)
-{
-	int		value;
-	float	*fadeColor;
-
-	if (cg.snap->ps.stats[STAT_HEALTH] <= 0) {
-		return y;
-	}
-
-	y -= ICON_SIZE;
-
-	value = cg.itemPickup;
-	if (value) {
-		fadeColor = CG_FadeColor(cg.itemPickupTime, 3000);
-		if (fadeColor) {
-			CG_RegisterItemVisuals(value);
-			trap_R_SetColor(fadeColor);
-			CG_DrawPic(8, y, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon);
-			CG_DrawBigString(ICON_SIZE + 16, y + (ICON_SIZE/2 - BIGCHAR_HEIGHT/2), bg_itemlist[ value ].pickup_name, fadeColor[0]);
-			trap_R_SetColor(NULL);
-		}
-	}
-
-	return y;
-}
-
 static void CG_DrawLowerLeft(void)
 {
 	float	y;
@@ -724,9 +698,6 @@ static void CG_DrawLowerLeft(void)
 	if (cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 3) {
 		y = CG_DrawTeamOverlay(y, qfalse, qfalse);
 	}
-
-
-	y = CG_DrawPickupItem(y);
 }
 
 static void CG_DrawTeamInfo(void)

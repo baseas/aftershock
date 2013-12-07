@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_LAGOMETER_PING	900
 #define MAX_LAGOMETER_RANGE	300
 
+#define ICON_BLEND_TIME		3000
+
 typedef struct {
 	int		frameSamples[LAG_SAMPLES];
 	int		frameCount;
@@ -448,6 +450,49 @@ static void Hud_Gametime(int hudnumber)
 	CG_DrawHudString(hudnumber, qtrue, s);
 }
 
+static void Hud_ItemPickupIcon(int hudnumber)
+{
+	if (!cg.itemPickup || cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+		return;
+	}
+
+	if (cg.time - cg.itemPickupBlendTime > ICON_BLEND_TIME) {
+		return;
+	}
+
+	CG_DrawHudIcon(hudnumber, qfalse, cg_items[cg.itemPickup].icon);
+}
+
+static void Hud_ItemPickupName(int hudnumber)
+{
+	if (!cg.itemPickup || cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+		return;
+	}
+
+	if (cg.time - cg.itemPickupBlendTime > ICON_BLEND_TIME) {
+		return;
+	}
+
+	CG_DrawHudString(hudnumber, qtrue, bg_itemlist[cg.itemPickup].pickup_name);
+}
+
+static void Hud_ItemPickupTime(int hudnumber)
+{
+	int min, ten, second, msecs;
+
+	if (cg.time - cg.itemPickupBlendTime > ICON_BLEND_TIME) {
+		return;
+	}
+
+	msecs = cg.itemPickupBlendTime - cgs.levelStartTime;
+	second = msecs / 1000;
+	min = second / 60;
+	second -= min * 60;
+	ten = second / 10;
+	second -= ten * 10;
+	CG_DrawHudString(hudnumber, qtrue, va("%i:%i%i", min, ten, second));
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -464,6 +509,9 @@ void CG_DrawHud()
 		{ HUD_AMMOCOUNT, &Hud_Ammo },
 		{ HUD_FPS, &Hud_FPS },
 		{ HUD_GAMETIME, &Hud_Gametime },
+		{ HUD_ITEMPICKUPICON, &Hud_ItemPickupIcon },
+		{ HUD_ITEMPICKUPNAME, &Hud_ItemPickupName },
+		{ HUD_ITEMPICKUPTIME, &Hud_ItemPickupTime },
 		{ 0, NULL }
 	};
 
