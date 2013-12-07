@@ -113,7 +113,7 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model,
 	refdef_t		refdef;
 	refEntity_t		ent;
 
-	if (!cg_draw3dIcons.integer || !cg_drawIcons.integer) {
+	if (!cg_drawIcons.integer) {
 		return;
 	}
 
@@ -152,60 +152,22 @@ Used for both the status bar and the scoreboard
 */
 void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D)
 {
-	qhandle_t		cm;
-	float			len;
-	vec3_t			origin, angles;
-	vec3_t			mins, maxs;
-	qhandle_t		handle;
+	gitem_t *item;
 
-	if (!force2D && cg_draw3dIcons.integer) {
-
-		VectorClear(angles);
-
-		cm = cgs.media.redFlagModel;
-
-		// offset the origin y and z to center the flag
-		trap_R_ModelBounds(cm, mins, maxs);
-
-		origin[2] = -0.5 * (mins[2] + maxs[2]);
-		origin[1] = 0.5 * (mins[1] + maxs[1]);
-
-		// calculate distance so the flag nearly fills the box
-		// assume heads are taller than wide
-		len = 0.5 * (maxs[2] - mins[2]);
-		origin[0] = len / 0.268;	// len / tan(fov/2)
-
-		angles[YAW] = 60 * sin(cg.time / 2000.0);
-
-		if (team == TEAM_RED) {
-			handle = cgs.media.redFlagModel;
-		} else if (team == TEAM_BLUE) {
-			handle = cgs.media.blueFlagModel;
-		} else if (team == TEAM_FREE) {
-			handle = cgs.media.neutralFlagModel;
-		} else {
-			return;
-		}
-		CG_Draw3DModel(x, y, w, h, handle, 0, origin, angles);
-	} else if (cg_drawIcons.integer) {
-		gitem_t *item;
-
-		if (team == TEAM_RED) {
-			item = BG_FindItemForPowerup(PW_REDFLAG);
-		} else if (team == TEAM_BLUE) {
-			item = BG_FindItemForPowerup(PW_BLUEFLAG);
-		} else {
-			return;
-		}
-		if (item) {
-		  CG_DrawPic(x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon);
-		}
+	if (!cg_drawIcons.integer) {
+		return;
 	}
-}
 
-static void CG_DrawStatusBarFlag(float x, int team)
-{
-	CG_DrawFlagModel(x, 480 - ICON_SIZE, ICON_SIZE, ICON_SIZE, team, qfalse);
+	if (team == TEAM_RED) {
+		item = BG_FindItemForPowerup(PW_REDFLAG);
+	} else if (team == TEAM_BLUE) {
+		item = BG_FindItemForPowerup(PW_BLUEFLAG);
+	} else {
+		return;
+	}
+	if (item) {
+	  CG_DrawPic(x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon);
+	}
 }
 
 void CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team)
@@ -227,130 +189,6 @@ void CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team)
 	trap_R_SetColor(hcolor);
 	CG_DrawPic(x, y, w, h, cgs.media.teamStatusBar);
 	trap_R_SetColor(NULL);
-}
-
-static void CG_DrawStatusBar(void)
-{
-	int			color;
-	centity_t	*cent;
-	playerState_t	*ps;
-	int			value;
-	vec4_t		hcolor;
-	vec3_t		angles;
-	vec3_t		origin;
-
-	static float colors[4][4] = {
-//		{ 0.2, 1.0, 0.2, 1.0 } , { 1.0, 0.2, 0.2, 1.0 }, {0.5, 0.5, 0.5, 1} };
-		{ 1.0f, 0.69f, 0.0f, 1.0f },    // normal
-		{ 1.0f, 0.2f, 0.2f, 1.0f },     // low health
-		{ 0.5f, 0.5f, 0.5f, 1.0f },     // weapon firing
-		{ 1.0f, 1.0f, 1.0f, 1.0f } };   // health > 100
-
-	if (cg_drawStatus.integer == 0) {
-		return;
-	}
-
-	// draw the team background
-	CG_DrawTeamBackground(0, 420, 640, 60, 0.33f, cg.snap->ps.persistant[PERS_TEAM]);
-
-	cent = &cg_entities[cg.snap->ps.clientNum];
-	ps = &cg.snap->ps;
-
-	VectorClear(angles);
-
-	// draw any 3D icons first, so the changes back to 2D are minimized
-	if (cent->currentState.weapon && cg_weapons[ cent->currentState.weapon ].ammoModel) {
-		origin[0] = 70;
-		origin[1] = 0;
-		origin[2] = 0;
-		angles[YAW] = 90 + 20 * sin(cg.time / 1000.0);
-		CG_Draw3DModel(CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
-					   cg_weapons[ cent->currentState.weapon ].ammoModel, 0, origin, angles);
-	}
-
-	if (cg.predictedPlayerState.powerups[PW_REDFLAG]) {
-		CG_DrawStatusBarFlag(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_RED);
-	} else if (cg.predictedPlayerState.powerups[PW_BLUEFLAG]) {
-		CG_DrawStatusBarFlag(185 + CHAR_WIDTH*3 + TEXT_ICON_SPACE + ICON_SIZE, TEAM_BLUE);
-	}
-
-	if (ps->stats[ STAT_ARMOR ]) {
-		origin[0] = 90;
-		origin[1] = 0;
-		origin[2] = -10;
-		angles[YAW] = (cg.time & 2047) * 360 / 2048.0;
-		CG_Draw3DModel(370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE,
-					   cgs.media.armorModel, 0, origin, angles);
-	}
-	//
-	// ammo
-	//
-	if (cent->currentState.weapon) {
-		value = ps->ammo[cent->currentState.weapon];
-		if (value > -1) {
-			if (cg.predictedPlayerState.weaponstate == WEAPON_FIRING
-				&& cg.predictedPlayerState.weaponTime > 100) {
-				// draw as dark grey when reloading
-				color = 2;	// dark grey
-			} else {
-				if (value >= 0) {
-					color = 0;	// green
-				} else {
-					color = 1;	// red
-				}
-			}
-			trap_R_SetColor(colors[color]);
-
-			CG_DrawField (0, 432, 3, value);
-			trap_R_SetColor(NULL);
-
-			// if we didn't draw a 3D icon, draw a 2D icon for ammo
-			if (!cg_draw3dIcons.integer && cg_drawIcons.integer) {
-				qhandle_t	icon;
-
-				icon = cg_weapons[ cg.predictedPlayerState.weapon ].ammoIcon;
-				if (icon) {
-					CG_DrawPic(CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, icon);
-				}
-			}
-		}
-	}
-
-	//
-	// health
-	//
-	value = ps->stats[STAT_HEALTH];
-	if (value > 100) {
-		trap_R_SetColor(colors[3]);		// white
-	} else if (value > 25) {
-		trap_R_SetColor(colors[0]);	// green
-	} else if (value > 0) {
-		color = (cg.time >> 8) & 1;	// flash
-		trap_R_SetColor(colors[color]);
-	} else {
-		trap_R_SetColor(colors[1]);	// red
-	}
-
-	// stretch the health up when taking damage
-	CG_DrawField (185, 432, 3, value);
-	CG_ColorForHealth(hcolor);
-	trap_R_SetColor(hcolor);
-
-
-	//
-	// armor
-	//
-	value = ps->stats[STAT_ARMOR];
-	if (value > 0) {
-		trap_R_SetColor(colors[0]);
-		CG_DrawField (370, 432, 3, value);
-		trap_R_SetColor(NULL);
-		// if we didn't draw a 3D icon, draw a 2D icon for armor
-		if (!cg_draw3dIcons.integer && cg_drawIcons.integer) {
-			CG_DrawPic(370 + CHAR_WIDTH*3 + TEXT_ICON_SPACE, 432, ICON_SIZE, ICON_SIZE, cgs.media.armorIcon);
-		}
-
-	}
 }
 
 /* UPPER RIGHT CORNER */
@@ -399,68 +237,6 @@ static float CG_DrawSnapshot(float y)
 
 	s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime,
 		cg.latestSnapshotNum, cgs.serverCommandSequence);
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-
-	CG_DrawBigString(635 - w, y + 2, s, 1.0F);
-
-	return y + BIGCHAR_HEIGHT + 4;
-}
-
-static float CG_DrawFPS(float y)
-{
-	char		*s;
-	int			w;
-	static int	previousTimes[FPS_FRAMES];
-	static int	index;
-	int		i, total;
-	int		fps;
-	static	int	previous;
-	int		t, frameTime;
-
-	// don't use serverTime, because that will be drifting to
-	// correct for internet lag changes, timescales, timedemos, etc
-	t = trap_Milliseconds();
-	frameTime = t - previous;
-	previous = t;
-
-	previousTimes[index % FPS_FRAMES] = frameTime;
-	index++;
-	if (index > FPS_FRAMES) {
-		// average multiple frames together to smooth changes out a bit
-		total = 0;
-		for (i = 0; i < FPS_FRAMES; i++) {
-			total += previousTimes[i];
-		}
-		if (!total) {
-			total = 1;
-		}
-		fps = 1000 * FPS_FRAMES / total;
-
-		s = va("%ifps", fps);
-		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-
-		CG_DrawBigString(635 - w, y + 2, s, 1.0F);
-	}
-
-	return y + BIGCHAR_HEIGHT + 4;
-}
-
-static float CG_DrawTimer(float y)
-{
-	char		*s;
-	int			w;
-	int			mins, seconds, tens;
-	int			msec;
-
-	msec = cg.time - cgs.levelStartTime;
-
-	seconds = msec / 1000;
-	mins = seconds / 60;
-	seconds -= mins * 60;
-	tens = seconds / 10;
-	seconds -= tens * 10;
-
-	s = va("%i:%i%i", mins, tens, seconds);
 	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
 	CG_DrawBigString(635 - w, y + 2, s, 1.0F);
@@ -647,12 +423,6 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	}
 	if (cg_drawSnapshot.integer) {
 		y = CG_DrawSnapshot(y);
-	}
-	if (cg_drawFPS.integer && (stereoFrame == STEREO_CENTER || stereoFrame == STEREO_RIGHT)) {
-		y = CG_DrawFPS(y);
-	}
-	if (cg_drawTimer.integer) {
-		y = CG_DrawTimer(y);
 	}
 	if (cg_drawAttacker.integer) {
 		y = CG_DrawAttacker(y);
@@ -1789,7 +1559,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if (!cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0) {
 
-			CG_DrawStatusBar();
 			CG_DrawAmmoWarning();
 
 			if (stereoFrame == STEREO_CENTER) {
@@ -1862,5 +1631,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 
 	// draw status bar and other floating elements
 	CG_Draw2D(stereoView);
+
+	CG_DrawHud();
 }
 

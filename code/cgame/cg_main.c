@@ -105,10 +105,7 @@ vmCvar_t	cg_centertime;
 vmCvar_t	cg_swingSpeed;
 vmCvar_t	cg_shadows;
 vmCvar_t	cg_gibs;
-vmCvar_t	cg_drawTimer;
-vmCvar_t	cg_drawFPS;
 vmCvar_t	cg_drawSnapshot;
-vmCvar_t	cg_draw3dIcons;
 vmCvar_t	cg_drawIcons;
 vmCvar_t	cg_drawAmmoWarning;
 vmCvar_t	cg_drawCrosshair;
@@ -234,6 +231,7 @@ vmCvar_t	cg_lightningExplosion;
 vmCvar_t	cg_weaponBobbing;
 vmCvar_t	cg_switchOnEmpty;
 vmCvar_t	cg_switchToEmpty;
+vmCvar_t	cg_hud;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -246,10 +244,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawTimer, "cg_drawTimer", "0", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawFPS, "cg_drawFPS", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_draw3dIcons, "cg_draw3dIcons", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawIcons, "cg_drawIcons", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE, RANGE_BOOL },
@@ -375,7 +370,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_lightningExplosion, "cg_lightningExplosion", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL }
+	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_hud, "cg_hud", "hud/default.txt", CVAR_ARCHIVE, RANGE_ALL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
@@ -482,7 +478,14 @@ static void CG_RegisterGraphics(void)
 	}
 
 	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3");
-	cgs.media.armorIcon  = trap_R_RegisterShaderNoMip("icons/iconr_yellow");
+
+	cgs.media.armorRed = trap_R_RegisterShaderNoMip("icons/armorRed");
+	cgs.media.armorBlue = trap_R_RegisterShaderNoMip("icons/armorBlue");
+	cgs.media.armorYellow = trap_R_RegisterShaderNoMip("icons/armorYellow");
+
+	cgs.media.healthRed = trap_R_RegisterShaderNoMip("icons/iconh_red");
+	cgs.media.healthBlue = trap_R_RegisterShaderNoMip("icons/iconh_blue");
+	cgs.media.healthYellow = trap_R_RegisterShaderNoMip("icons/iconh_yellow");
 
 	cgs.media.gibAbdomen = trap_R_RegisterModel("models/gibs/abdomen.md3");
 	cgs.media.gibArm = trap_R_RegisterModel("models/gibs/arm.md3");
@@ -892,7 +895,11 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.serverCommandSequence = serverCommandSequence;
 
 	// load a few needed things before we do any screen updates
-	cgs.media.charsetShader		= trap_R_RegisterShader("gfx/2d/bigchars");
+	cgs.media.charsetShader = trap_R_RegisterShader("gfx/2d/bigchars");
+	cgs.media.charsetShader32 = trap_R_RegisterShader("gfx/2d/bigchars32");
+	cgs.media.charsetShader64 = trap_R_RegisterShader("gfx/2d/bigchars64");
+	cgs.media.charsetShader128 = trap_R_RegisterShader("gfx/2d/bigchars128");
+
 	cgs.media.whiteShader		= trap_R_RegisterShader("white");
 	cgs.media.charsetProp		= trap_R_RegisterShaderNoMip("menu/art/font1_prop.tga");
 	cgs.media.charsetPropGlow	= trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
@@ -963,6 +970,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds(qtrue);
+
+	CG_LoadHudFile(cg_hud.string);
 }
 
 /**
@@ -1010,14 +1019,21 @@ void CG_UpdateCvars(void)
 
 		if (cv->vmCvar == &cg_forceTeamModels) {
 			CG_ForceModelChange();
+			continue;
 		}
-	
+
+		if (cv->vmCvar == &cg_hud) {
+			CG_ClearHud();
+			CG_LoadHudFile(cg_hud.string);
+		}
+
 		if (cv->vmCvar == &cg_flatGrenades) {
 			if (cg_flatGrenades.integer) {
 				cgs.media.grenadeShader = trap_R_RegisterShader("models/players/flat");
 			} else {
 				cgs.media.grenadeShader = trap_R_RegisterShader("models/ammo/grenadeColor");
 			}
+			continue;
 		}
 
 		// If team overlay is on, ask for updates from the server.  If it's off,

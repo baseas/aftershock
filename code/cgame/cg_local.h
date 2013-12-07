@@ -570,6 +570,9 @@ typedef struct {
 // stored in the clientInfo_t, itemInfo_t, weaponInfo_t, and powerupInfo_t
 typedef struct {
 	qhandle_t	charsetShader;
+	qhandle_t	charsetShader32;
+	qhandle_t	charsetShader64;
+	qhandle_t	charsetShader128;
 	qhandle_t	charsetProp;
 	qhandle_t	charsetPropGlow;
 	qhandle_t	charsetPropB;
@@ -594,7 +597,14 @@ typedef struct {
 	qhandle_t	neutralFlagBaseModel;
 
 	qhandle_t	armorModel;
-	qhandle_t	armorIcon;
+
+	qhandle_t	armorRed;
+	qhandle_t	armorBlue;
+	qhandle_t	armorYellow;
+
+	qhandle_t	healthRed;
+	qhandle_t	healthBlue;
+	qhandle_t	healthYellow;
 
 	qhandle_t	teamStatusBar;
 
@@ -806,6 +816,136 @@ typedef struct {
 	vec4_t	deadBodyColor;
 } cgMedia_t;
 
+enum {
+	HUD_DEFAULT,
+	HUD_AMMOWARNING,
+	HUD_ATTACKERICON,
+	HUD_ATTACKERNAME,
+	HUD_CHAT1,
+	HUD_CHAT2,
+	HUD_CHAT3,
+	HUD_CHAT4,
+	HUD_CHAT5,
+	HUD_CHAT6,
+	HUD_CHAT7,
+	HUD_CHAT8,
+	HUD_FS_OWN,
+	HUD_FS_NME,
+	HUD_FOLLOW,
+	HUD_FPS,
+	HUD_FRAGMSG,
+	HUD_GAMETIME,
+	HUD_CATIME,
+	HUD_GAMETYPE,
+	HUD_ITEMPICKUPNAME,
+	HUD_ITEMPICKUPTIME,
+	HUD_ITEMPICKUPICON,
+	HUD_NETGRAPH,
+	HUD_NETGRAPHPING,
+	HUD_SPEED,
+	HUD_ACCEL,
+	HUD_PU1,
+	HUD_PU2,
+	HUD_PU3,
+	HUD_PU4,
+	HUD_PU1ICON,
+	HUD_PU2ICON,
+	HUD_PU3ICON,
+	HUD_PU4ICON,
+	HUD_RANKMSG,
+	HUD_SCORELIMIT,
+	HUD_SCORENME,
+	HUD_SCOREOWN,
+	HUD_SPECMESSAGE,
+	HUD_ARMORBAR,
+	HUD_ARMORCOUNT,
+	HUD_ARMORICON,
+	HUD_AMMOBAR,
+	HUD_AMMOCOUNT,
+	HUD_AMMOICON,
+	HUD_HEALTHBAR,
+	HUD_HEALTHCOUNT,
+	HUD_HEALTHICON,
+	HUD_TARGETNAME,
+	HUD_TARGETSTATUS,
+	HUD_TC_NME,
+	HUD_TC_OWN,
+	HUD_TI_NME,
+	HUD_TI_OWN,
+	HUD_TEAMCHAT1,
+	HUD_TEAMCHAT2,
+	HUD_TEAMCHAT3,
+	HUD_TEAMCHAT4,
+	HUD_TEAMCHAT5,
+	HUD_TEAMCHAT6,
+	HUD_TEAMCHAT7,
+	HUD_TEAMCHAT8,
+	HUD_VOTEMSG,
+	HUD_WARMUP,
+	HUD_WEAPONLIST,
+	HUD_READYSTATUS,
+	HUD_DEATHNOTICE1,
+	HUD_DEATHNOTICE2,
+	HUD_DEATHNOTICE3,
+	HUD_DEATHNOTICE4,
+	HUD_DEATHNOTICE5,
+	HUD_COUNTDOWN,
+	HUD_RESPAWNTIMER,
+	HUD_STATUSBARFLAG,
+	HUD_TEAMOVERLAY1,
+	HUD_TEAMOVERLAY2,
+	HUD_TEAMOVERLAY3,
+	HUD_TEAMOVERLAY4,
+	HUD_TEAMOVERLAY5,
+	HUD_TEAMOVERLAY6,
+	HUD_TEAMOVERLAY7,
+	HUD_TEAMOVERLAY8,
+	HUD_REWARD,
+	HUD_REWARDCOUNT,
+	HUD_CONSOLE,
+	HUD_PREDECORATE1,
+	HUD_PREDECORATE2,
+	HUD_PREDECORATE3,
+	HUD_PREDECORATE4,
+	HUD_PREDECORATE5,
+	HUD_PREDECORATE6,
+	HUD_PREDECORATE7,
+	HUD_PREDECORATE8,
+	HUD_POSTDECORATE1,
+	HUD_POSTDECORATE2,
+	HUD_POSTDECORATE3,
+	HUD_POSTDECORATE4,
+	HUD_POSTDECORATE5,
+	HUD_POSTDECORATE6,
+	HUD_POSTDECORATE7,
+	HUD_POSTDECORATE8,
+
+	HUD_MAX
+};
+
+typedef struct {
+	qboolean	inuse;
+	int			xpos;
+	int			ypos;
+	int			width;
+	int			height;
+	vec4_t		color;
+	vec4_t		bgcolor;
+	qboolean	fill;
+	int			fontWidth;
+	int			fontHeight;
+	char		*image;
+	char		*text;
+	int			textAlign;
+	int			textstyle;
+	int			time;
+	qhandle_t	imageHandle;
+	int			teamColor;
+	int			teamBgColor;
+	char		*cvar;
+	int			cvarValue;
+} hudElement_t;
+
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
@@ -893,6 +1033,8 @@ typedef struct {
 
 	// media
 	cgMedia_t		media;
+
+	hudElement_t	hud[HUD_MAX];
 } cgs_t;
 
 extern cgs_t			cgs;
@@ -906,10 +1048,7 @@ extern vmCvar_t		cg_centertime;
 extern vmCvar_t		cg_swingSpeed;
 extern vmCvar_t		cg_shadows;
 extern vmCvar_t		cg_gibs;
-extern vmCvar_t		cg_drawTimer;
-extern vmCvar_t		cg_drawFPS;
 extern vmCvar_t		cg_drawSnapshot;
-extern vmCvar_t		cg_draw3dIcons;
 extern vmCvar_t		cg_drawIcons;
 extern vmCvar_t		cg_drawAmmoWarning;
 extern vmCvar_t		cg_drawCrosshair;
@@ -1034,6 +1173,7 @@ extern vmCvar_t		cg_lightningExplosion;
 extern vmCvar_t		cg_weaponBobbing;
 extern vmCvar_t		cg_switchOnEmpty;
 extern vmCvar_t		cg_switchToEmpty;
+extern vmCvar_t		cg_hud;
 
 //
 // cg_main.c
@@ -1091,7 +1231,7 @@ void	CG_SetRGBA(byte incolor[4], vec4_t color);
 int		CG_ParseColor(vec4_t incolor, const char *str);
 
 //
-// cg_draw.c, cg_newDraw.c
+// cg_draw.c
 //
 extern int		sortedTeamPlayers[TEAM_MAXOVERLAY];
 extern int		numSortedTeamPlayers;
@@ -1130,6 +1270,15 @@ const char	*CG_GameTypeString(void);
 qboolean	CG_YourTeamHasFlag(void);
 qboolean	CG_OtherTeamHasFlag(void);
 qhandle_t	CG_StatusHandle(int task);
+
+//
+// cg_hud.c, cg_hudparser.c
+//
+void		CG_DrawHud(void);
+void		CG_HudEdit_f( void );
+void		CG_ClearHud( void );
+void		CG_LoadHudFile( const char* hudFile );
+void		CG_WriteHudFile_f( void );
 
 //
 // cg_players.c

@@ -259,6 +259,7 @@ void CG_DrawChar(int x, int y, int width, int height, int ch)
 	float	frow, fcol;
 	float	size;
 	float	ax, ay, aw, ah;
+	qhandle_t	shader;
 
 	ch &= 255;
 
@@ -279,8 +280,17 @@ void CG_DrawChar(int x, int y, int width, int height, int ch)
 	fcol = col * 0.0625;
 	size = 0.0625;
 
-	trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow,
-		fcol + size, frow + size, cgs.media.charsetShader);
+	if (height * cgs.screenYScale <= 16) {
+		shader = cgs.media.charsetShader;
+	} else if (height * cgs.screenYScale <= 32) {
+		shader = cgs.media.charsetShader32;
+	} else if (height * cgs.screenYScale <= 64) {
+		shader = cgs.media.charsetShader64;
+	} else {
+		shader = cgs.media.charsetShader128;
+	}
+
+	trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol + size, frow + size, shader);
 }
 
 /**
