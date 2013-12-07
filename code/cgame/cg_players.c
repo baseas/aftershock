@@ -304,21 +304,27 @@ static int CG_RegisterSkin(model_t *model, const char *modelName, const char *sk
 {
 	char	filename[MAX_QPATH];
 
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower_%s.skin", modelName, skinName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/lower_%s.skin", modelName, skinName);
 	model->legsSkin = trap_R_RegisterSkin(filename);
 	if (!model->legsSkin) {
 		return 1;
 	}
 
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper_%s.skin", modelName, skinName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/upper_%s.skin", modelName, skinName);
 	model->torsoSkin = trap_R_RegisterSkin(filename);
 	if (!model->torsoSkin) {
 		return 1;
 	}
 
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/head_%s.skin", modelName, skinName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/head_%s.skin", modelName, skinName);
 	model->headSkin = trap_R_RegisterSkin(filename);
 	if (!model->headSkin) {
+		return 1;
+	}
+
+	Com_sprintf(filename, sizeof filename, "models/players/%s/icon_%s.tga", modelName, skinName);
+	model->modelIcon = trap_R_RegisterShaderNoMip(filename);
+	if (!model->modelIcon) {
 		return 1;
 	}
 
@@ -329,26 +335,26 @@ static int CG_RegisterClientModelname(model_t *model, char *modelName)
 {
 	char	filename[MAX_QPATH];
 
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/lower.md3", modelName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/lower.md3", modelName);
 	model->legsModel = trap_R_RegisterModel(filename);
 	if (!model->legsModel) {
 		return 1;
 	}
 
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/upper.md3", modelName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/upper.md3", modelName);
 	model->torsoModel = trap_R_RegisterModel(filename);
 	if (!model->torsoModel) {
 		return 1;
 	}
 
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/head.md3", modelName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/head.md3", modelName);
 	model->headModel = trap_R_RegisterModel(filename);
 	if (!model->headModel) {
 		return 1;
 	}
 
 	// load the animations
-	Com_sprintf(filename, sizeof(filename), "models/players/%s/animation.cfg", modelName);
+	Com_sprintf(filename, sizeof filename, "models/players/%s/animation.cfg", modelName);
 	if (!CG_ParseAnimationFile(filename, model)) {
 		Com_Printf("Failed to load animation file %s\n", filename);
 		return 1;

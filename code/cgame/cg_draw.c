@@ -170,65 +170,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 	}
 }
 
-void CG_DrawTeamBackground(int x, int y, int w, int h, float alpha, int team)
-{
-	vec4_t		hcolor;
-
-	hcolor[3] = alpha;
-	if (team == TEAM_RED) {
-		hcolor[0] = 1;
-		hcolor[1] = 0;
-		hcolor[2] = 0;
-	} else if (team == TEAM_BLUE) {
-		hcolor[0] = 0;
-		hcolor[1] = 0;
-		hcolor[2] = 1;
-	} else {
-		return;
-	}
-	trap_R_SetColor(hcolor);
-	CG_DrawPic(x, y, w, h, cgs.media.teamStatusBar);
-	trap_R_SetColor(NULL);
-}
-
 /* UPPER RIGHT CORNER */
-
-static float CG_DrawAttacker(float y)
-{
-	int			t;
-	float		size;
-	const char	*info;
-	const char	*name;
-	int			clientNum;
-
-	if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) {
-		return y;
-	}
-
-	if (!cg.attackerTime) {
-		return y;
-	}
-
-	clientNum = cg.predictedPlayerState.persistant[PERS_ATTACKER];
-	if (clientNum < 0 || clientNum >= MAX_CLIENTS || clientNum == cg.snap->ps.clientNum) {
-		return y;
-	}
-
-	t = cg.time - cg.attackerTime;
-	if (t > ATTACKER_HEAD_TIME) {
-		cg.attackerTime = 0;
-		return y;
-	}
-
-	size = ICON_SIZE * 1.25;
-
-	info = CG_ConfigString(CS_PLAYERS + clientNum);
-	name = Info_ValueForKey( info, "n");
-	y += size;
-	CG_DrawBigString(640 - (Q_PrintStrlen(name) * BIGCHAR_WIDTH), y, name, 0.5);
-
-	return y + BIGCHAR_HEIGHT + 2;
-}
 
 static float CG_DrawSnapshot(float y)
 {
@@ -424,10 +366,6 @@ static void CG_DrawUpperRight(stereoFrame_t stereoFrame)
 	if (cg_drawSnapshot.integer) {
 		y = CG_DrawSnapshot(y);
 	}
-	if (cg_drawAttacker.integer) {
-		y = CG_DrawAttacker(y);
-	}
-
 }
 
 /* LOWER RIGHT CORNER */
@@ -1200,69 +1138,6 @@ static void CG_DrawCrosshair3D(void)
 	trap_R_AddRefEntityToScene(&ent);
 }
 
-static void CG_ScanForCrosshairEntity(void)
-{
-	trace_t		trace;
-	vec3_t		start, end;
-	int			content;
-
-	VectorCopy(cg.refdef.vieworg, start);
-	VectorMA(start, 131072, cg.refdef.viewaxis[0], end);
-
-	CG_Trace(&trace, start, vec3_origin, vec3_origin, end,
-		cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY);
-	if (trace.entityNum >= MAX_CLIENTS) {
-		return;
-	}
-
-	// if the player is in fog, don't show it
-	content = CG_PointContents(trace.endpos, 0);
-	if (content & CONTENTS_FOG) {
-		return;
-	}
-
-	// if the player is invisible, don't show it
-	if (cg_entities[ trace.entityNum ].currentState.powerups & (1 << PW_INVIS)) {
-		return;
-	}
-
-	// update the fade timer
-	cg.crosshairClientNum = trace.entityNum;
-	cg.crosshairClientTime = cg.time;
-}
-
-static void CG_DrawCrosshairNames(void)
-{
-	float		*color;
-	char		*name;
-	float		w;
-
-	if (!cg_drawCrosshair.integer) {
-		return;
-	}
-	if (!cg_drawCrosshairNames.integer) {
-		return;
-	}
-	if (cg.renderingThirdPerson) {
-		return;
-	}
-
-	// scan the known entities to see if the crosshair is sighted on one
-	CG_ScanForCrosshairEntity();
-
-	// draw the name of the player being looked at
-	color = CG_FadeColor(cg.crosshairClientTime, 1000);
-	if (!color) {
-		trap_R_SetColor(NULL);
-		return;
-	}
-
-	name = cgs.clientinfo[ cg.crosshairClientNum ].name;
-	w = CG_DrawStrlen(name) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 170, name, color[3] * 0.5f);
-	trap_R_SetColor(NULL);
-}
-
 static void CG_DrawSpectator(void)
 {
 	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
@@ -1369,28 +1244,6 @@ static qboolean CG_DrawFollow(void)
 	CG_DrawStringExt(x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0);
 
 	return qtrue;
-}
-
-static void CG_DrawAmmoWarning(void)
-{
-	const char	*s;
-	int			w;
-
-	if (cg_drawAmmoWarning.integer == 0) {
-		return;
-	}
-
-	if (!cg.lowAmmoWarning) {
-		return;
-	}
-
-	if (cg.lowAmmoWarning == 2) {
-		s = "OUT OF AMMO";
-	} else {
-		s = "LOW AMMO WARNING";
-	}
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
 }
 
 static void CG_DrawWarmup(void)
@@ -1524,19 +1377,13 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 		if (stereoFrame == STEREO_CENTER)
 			CG_DrawCrosshair();
-
-		CG_DrawCrosshairNames();
 	} else {
 		// don't draw any status if dead or the scoreboard is being explicitly shown
 		if (!cg.showScores && cg.snap->ps.stats[STAT_HEALTH] > 0) {
-
-			CG_DrawAmmoWarning();
-
 			if (stereoFrame == STEREO_CENTER) {
 				CG_DrawCrosshair();
 			}
 
-			CG_DrawCrosshairNames();
 			CG_DrawWeaponSelect();
 			CG_DrawHoldableItem();
 			CG_DrawReward();

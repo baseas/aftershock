@@ -284,6 +284,37 @@ static void CG_DrawHudField(int hudnumber, int value)
 	}
 }
 
+static void CG_ScanForCrosshairEntity(void)
+{
+	trace_t		trace;
+	vec3_t		start, end;
+	int			content;
+
+	VectorCopy(cg.refdef.vieworg, start);
+	VectorMA(start, 131072, cg.refdef.viewaxis[0], end);
+
+	CG_Trace(&trace, start, vec3_origin, vec3_origin, end,
+		cg.snap->ps.clientNum, CONTENTS_SOLID|CONTENTS_BODY);
+	if (trace.entityNum >= MAX_CLIENTS) {
+		return;
+	}
+
+	// if the player is in fog, don't show it
+	content = CG_PointContents(trace.endpos, 0);
+	if (content & CONTENTS_FOG) {
+		return;
+	}
+
+	// if the player is invisible, don't show it
+	if (cg_entities[ trace.entityNum ].currentState.powerups & (1 << PW_INVIS)) {
+		return;
+	}
+
+	// update the fade timer
+	cg.crosshairClientNum = trace.entityNum;
+	cg.crosshairClientTime = cg.time;
+}
+
 static void Hud_HealthIcon(int hudnumber)
 {
 	switch (cg.snap->ps.persistant[PERS_TEAM]) {
@@ -493,6 +524,146 @@ static void Hud_ItemPickupTime(int hudnumber)
 	CG_DrawHudString(hudnumber, qtrue, va("%i:%i%i", min, ten, second));
 }
 
+static void Hud_AmmoWarning(int hudnumber)
+{
+	if (cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+		return;
+	}
+
+	if (!cg.lowAmmoWarning) {
+		return;
+	}
+
+	if (cg.lowAmmoWarning == 2) {
+		CG_DrawHudString(hudnumber, qtrue, "OUT OF AMMO");
+	} else {
+		CG_DrawHudString(hudnumber, qtrue, "LOW AMMO WARNING");
+	}
+}
+
+static void Hud_AttackerName(int hudnumber)
+{
+	int	clientNum, t;
+
+	if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) {
+		return;
+	}
+
+	if (!cg.attackerTime) {
+		return;
+	}
+
+	clientNum = cg.predictedPlayerState.persistant[PERS_ATTACKER];
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS || clientNum == cg.snap->ps.clientNum) {
+		return;
+	}
+
+	t = cg.time - cg.attackerTime;
+	if (t > ATTACKER_HEAD_TIME) {
+		cg.attackerTime = 0;
+		return;
+	}
+
+	CG_DrawHudString(hudnumber, qtrue, cgs.clientinfo[clientNum].name);
+}
+
+static void Hud_AttackerIcon(int hudnumber)
+{
+	int	clientNum, t;
+
+	if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) {
+		return;
+	}
+
+	if (!cg.attackerTime) {
+		return;
+	}
+
+	clientNum = cg.predictedPlayerState.persistant[PERS_ATTACKER];
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS || clientNum == cg.snap->ps.clientNum) {
+		return;
+	}
+
+	t = cg.time - cg.attackerTime;
+	if (t > ATTACKER_HEAD_TIME) {
+		cg.attackerTime = 0;
+		return;
+	}
+
+	CG_DrawHudIcon(hudnumber, qtrue, cgs.clientinfo[clientNum].model->modelIcon);
+}
+
+static void Hud_Speed(int hudnumber)
+{
+	CG_DrawHudString(hudnumber, qtrue, va("%i ups", (int) cg.xyspeed));
+}
+
+static void Hud_TargetName(int hudnumber)
+{
+	char	*name;
+
+	if (cg.renderingThirdPerson || !cg_drawCrosshair.integer || !cg_drawCrosshairNames.integer) {
+		return;
+	}
+
+	CG_ScanForCrosshairEntity();
+
+	if (cg.time > cg.crosshairClientTime + cgs.hud[hudnumber].time) {
+		return;
+	}
+
+	name = cgs.clientinfo[cg.crosshairClientNum].name;
+	CG_DrawHudString(hudnumber, qfalse, name);
+}
+
+static void Hud_TargetStatus(int hudnumber)
+{
+	char			statusBuf[16];
+	clientInfo_t	*ci;
+	int				healthColor, armorColor;
+
+	if (cg.renderingThirdPerson || !cg_drawCrosshair.integer || !cg_drawCrosshairNames.integer) {
+		return;
+	}
+
+	CG_ScanForCrosshairEntity();
+
+	if (cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) {
+		return;
+	}
+
+	if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED
+		&& cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE)
+	{
+		return;
+	}
+
+	if (cg.snap->ps.persistant[PERS_TEAM] != cgs.clientinfo[cg.crosshairClientNum].team) {
+		return;
+	}
+
+	ci = &cgs.clientinfo[cg.crosshairClientNum];
+	if (ci->health >= 100) {
+		healthColor = 2;
+	} else if (ci->health >= 50) {
+		healthColor = 3;
+	} else {
+		healthColor = 1;
+	}
+
+	if (ci->armor >= 100) {
+		armorColor = 2;
+	} else if (ci->armor >= 50) {
+		armorColor = 3;
+	} else {
+		armorColor = 1;
+	}
+
+	Com_sprintf(statusBuf, sizeof statusBuf, "(^%i%i^7|^%i%i^7)",
+		healthColor, ci->health, armorColor, ci->armor);
+	CG_DrawHudString(hudnumber, qfalse, statusBuf);
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -512,6 +683,12 @@ void CG_DrawHud()
 		{ HUD_ITEMPICKUPICON, &Hud_ItemPickupIcon },
 		{ HUD_ITEMPICKUPNAME, &Hud_ItemPickupName },
 		{ HUD_ITEMPICKUPTIME, &Hud_ItemPickupTime },
+		{ HUD_AMMOWARNING, &Hud_AmmoWarning },
+		{ HUD_ATTACKERICON, &Hud_AttackerIcon },
+		{ HUD_ATTACKERNAME, &Hud_AttackerName },
+		{ HUD_SPEED, &Hud_Speed },
+		{ HUD_TARGETNAME, &Hud_TargetName },
+		{ HUD_TARGETSTATUS, &Hud_TargetStatus },
 		{ 0, NULL }
 	};
 
