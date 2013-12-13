@@ -433,6 +433,36 @@ void CG_ParseServerinfo(void)
 
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", mapname);
+
+	switch (cgs.gametype) {
+	case GT_FFA:
+		cgs.gametypeName = "Free For All";
+		cgs.gametypeShortName = "FFA";
+		break;
+	case GT_SINGLE_PLAYER:
+		cgs.gametypeName = "Single Player";
+		cgs.gametypeShortName = "SP";
+		break;
+	case GT_TOURNAMENT:
+		cgs.gametypeName = "Tournament";
+		cgs.gametypeShortName = "1v1";
+		break;
+	case GT_TEAM:
+		cgs.gametypeName = "Team Deathmatch";
+		cgs.gametypeShortName = "TDM";
+		break;
+	case GT_CTF:
+		cgs.gametypeName = "Capture The Flag";
+		cgs.gametypeShortName = "CTF";
+		break;
+	case GT_ELIMINATION:
+		cgs.gametypeName = "Elimination";
+		cgs.gametypeShortName = "CA";
+		break;
+	default:
+		cgs.gametypeName = "Unknown gametype";
+		cgs.gametypeShortName = "???";
+	}
 }
 
 /**

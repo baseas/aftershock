@@ -664,6 +664,260 @@ static void Hud_TargetStatus(int hudnumber)
 	CG_DrawHudString(hudnumber, qfalse, statusBuf);
 }
 
+static void Hud_Warmup(int hudnumber)
+{
+	if (cg.warmup >= 0) {
+		return;
+	}
+	CG_DrawHudString(HUD_WARMUP, qtrue, "Warmup");
+}
+
+static void Hud_Gametype(int hudnumber)
+{
+	clientInfo_t	*ci1, *ci2;
+	int				i;
+
+	if (cgs.gametype != GT_TOURNAMENT) {
+		CG_DrawHudString(hudnumber, qtrue, cgs.gametypeName);
+		return;
+	}
+
+	ci1 = NULL;
+	ci2 = NULL;
+	for (i = 0; i < cgs.maxclients; i++) {
+		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team != TEAM_FREE) {
+			continue;
+		}
+
+		if (!ci1) {
+			ci1 = &cgs.clientinfo[i];
+		} else {
+			ci2 = &cgs.clientinfo[i];
+		}
+	}
+
+	if (ci1 && ci2) {
+		const char	*s;
+		s = va("%s ^7vs %s", ci1->name, ci2->name);
+		CG_DrawHudString(hudnumber, qtrue, s);
+	}
+}
+
+static void Hud_Countdown(int hudnumber)
+{
+	int			sec;
+	const char	*s;
+
+	sec = (cg.warmup - cg.time) / 1000;
+	if (sec < 0) {
+		sec = 0;
+	}
+
+	s = va("Starts in: %i", sec + 1);
+	CG_DrawHudString(hudnumber, qtrue, s);
+}
+
+static void Hud_WeaponList(int hudnumber)
+{
+	hudElement_t	*hudelement;
+	int			height, width, xpos, ypos, textalign;
+	qboolean	horizontal;
+	int			boxWidth, boxHeight, x,y;
+	int			i;
+	int			iconsize;
+	int			icon_xrel, icon_yrel, text_xrel, text_yrel, text_step;
+	char		*s;
+	int			w;
+	vec4_t		charColor;
+	int			ammoPack;
+	vec4_t		bgcolor;
+	int			count;
+
+	hudelement = &cgs.hud[hudnumber];
+	height = hudelement->height;
+	width = hudelement->width;
+	xpos = hudelement->xpos;
+	ypos = hudelement->ypos;
+	textalign = hudelement->textAlign;
+
+	horizontal = height < width;
+
+	count = 0;
+	for (i = WP_MACHINEGUN; i <= WP_BFG; i++) {
+		if (cg_weapons[i].weaponIcon) {
+			count++;
+		}
+	}
+
+	if (hudelement->bgcolor[3] != 0) {
+		if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 1) {
+			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+				bgcolor[0] = 1;
+				bgcolor[1] = 0;
+				bgcolor[2] = 0;
+			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+				bgcolor[0] = 0;
+				bgcolor[1] = 0;
+				bgcolor[2] = 1;
+			}
+		} else if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 2) {
+			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+				bgcolor[0] = 1;
+				bgcolor[1] = 0;
+				bgcolor[2] = 0;
+			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+				bgcolor[0] = 0;
+				bgcolor[1] = 0;
+				bgcolor[2] = 1;
+			}
+		} else {
+			bgcolor[0] = hudelement->bgcolor[0];
+			bgcolor[1] = hudelement->bgcolor[1];
+			bgcolor[2] = hudelement->bgcolor[2];
+		}
+		bgcolor[3] = hudelement->bgcolor[3];
+	} else {
+		bgcolor[0] = 0;
+		bgcolor[1] = 0;
+		bgcolor[2] = 0;
+		bgcolor[3] = 0;
+	}
+
+	if (horizontal) {
+		boxHeight = height;
+		boxWidth = width/8;
+		x = xpos + width/2 - (boxWidth*count)/2;
+		y = ypos;
+		CG_FillRect(x, y, count*boxWidth, boxHeight, bgcolor);
+	} else {
+		boxHeight = height/8;
+		boxWidth = width;
+		x = xpos;
+		y = ypos + height/2 - (boxHeight*count)/2;
+		CG_FillRect(x, y, boxWidth, count*boxHeight, bgcolor);
+	}
+
+	if (textalign == 0) {
+		if (boxHeight < (boxWidth - 3*hudelement->fontWidth - 6))
+			iconsize = boxHeight;
+		else
+			iconsize = (boxWidth - 3*hudelement->fontWidth - 6);
+
+		icon_yrel = boxHeight/2 - iconsize/2;
+		icon_xrel = boxWidth - iconsize - 2;
+
+		text_yrel = boxHeight/2 - hudelement->fontHeight/2;
+		text_xrel = 2;
+		text_step = 0;
+	} else if (textalign == 2) {
+		if (boxHeight < (boxWidth - 3*hudelement->fontWidth - 6))
+			iconsize = boxHeight;
+		else
+			iconsize = (boxWidth - 3*hudelement->fontWidth - 6);
+
+		icon_yrel = boxHeight/2 - iconsize/2;
+		icon_xrel = 2;
+
+		text_yrel = boxHeight/2 - hudelement->fontHeight/2;
+		text_xrel = boxWidth - 3*hudelement->fontWidth - 2;
+		text_step = hudelement->fontWidth;
+	} else {
+		if (boxWidth < (boxHeight - hudelement->fontHeight - 6))
+			iconsize = boxWidth;
+		else
+			iconsize = (boxHeight - hudelement->fontHeight - 6);
+
+		icon_xrel = boxWidth/2 - iconsize/2;
+		icon_yrel = 2;
+
+		text_xrel = boxWidth/2 - 3*hudelement->fontWidth/2;
+		text_yrel = boxHeight - hudelement->fontHeight - 2;
+		text_step = hudelement->fontWidth/2;
+	}
+
+	if (iconsize < 0)
+		iconsize = 0;
+
+	for (i = WP_MACHINEGUN; i <= WP_BFG; i++) {
+		if (!cg_weapons[i].weaponIcon) {
+			continue;
+		}
+
+		switch (i) {
+			case WP_MACHINEGUN:
+				ammoPack = 50;
+				break;
+			case WP_SHOTGUN:
+				ammoPack = 10;
+				break;
+			case WP_GRENADE_LAUNCHER:
+				ammoPack = 5;
+				break;
+			case WP_ROCKET_LAUNCHER:
+				ammoPack = 5;
+				break;
+			case WP_LIGHTNING:
+				ammoPack = 60;
+				break;
+			case WP_RAILGUN:
+				ammoPack = 5;
+				break;
+			case WP_PLASMAGUN:
+				ammoPack = 30;
+				break;
+			case WP_BFG:
+				ammoPack = 15;
+				break;
+			default:
+				ammoPack = 200;
+				break;
+		}
+
+		if (cg.snap->ps.ammo[i] < ammoPack/2+1) {
+			charColor[0] = 1.0;
+			charColor[1] = 0.0;
+			charColor[2] = 0.0;
+		} else if (cg.snap->ps.ammo[i] < ammoPack) {
+			charColor[0] = 1.0;
+			charColor[1] = 1.0;
+			charColor[2] = 0.0;
+		} else {
+			charColor[0] = 1.0;
+			charColor[1] = 1.0;
+			charColor[2] = 1.0;
+		}
+
+		if ((i == cg.weaponSelect && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) || ((i == cg_entities[cg.snap->ps.clientNum].currentState.weapon) && (cg.snap->ps.pm_flags & PMF_FOLLOW))) {
+			if (hudelement->imageHandle)
+				CG_DrawPic(x, y, boxWidth, boxHeight, hudelement->imageHandle);
+			else if (hudelement->fill)
+				CG_FillRect(x, y, boxWidth, boxHeight, hudelement->color);
+			else
+				CG_DrawRect(x, y, boxWidth, boxHeight, 2, hudelement->color);
+		}
+
+		CG_DrawPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cg_weapons[i].weaponIcon);
+
+		if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << i)) {
+			if (cg.snap->ps.ammo[i] == 0) {
+				CG_DrawPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cgs.media.noammoShader);
+			}
+
+			/** Draw Weapon Ammo **/
+			if (cg.snap->ps.ammo[i] != -1) {
+				s = va("%i", cg.snap->ps.ammo[i]);
+				w = CG_DrawStrlen(s);
+				CG_DrawStringExt(x + text_xrel + (3 - w)*text_step, y + text_yrel, s, charColor, qfalse, hudelement->textstyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
+			}
+		}
+
+		if (horizontal)
+			x += boxWidth;
+		else
+			y += boxHeight;
+	}
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -689,7 +943,11 @@ void CG_DrawHud()
 		{ HUD_SPEED, &Hud_Speed },
 		{ HUD_TARGETNAME, &Hud_TargetName },
 		{ HUD_TARGETSTATUS, &Hud_TargetStatus },
-		{ 0, NULL }
+		{ HUD_WARMUP, Hud_Warmup },
+		{ HUD_GAMETYPE, Hud_Gametype },
+		{ HUD_COUNTDOWN, Hud_Countdown },
+		{ HUD_WEAPONLIST, Hud_WeaponList },
+		{ HUD_MAX, NULL }
 	};
 
 	for (i = 0; hudCallbacks[i].func; ++i) {

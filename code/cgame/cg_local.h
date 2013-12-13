@@ -966,6 +966,8 @@ typedef struct {
 
 	// parsed from serverinfo
 	gametype_t		gametype;
+	char			*gametypeName;
+	char			*gametypeShortName;
 	int				dmflags;
 	int				teamflags;
 	int				fraglimit;
