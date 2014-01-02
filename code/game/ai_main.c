@@ -985,8 +985,6 @@ int BotAI(int client, float thinktime) {
 			args[strlen(args)-1] = '\0';
 			trap_BotQueueConsoleMessage(bs->cs, CMS_CHAT, args);
 		}
-		else if (!Q_stricmp(buf, "scores"))
-			{ /*FIXME: parse scores?*/ }
 		else if (!Q_stricmp(buf, "clientLevelShot"))
 			{ /*ignore*/ }
 	}

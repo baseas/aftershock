@@ -66,72 +66,6 @@ static gitem_t *FindAmmoForWeapon(weapon_t weapon)
 	return NULL;
 }
 
-void DeathmatchScoreboardMessage(gentity_t *ent)
-{
-	char		entry[1024];
-	char		string[1400];
-	int			stringlength;
-	int			i, j;
-	gclient_t	*cl;
-	int			numSorted, scoreFlags, accuracy, perfect;
-
-	// send the latest information on all clients
-	string[0] = 0;
-	stringlength = 0;
-	scoreFlags = 0;
-
-	numSorted = level.numConnectedClients;
-
-	for (i = 0; i < numSorted; i++) {
-		int		ping;
-
-		cl = &level.clients[level.sortedClients[i]];
-
-		if (cl->pers.connected == CON_CONNECTING) {
-			ping = -1;
-		} else {
-			ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
-		}
-
-		if (cl->pers.accuracy_shots) {
-			accuracy = cl->pers.accuracy_hits * 100 / cl->pers.accuracy_shots;
-		}
-		else {
-			accuracy = 0;
-		}
-		perfect = (cl->ps.persistant[PERS_RANK] == 0 && cl->ps.persistant[PERS_KILLED] == 0) ? 1 : 0;
-
-		Com_sprintf (entry, sizeof(entry),
-			" %i %i %i %i %i %i %i %i %i %i %i %i %i %i", level.sortedClients[i],
-			cl->ps.persistant[PERS_SCORE], ping, (level.time - cl->pers.enterTime)/60000,
-			scoreFlags, g_entities[level.sortedClients[i]].s.powerups, accuracy,
-			cl->ps.persistant[PERS_IMPRESSIVE_COUNT],
-			cl->ps.persistant[PERS_EXCELLENT_COUNT],
-			cl->ps.persistant[PERS_GAUNTLET_FRAG_COUNT],
-			cl->ps.persistant[PERS_DEFEND_COUNT],
-			cl->ps.persistant[PERS_ASSIST_COUNT],
-			perfect,
-			cl->ps.persistant[PERS_CAPTURES]);
-		j = strlen(entry);
-		if (stringlength + j >= sizeof(string))
-			break;
-		strcpy (string + stringlength, entry);
-		stringlength += j;
-	}
-
-	trap_SendServerCommand(ent-g_entities, va("scores %i %i %i%s", i,
-		level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE],
-		string));
-}
-
-/**
-Request current scoreboard information
-*/
-void Cmd_Score_f(gentity_t *ent)
-{
-	DeathmatchScoreboardMessage(ent);
-}
-
 qboolean CheatsOk(gentity_t *ent)
 {
 	if (!g_cheats.integer) {
@@ -283,27 +217,6 @@ void Cmd_Give_f (gentity_t *ent)
 
 		if (!give_all)
 			return;
-	}
-
-	if (Q_stricmp(name, "excellent") == 0) {
-		ent->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "impressive") == 0) {
-		ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "gauntletaward") == 0) {
-		ent->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "defend") == 0) {
-		ent->client->ps.persistant[PERS_DEFEND_COUNT]++;
-		return;
-	}
-	if (Q_stricmp(name, "assist") == 0) {
-		ent->client->ps.persistant[PERS_ASSIST_COUNT]++;
-		return;
 	}
 
 	// spawn a specific item right on the player
@@ -841,7 +754,7 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 		}
 		break;
 	case 'D':
-		if (ent->client->ps.persistant[PERS_KILLED]) {
+		if (ent->s.pubStats[PUBSTAT_DEATHS]) {
 			intval = ent->client->ps.persistant[PERS_ATTACKER];
 			Q_strncpyz(text, g_entities[intval].client->pers.netname, length);
 		}
@@ -1621,11 +1534,6 @@ void ClientCommand(int clientNum)
 	}
 	if (Q_stricmp (cmd, "tell") == 0) {
 		Cmd_Tell_f (ent);
-		return;
-	}
-
-	if (Q_stricmp (cmd, "score") == 0) {
-		Cmd_Score_f (ent);
 		return;
 	}
 

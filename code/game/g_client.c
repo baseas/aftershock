@@ -807,11 +807,12 @@ void ClientSpawn(gentity_t *ent)
 	int		i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
-	int		persistant[MAX_PERSISTANT];
-	gentity_t	*spawnPoint;
-	gentity_t *tent;
+	int				pubStats[MAX_PUBSTAT];
+	privStats_t		privStats;
+	int				persistant[MAX_PERSISTANT];
+	gentity_t		*spawnPoint;
+	gentity_t		*tent;
 	int		flags;
-	int		savedPing;
 	int		eventSequence;
 	char	userinfo[MAX_INFO_STRING];
 
@@ -859,23 +860,20 @@ void ClientSpawn(gentity_t *ent)
 
 	saved = client->pers;
 	savedSess = client->sess;
-	savedPing = client->ps.ping;
-
-	for (i = 0; i < MAX_PERSISTANT; i++) {
-		persistant[i] = client->ps.persistant[i];
-	}
 	eventSequence = client->ps.eventSequence;
+	Com_Memcpy(pubStats, ent->s.pubStats, sizeof pubStats);
+	Com_Memcpy(&privStats, &ent->s.privStats, sizeof privStats);
+	Com_Memcpy(persistant, client->ps.persistant, sizeof persistant);
 
-	Com_Memset (client, 0, sizeof(*client));
+	Com_Memset(client, 0, sizeof(*client));
 
 	client->pers = saved;
 	client->sess = savedSess;
-	client->ps.ping = savedPing;
-
-	for (i = 0; i < MAX_PERSISTANT; i++) {
-		client->ps.persistant[i] = persistant[i];
-	}
 	client->ps.eventSequence = eventSequence;
+	Com_Memcpy(ent->s.pubStats, pubStats, sizeof pubStats);
+	Com_Memcpy(&ent->s.privStats, &privStats, sizeof privStats);
+	Com_Memcpy(client->ps.persistant, persistant, sizeof client->ps.persistant);
+
 	// increment the spawncount so the client will detect the respawn
 	client->ps.persistant[PERS_SPAWN_COUNT]++;
 	client->ps.persistant[PERS_TEAM] = client->sess.sessionTeam;
@@ -1018,7 +1016,7 @@ void ClientSpawn(gentity_t *ent)
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
-	ent->client->pers.cmd.serverTime = level.time;
+	client->pers.cmd.serverTime = level.time;
 	ClientThink(ent-g_entities);
 	// run the presend to set anything else, follow spectators wait
 	// until all clients have been reconnected after map_restart

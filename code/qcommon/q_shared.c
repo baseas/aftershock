@@ -33,6 +33,12 @@ float Com_Clamp( float min, float max, float value ) {
 	return value;
 }
 
+void CopyEntity(entityState_t *dest, entityState_t *src)
+{
+	*dest = *src;
+	memcpy(dest->pubStats, src->pubStats, sizeof src->pubStats);
+	memcpy(&dest->privStats, &src->privStats, sizeof src->privStats);
+}
 
 /*
 ============

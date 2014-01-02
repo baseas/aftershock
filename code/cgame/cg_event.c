@@ -654,8 +654,8 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 	//
 	case EV_DROP_WEAPON:
 		DEBUGNAME("EV_DROP_WEAPON");
-		cg.snap->ps.stats[STAT_WEAPONS] &= ~(1 << cg.weaponSelect);
 		if (es->number == cg.snap->ps.clientNum) {
+			cg.snap->ps.stats[STAT_WEAPONS] &= ~(1 << cg.weaponSelect);
 			CG_OutOfAmmoChange();
 		}
 		break;

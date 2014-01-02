@@ -26,75 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-static void CG_ParseScores(void)
-{
-	int		i, powerups;
-
-	cg.numScores = atoi(CG_Argv(1));
-	if (cg.numScores > MAX_CLIENTS) {
-		cg.numScores = MAX_CLIENTS;
-	}
-
-	cg.teamScores[0] = atoi(CG_Argv(2));
-	cg.teamScores[1] = atoi(CG_Argv(3));
-
-	memset(cg.scores, 0, sizeof(cg.scores));
-	for (i = 0; i < cg.numScores; i++) {
-		cg.scores[i].client = atoi(CG_Argv(i * 14 + 4));
-		cg.scores[i].score = atoi(CG_Argv(i * 14 + 5));
-		cg.scores[i].ping = atoi(CG_Argv(i * 14 + 6));
-		cg.scores[i].time = atoi(CG_Argv(i * 14 + 7));
-		cg.scores[i].scoreFlags = atoi(CG_Argv(i * 14 + 8));
-		powerups = atoi(CG_Argv(i * 14 + 9));
-		cg.scores[i].accuracy = atoi(CG_Argv(i * 14 + 10));
-		cg.scores[i].impressiveCount = atoi(CG_Argv(i * 14 + 11));
-		cg.scores[i].excellentCount = atoi(CG_Argv(i * 14 + 12));
-		cg.scores[i].guantletCount = atoi(CG_Argv(i * 14 + 13));
-		cg.scores[i].defendCount = atoi(CG_Argv(i * 14 + 14));
-		cg.scores[i].assistCount = atoi(CG_Argv(i * 14 + 15));
-		cg.scores[i].perfect = atoi(CG_Argv(i * 14 + 16));
-		cg.scores[i].captures = atoi(CG_Argv(i * 14 + 17));
-
-		if (cg.scores[i].client < 0 || cg.scores[i].client >= MAX_CLIENTS) {
-			cg.scores[i].client = 0;
-		}
-		cgs.clientinfo[ cg.scores[i].client ].score = cg.scores[i].score;
-		cgs.clientinfo[ cg.scores[i].client ].powerups = powerups;
-
-		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
-	}
-}
-
-static void CG_ParseTeamInfo(void)
-{
-	int		i;
-	int		client;
-
-	numSortedTeamPlayers = atoi(CG_Argv(1));
-	if (numSortedTeamPlayers < 0 || numSortedTeamPlayers > TEAM_MAXOVERLAY) {
-		CG_Error("CG_ParseTeamInfo: numSortedTeamPlayers out of range (%d)",
-				numSortedTeamPlayers);
-		return;
-	}
-
-	for (i = 0; i < numSortedTeamPlayers; i++) {
-		client = atoi(CG_Argv(i * 6 + 2));
-		if (client < 0 || client >= MAX_CLIENTS)
-		{
-		  CG_Error("CG_ParseTeamInfo: bad client number: %d", client);
-		  return;
-		}
-
-		sortedTeamPlayers[i] = client;
-
-		cgs.clientinfo[ client ].location = atoi(CG_Argv(i * 6 + 3));
-		cgs.clientinfo[ client ].health = atoi(CG_Argv(i * 6 + 4));
-		cgs.clientinfo[ client ].armor = atoi(CG_Argv(i * 6 + 5));
-		cgs.clientinfo[ client ].curWeapon = atoi(CG_Argv(i * 6 + 6));
-		cgs.clientinfo[ client ].powerups = atoi(CG_Argv(i * 6 + 7));
-	}
-}
-
 static void CG_ParseWarmup(void)
 {
 	const char	*info;
@@ -171,7 +102,6 @@ static void CG_ConfigStringModified(void)
 		}
 	} else if (num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS) {
 		CG_NewClientInfo(num - CS_PLAYERS);
-		CG_BuildSpectatorString();
 	} else if (num == CS_FLAGSTATUS) {
 		// format is rb where its red/blue, 0 is at base, 1 is taken, 2 is dropped
 		if (cgs.gametype == GT_CTF) {
@@ -370,22 +300,12 @@ static void CG_ServerCommand(void)
 		return;
 	}
 
-	if (!strcmp(cmd, "scores")) {
-		CG_ParseScores();
-		return;
-	}
-
-	if (!strcmp(cmd, "tinfo")) {
-		CG_ParseTeamInfo();
-		return;
-	}
-
 	if (!strcmp(cmd, "map_restart")) {
 		CG_MapRestart();
 		return;
 	}
 
-	if (Q_stricmp (cmd, "remapShader") == 0) {
+	if (!strcmp(cmd, "remapShader") == 0) {
 		if (trap_Argc() == 4) {
 			char shader1[MAX_QPATH];
 			char shader2[MAX_QPATH];
@@ -397,7 +317,7 @@ static void CG_ServerCommand(void)
 
 			trap_R_RemapShader(shader1, shader2, shader3);
 		}
-		
+
 		return;
 	}
 
@@ -430,9 +350,12 @@ void CG_ParseServerinfo(void)
 	cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
 	cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 	cgs.newItemHeight = atoi(Info_ValueForKey(info, "g_newItemHeight"));
+	cgs.startWhenReady = atoi(Info_ValueForKey(info, "g_startWhenReady"));
+	cgs.redLocked = atoi(Info_ValueForKey(info, "g_redLocked"));
+	cgs.blueLocked = atoi(Info_ValueForKey(info, "g_blueLocked"));
 
 	mapname = Info_ValueForKey(info, "mapname");
-	Com_sprintf(cgs.mapname, sizeof(cgs.mapname), "maps/%s.bsp", mapname);
+	Com_sprintf(cgs.mapname, sizeof cgs.mapname, "maps/%s.bsp", mapname);
 
 	switch (cgs.gametype) {
 	case GT_FFA:

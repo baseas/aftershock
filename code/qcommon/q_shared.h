@@ -1,4 +1,4 @@
-/*
+	/*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
 
@@ -1108,12 +1108,25 @@ typedef struct {
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
+#define	MAX_REWARDS				16
 #define	MAX_POWERUPS			16
-#define	MAX_WEAPONS				16		
+#define	MAX_WEAPONS				16
+#define	MAX_PUBSTAT				16
 
 #define	MAX_PS_EVENTS			2
 
 #define PS_PMOVEFRAMECOUNTBITS	6
+
+typedef struct {
+	int	rewards[MAX_REWARDS];
+	int	shots[MAX_WEAPONS];
+	int	teamHits[MAX_WEAPONS];
+	int	enemyHits[MAX_WEAPONS];
+	int	damage[MAX_WEAPONS];
+	int	kills[MAX_WEAPONS];
+	int	deaths[MAX_WEAPONS];
+	int	weaponPickups[MAX_WEAPONS];
+} privStats_t;
 
 // playerState_t is the information needed by both the client and server
 // to predict player motion and actions
@@ -1126,6 +1139,9 @@ typedef struct {
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
 typedef struct playerState_s {
+	int			pubStats[MAX_PUBSTAT];
+	privStats_t	privStats;
+
 	int			commandTime;	// cmd->serverTime of last executed command
 	int			pm_type;
 	int			bobCycle;		// for view bobbing and footstep generation
@@ -1180,6 +1196,8 @@ typedef struct playerState_s {
 
 	int			stats[MAX_STATS];
 	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death
+
+	// XXX long/short for powerups in msg.c
 	int			powerups[MAX_POWERUPS];	// level.time that the powerup runs out
 	int			ammo[MAX_WEAPONS];
 
@@ -1188,7 +1206,6 @@ typedef struct playerState_s {
 	int			jumppad_ent;	// jumppad entity hit this frame
 
 	// not communicated over the net at all
-	int			ping;			// server to game info for scoreboard
 	int			pmove_framecount;
 	int			jumppad_frame;
 	int			entityEventSequence;
@@ -1261,7 +1278,7 @@ typedef struct {
 // Different eTypes may use the information in different ways
 // The messages are delta compressed, so it doesn't really matter if
 // the structure size is fairly large
-
+// TODO use unions to reduce memory and bandwidth usage
 typedef struct entityState_s {
 	int		number;			// entity index
 	int		eType;			// entityType_t
@@ -1289,22 +1306,25 @@ typedef struct entityState_s {
 
 	int		modelindex;
 	int		modelindex2;
-	int		clientNum;		// 0 to (MAX_CLIENTS - 1), for players and corpses
 	int		frame;
 
 	int		solid;			// for client side prediction, trap_linkentity sets this properly
 
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;
-
-	// for players
+	int		clientNum;
 	int		powerups;		// bit flags
 	int		weapon;			// determines weapon and flash model, etc
 	int		legsAnim;		// mask off ANIM_TOGGLEBIT
 	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
 
+	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;
 	int		generic1;
+
+	int			pubStats[MAX_PUBSTAT];
+	privStats_t	privStats;
 } entityState_t;
+
+void CopyEntity(entityState_t *dest, entityState_t *src);
 
 typedef enum {
 	CA_UNINITIALIZED,

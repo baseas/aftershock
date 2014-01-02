@@ -608,31 +608,27 @@ void CG_NewClientInfo(int clientNum)
 	v = Info_ValueForKey(configstring, "n");
 	Q_strncpyz(ci->name, v, sizeof(ci->name));
 
-	// bot skill
 	v = Info_ValueForKey(configstring, "skill");
 	ci->botSkill = atoi(v);
 
-	// handicap
 	v = Info_ValueForKey(configstring, "hc");
 	ci->handicap = atoi(v);
 
-	// wins
 	v = Info_ValueForKey(configstring, "w");
 	ci->wins = atoi(v);
 
-	// losses
 	v = Info_ValueForKey(configstring, "l");
 	ci->losses = atoi(v);
 
-	// team task
+	v = Info_ValueForKey(configstring, "r");
+	ci->isReady = atoi(v);
+
 	v = Info_ValueForKey(configstring, "tt");
 	ci->teamTask = atoi(v);
 
-	// team leader
 	v = Info_ValueForKey(configstring, "tl");
 	ci->teamLeader = atoi(v);
 
-	// team
 	v = Info_ValueForKey(configstring, "t");
 	oldTeam = ci->team;
 	ci->team = atoi(v);

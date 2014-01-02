@@ -893,7 +893,6 @@ static void SV_CalcPings( void ) {
 	client_t	*cl;
 	int			total, count;
 	int			delta;
-	playerState_t	*ps;
 
 	for (i=0 ; i < sv_maxclients->integer ; i++) {
 		cl = &svs.clients[i];
@@ -928,10 +927,6 @@ static void SV_CalcPings( void ) {
 				cl->ping = 999;
 			}
 		}
-
-		// let the game dll know about the ping
-		ps = SV_GameClientNum( i );
-		ps->ping = cl->ping;
 	}
 }
 

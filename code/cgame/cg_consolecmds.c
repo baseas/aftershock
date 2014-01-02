@@ -72,31 +72,22 @@ static void CG_Viewpos_f(void)
 
 static void CG_ScoresDown_f(void)
 {
-	if (cg.scoresRequestTime + 2000 < cg.time) {
-		// the scores are more than two seconds out of data,
-		// so request new ones
-		cg.scoresRequestTime = cg.time;
-		trap_SendClientCommand("score");
-
-		// leave the current scores up if they were already
-		// displayed, but if this is the first hit, clear them out
-		if (!cg.showScores) {
-			cg.showScores = qtrue;
-			cg.numScores = 0;
-		}
-	} else {
-		// show the cached contents even if they just pressed if it
-		// is within two seconds
-		cg.showScores = qtrue;
-	}
+	cg.showScores = qtrue;
 }
 
 static void CG_ScoresUp_f(void)
 {
-	if (cg.showScores) {
-		cg.showScores = qfalse;
-		cg.scoreFadeTime = cg.time;
-	}
+	cg.showScores = qfalse;
+}
+
+static void CG_AccDown_f(void)
+{
+	cg.showAcc = qtrue;
+}
+
+static void CG_AccUp_f(void)
+{
+	cg.showAcc = qfalse;
 }
 
 static void CG_TellTarget_f(void)
@@ -160,6 +151,8 @@ static consoleCommand_t	commands[] = {
 	{ "viewpos", CG_Viewpos_f },
 	{ "+scores", CG_ScoresDown_f },
 	{ "-scores", CG_ScoresUp_f },
+	{ "+acc", CG_AccDown_f },
+	{ "-acc", CG_AccUp_f },
 	{ "+zoom", CG_ZoomDown_f },
 	{ "-zoom", CG_ZoomUp_f },
 	{ "sizeup", CG_SizeUp_f },

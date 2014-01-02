@@ -37,8 +37,6 @@ Handles byte ordering and avoids alignment errors
 ==============================================================================
 */
 
-int oldsize = 0;
-
 void MSG_initHuffman( void );
 
 void MSG_Init( msg_t *buf, byte *data, int length ) {
@@ -107,8 +105,6 @@ int	overflows;
 void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 	int	i;
 //	FILE*	fp;
-
-	oldsize += bits;
 
 	// this isn't an exact overflow check, but close enough
 	if ( msg->maxsize - msg->cursize < 4 ) {
@@ -645,7 +641,6 @@ void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *
 		from->buttons == to->buttons &&
 		from->weapon == to->weapon) {
 			MSG_WriteBits( msg, 0, 1 );				// no change
-			oldsize += 7;
 			return;
 	}
 	key ^= to->serverTime;
@@ -788,11 +783,120 @@ netField_t	entityStateFields[] =
 { NETF(frame), 16 }
 };
 
-
 // if (int)f == f and (int)f + ( 1<<(FLOAT_INT_BITS-1) ) < ( 1 << FLOAT_INT_BITS )
 // the float will be sent with FLOAT_INT_BITS, otherwise all 32 bits will be sent
 #define	FLOAT_INT_BITS	13
 #define	FLOAT_INT_BIAS	(1<<(FLOAT_INT_BITS-1))
+
+static long MSG_ChangeVector(netField_t *fieldList, int numFields, void *from, void *to)
+{
+	int			i;
+	netField_t	*field;
+	int			*fromF, *toF;
+	long		lc;
+
+	lc = 0;
+	for (i = 0, field = fieldList; i < numFields; i++, field++) {
+		fromF = (int *)((byte *) from + field->offset);
+		toF = (int *)((byte *) to + field->offset);
+		if (*fromF != *toF) {
+			lc = i + 1;
+		}
+	}
+	return lc;
+}
+
+static qboolean MSG_ArrayChanged(int bitcount, int *from, int *to)
+{
+	int	i;
+	for (i = 0; i < bitcount; ++i) {
+		if (from[i] != to[i]) {
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
+
+static void MSG_WriteDeltaArray(msg_t *msg, int bitcount, int *from, int *to)
+{
+	int		i;
+	long	bits;
+
+	for (i = 0; i < bitcount; ++i) {
+		if (from[i] != to[i]) {
+			bits |= 1 << i;
+		}
+	}
+
+	if (!bits) {
+		MSG_WriteBits(msg, 0, 1);
+		return;
+	}
+
+	MSG_WriteBits(msg, 1, 1);
+	MSG_WriteBits(msg, bits, bitcount);
+	for (i = 0; i < bitcount; ++i) {
+		if (bits & (1 << i)) {
+			MSG_WriteShort(msg, to[i]);
+		}
+	}
+}
+
+static void MSG_ReadDeltaArray(msg_t *msg, int bitcount, int *to)
+{
+	int		i;
+	long	bits;
+	if (!MSG_ReadBits(msg, 1)) {
+		return;
+	}
+
+	bits = MSG_ReadBits(msg, bitcount);
+	for (i = 0; i < bitcount; ++i) {
+		if (bits & (1 << i)) {
+			to[i] = MSG_ReadShort(msg);
+		}
+	}
+}
+
+static void MSG_WriteDeltaStats(msg_t *msg, entityState_t *from, entityState_t *to)
+{
+	if (MSG_ArrayChanged(MAX_PUBSTAT, from->pubStats, to->pubStats)) {
+		MSG_WriteBits(msg, 1, 1);
+		MSG_WriteDeltaArray(msg, MAX_PUBSTAT, from->pubStats, to->pubStats);
+	} else {
+		MSG_WriteBits(msg, 0, 1);
+	}
+
+	if (MSG_ArrayChanged(MAX_REWARDS, from->privStats.rewards, to->privStats.rewards)
+		|| MSG_ArrayChanged(MAX_WEAPONS, from->privStats.shots, to->privStats.shots)
+		|| MSG_ArrayChanged(MAX_WEAPONS, from->privStats.teamHits, to->privStats.teamHits)
+		|| MSG_ArrayChanged(MAX_WEAPONS, from->privStats.enemyHits, to->privStats.enemyHits))
+	{
+		MSG_WriteBits(msg, 1, 1);
+		MSG_WriteDeltaArray(msg, MAX_REWARDS, from->privStats.rewards, to->privStats.rewards);
+		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->privStats.shots, to->privStats.shots);
+		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->privStats.teamHits, to->privStats.teamHits);
+		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->privStats.enemyHits, to->privStats.enemyHits);
+	} else {
+		MSG_WriteBits(msg, 0, 1);
+	}
+}
+
+static void MSG_ReadDeltaStats(msg_t *msg, entityState_t *to)
+{
+	if (MSG_ReadBits(msg, 1)) {
+		MSG_ReadDeltaArray(msg, MAX_PUBSTAT, to->pubStats);
+		to->pubStats[0] = 222;
+		printf("read\n");
+	}
+
+	if (MSG_ReadBits(msg, 1)) {
+		MSG_ReadDeltaArray(msg, MAX_REWARDS, to->privStats.rewards);
+		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->privStats.shots);
+		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->privStats.teamHits);
+		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->privStats.enemyHits);
+	}
+}
 
 /*
 ==================
@@ -805,22 +909,14 @@ If force is not set, then nothing at all will be generated if the entity is
 identical, under the assumption that the in-order delta code will catch it.
 ==================
 */
-void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to, 
-						   qboolean force ) {
+void MSG_WriteDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, qboolean force)
+{
 	int			i, lc;
 	int			numFields;
 	netField_t	*field;
 	int			trunc;
 	float		fullFloat;
 	int			*fromF, *toF;
-
-	numFields = ARRAY_LEN( entityStateFields );
-
-	// all fields should be 32 bits to avoid any compiler packing issues
-	// the "number" field is not part of the field list
-	// if this assert fails, someone added a field to the entityState_t
-	// struct without updating the message fields
-	assert( numFields + 1 == sizeof( *from )/4 );
 
 	// a NULL to is a delta remove message
 	if ( to == NULL ) {
@@ -836,16 +932,9 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		Com_Error (ERR_FATAL, "MSG_WriteDeltaEntity: Bad entity number: %i", to->number );
 	}
 
-	lc = 0;
-	// build the change vector as bytes so it is endien independent
-	for ( i = 0, field = entityStateFields ; i < numFields ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
-		toF = (int *)( (byte *)to + field->offset );
-		if ( *fromF != *toF ) {
-			lc = i+1;
-		}
-	}
-
+	numFields = ARRAY_LEN(entityStateFields);
+	lc = MSG_ChangeVector(entityStateFields, numFields, from, to);
+#if 0
 	if ( lc == 0 ) {
 		// nothing at all changed
 		if ( !force ) {
@@ -857,14 +946,13 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 		MSG_WriteBits( msg, 0, 1 );		// no delta
 		return;
 	}
+#endif
 
 	MSG_WriteBits( msg, to->number, GENTITYNUM_BITS );
 	MSG_WriteBits( msg, 0, 1 );			// not removed
 	MSG_WriteBits( msg, 1, 1 );			// we have a delta
 
 	MSG_WriteByte( msg, lc );	// # of changes
-
-	oldsize += numFields;
 
 	for ( i = 0, field = entityStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
@@ -883,8 +971,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 			trunc = (int)fullFloat;
 
 			if (fullFloat == 0.0f) {
-					MSG_WriteBits( msg, 0, 1 );
-					oldsize += FLOAT_INT_BITS;
+				MSG_WriteBits( msg, 0, 1 );
 			} else {
 				MSG_WriteBits( msg, 1, 1 );
 				if ( trunc == fullFloat && trunc + FLOAT_INT_BIAS >= 0 && 
@@ -907,6 +994,10 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 				MSG_WriteBits( msg, *toF, field->bits );
 			}
 		}
+	}
+
+	if (to->number < MAX_CLIENTS) {
+		MSG_WriteDeltaStats(msg, from, to);
 	}
 }
 
@@ -954,7 +1045,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	// check for no delta
 	if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-		*to = *from;
+		CopyEntity(to, from);
 		to->number = number;
 		return;
 	}
@@ -1036,6 +1127,10 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 		}
 		Com_Printf( " (%i bits)\n", endBit - startBit  );
 	}
+
+	if (to->number < MAX_CLIENTS) {
+		MSG_ReadDeltaStats(msg, to); 
+	}
 }
 
 
@@ -1052,7 +1147,7 @@ plyer_state_t communication
 
 netField_t	playerStateFields[] = 
 {
-{ PSF(commandTime), 32 },				
+{ PSF(commandTime), 32 },
 { PSF(origin[0]), 0 },
 { PSF(origin[1]), 0 },
 { PSF(bobCycle), 8 },
@@ -1108,13 +1203,10 @@ MSG_WriteDeltaPlayerstate
 
 =============
 */
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to ) {
+void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *to )
+{
 	int				i;
 	playerState_t	dummy;
-	int				statsbits;
-	int				persistantbits;
-	int				ammobits;
-	int				powerupbits;
 	int				numFields;
 	netField_t		*field;
 	int				*fromF, *toF;
@@ -1126,20 +1218,10 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		Com_Memset (&dummy, 0, sizeof(dummy));
 	}
 
-	numFields = ARRAY_LEN( playerStateFields );
-
-	lc = 0;
-	for ( i = 0, field = playerStateFields ; i < numFields ; i++, field++ ) {
-		fromF = (int *)( (byte *)from + field->offset );
-		toF = (int *)( (byte *)to + field->offset );
-		if ( *fromF != *toF ) {
-			lc = i+1;
-		}
-	}
+	numFields = ARRAY_LEN(playerStateFields);
+	lc = MSG_ChangeVector(playerStateFields, numFields, from, to);
 
 	MSG_WriteByte( msg, lc );	// # of changes
-
-	oldsize += numFields - lc;
 
 	for ( i = 0, field = playerStateFields ; i < lc ; i++, field++ ) {
 		fromF = (int *)( (byte *)from + field->offset );
@@ -1174,86 +1256,22 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct p
 		}
 	}
 
-
-	//
-	// send the arrays
-	//
-	statsbits = 0;
-	for (i=0 ; i<MAX_STATS ; i++) {
-		if (to->stats[i] != from->stats[i]) {
-			statsbits |= 1<<i;
-		}
-	}
-	persistantbits = 0;
-	for (i=0 ; i<MAX_PERSISTANT ; i++) {
-		if (to->persistant[i] != from->persistant[i]) {
-			persistantbits |= 1<<i;
-		}
-	}
-	ammobits = 0;
-	for (i=0 ; i<MAX_WEAPONS ; i++) {
-		if (to->ammo[i] != from->ammo[i]) {
-			ammobits |= 1<<i;
-		}
-	}
-	powerupbits = 0;
-	for (i=0 ; i<MAX_POWERUPS ; i++) {
-		if (to->powerups[i] != from->powerups[i]) {
-			powerupbits |= 1<<i;
-		}
-	}
-
-	if (!statsbits && !persistantbits && !ammobits && !powerupbits) {
-		MSG_WriteBits( msg, 0, 1 );	// no change
-		oldsize += 4;
-		return;
-	}
-	MSG_WriteBits( msg, 1, 1 );	// changed
-
-	if ( statsbits ) {
-		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, statsbits, MAX_STATS );
-		for (i=0 ; i<MAX_STATS ; i++)
-			if (statsbits & (1<<i) )
-				MSG_WriteShort (msg, to->stats[i]);
+	if (MSG_ArrayChanged(MAX_STATS, from->stats, to->stats)
+		|| MSG_ArrayChanged(MAX_WEAPONS, from->ammo, to->ammo)
+		|| MSG_ArrayChanged(MAX_PERSISTANT, from->persistant, to->persistant)
+		|| MSG_ArrayChanged(MAX_POWERUPS, from->powerups, to->powerups))
+	{
+		MSG_WriteBits(msg, 1, 1);
+		MSG_WriteDeltaArray(msg, MAX_STATS, from->stats, to->stats);
+		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->ammo, to->ammo);
+		MSG_WriteDeltaArray(msg, MAX_PERSISTANT, from->persistant, to->persistant);
+		MSG_WriteDeltaArray(msg, MAX_POWERUPS, from->powerups, to->powerups);
 	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
+		MSG_WriteBits(msg, 0, 1);
 	}
 
-
-	if ( persistantbits ) {
-		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, persistantbits, MAX_PERSISTANT );
-		for (i=0 ; i<MAX_PERSISTANT ; i++)
-			if (persistantbits & (1<<i) )
-				MSG_WriteShort (msg, to->persistant[i]);
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
-	}
-
-
-	if ( ammobits ) {
-		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, ammobits, MAX_WEAPONS );
-		for (i=0 ; i<MAX_WEAPONS ; i++)
-			if (ammobits & (1<<i) )
-				MSG_WriteShort (msg, to->ammo[i]);
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
-	}
-
-
-	if ( powerupbits ) {
-		MSG_WriteBits( msg, 1, 1 );	// changed
-		MSG_WriteBits( msg, powerupbits, MAX_POWERUPS );
-		for (i=0 ; i<MAX_POWERUPS ; i++)
-			if (powerupbits & (1<<i) )
-				MSG_WriteLong( msg, to->powerups[i] );
-	} else {
-		MSG_WriteBits( msg, 0, 1 );	// no change
-	}
+//	MSG_WriteDeltaStats(msg, (entityState_t *) from, (entityState_t *) to);
 }
-
 
 /*
 ===================
@@ -1262,7 +1280,6 @@ MSG_ReadDeltaPlayerstate
 */
 void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *to ) {
 	int			i, lc;
-	int			bits;
 	netField_t	*field;
 	int			numFields;
 	int			startBit, endBit;
@@ -1341,53 +1358,14 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		*toF = *fromF;
 	}
 
-
-	// read the arrays
-	if (MSG_ReadBits( msg, 1 ) ) {
-		// parse stats
-		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_STATS");
-			bits = MSG_ReadBits (msg, MAX_STATS);
-			for (i=0 ; i<MAX_STATS ; i++) {
-				if (bits & (1<<i) ) {
-					to->stats[i] = MSG_ReadShort(msg);
-				}
-			}
-		}
-
-		// parse persistant stats
-		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_PERSISTANT");
-			bits = MSG_ReadBits (msg, MAX_PERSISTANT);
-			for (i=0 ; i<MAX_PERSISTANT ; i++) {
-				if (bits & (1<<i) ) {
-					to->persistant[i] = MSG_ReadShort(msg);
-				}
-			}
-		}
-
-		// parse ammo
-		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_AMMO");
-			bits = MSG_ReadBits (msg, MAX_WEAPONS);
-			for (i=0 ; i<MAX_WEAPONS ; i++) {
-				if (bits & (1<<i) ) {
-					to->ammo[i] = MSG_ReadShort(msg);
-				}
-			}
-		}
-
-		// parse powerups
-		if ( MSG_ReadBits( msg, 1 ) ) {
-			LOG("PS_POWERUPS");
-			bits = MSG_ReadBits (msg, MAX_POWERUPS);
-			for (i=0 ; i<MAX_POWERUPS ; i++) {
-				if (bits & (1<<i) ) {
-					to->powerups[i] = MSG_ReadLong(msg);
-				}
-			}
-		}
+	if (MSG_ReadBits(msg, 1)) {
+		MSG_ReadDeltaArray(msg, MAX_STATS, to->stats);
+		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->ammo);
+		MSG_ReadDeltaArray(msg, MAX_PERSISTANT, to->persistant);
+		MSG_ReadDeltaArray(msg, MAX_POWERUPS, to->powerups);
 	}
+
+//	MSG_ReadDeltaStats(msg, (entityState_t *) to);
 
 	if ( print ) {
 		if ( msg->bit == 0 ) {

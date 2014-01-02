@@ -201,7 +201,6 @@ typedef enum {
 	STAT_WEAPONS,					// 16 bit fields
 	STAT_ARMOR,				
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
-	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 } statIndex_t;
 
@@ -210,23 +209,44 @@ typedef enum {
 // cleared on respawn
 // NOTE: may not have more than 16
 typedef enum {
-	PERS_SCORE,						// !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
-	PERS_HITS,						// total points damage inflicted so damage beeps can sound on change
+	PERS_SCORE,						// TODO remove
+	PERS_HITS,
 	PERS_RANK,						// player rank or team rank
 	PERS_TEAM,						// player team
 	PERS_SPAWN_COUNT,				// incremented every respawn
 	PERS_PLAYEREVENTS,				// 16 bits that can be flipped for events
-	PERS_ATTACKER,					// clientnum of last damage inflicter
-	PERS_ATTACKEE_ARMOR,			// health/armor of last person we attacked
-	PERS_KILLED,					// count of the number of times you died
-	// player awards tracking
-	PERS_IMPRESSIVE_COUNT,			// two railgun hits in a row
-	PERS_EXCELLENT_COUNT,			// two successive kills in a short amount of time
-	PERS_DEFEND_COUNT,				// defend awards
-	PERS_ASSIST_COUNT,				// assist awards
-	PERS_GAUNTLET_FRAG_COUNT,		// kills with the guantlet
-	PERS_CAPTURES					// captures
+	PERS_ATTACKER					// clientnum of last damage inflicter
 } persEnum_t;
+
+typedef enum {
+	PUBSTAT_SCORE,
+	PUBSTAT_RANK,
+	PUBSTAT_PING,
+	PUBSTAT_KILLS,
+	PUBSTAT_DEATHS,
+	PUBSTAT_SPAWN_COUNT,
+	PUBSTAT_DAMAGE_DONE,
+	PUBSTAT_DAMAGE_TAKEN,
+	PUBSTAT_HEALTH,
+	PUBSTAT_ARMOR,
+	PUBSTAT_LOCATION,
+	PUBSTAT_TIME
+} pubStatsEnum_t;
+
+typedef enum {
+	REWARD_IMPRESSIVE,			// two railgun hits in a row
+	REWARD_EXCELLENT,			// two successive kills in a short amount of time
+	REWARD_DEFEND,				// defend awards
+	REWARD_ASSIST,				// assist awards
+	REWARD_HUMILIATION,			// kills with the gauntlet
+	REWARD_CAPTURE,				// captures
+	REWARD_FULLSG,
+	REWARD_AIRROCKET,
+	REWARD_AIRGRENADE,
+	REWARD_LGACCURACY,
+	REWARD_RLRG,
+	REWARD_ITEMDENIED
+} rewardEnum_t;
 
 // entityState_t->eFlags
 #define EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
@@ -264,7 +284,6 @@ typedef enum {
 	PW_BLUEFLAG,
 
 	PW_NUM_POWERUPS
-
 } powerup_t;
 
 typedef enum {
@@ -291,7 +310,6 @@ typedef enum {
 	WP_GRAPPLING_HOOK,
 	WP_NUM_WEAPONS
 } weapon_t;
-
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define PLAYEREVENT_DENIEDREWARD		0x0001

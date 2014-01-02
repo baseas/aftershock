@@ -729,6 +729,13 @@ void ClientThink_real(gentity_t *ent)
 		return;
 	}
 
+	if (client->ps.groundEntityNum == ENTITYNUM_NONE && client->lastGroundTime == 0) {
+		client->lastGroundTime = level.time;
+	} else if (client->ps.groundEntityNum != ENTITYNUM_NONE) {
+		client->lastGroundTime = 0;
+		client->lastSentFlying = -1;
+	}
+
 	// perform once-a-second actions
 	ClientTimerActions(ent, msec);
 }

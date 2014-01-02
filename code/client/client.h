@@ -371,7 +371,6 @@ extern	refexport_t		re;		// interface to refresh .dll
 //
 // cvars
 //
-extern	cvar_t	*cl_nodelta;
 extern	cvar_t	*cl_debugMove;
 extern	cvar_t	*cl_noprint;
 extern	cvar_t	*cl_timegraph;
@@ -519,6 +518,7 @@ extern int cl_connectedToCheatServer;
 void CL_Voip_f( void );
 #endif
 
+void CL_CopyEntity(entityState_t *dest, entityState_t *src);
 void CL_SystemInfoChanged( void );
 void CL_ParseServerMessage( msg_t *msg );
 

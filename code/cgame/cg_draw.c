@@ -195,7 +195,8 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	int pwidth, lwidth;
 	int plyrs;
 	char st[16];
-	clientInfo_t *ci;
+	clientInfo_t	*ci;
+	entityState_t	*es;
 	gitem_t	*item;
 	int ret_y, count;
 
@@ -213,7 +214,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	pwidth = 0;
 	count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers;
 	for (i = 0; i < count; i++) {
-		ci = cgs.clientinfo + sortedTeamPlayers[i];
+		ci = &cgs.clientinfo[sortedTeamPlayers[i]];
 		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
 			plyrs++;
 			len = CG_DrawStrlen(ci->name);
@@ -274,7 +275,8 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	trap_R_SetColor(NULL);
 
 	for (i = 0; i < count; i++) {
-		ci = cgs.clientinfo + sortedTeamPlayers[i];
+		ci = &cgs.clientinfo[sortedTeamPlayers[i]];
+		es = &cg_entities[sortedTeamPlayers[i]].currentState;
 		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
@@ -286,7 +288,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH);
 
 			if (lwidth) {
-				p = CG_ConfigString(CS_LOCATIONS + ci->location);
+				p = CG_ConfigString(CS_LOCATIONS + es->pubStats[PUBSTAT_LOCATION]);
 				if (!p || !*p)
 					p = "unknown";
 //				len = CG_DrawStrlen(p);
@@ -301,9 +303,10 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 					TEAM_OVERLAY_MAXLOCATION_WIDTH);
 			}
 
-			CG_GetColorForHealth(ci->health, ci->armor, hcolor);
+			CG_GetColorForHealth(es->pubStats[PUBSTAT_HEALTH], es->pubStats[PUBSTAT_ARMOR], hcolor);
 
-			Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
+			Com_sprintf(st, sizeof(st), "%3i %3i", es->pubStats[PUBSTAT_HEALTH],
+				es->pubStats[PUBSTAT_ARMOR]);
 
 			xx = x + TINYCHAR_WIDTH * 3 +
 				TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
@@ -315,9 +318,9 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 			// draw weapon icon
 			xx += TINYCHAR_WIDTH * 3;
 
-			if (cg_weapons[ci->curWeapon].weaponIcon) {
+			if (cg_weapons[es->weapon].weaponIcon) {
 				CG_DrawPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-					cg_weapons[ci->curWeapon].weaponIcon);
+					cg_weapons[es->weapon].weaponIcon);
 			} else {
 				CG_DrawPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
 					cgs.media.deferShader);
@@ -1204,11 +1207,6 @@ static void CG_DrawTeamVote(void)
 	CG_DrawSmallString(0, 90, s, 1.0F);
 }
 
-static qboolean CG_DrawScoreboard(void)
-{
-	return CG_DrawOldScoreboard();
-}
-
 static void CG_DrawIntermission(void)
 {
 	if (cgs.gametype == GT_SINGLE_PLAYER) {
@@ -1216,7 +1214,6 @@ static void CG_DrawIntermission(void)
 		return;
 	}
 
-	cg.scoreFadeTime = cg.time;
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
@@ -1415,11 +1412,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	}
 }
 
-static void CG_DrawTourneyScoreboard(void)
-{
-	CG_DrawOldTourneyScoreboard();
-}
-
 /**
 Perform all drawing needed to completely fill the screen
 */
@@ -1434,7 +1426,7 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	// optionally draw the tournement scoreboard instead
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
 		(cg.snap->ps.pm_flags & PMF_SCOREBOARD)) {
-		CG_DrawTourneyScoreboard();
+//		CG_DrawTourneyScoreboard();
 		return;
 	}
 

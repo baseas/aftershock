@@ -44,7 +44,7 @@ static void CG_ResetEntity(centity_t *cent)
 
 static void CG_TransitionEntity(centity_t *cent)
 {
-	cent->currentState = cent->nextState;
+	CopyEntity(&cent->currentState, &cent->nextState);
 	cent->currentValid = qtrue;
 
 	// reset if the entity wasn't in the last frame or was teleported
@@ -148,7 +148,7 @@ static void CG_SetNextSnap(snapshot_t *snap)
 		es = &snap->entities[num];
 		cent = &cg_entities[ es->number ];
 
-		memcpy(&cent->nextState, es, sizeof(entityState_t));
+		CopyEntity(&cent->nextState, es);
 		//cent->nextState = *es;
 
 		// if this frame is a teleport, or the entity wasn't in the
@@ -267,7 +267,7 @@ void CG_SetInitialSnapshot(snapshot_t *snap)
 		state = &cg.snap->entities[ i ];
 		cent = &cg_entities[ state->number ];
 
-		memcpy(&cent->currentState, state, sizeof(entityState_t));
+		CopyEntity(&cent->currentState, state);
 		//cent->currentState = *state;
 		cent->interpolate = qfalse;
 		cent->currentValid = qtrue;

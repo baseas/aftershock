@@ -515,7 +515,21 @@ static void CG_RegisterGraphics(void)
 	cgs.media.medalDefend = trap_R_RegisterShaderNoMip("medal_defend");
 	cgs.media.medalAssist = trap_R_RegisterShaderNoMip("medal_assist");
 	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
+	cgs.media.medalAirrocket = trap_R_RegisterShaderNoMip("medal_airrocket");
+	cgs.media.medalDoubleAirrocket = trap_R_RegisterShaderNoMip("medal_double_airrocket");
+	cgs.media.medalAirgrenade = trap_R_RegisterShaderNoMip("medal_airgrenade");
+	cgs.media.medalFullSg = trap_R_RegisterShaderNoMip("medal_fullsg");
+	cgs.media.medalItemdenied = trap_R_RegisterShaderNoMip("medal_itemdenied");
+	cgs.media.medalCapture = trap_R_RegisterShaderNoMip("medal_capture");
+	cgs.media.medalRocketrail = trap_R_RegisterShaderNoMip("medal_rocketrail");
+	cgs.media.medalLgAccuracy = trap_R_RegisterShaderNoMip("medal_lgaccuracy");
 
+	cgs.media.sbBackground = trap_R_RegisterShaderNoMip("sb_background");
+	cgs.media.sbClock = trap_R_RegisterShaderNoMip("sb_clock");
+	cgs.media.sbPing = trap_R_RegisterShaderNoMip("sb_ping");
+	cgs.media.sbReady = trap_R_RegisterShaderNoMip("sb_ready");
+	cgs.media.sbNotReady = trap_R_RegisterShaderNoMip("sb_notready");
+	cgs.media.sbSkull = trap_R_RegisterShaderNoMip("sb_skull");
 
 	memset(cg_items, 0, sizeof(cg_items));
 	memset(cg_weapons, 0, sizeof(cg_weapons));
@@ -682,7 +696,13 @@ static void CG_RegisterSounds(void)
 	cgs.media.talkSound = trap_S_RegisterSound("sound/player/talk.wav", qfalse);
 	cgs.media.landSound = trap_S_RegisterSound("sound/player/land1.wav", qfalse);
 
-	cgs.media.hitSound = trap_S_RegisterSound("sound/feedback/hit.wav", qfalse);
+	cgs.media.hitSound0 = trap_S_RegisterSound("sound/feedback/hitlower.wav", qfalse);
+	cgs.media.hitSound1 = trap_S_RegisterSound("sound/feedback/hitlow.wav", qfalse);
+	cgs.media.hitSound2 = trap_S_RegisterSound("sound/feedback/hit.wav", qfalse);
+	cgs.media.hitSound3 = trap_S_RegisterSound("sound/feedback/hithigh.wav", qfalse);
+	cgs.media.hitSound4 = trap_S_RegisterSound("sound/feedback/hithigher.wav", qfalse);
+	cgs.media.hitSoundHighArmor = trap_S_RegisterSound("sound/feedback/hithi.wav", qfalse);
+	cgs.media.hitSoundLowArmor = trap_S_RegisterSound("sound/feedback/hitlo.wav", qfalse);
 	cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.wav", qfalse);
 
 	cgs.media.impressiveSound = trap_S_RegisterSound("sound/feedback/impressive.wav", qtrue);
@@ -814,8 +834,6 @@ static void CG_RegisterClients(void)
 		CG_LoadingClient(i);
 		CG_NewClientInfo(i);
 	}
-
-	CG_BuildSpectatorString();
 }
 
 static void CG_ValidateCvar(cvarTable_t *cv)
@@ -846,23 +864,6 @@ void CG_RegisterCvars(void)
 	// see if we are also running the server on this machine
 	trap_Cvar_VariableStringBuffer("sv_running", var, sizeof(var));
 	cgs.localServer = atoi(var);
-}
-
-void CG_BuildSpectatorString(void)
-{
-	int i;
-	cg.spectatorList[0] = 0;
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR) {
-			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
-		}
-	}
-
-	i = strlen(cg.spectatorList);
-	if (i != cg.spectatorLen) {
-		cg.spectatorLen = i;
-		cg.spectatorWidth = -1;
-	}
 }
 
 const char *CG_ConfigString(int index)

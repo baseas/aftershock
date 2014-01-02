@@ -33,7 +33,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
 #define MAX_RAIL_HITS			4
 
-float			s_quadFactor;
+static float	s_quadFactor;
+static qboolean	teamHit, enemyHit;
 static vec3_t	forward, right, up;
 static vec3_t	muzzle;
 
@@ -74,7 +75,7 @@ qboolean CheckGauntletAttack(gentity_t *ent)
 		return qfalse;
 	}
 
-	traceEnt = &g_entities[ tr.entityNum ];
+	traceEnt = &g_entities[tr.entityNum];
 
 	// send blood impact
 	if (traceEnt->takedamage && traceEnt->client) {
@@ -120,7 +121,7 @@ void SnapVectorTowards(vec3_t v, vec3_t to)
 	}
 }
 
-static void Bullet_Fire(gentity_t *ent, float spread, int damage, int mod)
+static void Weapon_Machinegun_Fire(gentity_t *ent)
 {
 	trace_t		tr;
 	vec3_t		end;
@@ -129,12 +130,17 @@ static void Bullet_Fire(gentity_t *ent, float spread, int damage, int mod)
 	gentity_t	*tent;
 	gentity_t	*traceEnt;
 	int			i, passent;
+	int			damage;
 
-	damage *= s_quadFactor;
+	if (g_gametype.integer >= GT_TEAM) {
+		damage = MACHINEGUN_TEAM_DAMAGE * s_quadFactor;
+	} else {
+		damage = MACHINEGUN_DAMAGE * s_quadFactor;
+	}
 
 	r = random() * M_PI * 2.0f;
-	u = sin(r) * crandom() * spread * 16;
-	r = cos(r) * crandom() * spread * 16;
+	u = sin(r) * crandom() * MACHINEGUN_SPREAD * 16;
+	r = cos(r) * crandom() * MACHINEGUN_SPREAD * 16;
 	VectorMA (muzzle, MAX_WEAPON_RANGE, forward, end);
 	VectorMA (end, r, right, end);
 	VectorMA (end, u, up, end);
@@ -151,13 +157,12 @@ static void Bullet_Fire(gentity_t *ent, float spread, int damage, int mod)
 		// snap the endpos to integers, but nudged towards the line
 		SnapVectorTowards(tr.endpos, muzzle);
 
+		LogAccuracyHit(traceEnt, ent, &teamHit, &enemyHit);
+
 		// send bullet impact
 		if (traceEnt->takedamage && traceEnt->client) {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_FLESH);
 			tent->s.eventParm = traceEnt->s.number;
-			if (LogAccuracyHit(traceEnt, ent)) {
-				ent->client->pers.accuracy_hits++;
-			}
 		} else {
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
@@ -165,7 +170,7 @@ static void Bullet_Fire(gentity_t *ent, float spread, int damage, int mod)
 		tent->s.otherEntityNum = ent->s.number;
 
 		if (traceEnt->takedamage) {
-				G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, mod);
+			G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_MACHINEGUN);
 		}
 		break;
 	}
@@ -202,9 +207,9 @@ static qboolean ShotgunPellet(vec3_t start, vec3_t end, gentity_t *ent)
 		if (traceEnt->takedamage) {
 			damage = DEFAULT_SHOTGUN_DAMAGE * s_quadFactor;
 			G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_SHOTGUN);
-				if (LogAccuracyHit(traceEnt, ent)) {
-					return qtrue;
-				}
+			if (LogAccuracyHit(traceEnt, ent, &teamHit, &enemyHit)) {
+				return qtrue;
+			}
 		}
 		return qfalse;
 	}
@@ -220,7 +225,7 @@ static void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *e
 	float		r, u;
 	vec3_t		end;
 	vec3_t		forward, right, up;
-	qboolean	hitClient = qfalse;
+	int			hits;
 
 	// derive the right and up vectors from the forward vector, because
 	// the client won't have any other information
@@ -235,14 +240,17 @@ static void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *e
 		VectorMA(origin, MAX_WEAPON_RANGE, forward, end);
 		VectorMA(end, r, right, end);
 		VectorMA(end, u, up, end);
-		if (ShotgunPellet(origin, end, ent) && !hitClient) {
-			hitClient = qtrue;
-			ent->client->pers.accuracy_hits++;
+		if (ShotgunPellet(origin, end, ent)) {
+			++hits;
 		}
+	}
+
+	if (hits == DEFAULT_SHOTGUN_COUNT) {
+		ent->s.privStats.rewards[REWARD_FULLSG]++;
 	}
 }
 
-static void Weapon_Shotgun_Fire (gentity_t *ent)
+static void Weapon_Shotgun_Fire(gentity_t *ent)
 {
 	gentity_t		*tent;
 
@@ -315,10 +323,10 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 		}
 		traceEnt = &g_entities[ trace.entityNum ];
 		if (traceEnt->takedamage) {
-				if (LogAccuracyHit(traceEnt, ent)) {
-					hits++;
-				}
-				G_Damage (traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN);
+			if (LogAccuracyHit(traceEnt, ent, &teamHit, &enemyHit)) {
+				hits++;
+			}
+			G_Damage(traceEnt, ent, ent, forward, trace.endpos, damage, 0, MOD_RAILGUN);
 		}
 		if (trace.contents & CONTENTS_SOLID) {
 			break;		// we hit something solid enough to stop the beam
@@ -367,13 +375,12 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 		ent->client->accurateCount += hits;
 		if (ent->client->accurateCount >= 2) {
 			ent->client->accurateCount -= 2;
-			ent->client->ps.persistant[PERS_IMPRESSIVE_COUNT]++;
+			ent->s.privStats.rewards[REWARD_IMPRESSIVE]++;
 			// add the sprite over the player's head
 			ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
 			ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
 			ent->client->rewardTime = level.time + REWARD_SPRITE_TIME;
 		}
-		ent->client->pers.accuracy_hits++;
 	}
 
 	if (g_instantgib.integer && g_instantgibRailjump.integer) {
@@ -395,6 +402,7 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 	vec3_t		end;
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
+	int			lastTarget;
 
 	damage = 7 * s_quadFactor;
 
@@ -411,6 +419,7 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 		traceEnt = &g_entities[ tr.entityNum ];
 
 		if (traceEnt->takedamage) {
+			lastTarget = ent->client->pers.lastTarget;
 			G_Damage(traceEnt, ent, ent, forward, tr.endpos, damage, 0, MOD_LIGHTNING);
 		}
 
@@ -419,8 +428,17 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 			tent->s.otherEntityNum = traceEnt->s.number;
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 			tent->s.weapon = ent->s.weapon;
-			if (LogAccuracyHit(traceEnt, ent)) {
-				ent->client->pers.accuracy_hits++;
+			if (LogAccuracyHit(traceEnt, ent, &teamHit, &enemyHit)) {
+				if (ent->client->pers.lastTarget == lastTarget) {
+					ent->client->lightningHits++;
+				} else {
+					ent->client->lightningHits = 0;
+				}
+			}
+
+			if (ent->client->lightningHits >= 20) {
+				ent->s.privStats.rewards[REWARD_LGACCURACY]++;
+				ent->client->lightningHits = 0;
 			}
 		} else if (!(tr.surfaceFlags & SURF_NOIMPACT)) {
 			tent = G_TempEntity(tr.endpos, EV_MISSILE_MISS);
@@ -455,7 +473,8 @@ void Weapon_HookThink(gentity_t *ent)
 	VectorCopy(ent->r.currentOrigin, ent->parent->client->ps.grapplePoint);
 }
 
-qboolean LogAccuracyHit(gentity_t *target, gentity_t *attacker)
+qboolean LogAccuracyHit(gentity_t *target, gentity_t *attacker,
+	qboolean *teamHit, qboolean *enemyHit)
 {
 	if (!target->takedamage) {
 		return qfalse;
@@ -478,7 +497,9 @@ qboolean LogAccuracyHit(gentity_t *target, gentity_t *attacker)
 	}
 
 	if (OnSameTeam(target, attacker)) {
-		return qfalse;
+		*teamHit = qtrue;
+	} else {
+		*enemyHit = qtrue;
 	}
 
 	return qtrue;
@@ -510,21 +531,21 @@ void CalcMuzzlePointOrigin (gentity_t *ent, vec3_t origin, vec3_t forward, vec3_
 
 void FireWeapon(gentity_t *ent)
 {
+	teamHit = qfalse;
+	enemyHit = qfalse;
+
 	if (ent->client->ps.powerups[PW_QUAD]) {
 		s_quadFactor = g_quadfactor.value;
 	} else {
 		s_quadFactor = 1;
 	}
 
-	// track shots taken for accuracy tracking.  Grapple is not a weapon and gauntet is just not tracked
-	if (ent->s.weapon != WP_GRAPPLING_HOOK && ent->s.weapon != WP_GAUNTLET) {
-		ent->client->pers.accuracy_shots++;
-	}
+	ent->s.privStats.shots[ent->s.weapon]++;
 
 	// set aiming directions
-	AngleVectors (ent->client->ps.viewangles, forward, right, up);
+	AngleVectors(ent->client->ps.viewangles, forward, right, up);
 
-	CalcMuzzlePointOrigin (ent, ent->client->oldOrigin, forward, right, up, muzzle);
+	CalcMuzzlePointOrigin(ent, ent->client->oldOrigin, forward, right, up, muzzle);
 
 	// fire the specific weapon
 	switch(ent->s.weapon) {
@@ -537,11 +558,7 @@ void FireWeapon(gentity_t *ent)
 		Weapon_Shotgun_Fire(ent);
 		break;
 	case WP_MACHINEGUN:
-		if (g_gametype.integer != GT_TEAM) {
-			Bullet_Fire(ent, MACHINEGUN_SPREAD, MACHINEGUN_DAMAGE, MOD_MACHINEGUN);
-		} else {
-			Bullet_Fire(ent, MACHINEGUN_SPREAD, MACHINEGUN_TEAM_DAMAGE, MOD_MACHINEGUN);
-		}
+		Weapon_Machinegun_Fire(ent);
 		break;
 	case WP_GRENADE_LAUNCHER:
 		Weapon_Grenadelauncher_Fire(ent);
@@ -562,8 +579,20 @@ void FireWeapon(gentity_t *ent)
 		Weapon_GrapplingHook_Fire(ent);
 		break;
 	default:
-// FIXME		G_Error("Bad ent->s.weapon");
-		break;
+		return;
+	}
+
+	if (teamHit) {
+		ent->s.privStats.teamHits[ent->s.weapon]++;
+	}
+
+	if (enemyHit) {
+		ent->s.privStats.enemyHits[ent->s.weapon]++;
+		ent->client->ps.persistant[PERS_HITS]++;
+	}
+
+	if (teamHit && !enemyHit) {
+		ent->client->ps.persistant[PERS_HITS]--;
 	}
 }
 

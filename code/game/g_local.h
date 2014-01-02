@@ -242,8 +242,6 @@ typedef struct {
 	gitem_t		*lastPickup;
 	gitem_t		*lastDrop;
 	vec3_t		lastDeathOrigin;
-	int			accuracy_shots;		// total number of shots
-	int			accuracy_hits;		// total number of hits
 } clientPersistant_t;
 
 // this structure is cleared on each ClientSpawn(),
@@ -277,6 +275,7 @@ struct gclient_s {
 	qboolean	damage_fromWorld;	// if true, don't use the damage_from vector
 
 	int			accurateCount;		// for "impressive" reward sound
+	int			lightningHits;		// for lightning accuracy award
 
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
@@ -286,8 +285,10 @@ struct gclient_s {
 	int			inactivityTime;		// kick players when time > this
 	qboolean	inactivityWarning;	// qtrue if the five seoond warning has been given
 	int			rewardTime;			// clear the EF_AWARD_IMPRESSIVE, etc when time > this
+	int			lastGroundTime;
+	int			lastSentFlying;
 
-	int			airOutTime;
+	int			airOutTime;			// when under water
 
 	int			lastKillTime;		// for multiple kill rewards
 
@@ -514,8 +515,10 @@ void	TeleportPlayer(gentity_t *player, vec3_t origin, vec3_t angles);
 //
 // g_weapon.c
 //
-qboolean	LogAccuracyHit(gentity_t *target, gentity_t *attacker);
-void		CalcMuzzlePoint (gentity_t *ent, vec3_t forward, vec3_t right, vec3_t up, vec3_t muzzlePoint);
+qboolean	LogAccuracyHit(gentity_t *target, gentity_t *attacker,
+	qboolean *teamHit, qboolean *enemyHit);
+void		CalcMuzzlePoint (gentity_t *ent, vec3_t forward, vec3_t right,
+	vec3_t up, vec3_t muzzlePoint);
 void		SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean	CheckGauntletAttack(gentity_t *ent);
 void		Weapon_HookFree (gentity_t *ent);
@@ -550,11 +553,6 @@ qboolean	G_FilterPacket (char *from);
 void	FireWeapon(gentity_t *ent);
 
 //
-// g_cmds.c
-//
-void	DeathmatchScoreboardMessage(gentity_t *ent);
-
-//
 // g_main.c
 //
 void	MoveClientToIntermission(gentity_t *ent);
@@ -564,9 +562,9 @@ void	CheckTeamLeader(int team);
 void	G_RunThink (gentity_t *ent);
 void	AddTournamentQueue(gclient_t *client);
 void	SendScoreboardMessageToAllClients(void);
-void QDECL	G_LogPrintf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void QDECL	G_Printf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void QDECL	G_Error(const char *fmt, ...) __attribute__ ((noreturn, format (printf, 1, 2)));
+void	QDECL	G_LogPrintf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void	QDECL	G_Printf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
+void	QDECL	G_Error(const char *fmt, ...) __attribute__ ((noreturn, format (printf, 1, 2)));
 
 //
 // g_client.c
@@ -575,6 +573,10 @@ char	*ClientConnect(int clientNum, qboolean firstTime, qboolean isBot);
 void	ClientUserinfoChanged(int clientNum);
 void	ClientDisconnect(int clientNum);
 void	ClientBegin(int clientNum);
+
+//
+// g_cmds.c
+//
 void	ClientCommand(int clientNum);
 
 //

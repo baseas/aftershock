@@ -299,8 +299,11 @@ void AddScore(gentity_t *ent, vec3_t origin, int score)
 	ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
-	if (g_gametype.integer == GT_TEAM)
-		level.teamScores[ ent->client->ps.persistant[PERS_TEAM] ] += score;
+	ent->s.pubStats[PUBSTAT_SCORE] += score;
+	ent->s.pubStats[PUBSTAT_SCORE] = 333;
+	if (g_gametype.integer == GT_TEAM) {
+		level.teamScores[ent->client->ps.persistant[PERS_TEAM]] += score;
+	}
 	CalculateRanks();
 }
 
@@ -364,7 +367,6 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	int			anim;
 	int			contents;
 	int			killer;
-	int			i;
 	char		*killerName, *obit;
 
 	if (self->client->ps.pm_type == PM_DEAD) {
@@ -422,7 +424,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	self->enemy = attacker;
 
-	self->client->ps.persistant[PERS_KILLED]++;
+	self->s.pubStats[PUBSTAT_DEATHS]++;
 	VectorCopy(self->r.currentOrigin, self->client->pers.lastDeathOrigin);
 
 	if (attacker && attacker->client) {
@@ -434,7 +436,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 			if (meansOfDeath == MOD_GAUNTLET) {
 
 				// play humiliation on player
-				attacker->client->ps.persistant[PERS_GAUNTLET_FRAG_COUNT]++;
+				attacker->s.privStats.rewards[REWARD_HUMILIATION]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
@@ -449,7 +451,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 			// if this is close enough to the last kill, give a reward sound
 			if (level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME) {
 				// play excellent on player
-				attacker->client->ps.persistant[PERS_EXCELLENT_COUNT]++;
+				attacker->s.privStats.rewards[REWARD_EXCELLENT]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
@@ -479,24 +481,6 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	}
 
 	TossClientItems(self);
-
-	Cmd_Score_f(self);		// show scores
-	// send updated scores to any clients that are following this one,
-	// or they would get stale scoreboards
-	for (i = 0; i < level.maxclients; i++) {
-		gclient_t	*client;
-
-		client = &level.clients[i];
-		if (client->pers.connected != CON_CONNECTED) {
-			continue;
-		}
-		if (client->sess.sessionTeam != TEAM_SPECTATOR) {
-			continue;
-		}
-		if (client->sess.spectatorClient == self->s.number) {
-			Cmd_Score_f(g_entities + i);
-		}
-	}
 
 	self->takedamage = qtrue;	// can still be gibbed
 
@@ -594,6 +578,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 	int			take;
 	int			asave;
 	int			max;
+	vec3_t		distance;
 
 	if (!targ->takedamage) {
 		return;
@@ -638,6 +623,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 
 	if (!(dflags & DAMAGE_NO_KNOCKBACK)) {
 		G_Knockback(targ, dir, damage);
+		if (client && attacker) {
+			client->lastSentFlying = attacker->s.number;
+		}
 	}
 
 	if ((mod == MOD_FALLING || targ == attacker)
@@ -663,6 +651,26 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 		}
 	}
 
+	if (client && attacker && attacker->client) {
+		VectorSubtract(client->ps.origin, attacker->client->ps.origin, distance);
+		if (client->lastGroundTime && level.time - client->lastGroundTime > 750
+			&& VectorLength(distance) > 200)
+		{
+			if (mod == MOD_ROCKET) {
+				attacker->s.privStats.rewards[REWARD_AIRROCKET]++;
+			} else if (mod == MOD_GRENADE) {
+				attacker->s.privStats.rewards[REWARD_AIRGRENADE]++;
+			}
+		}
+
+		if (client->ps.groundEntityNum == ENTITYNUM_NONE && mod == MOD_RAILGUN
+			&& client->lastSentFlying == attacker->s.number
+			&& (client->lasthurt_mod == MOD_ROCKET || client->lasthurt_mod == MOD_ROCKET_SPLASH))
+		{
+			attacker->s.privStats.rewards[REWARD_RLRG]++;
+		}
+	}
+
 	// battlesuit protects from all radius damage (but takes knockback)
 	// and protects 50% against all damage
 	if (client && client->ps.powerups[PW_BATTLESUIT]) {
@@ -671,20 +679,6 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			return;
 		}
 		damage *= 0.5;
-	}
-
-	// add to the attacker's hit counter (if the target isn't a general entity like a prox mine)
-	if (attacker->client && client
-		&& targ != attacker && targ->health > 0
-		&& targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL)
-	{
-		if (OnSameTeam(targ, attacker)) {
-			attacker->client->ps.persistant[PERS_HITS]--;
-		} else {
-			attacker->client->pers.lastTarget = targ->s.number;
-			attacker->client->ps.persistant[PERS_HITS]++;
-		}
-		attacker->client->ps.persistant[PERS_ATTACKEE_ARMOR] = (targ->health<<8)|(client->ps.stats[STAT_ARMOR]);
 	}
 
 	// always give half damage if hurting self
@@ -699,12 +693,26 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 	take = damage;
 
 	// save some from armor
-	asave = CheckArmor (targ, take, dflags);
+	asave = CheckArmor(targ, take, dflags);
 	take -= asave;
 
 	if (g_debugDamage.integer) {
 		G_Printf("%i: client:%i health:%i damage:%i armor:%i\n", level.time, targ->s.number,
 			targ->health, take, asave);
+	}
+
+	if (attacker->client && client && targ != attacker && targ->health > 0
+		&& targ->s.eType != ET_MISSILE && targ->s.eType != ET_GENERAL)
+	{
+		if (!OnSameTeam(targ, attacker)) {
+			int	dmg;
+			dmg = asave + (take > targ->health ? targ->health : take);
+
+			attacker->client->pers.lastTarget = targ->s.number;
+			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
+			attacker->s.pubStats[PUBSTAT_DAMAGE_DONE] += dmg;
+			targ->s.pubStats[PUBSTAT_DAMAGE_TAKEN] += dmg;
+		}
 	}
 
 	// add to the damage inflicted on a player this frame
@@ -874,6 +882,7 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t *attacker, int damage,
 	vec3_t		v;
 	vec3_t		dir;
 	int			i, e;
+	qboolean	teamHit, enemyHit;
 	qboolean	hitClient = qfalse;
 
 	if (radius < 1) {
@@ -914,7 +923,7 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t *attacker, int damage,
 		damage *= (1.0f - dist / radius);
 
 		if (CanDamage(ent, origin)) {
-			if (LogAccuracyHit(ent, attacker)) {
+			if (LogAccuracyHit(ent, attacker, &teamHit, &enemyHit)) {
 				hitClient = qtrue;
 			}
 			VectorSubtract(ent->r.currentOrigin, origin, dir);

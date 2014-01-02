@@ -60,7 +60,7 @@ Parses deltas from the given base and adds the resulting entity
 to the current frame
 ==================
 */
-void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, 
+static void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old, 
 					 qboolean unchanged) {
 	entityState_t	*state;
 
@@ -69,9 +69,13 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	state = &cl.parseEntities[cl.parseEntitiesNum & (MAX_PARSE_ENTITIES-1)];
 
 	if ( unchanged ) {
-		*state = *old;
+		CopyEntity(state, old);
 	} else {
+		int oldscore = state->pubStats[0];
 		MSG_ReadDeltaEntity( msg, old, state, newnum );
+		if (state->clientNum != 0 && oldscore != state->pubStats[0]) {
+		printf("score from %d to %d\n", oldscore, state->pubStats[0]);
+		}
 	}
 
 	if ( state->number == (MAX_GENTITIES-1) ) {
@@ -87,7 +91,7 @@ CL_ParsePacketEntities
 
 ==================
 */
-void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
+static void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
 	int			newnum;
 	entityState_t	*oldstate;
 	int			oldindex, oldnum;

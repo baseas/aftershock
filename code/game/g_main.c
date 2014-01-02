@@ -630,7 +630,6 @@ int QDECL SortRanks(const void *a, const void *b)
 		return -1;
 	}
 
-
 	// then spectators
 	if (ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR) {
 		if (ca->sess.spectatorNum > cb->sess.spectatorNum) {
@@ -649,12 +648,10 @@ int QDECL SortRanks(const void *a, const void *b)
 	}
 
 	// then sort by score
-	if (ca->ps.persistant[PERS_SCORE]
-		> cb->ps.persistant[PERS_SCORE]) {
+	if (ca->ps.persistant[PERS_SCORE] > cb->ps.persistant[PERS_SCORE]) {
 		return -1;
 	}
-	if (ca->ps.persistant[PERS_SCORE]
-		< cb->ps.persistant[PERS_SCORE]) {
+	if (ca->ps.persistant[PERS_SCORE] < cb->ps.persistant[PERS_SCORE]) {
 		return 1;
 	}
 	return 0;
@@ -714,6 +711,10 @@ void CalculateRanks(void)
 	qsort(level.sortedClients, level.numConnectedClients,
 		sizeof(level.sortedClients[0]), SortRanks);
 
+	for (i = 0; i < level.maxclients; ++i) {
+		g_entities[level.sortedClients[i]].s.pubStats[PUBSTAT_RANK] = i;
+	}
+
 	// set the rank value for all clients that are connected and not spectators
 	if (g_gametype.integer >= GT_TEAM) {
 		// in team games, rank is just the order of the teams, 0=red, 1=blue, 2=tied
@@ -768,29 +769,9 @@ void CalculateRanks(void)
 
 	// see if it is time to end the level
 	CheckExitRules();
-
-	// if we are at the intermission, send the new info to everyone
-	if (level.intermissiontime) {
-		SendScoreboardMessageToAllClients();
-	}
 }
 
 // MAP CHANGING
-
-/**
-Do this at BeginIntermission time and whenever ranks are recalculated
-due to enters/exits/forced team changes
-*/
-void SendScoreboardMessageToAllClients(void)
-{
-	int		i;
-
-	for (i = 0; i < level.maxclients; i++) {
-		if (level.clients[ i ].pers.connected == CON_CONNECTED) {
-			DeathmatchScoreboardMessage(g_entities + i);
-		}
-	}
-}
 
 /**
 When the intermission starts, this will be called for all players.
@@ -880,9 +861,6 @@ void BeginIntermission(void)
 		UpdateTournamentInfo();
 		SpawnModelsOnVictoryPads();
 	}
-
-	// send the current scoring to all clients
-	SendScoreboardMessageToAllClients();
 }
 
 /**
@@ -1020,9 +998,13 @@ void LogExit(const char *string)
 			continue;
 		}
 
-		ping = cl->ps.ping < 999 ? cl->ps.ping : 999;
+		ping = g_entities[level.sortedClients[i]].s.pubStats[PUBSTAT_PING];
+		if (ping > 999) {
+			ping = 999;
+		}
 
-		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE], ping, level.sortedClients[i],	cl->pers.netname);
+		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE],
+			ping, level.sortedClients[i], cl->pers.netname);
 	}
 }
 
@@ -1037,7 +1019,6 @@ void CheckIntermissionExit(void)
 	int			ready, notReady, playerCount;
 	int			i;
 	gclient_t	*cl;
-	int			readyMask;
 
 	if (g_gametype.integer == GT_SINGLE_PLAYER) {
 		return;
@@ -1046,7 +1027,6 @@ void CheckIntermissionExit(void)
 	// see which players are ready
 	ready = 0;
 	notReady = 0;
-	readyMask = 0;
 	playerCount = 0;
 	for (i = 0; i< g_maxclients.integer; i++) {
 		cl = level.clients + i;
@@ -1060,22 +1040,9 @@ void CheckIntermissionExit(void)
 		playerCount++;
 		if (cl->readyToExit) {
 			ready++;
-			if (i < 16) {
-				readyMask |= 1 << i;
-			}
 		} else {
 			notReady++;
 		}
-	}
-
-	// copy the readyMask to each player's stats so
-	// it can be displayed on the scoreboard
-	for (i = 0; i< g_maxclients.integer; i++) {
-		cl = level.clients + i;
-		if (cl->pers.connected != CON_CONNECTED) {
-			continue;
-		}
-		cl->ps.stats[STAT_CLIENTS_READY] = readyMask;
 	}
 
 	// never exit in less than five seconds

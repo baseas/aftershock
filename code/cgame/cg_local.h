@@ -254,24 +254,6 @@ typedef struct localEntity_s {
 	refEntity_t		refEntity;		
 } localEntity_t;
 
-typedef struct {
-	int				client;
-	int				score;
-	int				ping;
-	int				time;
-	int				scoreFlags;
-	int				powerUps;
-	int				accuracy;
-	int				impressiveCount;
-	int				excellentCount;
-	int				guantletCount;
-	int				defendCount;
-	int				assistCount;
-	int				captures;
-	qboolean		perfect;
-	int				team;
-} score_t;
-
 // each client has an associated clientInfo_t
 // that contains media references necessary to present the
 // client model and other color coded effects
@@ -311,28 +293,22 @@ typedef struct {
 
 typedef struct {
 	qboolean		infoValid;
+    qboolean		isReady;
 
 	char			name[MAX_QPATH];
 	team_t			team;
 
 	int				botSkill;		// 0 = not bot, 1-5 = bot
 
-	int				score;			// updated by score servercmds
-	int				location;		// location index for team mode
-	int				health;			// you only get this info about your teammates
-	int				armor;
-	int				curWeapon;
-
 	int				handicap;
 	int				wins, losses;	// in tourney mode
+	qboolean		specOnly;
 
 	int				teamTask;		// task in teamplay (offence/defence)
 	qboolean		teamLeader;		// true when this is a team leader
 
 	int				powerups;		// so can display quad/flag status
-
 	int				medkitUsageTime;
-
 	model_t			*model;
 } clientInfo_t;
 
@@ -471,23 +447,10 @@ typedef struct {
 	char		infoScreenText[MAX_STRING_CHARS];
 
 	// scoreboard
-	int			scoresRequestTime;
-	int			numScores;
-	int			selectedScore;
-	int			teamScores[2];
-	score_t		scores[MAX_CLIENTS];
 	qboolean	showScores;
+	qboolean	showAcc;
 	qboolean	scoreBoardShowing;
-	int			scoreFadeTime;
 	char		killerName[MAX_NAME_LENGTH];
-	char		spectatorList[MAX_STRING_CHARS];	// list of names
-	int			spectatorLen;						// length of list
-	float		spectatorWidth;						// width in device units
-	int			spectatorTime;						// next time to offset
-	int			spectatorPaintX;					// current paint x
-	int			spectatorPaintX2;					// current paint x
-	int			spectatorOffset;					// current offset from start
-	int			spectatorPaintLen; 					// current offset from start
 
 	// centerprinting
 	int			centerPrintTime;
@@ -705,6 +668,13 @@ typedef struct {
 	qhandle_t	medalDefend;
 	qhandle_t	medalAssist;
 	qhandle_t	medalCapture;
+	qhandle_t	medalAirrocket;
+	qhandle_t	medalAirgrenade;
+	qhandle_t	medalRocketrail;
+	qhandle_t	medalFullSg;
+	qhandle_t	medalItemdenied;
+	qhandle_t	medalLgAccuracy;
+	qhandle_t	medalDoubleAirrocket;
 
 	// sounds
 	sfxHandle_t	quadSound;
@@ -742,7 +712,11 @@ typedef struct {
 	sfxHandle_t twoFragSound;
 	sfxHandle_t oneFragSound;
 
-	sfxHandle_t hitSound;
+	sfxHandle_t hitSound0;
+	sfxHandle_t hitSound1;
+	sfxHandle_t hitSound2;
+	sfxHandle_t hitSound3;
+	sfxHandle_t hitSound4;
 	sfxHandle_t hitSoundHighArmor;
 	sfxHandle_t hitSoundLowArmor;
 	sfxHandle_t hitTeamSound;
@@ -752,9 +726,9 @@ typedef struct {
 	sfxHandle_t humiliationSound;
 	sfxHandle_t assistSound;
 	sfxHandle_t defendSound;
-	sfxHandle_t firstImpressiveSound;
-	sfxHandle_t firstExcellentSound;
-	sfxHandle_t firstHumiliationSound;
+	sfxHandle_t airrocketSound;
+	sfxHandle_t airgrenadeSound;
+	sfxHandle_t lgAccuracySound;
 
 	sfxHandle_t takenLeadSound;
 	sfxHandle_t tiedLeadSound;
@@ -816,6 +790,15 @@ typedef struct {
 	model_t	blueTeamModel;
 
 	vec4_t	deadBodyColor;
+
+	// scoreboard
+	qhandle_t	sbBackground;
+	qhandle_t	sbClock;
+	qhandle_t	sbPing;
+	qhandle_t	sbReady;
+	qhandle_t	sbNotReady;
+	qhandle_t	sbSkull;
+	qhandle_t	sbLocked;
 } cgMedia_t;
 
 enum {
@@ -997,7 +980,7 @@ typedef struct {
 	int				redflag, blueflag;		// flag status from configstrings
 	int				flagStatus;
 
-	qboolean		newHud;
+	qboolean		startWhenReady;
 
 	//
 	// locally derived information from gamestate
@@ -1035,9 +1018,10 @@ typedef struct {
 	int			acceptLeader;
 	char		acceptVoice[MAX_NAME_LENGTH];
 
+	qboolean	redLocked, blueLocked;
+
 	// media
 	cgMedia_t		media;
-
 	hudElement_t	hud[HUD_MAX];
 } cgs_t;
 
@@ -1392,8 +1376,8 @@ void	CG_DrawInformation(void);
 //
 // cg_scoreboard.c
 //
-qboolean	CG_DrawOldScoreboard(void);
-void		CG_DrawOldTourneyScoreboard(void);
+qboolean	CG_DrawScoreboard(void);
+qboolean	CG_DrawStatboard(void);
 
 //
 // cg_consolecmds.c

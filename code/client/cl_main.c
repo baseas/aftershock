@@ -51,7 +51,6 @@ cvar_t	*cl_voip;
 cvar_t	*cl_renderer;
 #endif
 
-cvar_t	*cl_nodelta;
 cvar_t	*cl_debugMove;
 
 cvar_t	*cl_noprint;
