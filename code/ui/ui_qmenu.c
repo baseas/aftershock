@@ -655,9 +655,9 @@ static void Slider_Draw( menuslider_s *s ) {
 	UI_DrawString( x - SMALLCHAR_WIDTH, y, s->generic.name, UI_RIGHT|style, color );
 
 	// draw slider
-	UI_SetColor( color );
+	trap_R_SetColor( color );
 	UI_DrawHandlePic( x + SMALLCHAR_WIDTH, y, 96, 16, sliderBar );
-	UI_SetColor( NULL );
+	trap_R_SetColor( NULL );
 
 	// clamp thumb
 	if( s->maxvalue > s->minvalue )	{
@@ -1709,13 +1709,8 @@ void Menu_Cache( void )
 	uis.rb_off          = trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip( "white" );
-	if ( uis.glconfig.hardwareType == GLHW_RAGEPRO ) {
-		// the blend effect turns to shit with the normal 
-		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menubackRagePro" );
-	} else {
-		uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback" );
-	}
-	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menubacknologo" );
+	uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_aftershock" );
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_aftershock" );
 
 	menu_in_sound	= trap_S_RegisterSound( "sound/misc/menu1.wav", qfalse );
 	menu_move_sound	= trap_S_RegisterSound( "sound/misc/menu2.wav", qfalse );
@@ -1730,4 +1725,4 @@ void Menu_Cache( void )
 	sliderButton_0 = trap_R_RegisterShaderNoMip( "menu/art/sliderbutt_0" );
 	sliderButton_1 = trap_R_RegisterShaderNoMip( "menu/art/sliderbutt_1" );
 }
-	
+

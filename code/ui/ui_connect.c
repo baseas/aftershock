@@ -168,7 +168,7 @@ void UI_DrawConnectScreen( qboolean overlay ) {
 
 	if ( !overlay ) {
 		// draw the dialog background
-		UI_SetColor( color_white );
+		trap_R_SetColor( color_white );
 		UI_DrawHandlePic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader );
 	}
 

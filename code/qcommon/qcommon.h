@@ -1046,7 +1046,6 @@ int SV_SendQueuedPackets(void);
 // UI interface
 //
 qboolean UI_GameCommand( void );
-qboolean UI_usesUniqueCDKey(void);
 
 /*
 ==============================================================

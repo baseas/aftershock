@@ -237,7 +237,7 @@ CGDIR=$(MOUNT_DIR)/cgame
 BLIBDIR=$(MOUNT_DIR)/botlib
 NDIR=$(MOUNT_DIR)/null
 UIDIR=$(MOUNT_DIR)/ui
-Q3UIDIR=$(MOUNT_DIR)/q3_ui
+Q3UIDIR=$(MOUNT_DIR)/ui
 JPDIR=$(MOUNT_DIR)/jpeg-8c
 SPEEXDIR=$(MOUNT_DIR)/libspeex
 OGGDIR=$(MOUNT_DIR)/libogg-1.3.1
@@ -2396,7 +2396,6 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/bg_lib.o \
   $(B)/$(BASEGAME)/ui/ui_addbots.o \
   $(B)/$(BASEGAME)/ui/ui_atoms.o \
-  $(B)/$(BASEGAME)/ui/ui_cdkey.o \
   $(B)/$(BASEGAME)/ui/ui_cinematics.o \
   $(B)/$(BASEGAME)/ui/ui_confirm.o \
   $(B)/$(BASEGAME)/ui/ui_connect.o \
@@ -2409,7 +2408,6 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_loadconfig.o \
   $(B)/$(BASEGAME)/ui/ui_menu.o \
   $(B)/$(BASEGAME)/ui/ui_mfield.o \
-  $(B)/$(BASEGAME)/ui/ui_mods.o \
   $(B)/$(BASEGAME)/ui/ui_network.o \
   $(B)/$(BASEGAME)/ui/ui_options.o \
   $(B)/$(BASEGAME)/ui/ui_playermodel.o \
@@ -2436,7 +2434,7 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o
 
-Q3UIOBJ = $(Q3UIOBJ_) $(B)/$(MISSIONPACK)/ui/ui_syscalls.o
+Q3UIOBJ = $(Q3UIOBJ_) $(B)/$(BASEGAME)/ui/ui_syscalls.o
 Q3UIVMOBJ = $(Q3UIOBJ_:%.o=%.asm)
 
 $(B)/$(BASEGAME)/ui$(SHLIBNAME): $(Q3UIOBJ)
@@ -2446,36 +2444,6 @@ $(B)/$(BASEGAME)/ui$(SHLIBNAME): $(Q3UIOBJ)
 $(B)/$(BASEGAME)/vm/ui.qvm: $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
 	$(echo_cmd) "Q3ASM $@"
 	$(Q)$(Q3ASM) -o $@ $(Q3UIVMOBJ) $(UIDIR)/ui_syscalls.asm
-
-#############################################################################
-## MISSIONPACK UI
-#############################################################################
-
-MPUIOBJ_ = \
-  $(B)/$(MISSIONPACK)/ui/ui_main.o \
-  $(B)/$(MISSIONPACK)/ui/ui_atoms.o \
-  $(B)/$(MISSIONPACK)/ui/ui_gameinfo.o \
-  $(B)/$(MISSIONPACK)/ui/ui_players.o \
-  $(B)/$(MISSIONPACK)/ui/ui_shared.o \
-  \
-  $(B)/$(MISSIONPACK)/ui/bg_misc.o \
-  $(B)/$(MISSIONPACK)/ui/bg_lib.o \
-  \
-  $(B)/$(MISSIONPACK)/qcommon/q_math.o \
-  $(B)/$(MISSIONPACK)/qcommon/q_shared.o
-
-MPUIOBJ = $(MPUIOBJ_) $(B)/$(MISSIONPACK)/ui/ui_syscalls.o
-MPUIVMOBJ = $(MPUIOBJ_:%.o=%.asm)
-
-$(B)/$(MISSIONPACK)/ui$(SHLIBNAME): $(MPUIOBJ)
-	$(echo_cmd) "LD $@"
-	$(Q)$(CC) $(CFLAGS) $(SHLIBLDFLAGS) -o $@ $(MPUIOBJ)
-
-$(B)/$(MISSIONPACK)/vm/ui.qvm: $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm $(Q3ASM)
-	$(echo_cmd) "Q3ASM $@"
-	$(Q)$(Q3ASM) -o $@ $(MPUIVMOBJ) $(UIDIR)/ui_syscalls.asm
-
-
 
 #############################################################################
 ## CLIENT/SERVER RULES
