@@ -22,26 +22,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "ui_local.h"
 
-void GraphicsOptions_MenuInit( void );
+void GraphicsOptions_MenuInit(void);
 
-/*
-=======================================================================
-
-DRIVER INFORMATION MENU
-
-=======================================================================
-*/
-
-
-#define DRIVERINFO_FRAMEL	"menu/art/frame2_l"
-#define DRIVERINFO_FRAMER	"menu/art/frame1_r"
 #define DRIVERINFO_BACK0	"menu/art/back_0"
 #define DRIVERINFO_BACK1	"menu/art/back_1"
 
 static char* driverinfo_artlist[] = 
 {
-	DRIVERINFO_FRAMEL,
-	DRIVERINFO_FRAMER,
 	DRIVERINFO_BACK0,
 	DRIVERINFO_BACK1,
 	NULL,
@@ -54,8 +41,6 @@ typedef struct
 	menuframework_s	menu;
 	menutext_s		banner;
 	menubitmap_s	back;
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 	char			stringbuff[1024];
 	char*			strings[64];
 	int				numstrings;
@@ -63,12 +48,7 @@ typedef struct
 
 static driverinfo_t	s_driverinfo;
 
-/*
-=================
-DriverInfo_Event
-=================
-*/
-static void DriverInfo_Event( void* ptr, int event )
+static void DriverInfo_Event(void* ptr, int event)
 {
 	if (event != QM_ACTIVATED)
 		return;
@@ -81,45 +61,35 @@ static void DriverInfo_Event( void* ptr, int event )
 	}
 }
 
-/*
-=================
-DriverInfo_MenuDraw
-=================
-*/
-static void DriverInfo_MenuDraw( void )
+static void DriverInfo_MenuDraw(void)
 {
 	int	i;
 	int	y;
 
-	Menu_Draw( &s_driverinfo.menu );
+	Menu_Draw(&s_driverinfo.menu);
 
-	UI_DrawString( 320, 80, "VENDOR", UI_CENTER|UI_SMALLFONT, color_red );
-	UI_DrawString( 320, 152, "PIXELFORMAT", UI_CENTER|UI_SMALLFONT, color_red );
-	UI_DrawString( 320, 192, "EXTENSIONS", UI_CENTER|UI_SMALLFONT, color_red );
+	UI_DrawString(320, 80, "VENDOR", UI_CENTER|UI_SMALLFONT, color_red);
+	UI_DrawString(320, 152, "PIXELFORMAT", UI_CENTER|UI_SMALLFONT, color_red);
+	UI_DrawString(320, 192, "EXTENSIONS", UI_CENTER|UI_SMALLFONT, color_red);
 
-	UI_DrawString( 320, 80+16, uis.glconfig.vendor_string, UI_CENTER|UI_SMALLFONT, text_color_normal );
-	UI_DrawString( 320, 96+16, uis.glconfig.version_string, UI_CENTER|UI_SMALLFONT, text_color_normal );
-	UI_DrawString( 320, 112+16, uis.glconfig.renderer_string, UI_CENTER|UI_SMALLFONT, text_color_normal );
-	UI_DrawString( 320, 152+16, va ("color(%d-bits) Z(%d-bits) stencil(%d-bits)", uis.glconfig.colorBits, uis.glconfig.depthBits, uis.glconfig.stencilBits), UI_CENTER|UI_SMALLFONT, text_color_normal );
+	UI_DrawString(320, 80+16, uis.glconfig.vendor_string, UI_CENTER|UI_SMALLFONT, text_color_normal);
+	UI_DrawString(320, 96+16, uis.glconfig.version_string, UI_CENTER|UI_SMALLFONT, text_color_normal);
+	UI_DrawString(320, 112+16, uis.glconfig.renderer_string, UI_CENTER|UI_SMALLFONT, text_color_normal);
+	UI_DrawString(320, 152+16, va ("color(%d-bits) Z(%d-bits) stencil(%d-bits)", uis.glconfig.colorBits, uis.glconfig.depthBits, uis.glconfig.stencilBits), UI_CENTER|UI_SMALLFONT, text_color_normal);
 
 	// double column
 	y = 192+16;
 	for (i=0; i<s_driverinfo.numstrings/2; i++) {
-		UI_DrawString( 320-4, y, s_driverinfo.strings[i*2], UI_RIGHT|UI_SMALLFONT, text_color_normal );
-		UI_DrawString( 320+4, y, s_driverinfo.strings[i*2+1], UI_LEFT|UI_SMALLFONT, text_color_normal );
+		UI_DrawString(320-4, y, s_driverinfo.strings[i*2], UI_RIGHT|UI_SMALLFONT, text_color_normal);
+		UI_DrawString(320+4, y, s_driverinfo.strings[i*2+1], UI_LEFT|UI_SMALLFONT, text_color_normal);
 		y += SMALLCHAR_HEIGHT;
 	}
 
 	if (s_driverinfo.numstrings & 1)
-		UI_DrawString( 320, y, s_driverinfo.strings[s_driverinfo.numstrings-1], UI_CENTER|UI_SMALLFONT, text_color_normal );
+		UI_DrawString(320, y, s_driverinfo.strings[s_driverinfo.numstrings-1], UI_CENTER|UI_SMALLFONT, text_color_normal);
 }
 
-/*
-=================
-DriverInfo_Cache
-=================
-*/
-void DriverInfo_Cache( void )
+void DriverInfo_Cache(void)
 {
 	int	i;
 
@@ -132,19 +102,14 @@ void DriverInfo_Cache( void )
 	}
 }
 
-/*
-=================
-UI_DriverInfo_Menu
-=================
-*/
-static void UI_DriverInfo_Menu( void )
+static void UI_DriverInfo_Menu(void)
 {
 	char*	eptr;
 	int		i;
 	int		len;
 
 	// zero set all our globals
-	memset( &s_driverinfo, 0 ,sizeof(driverinfo_t) );
+	memset(&s_driverinfo, 0 ,sizeof(driverinfo_t));
 
 	DriverInfo_Cache();
 
@@ -157,22 +122,6 @@ static void UI_DriverInfo_Menu( void )
 	s_driverinfo.banner.string		  = "DRIVER INFO";
 	s_driverinfo.banner.color	      = color_white;
 	s_driverinfo.banner.style	      = UI_CENTER;
-
-	s_driverinfo.framel.generic.type  = MTYPE_BITMAP;
-	s_driverinfo.framel.generic.name  = DRIVERINFO_FRAMEL;
-	s_driverinfo.framel.generic.flags = QMF_INACTIVE;
-	s_driverinfo.framel.generic.x	  = 0;
-	s_driverinfo.framel.generic.y	  = 78;
-	s_driverinfo.framel.width  	      = 256;
-	s_driverinfo.framel.height  	  = 329;
-
-	s_driverinfo.framer.generic.type  = MTYPE_BITMAP;
-	s_driverinfo.framer.generic.name  = DRIVERINFO_FRAMER;
-	s_driverinfo.framer.generic.flags = QMF_INACTIVE;
-	s_driverinfo.framer.generic.x	  = 376;
-	s_driverinfo.framer.generic.y	  = 76;
-	s_driverinfo.framer.width  	      = 256;
-	s_driverinfo.framer.height  	  = 334;
 
 	s_driverinfo.back.generic.type	   = MTYPE_BITMAP;
 	s_driverinfo.back.generic.name     = DRIVERINFO_BACK0;
@@ -193,16 +142,16 @@ static void UI_DriverInfo_Menu( void )
 
 	// build null terminated extension strings
 	eptr = s_driverinfo.stringbuff;
-	while ( s_driverinfo.numstrings<40 && *eptr )
+	while (s_driverinfo.numstrings<40 && *eptr)
 	{
-		while ( *eptr && *eptr == ' ' )
+		while (*eptr && *eptr == ' ')
 			*eptr++ = '\0';
 
 		// track start of valid string
 		if (*eptr && *eptr != ' ')
 			s_driverinfo.strings[s_driverinfo.numstrings++] = eptr;
 
-		while ( *eptr && *eptr != ' ' )
+		while (*eptr && *eptr != ' ')
 			eptr++;
 	}
 
@@ -215,24 +164,12 @@ static void UI_DriverInfo_Menu( void )
 		}
 	}
 
-	Menu_AddItem( &s_driverinfo.menu, &s_driverinfo.banner );
-	Menu_AddItem( &s_driverinfo.menu, &s_driverinfo.framel );
-	Menu_AddItem( &s_driverinfo.menu, &s_driverinfo.framer );
-	Menu_AddItem( &s_driverinfo.menu, &s_driverinfo.back );
+	Menu_AddItem(&s_driverinfo.menu, &s_driverinfo.banner);
+	Menu_AddItem(&s_driverinfo.menu, &s_driverinfo.back);
 
-	UI_PushMenu( &s_driverinfo.menu );
+	UI_PushMenu(&s_driverinfo.menu);
 }
 
-/*
-=======================================================================
-
-GRAPHICS OPTIONS MENU
-
-=======================================================================
-*/
-
-#define GRAPHICSOPTIONS_FRAMEL	"menu/art/frame2_l"
-#define GRAPHICSOPTIONS_FRAMER	"menu/art/frame1_r"
 #define GRAPHICSOPTIONS_BACK0	"menu/art/back_0"
 #define GRAPHICSOPTIONS_BACK1	"menu/art/back_1"
 #define GRAPHICSOPTIONS_ACCEPT0	"menu/art/accept_0"
@@ -253,8 +190,6 @@ typedef struct {
 	menuframework_s	menu;
 
 	menutext_s		banner;
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 
 	menutext_s		graphics;
 	menutext_s		display;
@@ -292,7 +227,7 @@ typedef struct
 } InitialVideoOptions_s;
 
 static InitialVideoOptions_s	s_ivo;
-static graphicsoptions_t		s_graphicsoptions;	
+static graphicsoptions_t		s_graphicsoptions;
 
 static InitialVideoOptions_s s_ivo_templates[] =
 {
@@ -316,7 +251,7 @@ static InitialVideoOptions_s s_ivo_templates[] =
 	}
 };
 
-#define NUM_IVO_TEMPLATES ( ARRAY_LEN( s_ivo_templates ) )
+#define NUM_IVO_TEMPLATES (ARRAY_LEN(s_ivo_templates))
 
 static const char *builtinResolutions[ ] =
 {
@@ -360,95 +295,80 @@ static const char* detectedResolutions[ MAX_RESOLUTIONS ];
 static const char** resolutions = builtinResolutions;
 static qboolean resolutionsDetected = qfalse;
 
-/*
-=================
-GraphicsOptions_FindBuiltinResolution
-=================
-*/
-static int GraphicsOptions_FindBuiltinResolution( int mode )
+static int GraphicsOptions_FindBuiltinResolution(int mode)
 {
 	int i;
 
-	if( !resolutionsDetected )
+	if(!resolutionsDetected)
 		return mode;
 
-	if( mode < 0 )
+	if(mode < 0)
 		return -1;
 
-	for( i = 0; builtinResolutions[ i ]; i++ )
+	for(i = 0; builtinResolutions[ i ]; i++)
 	{
-		if( !Q_stricmp( builtinResolutions[ i ], detectedResolutions[ mode ] ) )
+		if(!Q_stricmp(builtinResolutions[ i ], detectedResolutions[ mode ]))
 			return i;
 	}
 
 	return -1;
 }
 
-/*
-=================
-GraphicsOptions_FindDetectedResolution
-=================
-*/
-static int GraphicsOptions_FindDetectedResolution( int mode )
+static int GraphicsOptions_FindDetectedResolution(int mode)
 {
 	int i;
 
-	if( !resolutionsDetected )
+	if(!resolutionsDetected)
 		return mode;
 
-	if( mode < 0 )
+	if(mode < 0)
 		return -1;
 
-	for( i = 0; detectedResolutions[ i ]; i++ )
+	for(i = 0; detectedResolutions[ i ]; i++)
 	{
-		if( !Q_stricmp( builtinResolutions[ mode ], detectedResolutions[ i ] ) )
+		if(!Q_stricmp(builtinResolutions[ mode ], detectedResolutions[ i ]))
 			return i;
 	}
 
 	return -1;
 }
 
-/*
-=================
-GraphicsOptions_GetAspectRatios
-=================
-*/
-static void GraphicsOptions_GetAspectRatios( void )
+static void GraphicsOptions_GetAspectRatios(void)
 {
 	int i, r;
 
 	// build ratio list from resolutions
-	for( r = 0; resolutions[r]; r++ )
+	for(r = 0; resolutions[r]; r++)
 	{
 		int w, h;
 		char *x;
 		char str[ sizeof(ratioBuf[0]) ];
 
 		// calculate resolution's aspect ratio
-		x = strchr( resolutions[r], 'x' ) + 1;
-		Q_strncpyz( str, resolutions[r], x-resolutions[r] );
-		w = atoi( str );
-		h = atoi( x );
-		Com_sprintf( str, sizeof(str), "%.2f:1", (float)w / (float)h );
+		x = strchr(resolutions[r], 'x') + 1;
+		Q_strncpyz(str, resolutions[r], x-resolutions[r]);
+		w = atoi(str);
+		h = atoi(x);
+		Com_sprintf(str, sizeof(str), "%.2f:1", (float)w / (float)h);
 
 		// rename common ratios ("1.33:1" -> "4:3")
-		for( i = 0; knownRatios[i][0]; i++ ) {
-			if( !Q_stricmp( str, knownRatios[i][0] ) ) {
-				Q_strncpyz( str, knownRatios[i][1], sizeof( str ) );
+		for(i = 0; knownRatios[i][0]; i++) {
+			if(!Q_stricmp(str, knownRatios[i][0])) {
+				Q_strncpyz(str, knownRatios[i][1], sizeof(str));
 				break;
 			}
 		}
 
 		// add ratio to list if it is new
 		// establish res/ratio relationship
-		for( i = 0; ratioBuf[i][0]; i++ )
+		for(i = 0; ratioBuf[i][0]; i++)
 		{
-			if( !Q_stricmp( str, ratioBuf[i] ) )
+			if(!Q_stricmp(str, ratioBuf[i]))
 				break;
 		}
-		if( !ratioBuf[i][0] )
+		if(!ratioBuf[i][0])
 		{
-			Q_strncpyz( ratioBuf[i], str, sizeof(ratioBuf[i]) );
+			Q_strncpyz(ratioBuf[i], str, sizeof(ratioBuf[i]));
 			ratioToRes[i] = r;
 		}
 
@@ -459,12 +379,7 @@ static void GraphicsOptions_GetAspectRatios( void )
 	ratios[r] = NULL;
 }
 
-/*
-=================
-GraphicsOptions_GetInitialVideo
-=================
-*/
-static void GraphicsOptions_GetInitialVideo( void )
+static void GraphicsOptions_GetInitialVideo(void)
 {
 	s_ivo.driver      = s_graphicsoptions.driver.curvalue;
 	s_ivo.mode        = s_graphicsoptions.mode.curvalue;
@@ -477,28 +392,23 @@ static void GraphicsOptions_GetInitialVideo( void )
 	s_ivo.texturebits = s_graphicsoptions.texturebits.curvalue;
 }
 
-/*
-=================
-GraphicsOptions_GetResolutions
-=================
-*/
-static void GraphicsOptions_GetResolutions( void )
+static void GraphicsOptions_GetResolutions(void)
 {
 	Q_strncpyz(resbuf, UI_Cvar_VariableString("r_availableModes"), sizeof(resbuf));
 	if(*resbuf)
 	{
 		char* s = resbuf;
 		unsigned int i = 0;
-		while( s && i < ARRAY_LEN(detectedResolutions)-1 )
+		while(s && i < ARRAY_LEN(detectedResolutions)-1)
 		{
 			detectedResolutions[i++] = s;
 			s = strchr(s, ' ');
-			if( s )
+			if(s)
 				*s++ = '\0';
 		}
 		detectedResolutions[ i ] = NULL;
 
-		if( i > 0 )
+		if(i > 0)
 		{
 			resolutions = detectedResolutions;
 			resolutionsDetected = qtrue;
@@ -506,32 +416,27 @@ static void GraphicsOptions_GetResolutions( void )
 	}
 }
 
-/*
-=================
-GraphicsOptions_CheckConfig
-=================
-*/
-static void GraphicsOptions_CheckConfig( void )
+static void GraphicsOptions_CheckConfig(void)
 {
 	int i;
 
-	for ( i = 0; i < NUM_IVO_TEMPLATES-1; i++ )
+	for (i = 0; i < NUM_IVO_TEMPLATES-1; i++)
 	{
-		if ( s_ivo_templates[i].driver != s_graphicsoptions.driver.curvalue )
+		if (s_ivo_templates[i].driver != s_graphicsoptions.driver.curvalue)
 			continue;
-		if ( GraphicsOptions_FindDetectedResolution(s_ivo_templates[i].mode) != s_graphicsoptions.mode.curvalue )
+		if (GraphicsOptions_FindDetectedResolution(s_ivo_templates[i].mode) != s_graphicsoptions.mode.curvalue)
 			continue;
-		if ( s_ivo_templates[i].fullscreen != s_graphicsoptions.fs.curvalue )
+		if (s_ivo_templates[i].fullscreen != s_graphicsoptions.fs.curvalue)
 			continue;
-		if ( s_ivo_templates[i].tq != s_graphicsoptions.tq.curvalue )
+		if (s_ivo_templates[i].tq != s_graphicsoptions.tq.curvalue)
 			continue;
-		if ( s_ivo_templates[i].lighting != s_graphicsoptions.lighting.curvalue )
+		if (s_ivo_templates[i].lighting != s_graphicsoptions.lighting.curvalue)
 			continue;
-		if ( s_ivo_templates[i].geometry != s_graphicsoptions.geometry.curvalue )
+		if (s_ivo_templates[i].geometry != s_graphicsoptions.geometry.curvalue)
 			continue;
-		if ( s_ivo_templates[i].filter != s_graphicsoptions.filter.curvalue )
+		if (s_ivo_templates[i].filter != s_graphicsoptions.filter.curvalue)
 			continue;
-//		if ( s_ivo_templates[i].texturebits != s_graphicsoptions.texturebits.curvalue )
+//		if (s_ivo_templates[i].texturebits != s_graphicsoptions.texturebits.curvalue)
 //			continue;
 		s_graphicsoptions.list.curvalue = i;
 		return;
@@ -541,14 +446,9 @@ static void GraphicsOptions_CheckConfig( void )
 	s_graphicsoptions.list.curvalue = NUM_IVO_TEMPLATES - 1;
 }
 
-/*
-=================
-GraphicsOptions_UpdateMenuItems
-=================
-*/
-static void GraphicsOptions_UpdateMenuItems( void )
+static void GraphicsOptions_UpdateMenuItems(void)
 {
-	if ( s_graphicsoptions.driver.curvalue == 1 )
+	if (s_graphicsoptions.driver.curvalue == 1)
 	{
 		s_graphicsoptions.fs.curvalue = 1;
 		s_graphicsoptions.fs.generic.flags |= QMF_GRAYED;
@@ -558,9 +458,9 @@ static void GraphicsOptions_UpdateMenuItems( void )
 		s_graphicsoptions.fs.generic.flags &= ~QMF_GRAYED;
 	}
 
-	if ( s_graphicsoptions.allow_extensions.curvalue == 0 )
+	if (s_graphicsoptions.allow_extensions.curvalue == 0)
 	{
-		if ( s_graphicsoptions.texturebits.curvalue == 0 )
+		if (s_graphicsoptions.texturebits.curvalue == 0)
 		{
 			s_graphicsoptions.texturebits.curvalue = 1;
 		}
@@ -568,39 +468,39 @@ static void GraphicsOptions_UpdateMenuItems( void )
 
 	s_graphicsoptions.apply.generic.flags |= QMF_HIDDEN|QMF_INACTIVE;
 
-	if ( s_ivo.mode != s_graphicsoptions.mode.curvalue )
+	if (s_ivo.mode != s_graphicsoptions.mode.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.fullscreen != s_graphicsoptions.fs.curvalue )
+	if (s_ivo.fullscreen != s_graphicsoptions.fs.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.extensions != s_graphicsoptions.allow_extensions.curvalue )
+	if (s_ivo.extensions != s_graphicsoptions.allow_extensions.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.tq != s_graphicsoptions.tq.curvalue )
+	if (s_ivo.tq != s_graphicsoptions.tq.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.lighting != s_graphicsoptions.lighting.curvalue )
+	if (s_ivo.lighting != s_graphicsoptions.lighting.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.driver != s_graphicsoptions.driver.curvalue )
+	if (s_ivo.driver != s_graphicsoptions.driver.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.texturebits != s_graphicsoptions.texturebits.curvalue )
+	if (s_ivo.texturebits != s_graphicsoptions.texturebits.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.geometry != s_graphicsoptions.geometry.curvalue )
+	if (s_ivo.geometry != s_graphicsoptions.geometry.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
-	if ( s_ivo.filter != s_graphicsoptions.filter.curvalue )
+	if (s_ivo.filter != s_graphicsoptions.filter.curvalue)
 	{
 		s_graphicsoptions.apply.generic.flags &= ~(QMF_HIDDEN|QMF_INACTIVE);
 	}
@@ -608,105 +508,96 @@ static void GraphicsOptions_UpdateMenuItems( void )
 	GraphicsOptions_CheckConfig();
 }	
 
-/*
-=================
-GraphicsOptions_ApplyChanges
-=================
-*/
-static void GraphicsOptions_ApplyChanges( void *unused, int notification )
+static void GraphicsOptions_ApplyChanges(void *unused, int notification)
 {
 	if (notification != QM_ACTIVATED)
 		return;
 
-	switch ( s_graphicsoptions.texturebits.curvalue  )
+	switch (s_graphicsoptions.texturebits.curvalue )
 	{
 	case 0:
-		trap_Cvar_SetValue( "r_texturebits", 0 );
+		trap_Cvar_SetValue("r_texturebits", 0);
 		break;
 	case 1:
-		trap_Cvar_SetValue( "r_texturebits", 16 );
+		trap_Cvar_SetValue("r_texturebits", 16);
 		break;
 	case 2:
-		trap_Cvar_SetValue( "r_texturebits", 32 );
+		trap_Cvar_SetValue("r_texturebits", 32);
 		break;
 	}
-	trap_Cvar_SetValue( "r_picmip", 3 - s_graphicsoptions.tq.curvalue );
-	trap_Cvar_SetValue( "r_allowExtensions", s_graphicsoptions.allow_extensions.curvalue );
+	trap_Cvar_SetValue("r_picmip", 3 - s_graphicsoptions.tq.curvalue);
+	trap_Cvar_SetValue("r_allowExtensions", s_graphicsoptions.allow_extensions.curvalue);
 
-	if( resolutionsDetected )
+	if(resolutionsDetected)
 	{
 		// search for builtin mode that matches the detected mode
 		int mode;
-		if ( s_graphicsoptions.mode.curvalue == -1
-			|| s_graphicsoptions.mode.curvalue >= ARRAY_LEN( detectedResolutions ) )
+		if (s_graphicsoptions.mode.curvalue == -1
+			|| s_graphicsoptions.mode.curvalue >= ARRAY_LEN(detectedResolutions))
 			s_graphicsoptions.mode.curvalue = 0;
 
-		mode = GraphicsOptions_FindBuiltinResolution( s_graphicsoptions.mode.curvalue );
-		if( mode == -1 )
+		mode = GraphicsOptions_FindBuiltinResolution(s_graphicsoptions.mode.curvalue);
+		if(mode == -1)
 		{
 			char w[ 16 ], h[ 16 ];
-			Q_strncpyz( w, detectedResolutions[ s_graphicsoptions.mode.curvalue ], sizeof( w ) );
-			*strchr( w, 'x' ) = 0;
-			Q_strncpyz( h,
-					strchr( detectedResolutions[ s_graphicsoptions.mode.curvalue ], 'x' ) + 1, sizeof( h ) );
-			trap_Cvar_Set( "r_customwidth", w );
-			trap_Cvar_Set( "r_customheight", h );
+			Q_strncpyz(w, detectedResolutions[ s_graphicsoptions.mode.curvalue ], sizeof(w));
+			*strchr(w, 'x') = 0;
+			Q_strncpyz(h,
+					strchr(detectedResolutions[ s_graphicsoptions.mode.curvalue ], 'x') + 1, sizeof(h));
+			trap_Cvar_Set("r_customwidth", w);
+			trap_Cvar_Set("r_customheight", h);
 		}
 
-		trap_Cvar_SetValue( "r_mode", mode );
+		trap_Cvar_SetValue("r_mode", mode);
 	}
 	else
-		trap_Cvar_SetValue( "r_mode", s_graphicsoptions.mode.curvalue );
+		trap_Cvar_SetValue("r_mode", s_graphicsoptions.mode.curvalue);
 
-	trap_Cvar_SetValue( "r_fullscreen", s_graphicsoptions.fs.curvalue );
+	trap_Cvar_SetValue("r_fullscreen", s_graphicsoptions.fs.curvalue);
 
 	trap_Cvar_Reset("r_colorbits");
 	trap_Cvar_Reset("r_depthbits");
 	trap_Cvar_Reset("r_stencilbits");
 
-	trap_Cvar_SetValue( "r_vertexLight", s_graphicsoptions.lighting.curvalue );
+	trap_Cvar_SetValue("r_vertexLight", s_graphicsoptions.lighting.curvalue);
 
-	if ( s_graphicsoptions.geometry.curvalue == 2 )
+	if (s_graphicsoptions.geometry.curvalue == 2)
 	{
-		trap_Cvar_SetValue( "r_lodBias", 0 );
-		trap_Cvar_SetValue( "r_subdivisions", 4 );
+		trap_Cvar_SetValue("r_lodBias", 0);
+		trap_Cvar_SetValue("r_subdivisions", 4);
 	}
-	else if ( s_graphicsoptions.geometry.curvalue == 1 )
+	else if (s_graphicsoptions.geometry.curvalue == 1)
 	{
-		trap_Cvar_SetValue( "r_lodBias", 1 );
-		trap_Cvar_SetValue( "r_subdivisions", 12 );
+		trap_Cvar_SetValue("r_lodBias", 1);
+		trap_Cvar_SetValue("r_subdivisions", 12);
 	}
 	else
 	{
-		trap_Cvar_SetValue( "r_lodBias", 1 );
-		trap_Cvar_SetValue( "r_subdivisions", 20 );
+		trap_Cvar_SetValue("r_lodBias", 1);
+		trap_Cvar_SetValue("r_subdivisions", 20);
 	}
 
-	if ( s_graphicsoptions.filter.curvalue )
+	if (s_graphicsoptions.filter.curvalue)
 	{
-		trap_Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_LINEAR" );
+		trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_LINEAR");
 	}
 	else
 	{
-		trap_Cvar_Set( "r_textureMode", "GL_LINEAR_MIPMAP_NEAREST" );
+		trap_Cvar_Set("r_textureMode", "GL_LINEAR_MIPMAP_NEAREST");
 	}
 
-	trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart\n" );
+	trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart\n");
 }
 
-/*
-=================
-GraphicsOptions_Event
-=================
-*/
-static void GraphicsOptions_Event( void* ptr, int event ) {
+static void GraphicsOptions_Event(void* ptr, int event)
+{
 	InitialVideoOptions_s *ivo;
 
-	if( event != QM_ACTIVATED ) {
-	 	return;
+	if(event != QM_ACTIVATED) {
+		return;
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
+	switch(((menucommon_s*)ptr)->id) {
 	case ID_RATIO:
 		s_graphicsoptions.mode.curvalue =
 			ratioToRes[ s_graphicsoptions.ratio.curvalue ];
@@ -714,11 +605,11 @@ static void GraphicsOptions_Event( void* ptr, int event ) {
 		
 	case ID_MODE:
 		// clamp 3dfx video modes
-		if ( s_graphicsoptions.driver.curvalue == 1 )
+		if (s_graphicsoptions.driver.curvalue == 1)
 		{
-			if ( s_graphicsoptions.mode.curvalue < 2 )
+			if (s_graphicsoptions.mode.curvalue < 2)
 				s_graphicsoptions.mode.curvalue = 2;
-			else if ( s_graphicsoptions.mode.curvalue > 6 )
+			else if (s_graphicsoptions.mode.curvalue > 6)
 				s_graphicsoptions.mode.curvalue = 6;
 		}
 		s_graphicsoptions.ratio.curvalue =
@@ -768,45 +659,30 @@ static void GraphicsOptions_Event( void* ptr, int event ) {
 }
 
 
-/*
-================
-GraphicsOptions_TQEvent
-================
-*/
-static void GraphicsOptions_TQEvent( void *ptr, int event ) {
-	if( event != QM_ACTIVATED ) {
-	 	return;
+static void GraphicsOptions_TQEvent(void *ptr, int event)
+{
+	if(event != QM_ACTIVATED) {
+		return;
 	}
 	s_graphicsoptions.tq.curvalue = (int)(s_graphicsoptions.tq.curvalue + 0.5);
 }
 
-
-/*
-================
-GraphicsOptions_MenuDraw
-================
-*/
 void GraphicsOptions_MenuDraw (void)
 {
 //APSFIX - rework this
 	GraphicsOptions_UpdateMenuItems();
 
-	Menu_Draw( &s_graphicsoptions.menu );
+	Menu_Draw(&s_graphicsoptions.menu);
 }
 
-/*
-=================
-GraphicsOptions_SetMenuItems
-=================
-*/
-static void GraphicsOptions_SetMenuItems( void )
+static void GraphicsOptions_SetMenuItems(void)
 {
 	s_graphicsoptions.mode.curvalue =
-		GraphicsOptions_FindDetectedResolution( trap_Cvar_VariableValue( "r_mode" ) );
+		GraphicsOptions_FindDetectedResolution(trap_Cvar_VariableValue("r_mode"));
 
-	if ( s_graphicsoptions.mode.curvalue < 0 )
+	if (s_graphicsoptions.mode.curvalue < 0)
 	{
-		if( resolutionsDetected )
+		if(resolutionsDetected)
 		{
 			int i;
 			char buf[MAX_STRING_CHARS];
@@ -823,7 +699,7 @@ static void GraphicsOptions_SetMenuItems( void )
 					break;
 				}
 			}
-			if ( s_graphicsoptions.mode.curvalue < 0 )
+			if (s_graphicsoptions.mode.curvalue < 0)
 				s_graphicsoptions.mode.curvalue = 0;
 		}
 		else
@@ -835,18 +711,18 @@ static void GraphicsOptions_SetMenuItems( void )
 		resToRatio[ s_graphicsoptions.mode.curvalue ];
 	s_graphicsoptions.fs.curvalue = trap_Cvar_VariableValue("r_fullscreen");
 	s_graphicsoptions.allow_extensions.curvalue = trap_Cvar_VariableValue("r_allowExtensions");
-	s_graphicsoptions.tq.curvalue = 3-trap_Cvar_VariableValue( "r_picmip");
-	if ( s_graphicsoptions.tq.curvalue < 0 )
+	s_graphicsoptions.tq.curvalue = 3-trap_Cvar_VariableValue("r_picmip");
+	if (s_graphicsoptions.tq.curvalue < 0)
 	{
 		s_graphicsoptions.tq.curvalue = 0;
 	}
-	else if ( s_graphicsoptions.tq.curvalue > 3 )
+	else if (s_graphicsoptions.tq.curvalue > 3)
 	{
 		s_graphicsoptions.tq.curvalue = 3;
 	}
 
-	s_graphicsoptions.lighting.curvalue = trap_Cvar_VariableValue( "r_vertexLight" ) != 0;
-	switch ( ( int ) trap_Cvar_VariableValue( "r_texturebits" ) )
+	s_graphicsoptions.lighting.curvalue = trap_Cvar_VariableValue("r_vertexLight") != 0;
+	switch ((int) trap_Cvar_VariableValue("r_texturebits"))
 	{
 	default:
 	case 0:
@@ -860,7 +736,7 @@ static void GraphicsOptions_SetMenuItems( void )
 		break;
 	}
 
-	if ( !Q_stricmp( UI_Cvar_VariableString( "r_textureMode" ), "GL_LINEAR_MIPMAP_NEAREST" ) )
+	if (!Q_stricmp(UI_Cvar_VariableString("r_textureMode"), "GL_LINEAR_MIPMAP_NEAREST"))
 	{
 		s_graphicsoptions.filter.curvalue = 0;
 	}
@@ -869,9 +745,9 @@ static void GraphicsOptions_SetMenuItems( void )
 		s_graphicsoptions.filter.curvalue = 1;
 	}
 
-	if ( trap_Cvar_VariableValue( "r_lodBias" ) > 0 )
+	if (trap_Cvar_VariableValue("r_lodBias") > 0)
 	{
-		if ( trap_Cvar_VariableValue( "r_subdivisions" ) >= 20 )
+		if (trap_Cvar_VariableValue("r_subdivisions") >= 20)
 		{
 			s_graphicsoptions.geometry.curvalue = 0;
 		}
@@ -886,12 +762,7 @@ static void GraphicsOptions_SetMenuItems( void )
 	}
 }
 
-/*
-================
-GraphicsOptions_MenuInit
-================
-*/
-void GraphicsOptions_MenuInit( void )
+void GraphicsOptions_MenuInit(void)
 {
 	static const char *s_driver_names[] =
 	{
@@ -949,7 +820,7 @@ void GraphicsOptions_MenuInit( void )
 	int y;
 
 	// zero set all our globals
-	memset( &s_graphicsoptions, 0 ,sizeof(graphicsoptions_t) );
+	memset(&s_graphicsoptions, 0 ,sizeof(graphicsoptions_t));
 
 	GraphicsOptions_GetResolutions();
 	GraphicsOptions_GetAspectRatios();
@@ -966,22 +837,6 @@ void GraphicsOptions_MenuInit( void )
 	s_graphicsoptions.banner.string  	   = "SYSTEM SETUP";
 	s_graphicsoptions.banner.color         = color_white;
 	s_graphicsoptions.banner.style         = UI_CENTER;
-
-	s_graphicsoptions.framel.generic.type  = MTYPE_BITMAP;
-	s_graphicsoptions.framel.generic.name  = GRAPHICSOPTIONS_FRAMEL;
-	s_graphicsoptions.framel.generic.flags = QMF_INACTIVE;
-	s_graphicsoptions.framel.generic.x	   = 0;
-	s_graphicsoptions.framel.generic.y	   = 78;
-	s_graphicsoptions.framel.width  	   = 256;
-	s_graphicsoptions.framel.height  	   = 329;
-
-	s_graphicsoptions.framer.generic.type  = MTYPE_BITMAP;
-	s_graphicsoptions.framer.generic.name  = GRAPHICSOPTIONS_FRAMER;
-	s_graphicsoptions.framer.generic.flags = QMF_INACTIVE;
-	s_graphicsoptions.framer.generic.x	   = 376;
-	s_graphicsoptions.framer.generic.y	   = 76;
-	s_graphicsoptions.framer.width  	   = 256;
-	s_graphicsoptions.framer.height  	   = 334;
 
 	s_graphicsoptions.graphics.generic.type		= MTYPE_PTEXT;
 	s_graphicsoptions.graphics.generic.flags	= QMF_RIGHT_JUSTIFY;
@@ -1032,7 +887,7 @@ void GraphicsOptions_MenuInit( void )
 	s_graphicsoptions.list.generic.callback = GraphicsOptions_Event;
 	s_graphicsoptions.list.generic.id       = ID_LIST;
 	s_graphicsoptions.list.itemnames        = s_graphics_options_names;
-	y += 2 * ( BIGCHAR_HEIGHT + 2 );
+	y += 2 * (BIGCHAR_HEIGHT + 2);
 
 	s_graphicsoptions.driver.generic.type  = MTYPE_SPINCONTROL;
 	s_graphicsoptions.driver.generic.name  = "GL Driver:";
@@ -1161,65 +1016,51 @@ void GraphicsOptions_MenuInit( void )
 	s_graphicsoptions.apply.height  		 = 64;
 	s_graphicsoptions.apply.focuspic         = GRAPHICSOPTIONS_ACCEPT1;
 
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.banner );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.framel );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.framer );
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.banner);
 
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.graphics );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.display );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.sound );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.network );
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.graphics);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.display);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.sound);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.network);
 
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.list );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.driver );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.allow_extensions );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.ratio );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.mode );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.fs );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.lighting );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.geometry );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.tq );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.texturebits );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.filter );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.driverinfo );
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.list);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.driver);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.allow_extensions);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.ratio);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.mode);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.fs);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.lighting);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.geometry);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.tq);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.texturebits);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.filter);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.driverinfo);
 
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.back );
-	Menu_AddItem( &s_graphicsoptions.menu, ( void * ) &s_graphicsoptions.apply );
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.back);
+	Menu_AddItem(&s_graphicsoptions.menu, (void *) &s_graphicsoptions.apply);
 
 	GraphicsOptions_SetMenuItems();
 	GraphicsOptions_GetInitialVideo();
 
-	if ( uis.glconfig.driverType == GLDRV_ICD &&
-		 uis.glconfig.hardwareType == GLHW_3DFX_2D3D )
+	if (uis.glconfig.driverType == GLDRV_ICD &&
+		 uis.glconfig.hardwareType == GLHW_3DFX_2D3D)
 	{
 		s_graphicsoptions.driver.generic.flags |= QMF_HIDDEN|QMF_INACTIVE;
 	}
 }
 
-
-/*
-=================
-GraphicsOptions_Cache
-=================
-*/
-void GraphicsOptions_Cache( void ) {
-	trap_R_RegisterShaderNoMip( GRAPHICSOPTIONS_FRAMEL );
-	trap_R_RegisterShaderNoMip( GRAPHICSOPTIONS_FRAMER );
-	trap_R_RegisterShaderNoMip( GRAPHICSOPTIONS_BACK0 );
-	trap_R_RegisterShaderNoMip( GRAPHICSOPTIONS_BACK1 );
-	trap_R_RegisterShaderNoMip( GRAPHICSOPTIONS_ACCEPT0 );
-	trap_R_RegisterShaderNoMip( GRAPHICSOPTIONS_ACCEPT1 );
+void GraphicsOptions_Cache(void)
+{
+	trap_R_RegisterShaderNoMip(GRAPHICSOPTIONS_BACK0);
+	trap_R_RegisterShaderNoMip(GRAPHICSOPTIONS_BACK1);
+	trap_R_RegisterShaderNoMip(GRAPHICSOPTIONS_ACCEPT0);
+	trap_R_RegisterShaderNoMip(GRAPHICSOPTIONS_ACCEPT1);
 }
 
-
-/*
-=================
-UI_GraphicsOptionsMenu
-=================
-*/
-void UI_GraphicsOptionsMenu( void ) {
+void UI_GraphicsOptionsMenu(void)
+{
 	GraphicsOptions_MenuInit();
-	UI_PushMenu( &s_graphicsoptions.menu );
-	Menu_SetCursorToItem( &s_graphicsoptions.menu, &s_graphicsoptions.graphics );
+	UI_PushMenu(&s_graphicsoptions.menu);
+	Menu_SetCursorToItem(&s_graphicsoptions.menu, &s_graphicsoptions.graphics);
 }
 

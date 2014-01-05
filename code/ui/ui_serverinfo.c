@@ -22,29 +22,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "ui_local.h"
 
-#define SERVERINFO_FRAMEL	"menu/art/frame2_l"
-#define SERVERINFO_FRAMER	"menu/art/frame1_r"
 #define SERVERINFO_BACK0	"menu/art/back_0"
 #define SERVERINFO_BACK1	"menu/art/back_1"
 
 static char* serverinfo_artlist[] =
 {
-	SERVERINFO_FRAMEL,	
-	SERVERINFO_FRAMER,
 	SERVERINFO_BACK0,
 	SERVERINFO_BACK1,
 	NULL
 };
 
-#define ID_ADD	 100
-#define ID_BACK	 101
+#define ID_ADD		100
+#define ID_BACK		101
 
 typedef struct
 {
 	menuframework_s	menu;
 	menutext_s		banner;
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 	menubitmap_s	back;
 	menutext_s		add;
 	char			info[MAX_INFO_STRING];
@@ -53,29 +47,24 @@ typedef struct
 
 static serverinfo_t	s_serverinfo;
 
-
-/*
-=================
-Favorites_Add
-
+/**
 Add current server to favorites
-=================
 */
-void Favorites_Add( void )
+void Favorites_Add(void)
 {
 	char	adrstr[128];
 	char	serverbuff[128];
 	int		i;
 	int		best;
 
-	trap_Cvar_VariableStringBuffer( "cl_currentServerAddress", serverbuff, sizeof(serverbuff) );
+	trap_Cvar_VariableStringBuffer("cl_currentServerAddress", serverbuff, sizeof(serverbuff));
 	if (!serverbuff[0])
 		return;
 
 	best = 0;
 	for (i=0; i<MAX_FAVORITESERVERS; i++)
 	{
-		trap_Cvar_VariableStringBuffer( va("server%d",i+1), adrstr, sizeof(adrstr) );
+		trap_Cvar_VariableStringBuffer(va("server%d",i+1), adrstr, sizeof(adrstr));
 		if (!Q_stricmp(serverbuff,adrstr))
 		{
 			// already in list
@@ -88,16 +77,10 @@ void Favorites_Add( void )
 	}
 
 	if (best)
-		trap_Cvar_Set( va("server%d",best), serverbuff);
+		trap_Cvar_Set(va("server%d",best), serverbuff);
 }
 
-
-/*
-=================
-ServerInfo_Event
-=================
-*/
-static void ServerInfo_Event( void* ptr, int event )
+static void ServerInfo_Event(void* ptr, int event)
 {
 	switch (((menucommon_s*)ptr)->id)
 	{
@@ -118,12 +101,7 @@ static void ServerInfo_Event( void* ptr, int event )
 	}
 }
 
-/*
-=================
-ServerInfo_MenuDraw
-=================
-*/
-static void ServerInfo_MenuDraw( void )
+static void ServerInfo_MenuDraw(void)
 {
 	const char		*s;
 	char			key[MAX_INFO_KEY];
@@ -132,13 +110,13 @@ static void ServerInfo_MenuDraw( void )
 
 	y = SCREEN_HEIGHT/2 - s_serverinfo.numlines*(SMALLCHAR_HEIGHT)/2 - 20;
 	s = s_serverinfo.info;
-	while ( s && i < s_serverinfo.numlines ) {
-		Info_NextPair( &s, key, value );
-		if ( !key[0] ) {
+	while (s && i < s_serverinfo.numlines) {
+		Info_NextPair(&s, key, value);
+		if (!key[0]) {
 			break;
 		}
 
-		Q_strcat( key, MAX_INFO_KEY, ":" ); 
+		Q_strcat(key, MAX_INFO_KEY, ":"); 
 
 		UI_DrawString(SCREEN_WIDTH*0.50 - 8,y,key,UI_RIGHT|UI_SMALLFONT,color_red);
 		UI_DrawString(SCREEN_WIDTH*0.50 + 8,y,value,UI_LEFT|UI_SMALLFONT,text_color_normal);
@@ -147,25 +125,15 @@ static void ServerInfo_MenuDraw( void )
 		i++;
 	}
 
-	Menu_Draw( &s_serverinfo.menu );
+	Menu_Draw(&s_serverinfo.menu);
 }
 
-/*
-=================
-ServerInfo_MenuKey
-=================
-*/
-static sfxHandle_t ServerInfo_MenuKey( int key )
+static sfxHandle_t ServerInfo_MenuKey(int key)
 {
-	return ( Menu_DefaultKey( &s_serverinfo.menu, key ) );
+	return (Menu_DefaultKey(&s_serverinfo.menu, key));
 }
 
-/*
-=================
-ServerInfo_Cache
-=================
-*/
-void ServerInfo_Cache( void )
+void ServerInfo_Cache(void)
 {
 	int	i;
 
@@ -178,19 +146,14 @@ void ServerInfo_Cache( void )
 	}
 }
 
-/*
-=================
-UI_ServerInfoMenu
-=================
-*/
-void UI_ServerInfoMenu( void )
+void UI_ServerInfoMenu(void)
 {
 	const char		*s;
 	char			key[MAX_INFO_KEY];
 	char			value[MAX_INFO_VALUE];
 
 	// zero set all our globals
-	memset( &s_serverinfo, 0 ,sizeof(serverinfo_t) );
+	memset(&s_serverinfo, 0 ,sizeof(serverinfo_t));
 
 	ServerInfo_Cache();
 
@@ -206,22 +169,6 @@ void UI_ServerInfoMenu( void )
 	s_serverinfo.banner.color	      = color_white;
 	s_serverinfo.banner.style	      = UI_CENTER;
 
-	s_serverinfo.framel.generic.type  = MTYPE_BITMAP;
-	s_serverinfo.framel.generic.name  = SERVERINFO_FRAMEL;
-	s_serverinfo.framel.generic.flags = QMF_INACTIVE;
-	s_serverinfo.framel.generic.x	  = 0;  
-	s_serverinfo.framel.generic.y	  = 78;
-	s_serverinfo.framel.width  	      = 256;
-	s_serverinfo.framel.height  	  = 329;
-
-	s_serverinfo.framer.generic.type  = MTYPE_BITMAP;
-	s_serverinfo.framer.generic.name  = SERVERINFO_FRAMER;
-	s_serverinfo.framer.generic.flags = QMF_INACTIVE;
-	s_serverinfo.framer.generic.x	  = 376;
-	s_serverinfo.framer.generic.y	  = 76;
-	s_serverinfo.framer.width  	      = 256;
-	s_serverinfo.framer.height  	  = 334;
-
 	s_serverinfo.add.generic.type	  = MTYPE_PTEXT;
 	s_serverinfo.add.generic.flags    = QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
 	s_serverinfo.add.generic.callback = ServerInfo_Event;
@@ -231,7 +178,7 @@ void UI_ServerInfoMenu( void )
 	s_serverinfo.add.string  		  = "ADD TO FAVORITES";
 	s_serverinfo.add.style  		  = UI_CENTER|UI_SMALLFONT;
 	s_serverinfo.add.color			  =	color_red;
-	if( trap_Cvar_VariableValue( "sv_running" ) ) {
+	if(trap_Cvar_VariableValue("sv_running")) {
 		s_serverinfo.add.generic.flags |= QMF_GRAYED;
 	}
 
@@ -246,13 +193,13 @@ void UI_ServerInfoMenu( void )
 	s_serverinfo.back.height  		   = 64;
 	s_serverinfo.back.focuspic         = SERVERINFO_BACK1;
 
-	trap_GetConfigString( CS_SERVERINFO, s_serverinfo.info, MAX_INFO_STRING );
+	trap_GetConfigString(CS_SERVERINFO, s_serverinfo.info, MAX_INFO_STRING);
 
 	s_serverinfo.numlines = 0;
 	s = s_serverinfo.info;
-	while ( s ) {
-		Info_NextPair( &s, key, value );
-		if ( !key[0] ) {
+	while (s) {
+		Info_NextPair(&s, key, value);
+		if (!key[0]) {
 			break;
 		}
 		s_serverinfo.numlines++;
@@ -261,13 +208,11 @@ void UI_ServerInfoMenu( void )
 	if (s_serverinfo.numlines > 16)
 		s_serverinfo.numlines = 16;
 
-	Menu_AddItem( &s_serverinfo.menu, (void*) &s_serverinfo.banner );
-	Menu_AddItem( &s_serverinfo.menu, (void*) &s_serverinfo.framel );
-	Menu_AddItem( &s_serverinfo.menu, (void*) &s_serverinfo.framer );
-	Menu_AddItem( &s_serverinfo.menu, (void*) &s_serverinfo.add );
-	Menu_AddItem( &s_serverinfo.menu, (void*) &s_serverinfo.back );
+	Menu_AddItem(&s_serverinfo.menu, (void*) &s_serverinfo.banner);
+	Menu_AddItem(&s_serverinfo.menu, (void*) &s_serverinfo.add);
+	Menu_AddItem(&s_serverinfo.menu, (void*) &s_serverinfo.back);
 
-	UI_PushMenu( &s_serverinfo.menu );
+	UI_PushMenu(&s_serverinfo.menu);
 }
 
 

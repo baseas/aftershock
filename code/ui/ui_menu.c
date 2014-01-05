@@ -31,8 +31,6 @@ MAIN MENU
 
 #include "ui_local.h"
 
-#define MENU_XPOS				90
-
 #define ID_SINGLEPLAYER			10
 #define ID_MULTIPLAYER			11
 #define ID_SETUP				12
@@ -57,26 +55,24 @@ typedef struct {
 static mainmenu_t s_main;
 
 typedef struct {
-	menuframework_s menu;	
+	menuframework_s menu;
 	char errorMessage[4096];
 } errorMessage_t;
 
 static errorMessage_t s_errorMessage;
 
-static void MainMenu_ExitAction( qboolean result ) {
-	if( !result ) {
-		return;
-	}
-	UI_PopMenu();
-	UI_CreditMenu();
+static void MainMenu_ExitAction(void)
+{
+	trap_Cmd_ExecuteText(EXEC_APPEND, "quit\n");
 }
 
-void Main_MenuEvent (void* ptr, int event) {
-	if( event != QM_ACTIVATED ) {
+void Main_MenuEvent (void* ptr, int event)
+{
+	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
+	switch (((menucommon_s*)ptr)->id) {
 	case ID_SINGLEPLAYER:
 		UI_SPLevelMenu();
 		break;
@@ -94,66 +90,68 @@ void Main_MenuEvent (void* ptr, int event) {
 		break;
 
 	case ID_TEAMARENA:
-		trap_Cvar_Set( "fs_game", BASETA);
-		trap_Cmd_ExecuteText( EXEC_APPEND, "vid_restart;" );
+		trap_Cvar_Set("fs_game", BASETA);
+		trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
 		break;
 
 	case ID_EXIT:
-		UI_ConfirmMenu( "EXIT GAME?", 0, MainMenu_ExitAction );
+		MainMenu_ExitAction();
 		break;
 	}
 }
 
 sfxHandle_t ErrorMessage_Key(int key)
 {
-	trap_Cvar_Set( "com_errorMessage", "" );
+	trap_Cvar_Set("com_errorMessage", "");
 	UI_MainMenu();
 	return (menu_null_sound);
 }
 
-static void Main_MenuDraw( void ) {
+static void Main_MenuDraw(void)
+{
 	int				i;
 	vec4_t			color = {0.5, 0, 0, 1};
 
 	if (strlen(s_errorMessage.errorMessage)) {
-		UI_DrawProportionalString_AutoWrapped( MENU_XPOS, 192, 600, 20, s_errorMessage.errorMessage, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color );
+		UI_DrawProportionalString_AutoWrapped(MENU_XPOS, 192, 600, 20, s_errorMessage.errorMessage, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color);
 	} else {
 		// standard menu drawing
-		Menu_Draw( &s_main.menu );
+		Menu_Draw(&s_main.menu);
 	}
 
-	UI_DrawNamedPic(32, 26, 220, 30, "banner_aftershock" );
-	UI_DrawNamedPic(291, 127, 298, 253, "logo_aftershock" );
+	UI_DrawNamedPic(32, 26, 220, 30, "banner_aftershock");
+	UI_DrawNamedPic(291, 127, 298, 253, "logo_aftershock");
 	for (i = 0; i < 5; ++i) {
 		int	y;
 		y = MAIN_MENU_TOP_Y + (i + 0.5f) * MAIN_MENU_VERTICAL_SPACING - 13;
 		UI_DrawNamedPic(65, y, 10, 15, "white_arrow_small_aftershock");
 	}
 
-	UI_DrawString(320, 450, "aftershock-fps.com", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, color );
+	UI_DrawString(320, 450, "aftershock-fps.com", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, color);
 }
 
-void UI_MainMenu( void ) {
+void UI_MainMenu(void)
+{
 	int		y;
 	int		style = UI_SMALLFONT;
 
-	trap_Cvar_Set( "sv_killserver", "1" );
+	trap_Cvar_Set("sv_killserver", "1");
 
-	memset( &s_main, 0 ,sizeof(mainmenu_t) );
-	memset( &s_errorMessage, 0 ,sizeof(errorMessage_t) );
+	memset(&s_main, 0 ,sizeof(mainmenu_t));
+	memset(&s_errorMessage, 0 ,sizeof(errorMessage_t));
 
-	trap_Cvar_VariableStringBuffer( "com_errorMessage", s_errorMessage.errorMessage, sizeof(s_errorMessage.errorMessage) );
-	if (strlen(s_errorMessage.errorMessage)) {
+	trap_Cvar_VariableStringBuffer("com_errorMessage", s_errorMessage.errorMessage, sizeof(s_errorMessage.errorMessage));
+	if (*s_errorMessage.errorMessage) {
 		s_errorMessage.menu.draw = Main_MenuDraw;
 		s_errorMessage.menu.key = ErrorMessage_Key;
 		s_errorMessage.menu.fullscreen = qtrue;
 		s_errorMessage.menu.wrapAround = qtrue;
 		s_errorMessage.menu.showlogo = qtrue;
 
-		trap_Key_SetCatcher( KEYCATCH_UI );
+		trap_Key_SetCatcher(KEYCATCH_UI);
 		uis.menusp = 0;
-		UI_PushMenu ( &s_errorMessage.menu );
-		
+		UI_PushMenu (&s_errorMessage.menu);
+
 		return;
 	}
 
@@ -168,7 +166,7 @@ void UI_MainMenu( void ) {
 	s_main.singleplayer.generic.x			= MENU_XPOS;
 	s_main.singleplayer.generic.y			= y;
 	s_main.singleplayer.generic.id			= ID_SINGLEPLAYER;
-	s_main.singleplayer.generic.callback	= Main_MenuEvent; 
+	s_main.singleplayer.generic.callback	= Main_MenuEvent;
 	s_main.singleplayer.string				= "SINGLE PLAYER";
 	s_main.singleplayer.color				= color_red;
 	s_main.singleplayer.style				= style;
@@ -179,7 +177,7 @@ void UI_MainMenu( void ) {
 	s_main.multiplayer.generic.x			= MENU_XPOS;
 	s_main.multiplayer.generic.y			= y;
 	s_main.multiplayer.generic.id			= ID_MULTIPLAYER;
-	s_main.multiplayer.generic.callback		= Main_MenuEvent; 
+	s_main.multiplayer.generic.callback		= Main_MenuEvent;
 	s_main.multiplayer.string				= "MULTIPLAYER";
 	s_main.multiplayer.color				= color_red;
 	s_main.multiplayer.style				= style;
@@ -190,7 +188,7 @@ void UI_MainMenu( void ) {
 	s_main.setup.generic.x					= MENU_XPOS;
 	s_main.setup.generic.y					= y;
 	s_main.setup.generic.id					= ID_SETUP;
-	s_main.setup.generic.callback			= Main_MenuEvent; 
+	s_main.setup.generic.callback			= Main_MenuEvent;
 	s_main.setup.string						= "SETUP";
 	s_main.setup.color						= color_red;
 	s_main.setup.style						= style;
@@ -201,7 +199,7 @@ void UI_MainMenu( void ) {
 	s_main.demos.generic.x					= MENU_XPOS;
 	s_main.demos.generic.y					= y;
 	s_main.demos.generic.id					= ID_DEMOS;
-	s_main.demos.generic.callback			= Main_MenuEvent; 
+	s_main.demos.generic.callback			= Main_MenuEvent;
 	s_main.demos.string						= "DEMOS";
 	s_main.demos.color						= color_red;
 	s_main.demos.style						= style;
@@ -212,19 +210,19 @@ void UI_MainMenu( void ) {
 	s_main.exit.generic.x					= MENU_XPOS;
 	s_main.exit.generic.y					= y;
 	s_main.exit.generic.id					= ID_EXIT;
-	s_main.exit.generic.callback			= Main_MenuEvent; 
+	s_main.exit.generic.callback			= Main_MenuEvent;
 	s_main.exit.string						= "EXIT";
 	s_main.exit.color						= color_red;
 	s_main.exit.style						= style;
 
-	Menu_AddItem( &s_main.menu,	&s_main.singleplayer );
-	Menu_AddItem( &s_main.menu,	&s_main.multiplayer );
-	Menu_AddItem( &s_main.menu,	&s_main.setup );
-	Menu_AddItem( &s_main.menu,	&s_main.demos );
-	Menu_AddItem( &s_main.menu,	&s_main.exit );             
+	Menu_AddItem(&s_main.menu, &s_main.singleplayer);
+	Menu_AddItem(&s_main.menu, &s_main.multiplayer);
+	Menu_AddItem(&s_main.menu, &s_main.setup);
+	Menu_AddItem(&s_main.menu, &s_main.demos);
+	Menu_AddItem(&s_main.menu, &s_main.exit);
 
-	trap_Key_SetCatcher( KEYCATCH_UI );
+	trap_Key_SetCatcher(KEYCATCH_UI);
 	uis.menusp = 0;
-	UI_PushMenu ( &s_main.menu );
+	UI_PushMenu (&s_main.menu);
 }
 

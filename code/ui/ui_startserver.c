@@ -36,8 +36,6 @@ START SERVER MENU *****
 #define GAMESERVER_BACK1		"menu/art/back_1"
 #define GAMESERVER_NEXT0		"menu/art/next_0"
 #define GAMESERVER_NEXT1		"menu/art/next_1"
-#define GAMESERVER_FRAMEL		"menu/art/frame2_l"
-#define GAMESERVER_FRAMER		"menu/art/frame1_r"
 #define GAMESERVER_SELECT		"menu/art/maps_select"
 #define GAMESERVER_SELECTED		"menu/art/maps_selected"
 #define GAMESERVER_FIGHT0		"menu/art/fight_0"
@@ -63,8 +61,6 @@ typedef struct {
 	menuframework_s	menu;
 
 	menutext_s		banner;
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 
 	menulist_s		gametype;
 	menubitmap_s	mappics[MAX_MAPSPERPAGE];
@@ -401,22 +397,6 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.banner.color         = color_white;
 	s_startserver.banner.style         = UI_CENTER;
 
-	s_startserver.framel.generic.type  = MTYPE_BITMAP;
-	s_startserver.framel.generic.name  = GAMESERVER_FRAMEL;
-	s_startserver.framel.generic.flags = QMF_INACTIVE;
-	s_startserver.framel.generic.x	   = 0;  
-	s_startserver.framel.generic.y	   = 78;
-	s_startserver.framel.width  	   = 256;
-	s_startserver.framel.height  	   = 329;
-
-	s_startserver.framer.generic.type  = MTYPE_BITMAP;
-	s_startserver.framer.generic.name  = GAMESERVER_FRAMER;
-	s_startserver.framer.generic.flags = QMF_INACTIVE;
-	s_startserver.framer.generic.x	   = 376;
-	s_startserver.framer.generic.y	   = 76;
-	s_startserver.framer.width  	   = 256;
-	s_startserver.framer.height  	   = 334;
-
 	s_startserver.gametype.generic.type		= MTYPE_SPINCONTROL;
 	s_startserver.gametype.generic.name		= "Game Type:";
 	s_startserver.gametype.generic.flags	= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -523,8 +503,6 @@ static void StartServer_MenuInit( void ) {
 	s_startserver.item_null.height			= 480;
 
 	Menu_AddItem( &s_startserver.menu, &s_startserver.banner );
-	Menu_AddItem( &s_startserver.menu, &s_startserver.framel );
-	Menu_AddItem( &s_startserver.menu, &s_startserver.framer );
 
 	Menu_AddItem( &s_startserver.menu, &s_startserver.gametype );
 	for (i=0; i<MAX_MAPSPERPAGE; i++)
@@ -562,8 +540,6 @@ void StartServer_Cache( void )
 	trap_R_RegisterShaderNoMip( GAMESERVER_BACK1 );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_NEXT0 );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_NEXT1 );	
-	trap_R_RegisterShaderNoMip( GAMESERVER_FRAMEL );	
-	trap_R_RegisterShaderNoMip( GAMESERVER_FRAMER );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_SELECT );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_SELECTED );	
 	trap_R_RegisterShaderNoMip( GAMESERVER_UNKNOWNMAP );

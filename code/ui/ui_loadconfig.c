@@ -35,8 +35,6 @@ LOAD CONFIG MENU
 #define ART_BACK1			"menu/art/back_1"	
 #define ART_FIGHT0			"menu/art/load_0"
 #define ART_FIGHT1			"menu/art/load_1"
-#define ART_FRAMEL			"menu/art/frame2_l"
-#define ART_FRAMER			"menu/art/frame1_r"
 #define ART_ARROWS			"menu/art/arrows_horz_0"
 #define ART_ARROWLEFT		"menu/art/arrows_horz_left"
 #define ART_ARROWRIGHT		"menu/art/arrows_horz_right"
@@ -58,8 +56,6 @@ typedef struct {
 	menuframework_s	menu;
 
 	menutext_s		banner;
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 
 	menulist_s		list;
 
@@ -129,22 +125,6 @@ static void LoadConfig_MenuInit( void ) {
 	s_configs.banner.string			= "LOAD CONFIG";
 	s_configs.banner.color			= color_white;
 	s_configs.banner.style			= UI_CENTER;
-
-	s_configs.framel.generic.type	= MTYPE_BITMAP;
-	s_configs.framel.generic.name	= ART_FRAMEL;
-	s_configs.framel.generic.flags	= QMF_INACTIVE;
-	s_configs.framel.generic.x		= 0;  
-	s_configs.framel.generic.y		= 78;
-	s_configs.framel.width			= 256;
-	s_configs.framel.height			= 329;
-
-	s_configs.framer.generic.type	= MTYPE_BITMAP;
-	s_configs.framer.generic.name	= ART_FRAMER;
-	s_configs.framer.generic.flags	= QMF_INACTIVE;
-	s_configs.framer.generic.x		= 376;
-	s_configs.framer.generic.y		= 76;
-	s_configs.framer.width			= 256;
-	s_configs.framer.height			= 334;
 
 	s_configs.arrows.generic.type	= MTYPE_BITMAP;
 	s_configs.arrows.generic.name	= ART_ARROWS;
@@ -234,8 +214,6 @@ static void LoadConfig_MenuInit( void ) {
 	}
 
 	Menu_AddItem( &s_configs.menu, &s_configs.banner );
-	Menu_AddItem( &s_configs.menu, &s_configs.framel );
-	Menu_AddItem( &s_configs.menu, &s_configs.framer );
 	Menu_AddItem( &s_configs.menu, &s_configs.list );
 	Menu_AddItem( &s_configs.menu, &s_configs.arrows );
 	Menu_AddItem( &s_configs.menu, &s_configs.left );
@@ -254,8 +232,6 @@ void UI_LoadConfig_Cache( void ) {
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	trap_R_RegisterShaderNoMip( ART_FIGHT0 );
 	trap_R_RegisterShaderNoMip( ART_FIGHT1 );
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_ARROWS );
 	trap_R_RegisterShaderNoMip( ART_ARROWLEFT );
 	trap_R_RegisterShaderNoMip( ART_ARROWRIGHT );

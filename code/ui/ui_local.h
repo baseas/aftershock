@@ -20,17 +20,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+// ui_local.h
+
 #ifndef __UI_LOCAL_H__
 #define __UI_LOCAL_H__
 
 #include "../qcommon/q_shared.h"
 #include "../renderercommon/tr_types.h"
 #include "../ui/ui_public.h"
-//redefine to old API version
-#undef UI_API_VERSION
-#define UI_API_VERSION	4
 #include "../client/keycodes.h"
 #include "../game/bg_public.h"
+
+#define MENU_XPOS				90
 
 typedef void (*voidfunc_f)(void);
 
@@ -106,16 +107,17 @@ extern vmCvar_t	ui_ioq3;
 #define MAX_MENUITEMS			64
 
 #define MTYPE_NULL				0
-#define MTYPE_SLIDER			1	
+#define MTYPE_SLIDER			1
 #define MTYPE_ACTION			2
 #define MTYPE_SPINCONTROL		3
 #define MTYPE_FIELD				4
 #define MTYPE_RADIOBUTTON		5
-#define MTYPE_BITMAP			6	
+#define MTYPE_BITMAP			6
 #define MTYPE_TEXT				7
 #define MTYPE_SCROLLLIST		8
 #define MTYPE_PTEXT				9
 #define MTYPE_BTEXT				10
+#define MTYPE_BUTTON			11
 
 #define QMF_BLINK				((unsigned int) 0x00000001)
 #define QMF_SMALLFONT			((unsigned int) 0x00000002)
@@ -144,8 +146,7 @@ extern vmCvar_t	ui_ioq3;
 #define QM_LOSTFOCUS			2
 #define QM_ACTIVATED			3
 
-typedef struct _tag_menuframework
-{
+typedef struct _tag_menuframework {
 	int	cursor;
 	int cursor_prev;
 
@@ -160,8 +161,7 @@ typedef struct _tag_menuframework
 	qboolean	showlogo;
 } menuframework_s;
 
-typedef struct
-{
+typedef struct {
 	int type;
 	const char *name;
 	int	id;
@@ -187,14 +187,12 @@ typedef struct {
 	int		maxchars;
 } mfield_t;
 
-typedef struct
-{
+typedef struct {
 	menucommon_s	generic;
 	mfield_t		field;
 } menufield_s;
 
-typedef struct 
-{
+typedef struct {
 	menucommon_s generic;
 
 	float minvalue;
@@ -204,8 +202,7 @@ typedef struct
 	float range;
 } menuslider_s;
 
-typedef struct
-{
+typedef struct {
 	menucommon_s generic;
 
 	int	oldvalue;
@@ -221,36 +218,40 @@ typedef struct
 	int	seperation;
 } menulist_s;
 
-typedef struct
-{
+typedef struct {
 	menucommon_s generic;
 } menuaction_s;
 
-typedef struct
-{
+typedef struct {
 	menucommon_s generic;
 	int curvalue;
 } menuradiobutton_s;
 
-typedef struct
-{
+typedef struct {
 	menucommon_s	generic;
-	char*			focuspic;	
-	char*			errorpic;
+	char			*focuspic;
+	char			*errorpic;
 	qhandle_t		shader;
 	qhandle_t		focusshader;
 	int				width;
 	int				height;
-	float*			focuscolor;
+	float			*focuscolor;
 } menubitmap_s;
 
-typedef struct
-{
+typedef struct {
 	menucommon_s	generic;
-	char*			string;
+	char			*string;
 	int				style;
-	float*			color;
+	float			*color;
 } menutext_s;
+
+typedef struct {
+	menucommon_s	generic;
+	char			*string;
+	int				style;
+	int				width;
+	int				height;
+} menubutton_s;
 
 extern void			Menu_Cache(void);
 extern void			Menu_Focus(menucommon_s *m);
@@ -316,11 +317,6 @@ extern void UI_RegisterCvars(void);
 extern void UI_UpdateCvars(void);
 
 //
-// ui_credits.c
-//
-extern void UI_CreditMenu(void);
-
-//
 // ui_ingame.c
 //
 extern void InGame_Cache(void);
@@ -362,13 +358,6 @@ extern void Controls_Cache(void);
 //
 extern void UI_DemosMenu(void);
 extern void Demos_Cache(void);
-
-//
-// ui_cinematics.c
-//
-extern void UI_CinematicsMenu(void);
-extern void UI_CinematicsMenu_f(void);
-extern void UI_CinematicsMenu_Cache(void);
 
 //
 // ui_playermodel.c
@@ -527,7 +516,10 @@ typedef struct {
 	qhandle_t			whiteShader;
 	qhandle_t			menuBackShader;
 	qhandle_t			menuBackNoLogoShader;
-	qhandle_t			charset;
+	qhandle_t			charsetShader;
+	qhandle_t			charsetShader32;
+	qhandle_t			charsetShader64;
+	qhandle_t			charsetShader128;
 	qhandle_t			charsetProp;
 	qhandle_t			charsetPropGlow;
 	qhandle_t			charsetPropB;

@@ -26,8 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MODEL_BACK1			"menu/art/back_1"
 #define MODEL_SELECT		"menu/art/opponents_select"
 #define MODEL_SELECTED		"menu/art/opponents_selected"
-#define MODEL_FRAMEL		"menu/art/frame1_l"
-#define MODEL_FRAMER		"menu/art/frame1_r"
 #define MODEL_PORTS			"menu/art/player_models_ports"
 #define MODEL_ARROWS		"menu/art/gs_arrows_0"
 #define MODEL_ARROWSL		"menu/art/gs_arrows_l"
@@ -41,8 +39,6 @@ static char* playermodel_artlist[] =
 	MODEL_BACK1,	
 	MODEL_SELECT,
 	MODEL_SELECTED,
-	MODEL_FRAMEL,
-	MODEL_FRAMER,
 	MODEL_PORTS,	
 	MODEL_ARROWS,
 	MODEL_ARROWSL,
@@ -81,8 +77,6 @@ typedef struct
 	menuframework_s	menu;
 	menubitmap_s	pics[MAX_MODELSPERPAGE];
 	menubitmap_s	picbuttons[MAX_MODELSPERPAGE];
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 	menubitmap_s	ports;
 	menutext_s		banner;
 	menubitmap_s	back;
@@ -544,22 +538,6 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.banner.color         = color_white;
 	s_playermodel.banner.style         = UI_CENTER;
 
-	s_playermodel.framel.generic.type  = MTYPE_BITMAP;
-	s_playermodel.framel.generic.name  = MODEL_FRAMEL;
-	s_playermodel.framel.generic.flags = QMF_LEFT_JUSTIFY|QMF_INACTIVE;
-	s_playermodel.framel.generic.x     = 0;
-	s_playermodel.framel.generic.y     = 78;
-	s_playermodel.framel.width         = 256;
-	s_playermodel.framel.height        = 329;
-
-	s_playermodel.framer.generic.type  = MTYPE_BITMAP;
-	s_playermodel.framer.generic.name  = MODEL_FRAMER;
-	s_playermodel.framer.generic.flags = QMF_LEFT_JUSTIFY|QMF_INACTIVE;
-	s_playermodel.framer.generic.x     = 376;
-	s_playermodel.framer.generic.y     = 76;
-	s_playermodel.framer.width         = 256;
-	s_playermodel.framer.height        = 334;
-
 	s_playermodel.ports.generic.type  = MTYPE_BITMAP;
 	s_playermodel.ports.generic.name  = MODEL_PORTS;
 	s_playermodel.ports.generic.flags = QMF_LEFT_JUSTIFY|QMF_INACTIVE;
@@ -675,8 +653,6 @@ static void PlayerModel_MenuInit( void )
 	s_playermodel.back.focuspic         = MODEL_BACK1;
 
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.banner );
-	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.framel );
-	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.framer );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.ports );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.playername );
 	Menu_AddItem( &s_playermodel.menu,	&s_playermodel.modelname );

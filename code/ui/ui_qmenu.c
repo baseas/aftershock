@@ -145,6 +145,14 @@ static void BText_Init( menutext_s *t )
 	t->generic.flags |= QMF_INACTIVE;
 }
 
+static void Button_Init( menubutton_s *t )
+{
+}
+
+static void Button_Draw(menubutton_s *t)
+{
+}
+
 /*
 =================
 BText_Draw
@@ -1308,6 +1316,10 @@ void Menu_AddItem( menuframework_s *menu, void *item )
 				BText_Init((menutext_s*)item);
 				break;
 
+			case MTYPE_BUTTON:
+				Button_Init((menubutton_s*)item);
+				break;
+
 			default:
 				trap_Error( va("Menu_Init: unknown type %d", itemptr->type) );
 		}
@@ -1500,6 +1512,9 @@ void Menu_Draw( menuframework_s *menu )
 					BText_Draw( (menutext_s*)itemptr );
 					break;
 
+				case MTYPE_BUTTON:
+					Button_Draw( (menubutton_s*)itemptr );
+					break;
 				default:
 					trap_Error( va("Menu_Draw: unknown type %d", itemptr->type) );
 			}
@@ -1700,13 +1715,16 @@ Menu_Cache
 */
 void Menu_Cache( void )
 {
-	uis.charset			= trap_R_RegisterShaderNoMip( "gfx/2d/bigchars" );
-	uis.charsetProp		= trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
-	uis.charsetPropGlow	= trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
-	uis.charsetPropB	= trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
-	uis.cursor          = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
-	uis.rb_on           = trap_R_RegisterShaderNoMip( "menu/art/switch_on" );
-	uis.rb_off          = trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
+	uis.charsetShader = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars" );
+	uis.charsetShader32 = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars32" );
+	uis.charsetShader64 = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars64" );
+	uis.charsetShader128 = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars128" );
+	uis.charsetProp = trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
+	uis.charsetPropGlow = trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
+	uis.charsetPropB = trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
+	uis.cursor = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
+	uis.rb_on = trap_R_RegisterShaderNoMip( "menu/art/switch_on" );
+	uis.rb_off = trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip( "white" );
 	uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_aftershock" );

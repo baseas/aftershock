@@ -326,6 +326,7 @@ static int propMapB[26][3] = {
 #define PROPB_GAP_WIDTH		4
 #define PROPB_SPACE_WIDTH	12
 #define PROPB_HEIGHT		36
+#define PROPB_SIZE			0.6f
 
 /*
 =================
@@ -356,7 +357,7 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
 	{
 		ch = *s & 127;
 		if ( ch == ' ' ) {
-			ax += ((float)PROPB_SPACE_WIDTH + (float)PROPB_GAP_WIDTH)* uis.xscale;
+			ax += PROPB_SIZE * (((float)PROPB_SPACE_WIDTH + (float)PROPB_GAP_WIDTH)* uis.xscale);
 		}
 		else if ( ch >= 'A' && ch <= 'Z' ) {
 			ch -= 'A';
@@ -364,8 +365,8 @@ static void UI_DrawBannerString2( int x, int y, const char* str, vec4_t color )
 			frow = (float)propMapB[ch][1] / 256.0f;
 			fwidth = (float)propMapB[ch][2] / 256.0f;
 			fheight = (float)PROPB_HEIGHT / 256.0f;
-			aw = (float)propMapB[ch][2] * uis.xscale;
-			ah = (float)PROPB_HEIGHT * uis.yscale;
+			aw = PROPB_SIZE * (float)propMapB[ch][2] * uis.xscale;
+			ah = PROPB_SIZE * (float)PROPB_HEIGHT * uis.yscale;
 			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, uis.charsetPropB );
 			ax += (aw + (float)PROPB_GAP_WIDTH * uis.xscale);
 		}
@@ -387,14 +388,14 @@ void UI_DrawBannerString( int x, int y, const char* str, int style, vec4_t color
 	while ( *s ) {
 		ch = *s;
 		if ( ch == ' ' ) {
-			width += PROPB_SPACE_WIDTH;
+			width += PROPB_SIZE * PROPB_SPACE_WIDTH;
 		}
 		else if ( ch >= 'A' && ch <= 'Z' ) {
-			width += propMapB[ch - 'A'][2] + PROPB_GAP_WIDTH;
+			width += PROPB_SIZE * (propMapB[ch - 'A'][2] + PROPB_GAP_WIDTH);
 		}
 		s++;
 	}
-	width -= PROPB_GAP_WIDTH;
+	width -= PROPB_SIZE * PROPB_GAP_WIDTH;
 
 	switch( style & UI_FORMATMASK ) {
 		case UI_CENTER:
@@ -641,10 +642,12 @@ static void UI_DrawString2( int x, int y, const char* str, vec4_t color, int cha
 	float	ah;
 	float	frow;
 	float	fcol;
+	qhandle_t	shader;
 
-	if (y < -charh)
+	if (y < -charh) {
 		// offscreen
 		return;
+	}
 
 	// draw the colored text
 	trap_R_SetColor( color );
@@ -653,6 +656,16 @@ static void UI_DrawString2( int x, int y, const char* str, vec4_t color, int cha
 	ay = y * uis.yscale;
 	aw = charw * uis.xscale;
 	ah = charh * uis.yscale;
+
+	if (ah <= 16) {
+		shader = uis.charsetShader;
+	} else if (ah <= 32) {
+		shader = uis.charsetShader32;
+	} else if (ah <= 64) {
+		shader = uis.charsetShader64;
+	} else {
+		shader = uis.charsetShader128;
+	}
 
 	s = str;
 	while ( *s )
@@ -674,7 +687,7 @@ static void UI_DrawString2( int x, int y, const char* str, vec4_t color, int cha
 		{
 			frow = (ch>>4)*0.0625;
 			fcol = (ch&15)*0.0625;
-			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + 0.0625, frow + 0.0625, uis.charset );
+			trap_R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + 0.0625, frow + 0.0625, shader);
 		}
 
 		ax += aw;
@@ -937,7 +950,6 @@ void UI_Cache_f( void ) {
 	PlayerSettings_Cache();
 	Controls_Cache();
 	Demos_Cache();
-	UI_CinematicsMenu_Cache();
 	Preferences_Cache();
 	ServerInfo_Cache();
 	SpecifyServer_Cache();
@@ -988,11 +1000,6 @@ qboolean UI_ConsoleCommand( int realTime ) {
 
 	if ( Q_stricmp (cmd, "ui_cache") == 0 ) {
 		UI_Cache_f();
-		return qtrue;
-	}
-
-	if ( Q_stricmp (cmd, "ui_cinematics") == 0 ) {
-		UI_CinematicsMenu_f();
 		return qtrue;
 	}
 

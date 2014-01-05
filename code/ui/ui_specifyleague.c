@@ -30,8 +30,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_LISTBOXWIDTH		40
 #define MAX_LEAGUENAME			80
 
-#define SPECIFYLEAGUE_FRAMEL	"menu/art/frame2_l"
-#define SPECIFYLEAGUE_FRAMER	"menu/art/frame1_r"
 #define SPECIFYLEAGUE_BACK0		"menu/art/back_0"
 #define SPECIFYLEAGUE_BACK1		"menu/art/back_1"
 #define SPECIFYLEAGUE_ARROWS0	"menu/art/arrows_vert_0"
@@ -48,8 +46,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static char* specifyleague_artlist[] =
 {
-	SPECIFYLEAGUE_FRAMEL,
-	SPECIFYLEAGUE_FRAMER,
 	SPECIFYLEAGUE_ARROWS0,	
 	SPECIFYLEAGUE_UP,	
 	SPECIFYLEAGUE_DOWN,	
@@ -66,8 +62,6 @@ typedef struct
 {
 	menuframework_s	menu;
 	menutext_s		banner;
-	menubitmap_s	framel;
-	menubitmap_s	framer;
 	menufield_s		rankname;
 	menulist_s		list;
 	menubitmap_s	arrows;
@@ -188,22 +182,6 @@ void SpecifyLeague_MenuInit( void )
 	s_specifyleague.banner.color  		 = color_white;
 	s_specifyleague.banner.style  		 = UI_CENTER;
 
-	s_specifyleague.framel.generic.type  = MTYPE_BITMAP;
-	s_specifyleague.framel.generic.name  = SPECIFYLEAGUE_FRAMEL;
-	s_specifyleague.framel.generic.flags = QMF_INACTIVE;
-	s_specifyleague.framel.generic.x	 = 0;  
-	s_specifyleague.framel.generic.y	 = 78;
-	s_specifyleague.framel.width  	     = 256;
-	s_specifyleague.framel.height  	     = 334;
-
-	s_specifyleague.framer.generic.type  = MTYPE_BITMAP;
-	s_specifyleague.framer.generic.name  = SPECIFYLEAGUE_FRAMER;
-	s_specifyleague.framer.generic.flags = QMF_INACTIVE;
-	s_specifyleague.framer.generic.x	 = 376;
-	s_specifyleague.framer.generic.y	 = 76;
-	s_specifyleague.framer.width  	     = 256;
-	s_specifyleague.framer.height  	     = 334;
-
 	s_specifyleague.grlogo.generic.type  = MTYPE_BITMAP;
 	s_specifyleague.grlogo.generic.name  = GLOBALRANKINGS_LOGO;
 	s_specifyleague.grlogo.generic.flags = QMF_INACTIVE;
@@ -279,8 +257,6 @@ void SpecifyLeague_MenuInit( void )
 	s_specifyleague.back.focuspic         = SPECIFYLEAGUE_BACK1;
 
 	Menu_AddItem( &s_specifyleague.menu, &s_specifyleague.banner );
-	Menu_AddItem( &s_specifyleague.menu, &s_specifyleague.framel );
-	Menu_AddItem( &s_specifyleague.menu, &s_specifyleague.framer );
 	Menu_AddItem( &s_specifyleague.menu, &s_specifyleague.grlogo );
 	Menu_AddItem( &s_specifyleague.menu, &s_specifyleague.rankname );
 	Menu_AddItem( &s_specifyleague.menu, &s_specifyleague.list );

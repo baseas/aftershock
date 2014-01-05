@@ -32,8 +32,6 @@ GAME OPTIONS MENU
 #include "ui_local.h"
 
 
-#define ART_FRAMEL				"menu/art/frame2_l"
-#define ART_FRAMER				"menu/art/frame1_r"
 #define ART_BACK0				"menu/art/back_0"
 #define ART_BACK1				"menu/art/back_1"
 
@@ -59,8 +57,6 @@ typedef struct {
 	menuframework_s		menu;
 
 	menutext_s			banner;
-	menubitmap_s		framel;
-	menubitmap_s		framer;
 
 	menulist_s			crosshair;
 	menuradiobutton_s	simpleitems;
@@ -231,22 +227,6 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.banner.color         = color_white;
 	s_preferences.banner.style         = UI_CENTER;
 
-	s_preferences.framel.generic.type  = MTYPE_BITMAP;
-	s_preferences.framel.generic.name  = ART_FRAMEL;
-	s_preferences.framel.generic.flags = QMF_INACTIVE;
-	s_preferences.framel.generic.x	   = 0;
-	s_preferences.framel.generic.y	   = 78;
-	s_preferences.framel.width  	   = 256;
-	s_preferences.framel.height  	   = 329;
-
-	s_preferences.framer.generic.type  = MTYPE_BITMAP;
-	s_preferences.framer.generic.name  = ART_FRAMER;
-	s_preferences.framer.generic.flags = QMF_INACTIVE;
-	s_preferences.framer.generic.x	   = 376;
-	s_preferences.framer.generic.y	   = 76;
-	s_preferences.framer.width  	   = 256;
-	s_preferences.framer.height  	   = 334;
-
 	y = 144;
 	s_preferences.crosshair.generic.type		= MTYPE_SPINCONTROL;
 	s_preferences.crosshair.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT|QMF_NODEFAULTINIT|QMF_OWNERDRAW;
@@ -366,8 +346,6 @@ static void Preferences_MenuInit( void ) {
 	s_preferences.back.focuspic         = ART_BACK1;
 
 	Menu_AddItem( &s_preferences.menu, &s_preferences.banner );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.framel );
-	Menu_AddItem( &s_preferences.menu, &s_preferences.framer );
 
 	Menu_AddItem( &s_preferences.menu, &s_preferences.crosshair );
 	Menu_AddItem( &s_preferences.menu, &s_preferences.simpleitems );
@@ -395,8 +373,6 @@ Preferences_Cache
 void Preferences_Cache( void ) {
 	int		n;
 
-	trap_R_RegisterShaderNoMip( ART_FRAMEL );
-	trap_R_RegisterShaderNoMip( ART_FRAMER );
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
 	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
