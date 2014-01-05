@@ -496,52 +496,38 @@ RadioButton_Draw
 */
 static void RadioButton_Draw( menuradiobutton_s *rb )
 {
-	int	x;
-	int y;
-	float *color;
-	int	style;
-	qboolean focus;
+	int			x;
+	int			y;
+	float		*color;
+	int			style;
+	qboolean	focus;
 
 	x = rb->generic.x;
 	y = rb->generic.y;
 
 	focus = (rb->generic.parent->cursor == rb->generic.menuPosition);
 
-	if ( rb->generic.flags & QMF_GRAYED )
-	{
+	if ( rb->generic.flags & QMF_GRAYED ) {
 		color = text_color_disabled;
 		style = UI_LEFT|UI_SMALLFONT;
 	}
-	else if ( focus )
-	{
+	else if ( focus ) {
 		color = text_color_highlight;
 		style = UI_LEFT|UI_PULSE|UI_SMALLFONT;
 	}
-	else
-	{
+	else {
 		color = text_color_normal;
 		style = UI_LEFT|UI_SMALLFONT;
 	}
 
-	if ( focus )
-	{
-		// draw cursor
-		UI_FillRect( rb->generic.left, rb->generic.top, rb->generic.right-rb->generic.left+1, rb->generic.bottom-rb->generic.top+1, listbar_color ); 
-		UI_DrawChar( x, y, 13, UI_CENTER|UI_BLINK|UI_SMALLFONT, color);
+	if ( rb->generic.name ) {
+		UI_DrawString( x + SMALLCHAR_WIDTH, y, rb->generic.name, UI_LEFT | UI_SMALLFONT, color );
 	}
 
-	if ( rb->generic.name )
-		UI_DrawString( x - SMALLCHAR_WIDTH, y, rb->generic.name, UI_RIGHT|UI_SMALLFONT, color );
-
-	if ( !rb->curvalue )
-	{
-		UI_DrawHandlePic( x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_off);
-		UI_DrawString( x + SMALLCHAR_WIDTH + 16, y, "off", style, color );
-	}
-	else
-	{
-		UI_DrawHandlePic( x + SMALLCHAR_WIDTH, y + 2, 16, 16, uis.rb_on );
-		UI_DrawString( x + SMALLCHAR_WIDTH + 16, y, "on", style, color );
+	if ( !rb->curvalue ) {
+		UI_DrawHandlePic( x - SMALLCHAR_WIDTH, y, 16, 16, uis.rb_off);
+	} else {
+		UI_DrawHandlePic( x - SMALLCHAR_WIDTH, y, 16, 16, uis.rb_on );
 	}
 }
 
