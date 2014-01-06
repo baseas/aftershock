@@ -929,6 +929,16 @@ static void Hud_WeaponList(int hudnumber)
 	}
 }
 
+static void Hud_Follow(int hudnumber)
+{
+	const char	*name;
+	if (!(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
+		return;
+	}
+	name = cgs.clientinfo[cg.snap->ps.clientNum].name;
+	CG_DrawHudString(hudnumber, qtrue, va("following %s", name));
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -958,6 +968,7 @@ void CG_DrawHud()
 		{ HUD_GAMETYPE, Hud_Gametype },
 		{ HUD_COUNTDOWN, Hud_Countdown },
 		{ HUD_WEAPONLIST, Hud_WeaponList },
+		{ HUD_FOLLOW, Hud_Follow },
 		{ HUD_MAX, NULL }
 	};
 

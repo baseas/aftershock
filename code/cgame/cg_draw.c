@@ -1218,142 +1218,6 @@ static void CG_DrawIntermission(void)
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
-static qboolean CG_DrawFollow(void)
-{
-	float		x;
-	vec4_t		color;
-	const char	*name;
-
-	if (!(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
-		return qfalse;
-	}
-	color[0] = 1;
-	color[1] = 1;
-	color[2] = 1;
-	color[3] = 1;
-
-
-	CG_DrawBigString(320 - 9 * 8, 24, "following", 1.0F);
-
-	name = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
-
-	x = 0.5 * (640 - GIANT_WIDTH * CG_DrawStrlen(name));
-
-	CG_DrawStringExt(x, 40, name, color, qtrue, qtrue, GIANT_WIDTH, GIANT_HEIGHT, 0);
-
-	return qtrue;
-}
-
-static void CG_DrawWarmup(void)
-{
-	int			w;
-	int			sec;
-	int			i;
-	int			cw;
-	clientInfo_t	*ci1, *ci2;
-	const char	*s;
-
-	sec = cg.warmup;
-	if (!sec) {
-		return;
-	}
-
-	if (sec < 0) {
-		s = "Waiting for players";
-		w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
-		CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
-		cg.warmupCount = 0;
-		return;
-	}
-
-	if (cgs.gametype == GT_TOURNAMENT) {
-		// find the two active players
-		ci1 = NULL;
-		ci2 = NULL;
-		for (i = 0; i < cgs.maxclients; i++) {
-			if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_FREE) {
-				if (!ci1) {
-					ci1 = &cgs.clientinfo[i];
-				} else {
-					ci2 = &cgs.clientinfo[i];
-				}
-			}
-		}
-
-		if (ci1 && ci2) {
-			s = va("%s vs %s", ci1->name, ci2->name);
-			w = CG_DrawStrlen(s);
-			if (w > 640 / GIANT_WIDTH) {
-				cw = 640 / w;
-			} else {
-				cw = GIANT_WIDTH;
-			}
-			CG_DrawStringExt(320 - w * cw/2, 20,s, colorWhite,
-					qfalse, qtrue, cw, (int)(cw * 1.5f), 0);
-		}
-	} else {
-		if (cgs.gametype == GT_FFA) {
-			s = "Free For All";
-		} else if (cgs.gametype == GT_TEAM) {
-			s = "Team Deathmatch";
-		} else if (cgs.gametype == GT_CTF) {
-			s = "Capture the Flag";
-		} else {
-			s = "";
-		}
-		w = CG_DrawStrlen(s);
-		if (w > 640 / GIANT_WIDTH) {
-			cw = 640 / w;
-		} else {
-			cw = GIANT_WIDTH;
-		}
-		CG_DrawStringExt(320 - w * cw/2, 25,s, colorWhite,
-				qfalse, qtrue, cw, (int)(cw * 1.1f), 0);
-	}
-
-	sec = (sec - cg.time) / 1000;
-	if (sec < 0) {
-		cg.warmup = 0;
-		sec = 0;
-	}
-	s = va("Starts in: %i", sec + 1);
-	if (sec != cg.warmupCount) {
-		cg.warmupCount = sec;
-		switch (sec) {
-		case 0:
-			trap_S_StartLocalSound(cgs.media.count1Sound, CHAN_ANNOUNCER);
-			break;
-		case 1:
-			trap_S_StartLocalSound(cgs.media.count2Sound, CHAN_ANNOUNCER);
-			break;
-		case 2:
-			trap_S_StartLocalSound(cgs.media.count3Sound, CHAN_ANNOUNCER);
-			break;
-		default:
-			break;
-		}
-	}
-
-	switch (cg.warmupCount) {
-	case 0:
-		cw = 28;
-		break;
-	case 1:
-		cw = 24;
-		break;
-	case 2:
-		cw = 20;
-		break;
-	default:
-		cw = 16;
-		break;
-	}
-
-	w = CG_DrawStrlen(s);
-	CG_DrawStringExt(320 - w * cw/2, 70, s, colorWhite,
-			qfalse, qtrue, cw, (int)(cw * 1.5), 0);
-}
-
 static void CG_Draw2D(stereoFrame_t stereoFrame)
 {
 	// if we are taking a levelshot for the menu, don't draw anything
@@ -1382,7 +1246,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 				CG_DrawCrosshair();
 			}
 
-			CG_DrawWeaponSelect();
 			CG_DrawHoldableItem();
 			CG_DrawReward();
 		}
@@ -1401,10 +1264,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 	CG_DrawLowerRight();
 	CG_DrawLowerLeft();
-
-	if (!CG_DrawFollow()) {
-		CG_DrawWarmup();
-	}
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
