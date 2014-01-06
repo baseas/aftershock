@@ -795,7 +795,8 @@ static void CG_RegisterModels(void)
 	CG_LoadCvarModel("cg_blueTeamSoundModel", &cg_blueTeamSoundModel);
 }
 
-static void CG_LoadModelColors(void) {
+static void CG_LoadModelColors(void)
+{
 	CG_LoadModelColor(&cg_teamHeadColor);
 	CG_LoadModelColor(&cg_teamTorsoColor);
 	CG_LoadModelColor(&cg_teamLegsColor);

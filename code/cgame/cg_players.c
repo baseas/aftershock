@@ -593,8 +593,12 @@ void CG_NewClientInfo(int clientNum)
 	const char		*configstring;
 	const char		*v;
 	int				oldTeam;
+	qboolean		oldReady, oldValid;
 
 	ci = &cgs.clientinfo[clientNum];
+	oldTeam = ci->team;
+	oldReady = ci->ready;
+	oldValid = ci->infoValid;
 
 	configstring = CG_ConfigString(clientNum + CS_PLAYERS);
 	if (!configstring[0]) {
@@ -620,20 +624,26 @@ void CG_NewClientInfo(int clientNum)
 	v = Info_ValueForKey(configstring, "l");
 	ci->losses = atoi(v);
 
-	v = Info_ValueForKey(configstring, "r");
-	ci->isReady = atoi(v);
-
 	v = Info_ValueForKey(configstring, "tt");
 	ci->teamTask = atoi(v);
 
 	v = Info_ValueForKey(configstring, "tl");
 	ci->teamLeader = atoi(v);
 
+	v = Info_ValueForKey(configstring, "r");
+	ci->ready = !!atoi(v);
+	if (oldValid && ci->ready != oldReady) {
+		if (ci->ready) {
+			CG_CenterPrint(va("%s ^2is ready", ci->name), 100, BIGCHAR_WIDTH);
+		} else {
+			CG_CenterPrint(va("%s ^1is not ready", ci->name), 100, BIGCHAR_WIDTH);
+		}
+	}
+
 	v = Info_ValueForKey(configstring, "t");
-	oldTeam = ci->team;
 	ci->team = atoi(v);
 
-	if (cg_forceTeamModels.integer == 2 && clientNum == cg.clientNum && oldTeam != ci->team
+	if (oldValid && cg_forceTeamModels.integer == 2 && clientNum == cg.clientNum && oldTeam != ci->team
 		&& (ci->team == TEAM_SPECTATOR || oldTeam == TEAM_SPECTATOR))
 	{
 		CG_ForceModelChange();

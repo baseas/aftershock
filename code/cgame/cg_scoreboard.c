@@ -126,7 +126,7 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 
 	picSize = h * 0.8;
 
-	if (ci->isReady) {
+	if (ci->ready) {
 		CG_DrawPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
 	} else if (es->eFlags & EF_DEAD) {
 		CG_DrawPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbSkull);
@@ -137,7 +137,7 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	}
 
 	if (cg.warmup < 0 && ci->team != TEAM_SPECTATOR && cgs.startWhenReady) {
-		if (ci->isReady) {
+		if (ci->ready) {
 			CG_DrawPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
 		} else {
 			CG_DrawPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbNotReady);

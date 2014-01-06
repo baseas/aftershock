@@ -487,7 +487,7 @@ void SetTeam(gentity_t *ent, char *s)
 		// Kill him (makes sure he loses flags, etc)
 		ent->flags &= ~FL_GODMODE;
 		ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-		player_die (ent, ent, ent, 100000, MOD_SUICIDE);
+		player_die(ent, ent, ent, 100000, MOD_SUICIDE);
 
 	}
 
@@ -1001,7 +1001,7 @@ static const char *gameNames[] = {
 	"Harvester"
 };
 
-void Cmd_CallVote_f(gentity_t *ent)
+static void Cmd_CallVote_f(gentity_t *ent)
 {
 	char*	c;
 	int		i;
@@ -1118,7 +1118,7 @@ void Cmd_CallVote_f(gentity_t *ent)
 	trap_SetConfigstring(CS_VOTE_NO, va("%i", level.voteNo));
 }
 
-void Cmd_Vote_f(gentity_t *ent)
+static void Cmd_Vote_f(gentity_t *ent)
 {
 	char		msg[64];
 
@@ -1153,7 +1153,7 @@ void Cmd_Vote_f(gentity_t *ent)
 	// for players entering or leaving
 }
 
-void Cmd_CallTeamVote_f(gentity_t *ent)
+static void Cmd_CallTeamVote_f(gentity_t *ent)
 {
 	int		i, team, cs_offset;
 	char	arg1[MAX_STRING_TOKENS];
@@ -1276,7 +1276,7 @@ void Cmd_CallTeamVote_f(gentity_t *ent)
 	trap_SetConfigstring(CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset]));
 }
 
-void Cmd_TeamVote_f(gentity_t *ent)
+static void Cmd_TeamVote_f(gentity_t *ent)
 {
 	int			team, cs_offset;
 	char		msg[64];
@@ -1320,7 +1320,7 @@ void Cmd_TeamVote_f(gentity_t *ent)
 	// for players entering or leaving
 }
 
-void Cmd_SetViewpos_f(gentity_t *ent)
+static void Cmd_SetViewpos_f(gentity_t *ent)
 {
 	vec3_t		origin, angles;
 	char		buffer[MAX_TOKEN_CHARS];
@@ -1347,9 +1347,9 @@ void Cmd_SetViewpos_f(gentity_t *ent)
 	TeleportPlayer(ent, origin, angles);
 }
 
-void Cmd_Stats_f(gentity_t *ent) { }
+static void Cmd_Stats_f(gentity_t *ent) { }
 
-void Cmd_DropArmor_f(gentity_t *ent)
+static void Cmd_DropArmor_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	char	arg1[128];
@@ -1384,7 +1384,7 @@ void Cmd_DropArmor_f(gentity_t *ent)
 	Drop_Item_Armor(ent, item);
 }
 
-void Cmd_DropHealth_f(gentity_t *ent)
+static void Cmd_DropHealth_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	char	arg1[128];
@@ -1419,7 +1419,7 @@ void Cmd_DropHealth_f(gentity_t *ent)
 	Drop_Item_Health(ent, item);
 }
 
-void Cmd_DropAmmo_f(gentity_t *ent)
+static void Cmd_DropAmmo_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	int		weapon;
@@ -1450,7 +1450,7 @@ void Cmd_DropAmmo_f(gentity_t *ent)
 	}
 }
 
-void Cmd_DropWeapon_f(gentity_t *ent)
+static void Cmd_DropWeapon_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	int		weapon;
@@ -1481,7 +1481,7 @@ void Cmd_DropWeapon_f(gentity_t *ent)
 	}
 }
 
-void Cmd_DropFlag_f(gentity_t *other)
+static void Cmd_DropFlag_f(gentity_t *other)
 {
 	if (!(g_itemDrop.integer & 1)) {
 		return;
@@ -1500,7 +1500,7 @@ void Cmd_DropFlag_f(gentity_t *other)
 	}
 }
 
-void Cmd_Drop_f(gentity_t *ent)
+static void Cmd_Drop_f(gentity_t *ent)
 {
 	if ((ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG])
 		&& g_itemDrop.integer & 1)
@@ -1509,6 +1509,12 @@ void Cmd_Drop_f(gentity_t *ent)
 	} else if (g_itemDrop.integer & 2) {
 		Cmd_DropWeapon_f(ent);
 	}
+}
+
+static void Cmd_Ready_f(gentity_t *ent)
+{
+	ent->client->pers.ready = !ent->client->pers.ready;
+	ClientUserinfoChanged(ent->client - level.clients);
 }
 
 void ClientCommand(int clientNum)
@@ -1524,75 +1530,77 @@ void ClientCommand(int clientNum)
 
 	trap_Argv(0, cmd, sizeof(cmd));
 
-	if (Q_stricmp (cmd, "say") == 0) {
-		Cmd_Say_f (ent, SAY_ALL, qfalse);
+	if (Q_stricmp(cmd, "say") == 0) {
+		Cmd_Say_f(ent, SAY_ALL, qfalse);
 		return;
 	}
-	if (Q_stricmp (cmd, "say_team") == 0) {
-		Cmd_Say_f (ent, SAY_TEAM, qfalse);
+	if (Q_stricmp(cmd, "say_team") == 0) {
+		Cmd_Say_f(ent, SAY_TEAM, qfalse);
 		return;
 	}
-	if (Q_stricmp (cmd, "tell") == 0) {
-		Cmd_Tell_f (ent);
+	if (Q_stricmp(cmd, "tell") == 0) {
+		Cmd_Tell_f(ent);
 		return;
 	}
 
 	// ignore all other commands when at intermission
 	if (level.intermissiontime) {
-		Cmd_Say_f (ent, qfalse, qtrue);
+		Cmd_Say_f(ent, qfalse, qtrue);
 		return;
 	}
 
-	if (Q_stricmp (cmd, "give") == 0)
-		Cmd_Give_f (ent);
-	else if (Q_stricmp (cmd, "god") == 0)
-		Cmd_God_f (ent);
-	else if (Q_stricmp (cmd, "notarget") == 0)
-		Cmd_Notarget_f (ent);
-	else if (Q_stricmp (cmd, "noclip") == 0)
-		Cmd_Noclip_f (ent);
-	else if (Q_stricmp (cmd, "kill") == 0)
-		Cmd_Kill_f (ent);
-	else if (Q_stricmp (cmd, "teamtask") == 0)
-		Cmd_TeamTask_f (ent);
-	else if (Q_stricmp (cmd, "levelshot") == 0)
-		Cmd_LevelShot_f (ent);
-	else if (Q_stricmp (cmd, "follow") == 0)
-		Cmd_Follow_f (ent);
-	else if (Q_stricmp (cmd, "follownext") == 0)
-		Cmd_FollowCycle_f (ent, 1);
-	else if (Q_stricmp (cmd, "followprev") == 0)
-		Cmd_FollowCycle_f (ent, -1);
-	else if (Q_stricmp (cmd, "team") == 0)
-		Cmd_Team_f (ent);
-	else if (Q_stricmp (cmd, "where") == 0)
-		Cmd_Where_f (ent);
-	else if (Q_stricmp (cmd, "callvote") == 0)
-		Cmd_CallVote_f (ent);
-	else if (Q_stricmp (cmd, "vote") == 0)
-		Cmd_Vote_f (ent);
-	else if (Q_stricmp (cmd, "callteamvote") == 0)
-		Cmd_CallTeamVote_f (ent);
-	else if (Q_stricmp (cmd, "teamvote") == 0)
-		Cmd_TeamVote_f (ent);
-	else if (Q_stricmp (cmd, "gc") == 0)
+	if (Q_stricmp(cmd, "give") == 0)
+		Cmd_Give_f(ent);
+	else if (Q_stricmp(cmd, "god") == 0)
+		Cmd_God_f(ent);
+	else if (Q_stricmp(cmd, "notarget") == 0)
+		Cmd_Notarget_f(ent);
+	else if (Q_stricmp(cmd, "noclip") == 0)
+		Cmd_Noclip_f(ent);
+	else if (Q_stricmp(cmd, "kill") == 0)
+		Cmd_Kill_f(ent);
+	else if (Q_stricmp(cmd, "teamtask") == 0)
+		Cmd_TeamTask_f(ent);
+	else if (Q_stricmp(cmd, "levelshot") == 0)
+		Cmd_LevelShot_f(ent);
+	else if (Q_stricmp(cmd, "follow") == 0)
+		Cmd_Follow_f(ent);
+	else if (Q_stricmp(cmd, "follownext") == 0)
+		Cmd_FollowCycle_f(ent, 1);
+	else if (Q_stricmp(cmd, "followprev") == 0)
+		Cmd_FollowCycle_f(ent, -1);
+	else if (Q_stricmp(cmd, "team") == 0)
+		Cmd_Team_f(ent);
+	else if (Q_stricmp(cmd, "where") == 0)
+		Cmd_Where_f(ent);
+	else if (Q_stricmp(cmd, "callvote") == 0)
+		Cmd_CallVote_f(ent);
+	else if (Q_stricmp(cmd, "vote") == 0)
+		Cmd_Vote_f(ent);
+	else if (Q_stricmp(cmd, "callteamvote") == 0)
+		Cmd_CallTeamVote_f(ent);
+	else if (Q_stricmp(cmd, "teamvote") == 0)
+		Cmd_TeamVote_f(ent);
+	else if (Q_stricmp(cmd, "gc") == 0)
 		Cmd_GameCommand_f(ent);
-	else if (Q_stricmp (cmd, "setviewpos") == 0)
+	else if (Q_stricmp(cmd, "setviewpos") == 0)
 		Cmd_SetViewpos_f(ent);
-	else if (Q_stricmp (cmd, "stats") == 0)
+	else if (Q_stricmp(cmd, "stats") == 0)
 		Cmd_Stats_f(ent);
-	else if (Q_stricmp (cmd, "dropammo") == 0)
+	else if (Q_stricmp(cmd, "dropammo") == 0)
 		Cmd_DropAmmo_f(ent);
-	else if (Q_stricmp (cmd, "droparmor") == 0)
+	else if (Q_stricmp(cmd, "droparmor") == 0)
 		Cmd_DropArmor_f(ent);
-	else if (Q_stricmp (cmd, "drophealth") == 0)
+	else if (Q_stricmp(cmd, "drophealth") == 0)
 		Cmd_DropHealth_f(ent);
-	else if (Q_stricmp (cmd, "dropweapon") == 0)
+	else if (Q_stricmp(cmd, "dropweapon") == 0)
 		Cmd_DropWeapon_f(ent);
-	else if (Q_stricmp (cmd, "dropflag") == 0)
+	else if (Q_stricmp(cmd, "dropflag") == 0)
 		Cmd_DropFlag_f(ent);
-	else if (Q_stricmp (cmd, "drop") == 0)
+	else if (Q_stricmp(cmd, "drop") == 0)
 		Cmd_Drop_f(ent);
+	else if (Q_stricmp(cmd, "ready") == 0)
+		Cmd_Ready_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

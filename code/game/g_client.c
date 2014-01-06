@@ -536,8 +536,6 @@ void ClientUserinfoChanged(int clientNum)
 	char	*s;
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
-	char	c1[MAX_INFO_STRING];
-	char	c2[MAX_INFO_STRING];
 	char	userinfo[MAX_INFO_STRING];
 
 	ent = g_entities + clientNum;
@@ -621,22 +619,18 @@ void ClientUserinfoChanged(int clientNum)
 	// team Leader (1 = leader, 0 is normal player)
 	teamLeader = client->sess.teamLeader;
 
-	// colors
-	strcpy(c1, Info_ValueForKey(userinfo, "color1"));
-	strcpy(c2, Info_ValueForKey(userinfo, "color2"));
-
 	// send over a subset of the userinfo keys so other clients can
 	// print scoreboards, display models, and play custom sounds
 	if (ent->r.svFlags & SVF_BOT) {
-		s = va("n\\%s\\t\\%i\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
-			client->pers.netname, team, c1, c2,
-			client->pers.maxHealth, client->sess.wins, client->sess.losses,
+		s = va("n\\%s\\t\\%i\\hc\\%i\\w\\%i\\l\\%i\\skill\\%s\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, client->pers.maxHealth,
+			client->sess.wins, client->sess.losses,
 			Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
 	}
 	else {
-		s = va("n\\%s\\t\\%i\\c1\\%s\\c2\\%s\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, team, c1, c2,
-			client->pers.maxHealth, client->sess.wins, client->sess.losses, teamTask, teamLeader);
+		s = va("n\\%s\\t\\%i\\r\\%i\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, client->pers.ready, client->pers.maxHealth,
+			client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 
 	trap_SetConfigstring(CS_PLAYERS+clientNum, s);

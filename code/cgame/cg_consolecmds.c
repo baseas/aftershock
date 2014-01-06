@@ -230,5 +230,6 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("dropweapon");
 	trap_AddCommand("dropflag");
 	trap_AddCommand("drop");
+	trap_AddCommand("ready");
 }
 

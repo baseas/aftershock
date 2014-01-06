@@ -293,7 +293,7 @@ typedef struct {
 
 typedef struct {
 	qboolean		infoValid;
-    qboolean		isReady;
+    qboolean		ready;
 
 	char			name[MAX_QPATH];
 	team_t			team;
