@@ -27,8 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_MAXDISPLAY   		7
 #define SB_INFOICON_SIZE		8
 
-#define SB_CHAR_WIDTH			4
-#define SB_CHAR_HEIGHT			8
+#define SB_CHAR_WIDTH			5
+#define SB_CHAR_HEIGHT			9
 #define SB_MEDCHAR_WIDTH 		6
 #define SB_MEDCHAR_HEIGHT		10
 
@@ -127,9 +127,9 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	picSize = h * 0.8;
 
 	if (ci->ready) {
-		CG_DrawPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
+		CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
 	} else if (es->eFlags & EF_DEAD) {
-		CG_DrawPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbSkull);
+		CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbSkull);
 	} else if (ci->powerups & (1 << PW_REDFLAG)) {
 		CG_DrawFlagModel(x - picSize, y - picSize / 2, picSize, picSize, TEAM_RED, qfalse);
 	} else if (ci->powerups & (1 << PW_BLUEFLAG)) {
@@ -138,9 +138,9 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 
 	if (cg.warmup < 0 && ci->team != TEAM_SPECTATOR && cgs.startWhenReady) {
 		if (ci->ready) {
-			CG_DrawPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
+			CG_DrawAdjustPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
 		} else {
-			CG_DrawPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbNotReady);
+			CG_DrawAdjustPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbNotReady);
 		}
 	}
 }
@@ -161,8 +161,8 @@ static int CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *col
 
 	CG_DrawStringExt(x, y, "Name", colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
 	CG_DrawStringExt(x + w*0.7, y, "Score", colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
-	CG_DrawPic(x + w*0.8, y, SB_INFOICON_SIZE, SB_INFOICON_SIZE, cgs.media.sbPing);
-	CG_DrawPic(x + w*0.88, y, SB_INFOICON_SIZE, SB_INFOICON_SIZE, cgs.media.sbClock);
+	CG_DrawAdjustPic(x + w*0.8, y, SB_INFOICON_SIZE, SB_INFOICON_SIZE, cgs.media.sbPing);
+	CG_DrawAdjustPic(x + w*0.88, y, SB_INFOICON_SIZE, SB_INFOICON_SIZE, cgs.media.sbClock);
 
 	if (cgs.gametype == GT_ELIMINATION) {
 		CG_DrawStringExt(x + w*0.96, y, "Dmg", colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
@@ -296,7 +296,7 @@ static void CG_DrawPicBar(picBar_t *tab, int count, int x, int y, int w, int h)
 	offset = w/(count*2 + 1);
 	for (i = 0; i<count; i++) {
 		picBarX = x - w/2 + offset + i*2*offset;
-		CG_DrawPic(picBarX, y - h/2, h, h, tab[i].pic);
+		CG_DrawAdjustPic(picBarX, y - h/2, h, h, tab[i].pic);
 		strcpy(string, va("%i", tab[i].val));
 		if (tab[i].percent) { strcat(string, "%");
 		CG_DrawStringExt(picBarX + h + 3, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
@@ -378,7 +378,7 @@ qboolean CG_DrawScoreboard(void)
 			SB_TEAM_Y + 15, string, colorRed, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 		CG_TeamScoreboard(SB_TEAM_RED_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT, TEAM_RED, color, SB_MAXDISPLAY);
 		if (cgs.redLocked) {
-			CG_DrawPic(0, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
+			CG_DrawAdjustPic(0, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
 		}
 
 		// team blue
@@ -387,7 +387,7 @@ qboolean CG_DrawScoreboard(void)
 			SB_TEAM_Y + 15, string, colorBlue, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 		CG_TeamScoreboard(SB_TEAM_BLUE_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT, TEAM_BLUE, color, SB_MAXDISPLAY);
 		if (cgs.blueLocked) {
-			CG_DrawPic(640-32, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
+			CG_DrawAdjustPic(640-32, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
 		}
 	} else {
 		// current rank
@@ -396,8 +396,8 @@ qboolean CG_DrawScoreboard(void)
 			place = CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1);
 			Com_sprintf(string, sizeof string, "%s place with %i",
 				place, cg.snap->ps.persistant[PERS_SCORE]);
-			CG_DrawStringExt(SCREEN_WIDTH/2 - BIGCHAR_WIDTH*CG_DrawStrlen(string)/2, SB_FFA_Y,
-				string, colorWhite, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
+			CG_DrawStringExt(SCREEN_WIDTH/2 - CG_AdjustWidth(BIGCHAR_WIDTH)*CG_DrawStrlen(string)/2,
+				SB_FFA_Y, string, colorWhite, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 		}
 
 		// one team scoreboard
@@ -508,7 +508,7 @@ qboolean CG_DrawTourneyScoreboard(void)
 		return qfalse;
 	}
 
-	CG_DrawPic(SB_XPOS, SB_YPOS, SB_WIDTH, SB_HEIGHT, cgs.media.sbBackground);
+	CG_DrawAdjustPic(SB_XPOS, SB_YPOS, SB_WIDTH, SB_HEIGHT, cgs.media.sbBackground);
 
 	CG_DrawMapInfo();
 
@@ -571,7 +571,7 @@ qboolean CG_DrawTourneyScoreboard(void)
 		Com_sprintf(string, sizeof string, "^7(^2%i^7/^1%i^7) %s", ci->wins, ci->losses, ci->name);
 		CG_DrawStringExt(x + side * w / 2 - SMALLCHAR_WIDTH * CG_DrawString(string) / 2, y + 15,
 			string, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
-		CG_DrawPic(x + side*w*0.8 - offset * SB_INFOICON_SIZE, y + 30, SB_INFOICON_SIZE,
+		CG_DrawAdjustPic(x + side*w*0.8 - offset * SB_INFOICON_SIZE, y + 30, SB_INFOICON_SIZE,
 			SB_INFOICON_SIZE, cgs.media.sbPing);
 		Com_snprintf(string, sizeof string, "%i", stats[PUBSTAT_PING]);
 		CG_DrawStringExt(x + side*w*0.8 - side * SB_INFOICON_SIZE * 2 - offset * SB_MEDCHAR_WIDTH * CG_DrawStrlen(string),
@@ -602,7 +602,7 @@ qboolean CG_DrawTourneyScoreboard(void)
 	y += 20;
 	for (i = 0; i < MAX_WEAPONS; i++) {
 		if (cg_weapons[i + 2].registered) {
-			CG_DrawPic(x - h/2, y - h/2, h, h, cg_weapons[i + 2].weaponIcon);
+			CG_DrawAdjustPic(x - h/2, y - h/2, h, h, cg_weapons[i + 2].weaponIcon);
 
 			for (side=-1; side<loop; side+=2) {
 				score = side < 0? p1Score : p2Score;
@@ -636,21 +636,21 @@ qboolean CG_DrawTourneyScoreboard(void)
 
 		item = BG_FindItem("Mega Health");
 		if (cg_items[ITEM_INDEX(item)].registered) {
-			CG_DrawPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
+			CG_DrawAdjustPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
 			strcpy(string, va("%i", score->megaHealth));
 			CG_DrawStringExt(x + side*(w - h*2) - offset*SB_MEDCHAR_WIDTH*CG_DrawStrlen(string), y + h/2 - SB_MEDCHAR_HEIGHT/2, string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 			y += h + 10;
 		}
 		item = BG_FindItem("Red Armor");
 		if (cg_items[ITEM_INDEX(item)].registered) {
-			CG_DrawPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
+			CG_DrawAdjustPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
 			strcpy(string, va("%i", score->redArmor));
 			CG_DrawStringExt(x + side*(w - h*2) - offset*SB_MEDCHAR_WIDTH*CG_DrawStrlen(string), y + h/2 - SB_MEDCHAR_HEIGHT/2, string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 			y += h + 10;
 		}
 		item = BG_FindItem("Yellow Armor");
 		if (cg_items[ITEM_INDEX(item)].registered) {
-			CG_DrawPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
+			CG_DrawAdjustPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
 			strcpy(string, va("%i", score->yellowArmor));
 			CG_DrawStringExt(x + side*(w - h*2) - offset*SB_MEDCHAR_WIDTH*CG_DrawStrlen(string), y + h/2 - SB_MEDCHAR_HEIGHT/2, string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 			y += h + 10;

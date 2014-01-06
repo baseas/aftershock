@@ -401,12 +401,7 @@ static void CG_RegisterGraphics(void)
 	memset(&cg.refdef, 0, sizeof(cg.refdef));
 	trap_R_ClearScene();
 
-	CG_LoadingString(cgs.mapname);
-
 	trap_R_LoadWorldMap(cgs.mapname);
-
-	// precache status bar pics
-	CG_LoadingString("game media");
 
 	for (i = 0; i<11; i++) {
 		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
@@ -817,7 +812,6 @@ static void CG_RegisterClients(void)
 {
 	int		i;
 
-	CG_LoadingClient(cg.clientNum);
 	CG_NewClientInfo(cg.clientNum);
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
@@ -832,7 +826,6 @@ static void CG_RegisterClients(void)
 			continue;
 		}
 
-		CG_LoadingClient(i);
 		CG_NewClientInfo(i);
 	}
 }
@@ -892,6 +885,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	memset(cg_items, 0, sizeof(cg_items));
 
 	cg.clientNum = clientNum;
+	cg.showInfoScreen = qtrue;
 
 	cgs.processedSnapshotNum = serverMessageNum;
 	cgs.serverCommandSequence = serverCommandSequence;
@@ -934,26 +928,15 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_ParseServerinfo();
 
-	// load the new map
-	CG_LoadingString("collision map");
-
 	trap_CM_LoadMap(cgs.mapname);
-
-	CG_LoadingString("sounds");
 
 	CG_RegisterSounds();
 
-	CG_LoadingString("graphics");
-
 	CG_RegisterGraphics();
-
-	CG_LoadingString("models");
 
 	CG_RegisterModels();
 
 	CG_LoadModelColors();
-
-	CG_LoadingString("clients");
 
 	CG_RegisterClients();
 
@@ -961,19 +944,16 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_InitMarkPolys();
 
-	// remove the last loading update
-	cg.infoScreenText[0] = 0;
-
 	// Make sure we have update values (scores)
 	CG_SetConfigValues();
-
-	CG_LoadingString("");
 
 	CG_ShaderStateChanged();
 
 	trap_S_ClearLoopingSounds(qtrue);
 
 	CG_LoadHudFile(cg_hud.string);
+
+	cg.showInfoScreen = qfalse;
 }
 
 /**

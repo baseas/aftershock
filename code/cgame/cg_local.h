@@ -444,7 +444,7 @@ typedef struct {
 	float		zoomSensitivity;
 
 	// information screen text during loading
-	char		infoScreenText[MAX_STRING_CHARS];
+	qboolean	showInfoScreen;
 
 	// scoreboard
 	qboolean	showScores;
@@ -454,8 +454,8 @@ typedef struct {
 
 	// centerprinting
 	int			centerPrintTime;
-	int			centerPrintCharWidth;
-	int			centerPrintY;
+	float		centerPrintCharWidth;
+	float		centerPrintY;
 	char		centerPrint[1024];
 	int			centerPrintLines;
 
@@ -1195,16 +1195,18 @@ void	CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 // cg_drawtools.c
 //
 void	CG_AdjustFrom640(float *x, float *y, float *w, float *h);
+float	CG_AdjustWidth(float width);
 void	CG_FillRect(float x, float y, float width, float height, const float *color);
 void	CG_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
+void	CG_DrawAdjustPic(float x, float y, float width, float height, qhandle_t hShader);
 void	CG_DrawString(float x, float y, const char *string, 
 			float charWidth, float charHeight, const float *modulate);
-void	CG_DrawStringExt(int x, int y, const char *string, const float *setColor, 
-			qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars);
-void	CG_DrawBigString(int x, int y, const char *s, float alpha);
-void	CG_DrawBigStringColor(int x, int y, const char *s, vec4_t color);
-void	CG_DrawSmallString(int x, int y, const char *s, float alpha);
-void	CG_DrawSmallStringColor(int x, int y, const char *s, vec4_t color);
+void	CG_DrawStringExt(float x, float y, const char *string, const float *setColor, 
+			qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars);
+void	CG_DrawBigString(float x, float y, const char *s, float alpha);
+void	CG_DrawBigStringColor(float x, float y, const char *s, vec4_t color);
+void	CG_DrawSmallString(float x, float y, const char *s, float alpha);
+void	CG_DrawSmallStringColor(float x, float y, const char *s, vec4_t color);
 int		CG_DrawStrlen(const char *str);
 float	*CG_FadeColor(int startMsec, int totalMsec);
 float	*CG_TeamColor(int team);
@@ -1368,9 +1370,7 @@ void	CG_ProcessSnapshots(void);
 //
 // cg_info.c
 //
-void	CG_LoadingString(const char *s);
 void	CG_LoadingItem(int itemNum);
-void	CG_LoadingClient(int clientNum);
 void	CG_DrawInformation(void);
 
 //

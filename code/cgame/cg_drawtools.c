@@ -1,24 +1,3 @@
-/*
-===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
-
-This file is part of Quake III Arena source code.
-
-Quake III Arena source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
-
-Quake III Arena source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
 //
 // cg_drawtools.c -- helper functions called by cg_draw, cg_scoreboard, cg_info, etc
 
@@ -164,6 +143,11 @@ void CG_AdjustFrom640(float *x, float *y, float *w, float *h)
 	*h *= cgs.screenYScale;
 }
 
+float CG_AdjustWidth(float width)
+{
+	return width * cgs.screenYScale / cgs.screenXScale;
+}
+
 /**
 Coordinates are 640*480 virtual values
 */
@@ -218,10 +202,17 @@ void CG_DrawPic(float x, float y, float width, float height, qhandle_t hShader)
 	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
 }
 
+void CG_DrawAdjustPic(float x, float y, float width, float height, qhandle_t hShader)
+{
+	CG_AdjustFrom640(&x, &y, &width, &height);
+	width = CG_AdjustWidth(width);
+	trap_R_DrawStretchPic(x, y, width, height, 0, 0, 1, 1, hShader);
+}
+
 /**
 Coordinates and size in 640*480 virtual screen size
 */
-void CG_DrawChar(int x, int y, int width, int height, int ch)
+void CG_DrawChar(float x, float y, float width, float height, int ch)
 {
 	int		row, col;
 	float	frow, fcol;
@@ -267,8 +258,8 @@ to a fixed color.
 
 Coordinates are at 640 by 480 virtual resolution
 */
-void CG_DrawStringExt(int x, int y, const char *string, const float *setColor,
-	qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars)
+void CG_DrawStringExt(float x, float y, const char *string, const float *setColor,
+	qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars)
 {
 	vec4_t		color;
 	const char	*s;
@@ -277,6 +268,8 @@ void CG_DrawStringExt(int x, int y, const char *string, const float *setColor,
 
 	if (maxChars <= 0)
 		maxChars = 32767; // do them all!
+
+	charWidth = CG_AdjustWidth(charWidth);
 
 	// draw the drop shadow
 	if (shadow) {
@@ -321,7 +314,7 @@ void CG_DrawStringExt(int x, int y, const char *string, const float *setColor,
 	trap_R_SetColor(NULL);
 }
 
-void CG_DrawBigString(int x, int y, const char *s, float alpha)
+void CG_DrawBigString(float x, float y, const char *s, float alpha)
 {
 	float	color[4];
 
@@ -330,12 +323,12 @@ void CG_DrawBigString(int x, int y, const char *s, float alpha)
 	CG_DrawStringExt(x, y, s, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 }
 
-void CG_DrawBigStringColor(int x, int y, const char *s, vec4_t color)
+void CG_DrawBigStringColor(float x, float y, const char *s, vec4_t color)
 {
 	CG_DrawStringExt(x, y, s, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 }
 
-void CG_DrawSmallString(int x, int y, const char *s, float alpha)
+void CG_DrawSmallString(float x, float y, const char *s, float alpha)
 {
 	float	color[4];
 
@@ -344,7 +337,7 @@ void CG_DrawSmallString(int x, int y, const char *s, float alpha)
 	CG_DrawStringExt(x, y, s, color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 }
 
-void CG_DrawSmallStringColor(int x, int y, const char *s, vec4_t color)
+void CG_DrawSmallStringColor(float x, float y, const char *s, vec4_t color)
 {
 	CG_DrawStringExt(x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 }
@@ -513,7 +506,7 @@ int UI_ProportionalStringWidth(const char* str)
 	}
 
 	width -= PROP_GAP_WIDTH;
-	return width;
+	return CG_AdjustWidth(width);
 }
 
 static void UI_DrawProportionalString2(int x, int y, const char* str, vec4_t color, float sizeScale, qhandle_t charset)
@@ -548,6 +541,7 @@ static void UI_DrawProportionalString2(int x, int y, const char* str, vec4_t col
 			fheight = (float)PROP_HEIGHT / 256.0f;
 			aw = (float)propMap[ch][2] * cgs.screenXScale * sizeScale;
 			ah = (float)PROP_HEIGHT * cgs.screenYScale * sizeScale;
+			aw = CG_AdjustWidth(aw);
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, charset);
 		} else {
 			aw = 0;

@@ -122,11 +122,13 @@ static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 	trap_R_SetColor(color);
 
 	if (hudelement->imageHandle && override) {
-		CG_DrawPic(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, hudelement->imageHandle);
+		CG_DrawAdjustPic(hudelement->xpos, hudelement->ypos, hudelement->width,
+			hudelement->height, hudelement->imageHandle);
 		return;
 	}
 	if (hShader) {
-		CG_DrawPic(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, hShader);
+		CG_DrawAdjustPic(hudelement->xpos, hudelement->ypos, hudelement->width,
+			hudelement->height, hShader);
 	}
 	trap_R_SetColor(NULL);
 }
@@ -147,7 +149,7 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char* text)
 
 	CG_DrawHudIcon(hudnumber, qtrue, hudelement->imageHandle);
 
-	w = CG_DrawStrlen(text) * hudelement->fontWidth;
+	w = CG_DrawStrlen(text) * CG_AdjustWidth(hudelement->fontWidth);
 
 	if (hudelement->textAlign == 0)
 		x = hudelement->xpos;
@@ -189,7 +191,8 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char* text)
 		color[3] = 1.0f;
 	}
 
-	CG_DrawStringExt(x, hudelement->ypos, text, color, qfalse, shadow, hudelement->fontWidth, hudelement->fontHeight, 0);
+	CG_DrawStringExt(x, hudelement->ypos, text, color, qfalse,
+		shadow, hudelement->fontWidth, hudelement->fontHeight, 0);
 }
 
 static void CG_DrawFieldFontsize(int x, int y, int width, int value, int fontWidth, int fontHeight)
@@ -232,7 +235,7 @@ static void CG_DrawFieldFontsize(int x, int y, int width, int value, int fontWid
 		l = width;
 	}
 
-	x += fontWidth * (width - l);
+	x += CG_AdjustWidth(fontWidth) * (width - l);
 
 	ptr = num;
 	while (*ptr && l) {
@@ -242,8 +245,8 @@ static void CG_DrawFieldFontsize(int x, int y, int width, int value, int fontWid
 			frame = *ptr -'0';
 		}
 
-		CG_DrawPic(x, y, fontWidth, fontHeight, cgs.media.numberShaders[frame]);
-		x += fontWidth;
+		CG_DrawAdjustPic(x, y, fontWidth, fontHeight, cgs.media.numberShaders[frame]);
+		x += CG_AdjustWidth(fontWidth);
 		ptr++;
 		l--;
 	}
@@ -255,31 +258,36 @@ Draws large numbers for status bar and powerups
 static void CG_DrawHudField(int hudnumber, int value)
 {
 	hudElement_t	*hudelement;
+	int				fontWidth;
+	int				digits;
+
 	hudelement = &cgs.hud[hudnumber];
+	fontWidth = CG_AdjustWidth(hudelement->fontWidth);
 
 	if (hudelement->color[0] == 0 && hudelement->color[1] == 0 && hudelement->color[2] == 0) {
 		trap_R_SetColor(hudelement->color);
 	}
 
+	if (value >= 100) {
+		digits = 3;
+	} else if (value >= 10) {
+		digits = 2;
+	} else {
+		digits = 1;
+	}
+
 	switch (hudelement->textAlign) {
 	case 0:
-		if (value >= 100)
-			CG_DrawFieldFontsize(hudelement->xpos, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
-		else if (value >= 10)
-			CG_DrawFieldFontsize(hudelement->xpos-hudelement->fontWidth, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
-		else
-			CG_DrawFieldFontsize(hudelement->xpos-2*hudelement->fontWidth, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
+		CG_DrawFieldFontsize(hudelement->xpos - (3 - digits) * fontWidth, hudelement->ypos, 3,
+			value, hudelement->fontWidth, hudelement->fontHeight);
 		break;
 	case 1:
-		if (value >= 100)
-			CG_DrawFieldFontsize(hudelement->xpos+hudelement->width/2 - 3*hudelement->fontWidth/2, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
-		else if (value >= 10)
-			CG_DrawFieldFontsize(hudelement->xpos+hudelement->width/2 - 4*hudelement->fontWidth/2, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
-		else
-			CG_DrawFieldFontsize(hudelement->xpos+hudelement->width/2 - 5*hudelement->fontWidth/2, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
+		CG_DrawFieldFontsize(hudelement->xpos + hudelement->width/2 - (6 - digits) * fontWidth/2,
+			hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
 		break;
 	case 2:
-		CG_DrawFieldFontsize(hudelement->xpos+hudelement->width - 3*hudelement->fontWidth, hudelement->ypos, 3, value, hudelement->fontWidth, hudelement->fontHeight);
+		CG_DrawFieldFontsize(hudelement->xpos + hudelement->width - 3*fontWidth, hudelement->ypos,
+			3, value, hudelement->fontWidth, hudelement->fontHeight);
 		break;
 	}
 }
@@ -725,6 +733,7 @@ static void Hud_WeaponList(int hudnumber)
 	int			boxWidth, boxHeight, x,y;
 	int			i;
 	int			iconsize;
+	float		fontWidth;
 	int			icon_xrel, icon_yrel, text_xrel, text_yrel, text_step;
 	char		*s;
 	int			w;
@@ -739,6 +748,7 @@ static void Hud_WeaponList(int hudnumber)
 	xpos = hudelement->xpos;
 	ypos = hudelement->ypos;
 	textalign = hudelement->textAlign;
+	fontWidth = CG_AdjustWidth(hudelement->fontWidth);
 
 	horizontal = height < width;
 
@@ -798,10 +808,10 @@ static void Hud_WeaponList(int hudnumber)
 	}
 
 	if (textalign == 0) {
-		if (boxHeight < (boxWidth - 3*hudelement->fontWidth - 6))
+		if (boxHeight < (boxWidth - 3*fontWidth - 6))
 			iconsize = boxHeight;
 		else
-			iconsize = (boxWidth - 3*hudelement->fontWidth - 6);
+			iconsize = (boxWidth - 3*fontWidth - 6);
 
 		icon_yrel = boxHeight/2 - iconsize/2;
 		icon_xrel = boxWidth - iconsize - 2;
@@ -810,17 +820,17 @@ static void Hud_WeaponList(int hudnumber)
 		text_xrel = 2;
 		text_step = 0;
 	} else if (textalign == 2) {
-		if (boxHeight < (boxWidth - 3*hudelement->fontWidth - 6))
+		if (boxHeight < (boxWidth - 3*fontWidth - 6))
 			iconsize = boxHeight;
 		else
-			iconsize = (boxWidth - 3*hudelement->fontWidth - 6);
+			iconsize = (boxWidth - 3*fontWidth - 6);
 
 		icon_yrel = boxHeight/2 - iconsize/2;
 		icon_xrel = 2;
 
 		text_yrel = boxHeight/2 - hudelement->fontHeight/2;
-		text_xrel = boxWidth - 3*hudelement->fontWidth - 2;
-		text_step = hudelement->fontWidth;
+		text_xrel = boxWidth - 3*fontWidth - 2;
+		text_step = fontWidth;
 	} else {
 		if (boxWidth < (boxHeight - hudelement->fontHeight - 6))
 			iconsize = boxWidth;
@@ -830,9 +840,9 @@ static void Hud_WeaponList(int hudnumber)
 		icon_xrel = boxWidth/2 - iconsize/2;
 		icon_yrel = 2;
 
-		text_xrel = boxWidth/2 - 3*hudelement->fontWidth/2;
+		text_xrel = boxWidth/2 - 3*fontWidth/2;
 		text_yrel = boxHeight - hudelement->fontHeight - 2;
-		text_step = hudelement->fontWidth/2;
+		text_step = fontWidth/2;
 	}
 
 	if (iconsize < 0)
@@ -896,18 +906,19 @@ static void Hud_WeaponList(int hudnumber)
 				CG_DrawRect(x, y, boxWidth, boxHeight, 2, hudelement->color);
 		}
 
-		CG_DrawPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cg_weapons[i].weaponIcon);
+		CG_DrawAdjustPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cg_weapons[i].weaponIcon);
 
 		if (cg.snap->ps.stats[STAT_WEAPONS] & (1 << i)) {
 			if (cg.snap->ps.ammo[i] == 0) {
-				CG_DrawPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cgs.media.noammoShader);
+				CG_DrawAdjustPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cgs.media.noammoShader);
 			}
 
 			/** Draw Weapon Ammo **/
 			if (cg.snap->ps.ammo[i] != -1) {
 				s = va("%i", cg.snap->ps.ammo[i]);
 				w = CG_DrawStrlen(s);
-				CG_DrawStringExt(x + text_xrel + (3 - w)*text_step, y + text_yrel, s, charColor, qfalse, hudelement->textstyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
+				CG_DrawStringExt(x + text_xrel + (3 - w)*text_step, y + text_yrel, s, charColor,
+					qfalse, hudelement->textstyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
 			}
 		}
 
