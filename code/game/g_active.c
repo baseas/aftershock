@@ -378,8 +378,8 @@ void ClientIntermissionThink(gclient_t *client)
 	client->oldbuttons = client->buttons;
 	client->buttons = client->pers.cmd.buttons;
 	if (client->buttons & (BUTTON_ATTACK | BUTTON_USE_HOLDABLE) & (client->oldbuttons ^ client->buttons)) {
-		// this used to be an ^1 but once a player says ready, it should stick
-		client->readyToExit = 1;
+		client->pers.ready = qtrue;
+		ClientUserinfoChanged(client - level.clients);
 	}
 }
 

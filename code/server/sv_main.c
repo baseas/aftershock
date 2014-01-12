@@ -1106,7 +1106,7 @@ void SV_Frame( int msec ) {
 
 	if( sv.restartTime && sv.time >= sv.restartTime ) {
 		sv.restartTime = 0;
-		Cbuf_AddText( "map_restart 0\n" );
+		Cbuf_AddText( "map_restart\n" );
 		return;
 	}
 

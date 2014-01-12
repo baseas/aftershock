@@ -685,6 +685,10 @@ static void Hud_Gametype(int hudnumber)
 	clientInfo_t	*ci1, *ci2;
 	int				i;
 
+	if (cg.warmup <= 0) {
+		return;
+	}
+
 	if (cgs.gametype != GT_TOURNAMENT) {
 		CG_DrawHudString(hudnumber, qtrue, cgs.gametypeName);
 		return;
@@ -713,16 +717,24 @@ static void Hud_Gametype(int hudnumber)
 
 static void Hud_Countdown(int hudnumber)
 {
-	int			sec;
-	const char	*s;
+	int		sec;
+	char	*label;
 
-	sec = (cg.warmup - cg.time) / 1000;
+	if (cgs.gametype == GT_ELIMINATION && cg.warmup == 0 && cg.time < cgs.roundStartTime) {
+		sec = (cgs.roundStartTime - cg.time) / 1000;
+		label = "Round in";
+	} else if (cg.warmup > 0) {
+		sec = (cg.warmup - cg.time) / 1000;
+		label = "Start in";
+	} else {
+		return;
+	}
+
 	if (sec < 0) {
 		sec = 0;
 	}
 
-	s = va("Starts in: %i", sec + 1);
-	CG_DrawHudString(hudnumber, qtrue, s);
+	CG_DrawHudString(hudnumber, qtrue, va("%s: %i", label, sec + 1));
 }
 
 static void Hud_WeaponList(int hudnumber)
@@ -883,18 +895,26 @@ static void Hud_WeaponList(int hudnumber)
 				break;
 		}
 
-		if (cg.snap->ps.ammo[i] < ammoPack/2+1) {
+		if (cg.snap->ps.ammo[i] == -1) {
+			charColor[0] = 1.0;
+			charColor[1] = 1.0;
+			charColor[2] = 1.0;
+			charColor[3] = 1.0;
+		} else if (cg.snap->ps.ammo[i] < ammoPack/2+1) {
 			charColor[0] = 1.0;
 			charColor[1] = 0.0;
 			charColor[2] = 0.0;
+			charColor[3] = 1.0;
 		} else if (cg.snap->ps.ammo[i] < ammoPack) {
 			charColor[0] = 1.0;
 			charColor[1] = 1.0;
 			charColor[2] = 0.0;
+			charColor[3] = 1.0;
 		} else {
 			charColor[0] = 1.0;
 			charColor[1] = 1.0;
 			charColor[2] = 1.0;
+			charColor[3] = 1.0;
 		}
 
 		if ((i == cg.weaponSelect && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) || ((i == cg_entities[cg.snap->ps.clientNum].currentState.weapon) && (cg.snap->ps.pm_flags & PMF_FOLLOW))) {
@@ -914,12 +934,15 @@ static void Hud_WeaponList(int hudnumber)
 			}
 
 			/** Draw Weapon Ammo **/
-			if (cg.snap->ps.ammo[i] != -1) {
+			if (cg.snap->ps.ammo[i] == -1) {
+				s = "inf";
+			} else {
 				s = va("%i", cg.snap->ps.ammo[i]);
-				w = CG_DrawStrlen(s);
-				CG_DrawStringExt(x + text_xrel + (3 - w)*text_step, y + text_yrel, s, charColor,
-					qfalse, hudelement->textstyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
 			}
+
+			w = CG_DrawStrlen(s);
+			CG_DrawStringExt(x + text_xrel + (3 - w)*text_step, y + text_yrel, s, charColor,
+				qfalse, hudelement->textstyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
 		}
 
 		if (horizontal)

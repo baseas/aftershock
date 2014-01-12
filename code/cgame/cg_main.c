@@ -1036,7 +1036,8 @@ int CG_CrosshairPlayer(void)
 	return cg.crosshairClientNum;
 }
 
-int CG_LastAttacker(void) {
+int CG_LastAttacker(void)
+{
 	if (!cg.attackerTime) {
 		return -1;
 	}

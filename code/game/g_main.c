@@ -64,8 +64,7 @@ vmCvar_t	g_weaponRespawn;
 vmCvar_t	g_weaponTeamRespawn;
 vmCvar_t	g_motd;
 vmCvar_t	g_synchronousClients;
-vmCvar_t	g_warmup;
-vmCvar_t	g_doWarmup;
+vmCvar_t	g_warmupTime;
 vmCvar_t	g_restarted;
 vmCvar_t	g_logfile;
 vmCvar_t	g_logfileSync;
@@ -89,6 +88,8 @@ vmCvar_t	g_instantgibRailjump;
 vmCvar_t	g_rockets;
 vmCvar_t	g_selfDamage;
 vmCvar_t	g_itemDrop;
+vmCvar_t	g_startWhenReady;
+vmCvar_t	g_autoReady;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -116,8 +117,7 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_teamAutoJoin, "g_teamAutoJoin", "0", CVAR_ARCHIVE  },
 	{ &g_teamForceBalance, "g_teamForceBalance", "0", CVAR_ARCHIVE  },
 
-	{ &g_warmup, "g_warmup", "20", CVAR_ARCHIVE, 0, qtrue  },
-	{ &g_doWarmup, "g_doWarmup", "0", CVAR_ARCHIVE, 0, qtrue  },
+	{ &g_warmupTime, "g_warmupTime", "20", CVAR_ARCHIVE, 0, qtrue  },
 	{ &g_logfile, "g_log", "games.log", CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_logfileSync, "g_logsync", "0", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -158,7 +158,9 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_instantgibRailjump, "g_instantgibRailjump", "1", 0, 0, qfalse },
 	{ &g_rockets, "g_rockets", "0", CVAR_LATCH, 0, qfalse },
 	{ &g_selfDamage, "g_selfDamage", "1", 0, 0, qfalse },
-	{ &g_itemDrop, "g_itemDrop", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse }
+	{ &g_itemDrop, "g_itemDrop", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+	{ &g_startWhenReady, "g_startWhenReady", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+	{ &g_autoReady, "g_autoReady", "0", CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -305,7 +307,7 @@ void G_RegisterCvars(void)
 		trap_Cvar_Update(&g_gametype);
 	}
 
-	level.warmupModificationCount = g_warmup.modificationCount;
+	level.warmupModificationCount = g_warmupTime.modificationCount;
 }
 
 void G_UpdateCvars(void)
@@ -351,6 +353,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
 	level.startTime = levelTime;
+	level.timeComplete = levelTime;
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
@@ -882,7 +885,7 @@ void ExitLevel (void)
 	if (g_gametype.integer == GT_TOURNAMENT) {
 		if (!level.restarted) {
 			RemoveTournamentLoser();
-			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
 			level.restarted = qtrue;
 			level.changemap = NULL;
 			level.intermissiontime = 0;
@@ -893,7 +896,7 @@ void ExitLevel (void)
 	trap_Cvar_VariableStringBuffer("nextmap", nextmap, sizeof(nextmap));
 	trap_Cvar_VariableStringBuffer("d1", d1, sizeof(d1));
 
-	if (!Q_stricmp(nextmap, "map_restart 0") && Q_stricmp(d1, "")) {
+	if (!Q_stricmp(nextmap, "map_restart") && Q_stricmp(d1, "")) {
 		trap_Cvar_Set("nextmap", "vstr d2");
 		trap_SendConsoleCommand(EXEC_APPEND, "vstr d1\n");
 	} else {
@@ -1038,7 +1041,7 @@ void CheckIntermissionExit(void)
 		}
 
 		playerCount++;
-		if (cl->readyToExit) {
+		if (cl->pers.ready) {
 			ready++;
 		} else {
 			notReady++;
@@ -1186,6 +1189,49 @@ void CheckExitRules(void)
 
 // FUNCTIONS CALLED EVERY FRAME
 
+static qboolean EnoughReady(void)
+{
+	int	i, clientsReady, humanPlayers;
+
+	if (g_gametype.integer > GT_TEAM) {
+		if (TeamCount(-1, TEAM_BLUE) < 1 || TeamCount(-1, TEAM_RED) < 1) {
+			return qfalse;
+		}
+	} else if (level.numPlayingClients < 2) {
+		level.timeComplete = level.time;
+		return qfalse;
+	}
+
+	if (!g_startWhenReady.integer) {
+		return qtrue;
+	}
+
+	if (g_autoReady.integer > 0 && g_autoReady.integer * 1000 < level.time - level.timeComplete) {
+		return qtrue;
+	}
+
+	for (i = 0, clientsReady = 0, humanPlayers = 0; i < level.numPlayingClients; i++) {
+		gentity_t	*ent;
+		ent = &g_entities[level.sortedClients[i]];
+		if (ent->inuse && !(ent->r.svFlags & SVF_BOT)) {
+			humanPlayers++;
+			if (ent->client->pers.ready) {
+				clientsReady++;
+			}
+		}
+	}
+
+	if (g_startWhenReady.integer == 1 && clientsReady < humanPlayers / 2 + 1) {
+		return qfalse;
+	}
+
+	if (g_startWhenReady.integer == 2 && clientsReady < humanPlayers) {
+		return qfalse;
+	}
+
+	return qtrue;
+}
+
 /**
 Once a frame, check for changes in tournement player state
 */
@@ -1201,6 +1247,7 @@ void CheckTournament(void)
 
 		// pull in a spectator if needed
 		if (level.numPlayingClients < 2) {
+			level.timeComplete = level.time;
 			AddTournamentPlayer();
 		}
 
@@ -1219,17 +1266,17 @@ void CheckTournament(void)
 		}
 
 		// if the warmup is changed at the console, restart it
-		if (g_warmup.modificationCount != level.warmupModificationCount) {
-			level.warmupModificationCount = g_warmup.modificationCount;
+		if (g_warmupTime.modificationCount != level.warmupModificationCount) {
+			level.warmupModificationCount = g_warmupTime.modificationCount;
 			level.warmupTime = -1;
 		}
 
 		// if all players have arrived, start the countdown
 		if (level.warmupTime < 0) {
-			if (level.numPlayingClients == 2) {
+			if (EnoughReady()) {
 				// fudge by -1 to account for extra delays
-				if (g_warmup.integer > 1) {
-					level.warmupTime = level.time + (g_warmup.integer - 1) * 1000;
+				if (g_warmupTime.integer > 1) {
+					level.warmupTime = level.time + (g_warmupTime.integer - 1) * 1000;
 				} else {
 					level.warmupTime = 0;
 				}
@@ -1243,26 +1290,12 @@ void CheckTournament(void)
 		if (level.time > level.warmupTime) {
 			level.warmupTime += 10000;
 			trap_Cvar_Set("g_restarted", "1");
-			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
 			level.restarted = qtrue;
 			return;
 		}
 	} else if (g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0) {
-		int		counts[TEAM_NUM_TEAMS];
-		qboolean	notEnough = qfalse;
-
-		if (g_gametype.integer > GT_TEAM) {
-			counts[TEAM_BLUE] = TeamCount(-1, TEAM_BLUE);
-			counts[TEAM_RED] = TeamCount(-1, TEAM_RED);
-
-			if (counts[TEAM_RED] < 1 || counts[TEAM_BLUE] < 1) {
-				notEnough = qtrue;
-			}
-		} else if (level.numPlayingClients < 2) {
-			notEnough = qtrue;
-		}
-
-		if (notEnough) {
+		if (!EnoughReady()) {
 			if (level.warmupTime != -1) {
 				level.warmupTime = -1;
 				trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
@@ -1276,20 +1309,19 @@ void CheckTournament(void)
 		}
 
 		// if the warmup is changed at the console, restart it
-		if (g_warmup.modificationCount != level.warmupModificationCount) {
-			level.warmupModificationCount = g_warmup.modificationCount;
+		if (g_warmupTime.modificationCount != level.warmupModificationCount) {
+			level.warmupModificationCount = g_warmupTime.modificationCount;
 			level.warmupTime = -1;
 		}
 
 		// if all players have arrived, start the countdown
 		if (level.warmupTime < 0) {
 			// fudge by -1 to account for extra delays
-			if (g_warmup.integer > 1) {
-				level.warmupTime = level.time + (g_warmup.integer - 1) * 1000;
-			} else {
-				level.warmupTime = 0;
+			if (g_warmupTime.integer < 3) {
+				g_warmupTime.integer = 3;
 			}
 
+			level.warmupTime = level.time + (g_warmupTime.integer - 1) * 1000;
 			trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
 			return;
 		}
@@ -1298,7 +1330,7 @@ void CheckTournament(void)
 		if (level.time > level.warmupTime) {
 			level.warmupTime += 10000;
 			trap_Cvar_Set("g_restarted", "1");
-			trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+			trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
 			level.restarted = qtrue;
 			return;
 		}

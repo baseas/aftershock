@@ -547,6 +547,39 @@ static int CG_CalcViewValues(void)
 	return CG_CalcFov();
 }
 
+static void CG_WarmupSounds(void)
+{
+	int	sec;
+
+	if (cg.warmup == 0 && cgs.gametype == GT_ELIMINATION && cg.time <= cgs.roundStartTime) {
+		sec = (cgs.roundStartTime - cg.time) / 1000;
+	} else if (cg.warmup > 0) {
+		sec = (cg.warmup - cg.time) / 1000;
+		if (sec < 0) {
+			sec = 0;
+		}
+	} else {
+		return;
+	}
+
+	if (sec != cg.warmupCount) {
+		cg.warmupCount = sec;
+		switch (sec) {
+		case 0:
+			trap_S_StartLocalSound(cgs.media.count1Sound, CHAN_ANNOUNCER);
+			break;
+		case 1:
+			trap_S_StartLocalSound(cgs.media.count2Sound, CHAN_ANNOUNCER);
+			break;
+		case 2:
+			trap_S_StartLocalSound(cgs.media.count3Sound, CHAN_ANNOUNCER);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 static void CG_PowerupTimerSounds(void)
 {
 	int		i;
@@ -665,6 +698,8 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	}
 	cg.refdef.time = cg.time;
 	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
+
+	CG_WarmupSounds();
 
 	// warning sounds when powerup is wearing off
 	CG_PowerupTimerSounds();

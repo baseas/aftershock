@@ -923,7 +923,7 @@ void ClientSpawn(gentity_t *ent)
 		client->ps.stats[STAT_WEAPONS] |= (1 << WP_MACHINEGUN);
 
 		if (level.warmupTime == -1) {
-			for (i = WP_MACHINEGUN; i <= WP_BFG; ++i) {
+			for (i = WP_MACHINEGUN; i < WP_BFG; ++i) {
 				client->ps.stats[STAT_WEAPONS] |= (1 << i);
 				client->ps.ammo[i] = -1;
 			}
@@ -1079,7 +1079,7 @@ void ClientDisconnect(int clientNum)
 		ent->client->sess.sessionTeam == TEAM_FREE &&
 		level.intermissiontime) {
 
-		trap_SendConsoleCommand(EXEC_APPEND, "map_restart 0\n");
+		trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
 		level.restarted = qtrue;
 		level.changemap = NULL;
 		level.intermissiontime = 0;

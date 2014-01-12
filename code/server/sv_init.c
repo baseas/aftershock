@@ -448,7 +448,7 @@ void SV_SpawnServer( char *server, qboolean killBots ) {
 
 	// set nextmap to the same map, but it may be overriden
 	// by the game startup or another console command
-	Cvar_Set( "nextmap", "map_restart 0");
+	Cvar_Set( "nextmap", "map_restart");
 //	Cvar_Set( "nextmap", va("map %s", server) );
 
 	for (i=0 ; i<sv_maxclients->integer ; i++) {

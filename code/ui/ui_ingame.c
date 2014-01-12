@@ -78,7 +78,7 @@ static void InGame_RestartAction( qboolean result ) {
 	}
 
 	UI_PopMenu();
-	trap_Cmd_ExecuteText( EXEC_APPEND, "map_restart 0\n" );
+	trap_Cmd_ExecuteText( EXEC_APPEND, "map_restart\n" );
 }
 
 

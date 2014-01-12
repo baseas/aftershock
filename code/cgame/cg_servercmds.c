@@ -28,17 +28,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 static void CG_ParseWarmup(void)
 {
-	const char	*info;
 	int			warmup;
 
-	info = CG_ConfigString(CS_WARMUP);
-
-	warmup = atoi(info);
+	warmup = atoi(CG_ConfigString(CS_WARMUP));
 	cg.warmupCount = -1;
 
-	if (warmup == 0 && cg.warmup) {
-
-	} else if (warmup > 0 && cg.warmup <= 0) {
+	if (warmup > 0 && cg.warmup <= 0) {
 		trap_S_StartLocalSound(cgs.media.countPrepareSound, CHAN_ANNOUNCER);
 	}
 
@@ -229,9 +224,9 @@ static void CG_MapRestart(void)
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
-	if (cg.warmup == 0 /* && cgs.gametype == GT_TOURNAMENT */) {
+	if (cg.warmup == 0) {
 		trap_S_StartLocalSound(cgs.media.countFightSound, CHAN_ANNOUNCER);
-		CG_CenterPrint("FIGHT!", 120, GIANTCHAR_WIDTH*2);
+		CG_CenterPrint("Fight!", 100, BIGCHAR_WIDTH);
 	}
 
 	trap_Cvar_Set("cg_thirdPerson", "0");

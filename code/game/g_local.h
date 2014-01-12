@@ -255,8 +255,6 @@ struct gclient_s {
 	clientPersistant_t	pers;
 	clientSession_t		sess;
 
-	qboolean	readyToExit;		// wishes to leave the intermission
-
 	qboolean	noclip;
 
 	int			lastCmdTime;		// level.time of last usercmd_t, for EF_CONNECTION
@@ -329,6 +327,7 @@ typedef struct {
 	int			previousTime;			// so movers can back up when blocked
 
 	int			startTime;				// level.time the map was started
+	int			timeComplete;			// time when teams were complete
 
 	int			teamScores[TEAM_NUM_TEAMS];
 	int			lastTeamLocationTime;		// last time of client team location update
@@ -682,8 +681,7 @@ extern vmCvar_t	g_weaponRespawn;
 extern vmCvar_t	g_weaponTeamRespawn;
 extern vmCvar_t	g_synchronousClients;
 extern vmCvar_t	g_motd;
-extern vmCvar_t	g_warmup;
-extern vmCvar_t	g_doWarmup;
+extern vmCvar_t	g_warmupTime;
 extern vmCvar_t	g_blood;
 extern vmCvar_t	g_allowVote;
 extern vmCvar_t	g_teamAutoJoin;
@@ -712,6 +710,8 @@ extern vmCvar_t	g_instantgibRailjump;
 extern vmCvar_t	g_rockets;
 extern vmCvar_t	g_selfDamage;
 extern vmCvar_t	g_itemDrop;
+extern vmCvar_t	g_startWhenReady;
+extern vmCvar_t	g_autoReady;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

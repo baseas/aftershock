@@ -126,22 +126,22 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 
 	picSize = h * 0.8;
 
-	if (ci->ready) {
-		CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
+	if (ci->team == TEAM_SPECTATOR) {
+		return;
+	}
+
+	if (cgs.startWhenReady && (cg.warmup < 0 || cg.intermissionStarted)) {
+		if (ci->ready) {
+			CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
+		} else {
+			CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbNotReady);
+		}
 	} else if (es->eFlags & EF_DEAD) {
 		CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbSkull);
 	} else if (ci->powerups & (1 << PW_REDFLAG)) {
 		CG_DrawFlagModel(x - picSize, y - picSize / 2, picSize, picSize, TEAM_RED, qfalse);
 	} else if (ci->powerups & (1 << PW_BLUEFLAG)) {
 		CG_DrawFlagModel(x - picSize, y - picSize / 2, picSize, picSize, TEAM_BLUE, qfalse);
-	}
-
-	if (cg.warmup < 0 && ci->team != TEAM_SPECTATOR && cgs.startWhenReady) {
-		if (ci->ready) {
-			CG_DrawAdjustPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
-		} else {
-			CG_DrawAdjustPic(x - picSize - 4, y - picSize / 2, picSize, picSize, cgs.media.sbNotReady);
-		}
 	}
 }
 

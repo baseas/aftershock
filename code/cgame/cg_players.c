@@ -632,7 +632,7 @@ void CG_NewClientInfo(int clientNum)
 
 	v = Info_ValueForKey(configstring, "r");
 	ci->ready = !!atoi(v);
-	if (oldValid && ci->ready != oldReady) {
+	if (cgs.startWhenReady && cg.warmup < 0 && oldValid && ci->ready != oldReady) {
 		if (ci->ready) {
 			CG_CenterPrint(va("%s ^2is ready", ci->name), 100, BIGCHAR_WIDTH);
 		} else {

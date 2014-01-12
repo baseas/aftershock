@@ -231,7 +231,6 @@ static void SV_MapRestart_f( void ) {
 	client_t	*client;
 	char		*denied;
 	qboolean	isBot;
-	int			delay;
 
 	// make sure we aren't restarting twice in the same frame
 	if ( com_frameTime == sv.serverId ) {
@@ -245,18 +244,6 @@ static void SV_MapRestart_f( void ) {
 	}
 
 	if ( sv.restartTime ) {
-		return;
-	}
-
-	if (Cmd_Argc() > 1 ) {
-		delay = atoi( Cmd_Argv(1) );
-	}
-	else {
-		delay = 5;
-	}
-	if( delay && !Cvar_VariableValue("g_doWarmup") ) {
-		sv.restartTime = sv.time + delay * 1000;
-		SV_SetConfigstring( CS_WARMUP, va("%i", sv.restartTime) );
 		return;
 	}
 
@@ -334,7 +321,7 @@ static void SV_MapRestart_f( void ) {
 			// this generally shouldn't happen, because the client
 			// was connected before the level change
 			SV_DropClient( client, denied );
-			Com_Printf( "SV_MapRestart_f(%d): dropped client %i - denied!\n", delay, i );
+			Com_Printf( "SV_MapRestart_f: dropped client %i - denied!\n", i );
 			continue;
 		}
 
