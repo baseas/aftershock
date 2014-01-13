@@ -3174,8 +3174,6 @@ void CL_InitRef( void ) {
 	char			dllName[MAX_OSPATH];
 #endif
 
-	Com_Printf( "----- Initializing Renderer ----\n" );
-
 #ifdef USE_RENDERER_DLOPEN
 	cl_renderer = Cvar_Get("cl_renderer", "opengl1", CVAR_ARCHIVE | CVAR_LATCH);
 
@@ -3261,8 +3259,6 @@ void CL_InitRef( void ) {
 #if defined __USEA3D && defined __A3D_GEOM
 	hA3Dg_ExportRenderGeom (ret);
 #endif
-
-	Com_Printf( "-------------------------------\n");
 
 	if ( !ret ) {
 		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
@@ -3389,9 +3385,7 @@ CL_Init
 ====================
 */
 void CL_Init( void ) {
-	Com_Printf( "----- Client Initialization -----\n" );
-
-	Con_Init ();
+	Con_Init();
 
 	if(!com_fullyInitialized)
 	{
@@ -3587,8 +3581,6 @@ void CL_Init( void ) {
 	CL_GenerateQKey();
 	Cvar_Get( "cl_guid", "", CVAR_USERINFO | CVAR_ROM );
 	CL_UpdateGUID( NULL, 0 );
-
-	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
 
 
@@ -3606,8 +3598,6 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 	if(!(com_cl_running && com_cl_running->integer))
 		return;
 	
-	Com_Printf( "----- Client Shutdown (%s) -----\n", finalmsg );
-
 	if ( recursive ) {
 		Com_Printf( "WARNING: Recursive shutdown\n" );
 		return;
@@ -3654,9 +3644,6 @@ void CL_Shutdown(char *finalmsg, qboolean disconnect, qboolean quit)
 
 	Com_Memset( &cls, 0, sizeof( cls ) );
 	Key_SetCatcher( 0 );
-
-	Com_Printf( "-----------------------\n" );
-
 }
 
 static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {

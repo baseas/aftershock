@@ -88,7 +88,7 @@ static void CG_SetHudImage(int hudnumber, char *arg1, char *arg2, char *arg3, ch
 	cgs.hud[hudnumber].image = arg1;
 	cgs.hud[hudnumber].imageHandle = trap_R_RegisterShader(arg1);
 	if (!cgs.hud[hudnumber].imageHandle)
-		CG_Printf("%s not found\n", arg1);
+		CG_Printf("HUD: Image %s not found\n", arg1);
 }
 
 static void CG_SetHudText(int hudnumber, char *arg1, char *arg2, char *arg3, char *arg4)
@@ -611,8 +611,6 @@ void CG_LoadHudFile(const char* hudFile)
 		tokenNum++;
 	}
 	maxTokennum = tokenNum;
-	
-	CG_Printf("Superhud parser found %i tokens\n", maxTokennum);
 	
 	for (tokenNum = 0; tokenNum < maxTokennum; tokenNum++) {
 		i = CG_HudElement(tokens[tokenNum]);

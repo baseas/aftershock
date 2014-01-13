@@ -445,7 +445,6 @@ void *Sys_LoadDll(const char *name, qboolean useSystemLib)
 		if(!*topDir)
 			topDir = ".";
 
-		Com_Printf("Trying to load \"%s\" from \"%s\"...\n", name, topDir);
 		Com_sprintf(libPath, sizeof(libPath), "%s%c%s", topDir, PATH_SEP, name);
 
 		if(!(dllhandle = Sys_LoadLibrary(libPath)))
@@ -486,7 +485,6 @@ void *Sys_LoadGameDll(const char *name,
 
 	assert(name);
 
-	Com_Printf( "Loading DLL file: %s\n", name);
 	libHandle = Sys_LoadLibrary(name);
 
 	if(!libHandle)
@@ -506,7 +504,7 @@ void *Sys_LoadGameDll(const char *name,
 		return NULL;
 	}
 
-	Com_Printf ( "Sys_LoadGameDll(%s) found vmMain function at %p\n", name, *entryPoint );
+	Com_Printf("Loaded library from %s\n", name);
 	dllEntry( systemcalls );
 
 	return libHandle;

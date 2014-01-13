@@ -93,7 +93,6 @@ int AAS_Initialized(void)
 void AAS_SetInitialized(void)
 {
 	aasworld.initialized = qtrue;
-	botimport.Print(PRT_MESSAGE, "AAS initialized.\n");
 #ifdef DEBUG
 	//create all the routing cache
 	//AAS_CreateAllRoutingCache();
@@ -237,7 +236,6 @@ int AAS_LoadFiles(const char *mapname)
 	if (errnum != BLERR_NOERROR)
 		return errnum;
 
-	botimport.Print(PRT_MESSAGE, "loaded %s\n", aasfile);
 	strncpy(aasworld.filename, aasfile, MAX_PATH);
 	return BLERR_NOERROR;
 } //end of the function AAS_LoadFiles

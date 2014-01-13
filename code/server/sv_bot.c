@@ -144,23 +144,23 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int ty
 
 	switch(type) {
 		case PRT_MESSAGE: {
-			Com_Printf("%s", str);
+			Com_Printf("BotLib: %s", str);
 			break;
 		}
 		case PRT_WARNING: {
-			Com_Printf(S_COLOR_YELLOW "Warning: %s", str);
+			Com_Printf(S_COLOR_YELLOW "BotLib Warning: %s", str);
 			break;
 		}
 		case PRT_ERROR: {
-			Com_Printf(S_COLOR_RED "Error: %s", str);
+			Com_Printf(S_COLOR_RED "BotLib Error: %s", str);
 			break;
 		}
 		case PRT_FATAL: {
-			Com_Printf(S_COLOR_RED "Fatal: %s", str);
+			Com_Printf(S_COLOR_RED "BotLib Fatal: %s", str);
 			break;
 		}
 		case PRT_EXIT: {
-			Com_Error(ERR_DROP, S_COLOR_RED "Exit: %s", str);
+			Com_Error(ERR_DROP, S_COLOR_RED "BotLib Exit: %s", str);
 			break;
 		}
 		default: {

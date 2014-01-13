@@ -284,8 +284,6 @@ void G_FindTeams(void)
 			}
 		}
 	}
-
-	G_Printf ("%i teams with %i entities\n", c, c2);
 }
 
 void G_RegisterCvars(void)
@@ -336,10 +334,6 @@ void G_UpdateCvars(void)
 void G_InitGame(int levelTime, int randomSeed, int restart)
 {
 	int					i;
-
-	G_Printf ("------- Game Initialization -------\n");
-	G_Printf ("gamename: %s\n", GAMEVERSION);
-	G_Printf ("gamedate: %s\n", __DATE__);
 
 	srand(randomSeed);
 
@@ -424,8 +418,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	SaveRegisteredItems();
 
-	G_Printf ("-----------------------------------\n");
-
 	if (g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue("com_buildScript")) {
 		G_ModelIndex(SP_PODIUM_MODEL);
 	}
@@ -439,8 +431,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 void G_ShutdownGame(int restart)
 {
-	G_Printf ("==== ShutdownGame ====\n");
-
 	if (level.logFile) {
 		G_LogPrintf("ShutdownGame:\n");
 		G_LogPrintf("------------------------------------------------------------\n");

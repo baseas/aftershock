@@ -1358,14 +1358,11 @@ Touch all known used data to make sure it is paged in
 ===============
 */
 void Com_TouchMemory( void ) {
-	int		start, end;
 	int		i, j;
 	int		sum;
 	memblock_t	*block;
 
 	Z_CheckHeap();
-
-	start = Sys_Milliseconds();
 
 	sum = 0;
 
@@ -1391,10 +1388,6 @@ void Com_TouchMemory( void ) {
 			break;			// all blocks have been hit	
 		}
 	}
-
-	end = Sys_Milliseconds();
-
-	Com_Printf( "Com_TouchMemory: %i msec\n", end - start );
 }
 
 
@@ -1657,7 +1650,6 @@ void Hunk_Clear( void ) {
 	hunk_permanent = &hunk_low;
 	hunk_temp = &hunk_high;
 
-	Com_Printf( "Hunk_Clear: reset the hunk ok\n" );
 	VM_Clear();
 #ifdef HUNK_DEBUG
 	hunkblocks = NULL;

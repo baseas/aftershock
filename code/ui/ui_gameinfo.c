@@ -196,7 +196,6 @@ static void UI_LoadArenas( void ) {
 		strcat(filename, dirptr);
 		UI_LoadArenasFromFile(filename);
 	}
-	trap_Print( va( "%i arenas parsed\n", ui_numArenas ) );
 	if (outOfMemory) trap_Print(S_COLOR_YELLOW"WARNING: not enough memory in pool to load all arenas\n");
 
 	// set initial numbers
@@ -383,7 +382,6 @@ static void UI_LoadBots( void ) {
 		strcat(filename, dirptr);
 		UI_LoadBotsFromFile(filename);
 	}
-	trap_Print( va( "%i bots parsed\n", ui_numBots ) );
 }
 
 

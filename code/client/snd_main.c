@@ -406,8 +406,6 @@ void S_Init( void )
 	cvar_t		*cv;
 	qboolean	started = qfalse;
 
-	Com_Printf( "------ Initializing Sound ------\n" );
-
 	s_volume = Cvar_Get( "s_volume", "0.8", CVAR_ARCHIVE );
 	s_muted = Cvar_Get("s_muted", "0", CVAR_ROM);
 	s_doppler = Cvar_Get( "s_doppler", "1", CVAR_ARCHIVE );
@@ -444,14 +442,11 @@ void S_Init( void )
 				Com_Error( ERR_FATAL, "Sound interface invalid" );
 			}
 
-			S_SoundInfo( );
 			Com_Printf( "Sound initialization successful.\n" );
 		} else {
 			Com_Printf( "Sound initialization failed.\n" );
 		}
 	}
-
-	Com_Printf( "--------------------------------\n");
 }
 
 /*

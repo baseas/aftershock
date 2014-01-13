@@ -2165,7 +2165,6 @@ void S_AL_Shutdown( void )
 		qalcCaptureStop(alCaptureDevice);
 		qalcCaptureCloseDevice(alCaptureDevice);
 		alCaptureDevice = NULL;
-		Com_Printf( "OpenAL capture device closed.\n" );
 	}
 #endif
 

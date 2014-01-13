@@ -3258,8 +3258,6 @@ static void FS_Startup( const char *gameName )
 {
 	const char *homePath;
 
-	Com_Printf( "----- FS_Startup -----\n" );
-
 	fs_packFiles = 0;
 
 	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
@@ -3322,12 +3320,12 @@ static void FS_Startup( const char *gameName )
 	// reorder the pure pk3 files according to server order
 	FS_ReorderPurePaks();
 
-	// print the current search paths
-	FS_Path_f();
+	if (fs_debug->integer) {
+		// print the current search paths
+		FS_Path_f();
+	}
 
 	fs_gamedirvar->modified = qfalse; // We just loaded, it's not modified
-
-	Com_Printf( "----------------------\n" );
 
 #ifdef FS_MISSING
 	if (missingFiles == NULL) {
