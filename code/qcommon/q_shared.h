@@ -26,27 +26,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#ifdef STANDALONE
-  #define PRODUCT_NAME			"aftershock"
-  #define BASEGAME			"data"
-  #define CLIENT_WINDOW_TITLE     	"Aftershock"
-  #define CLIENT_WINDOW_MIN_TITLE 	"Aftershock"
-  #define HOMEPATH_NAME_UNIX		".aftershock"
-  #define HOMEPATH_NAME_WIN		"Aftershock"
-  #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
-  #define GAMENAME_FOR_MASTER		"aftershock"	// must NOT contain whitespace
-  #define LEGACY_PROTOCOL	// You probably don't need this for your standalone game
-#else
-  #define PRODUCT_NAME			"ioq3"
-  #define BASEGAME			"baseq3"
-  #define CLIENT_WINDOW_TITLE     	"ioquake3"
-  #define CLIENT_WINDOW_MIN_TITLE 	"ioq3"
-  #define HOMEPATH_NAME_UNIX		".q3a"
-  #define HOMEPATH_NAME_WIN		"Quake3"
-  #define HOMEPATH_NAME_MACOSX		HOMEPATH_NAME_WIN
-  #define GAMENAME_FOR_MASTER		"Quake3Arena"
-  #define LEGACY_PROTOCOL
-#endif
+#define PRODUCT_NAME			"aftershock"
+#define BASEGAME				"data"
+#define CLIENT_WINDOW_TITLE		"Aftershock"
+#define CLIENT_WINDOW_MIN_TITLE	"Aftershock"
+#define HOMEPATH_NAME_UNIX		".aftershock"
+#define HOMEPATH_NAME_WIN		"Aftershock"
+#define HOMEPATH_NAME_MACOSX	HOMEPATH_NAME_WIN
+#define GAMENAME_FOR_MASTER		"aftershock"	// must NOT contain whitespace
 
 // Heartbeat for dpmaster protocol. You shouldn't change this unless you know what you're doing
 #define HEARTBEAT_FOR_MASTER		"DarkPlaces"
@@ -55,8 +42,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // You shouldn't change this unless you know what you're doing
 #define LEGACY_MASTER_GAMENAME		"Quake3Arena"
 #define LEGACY_HEARTBEAT_FOR_MASTER	"QuakeArena-1"
-
-#define BASETA				"missionpack"
 
 #ifndef PRODUCT_VERSION
   #define PRODUCT_VERSION "1.36"

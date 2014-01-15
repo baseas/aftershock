@@ -35,7 +35,6 @@ MAIN MENU
 #define ID_MULTIPLAYER			11
 #define ID_SETUP				12
 #define ID_DEMOS				13
-#define ID_TEAMARENA			15
 #define ID_EXIT					17
 
 #define MAIN_MENU_TOP_Y					150
@@ -87,11 +86,6 @@ void Main_MenuEvent (void* ptr, int event)
 
 	case ID_DEMOS:
 		UI_DemosMenu();
-		break;
-
-	case ID_TEAMARENA:
-		trap_Cvar_Set("fs_game", BASETA);
-		trap_Cmd_ExecuteText(EXEC_APPEND, "vid_restart;");
 		break;
 
 	case ID_EXIT:

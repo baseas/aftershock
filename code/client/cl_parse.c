@@ -357,15 +357,8 @@ void CL_SystemInfoChanged( void ) {
 	cl.serverId = atoi( Info_ValueForKey( systemInfo, "sv_serverid" ) );
 
 #ifdef USE_VOIP
-#ifdef LEGACY_PROTOCOL
-	if(clc.compat)
-		clc.voipEnabled = qfalse;
-	else
-#endif
-	{
-		s = Info_ValueForKey( systemInfo, "sv_voip" );
-		clc.voipEnabled = atoi(s);
-	}
+	s = Info_ValueForKey( systemInfo, "sv_voip" );
+	clc.voipEnabled = atoi(s);
 #endif
 
 	// don't set any vars when playing a demo
@@ -418,14 +411,8 @@ void CL_SystemInfoChanged( void ) {
 			// If this cvar may not be modified by a server discard the value.
 			if(!(cvar_flags & (CVAR_SYSTEMINFO | CVAR_SERVER_CREATED | CVAR_USER_CREATED)))
 			{
-#ifndef STANDALONE
-				if(Q_stricmp(key, "g_synchronousClients") && Q_stricmp(key, "pmove_fixed") &&
-				   Q_stricmp(key, "pmove_msec"))
-#endif
-				{
-					Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
-					continue;
-				}
+				Com_Printf(S_COLOR_YELLOW "WARNING: server is not allowed to set %s=%s\n", key, value);
+				continue;
 			}
 
 			Cvar_SetSafe(key, value);

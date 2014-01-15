@@ -57,9 +57,6 @@ cvar_t	*sv_gametype;
 cvar_t	*sv_pure;
 cvar_t	*sv_floodProtect;
 cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-#ifndef STANDALONE
-cvar_t	*sv_strictAuth;
-#endif
 cvar_t	*sv_banFile;
 
 serverBan_t serverBans[SERVER_MAXBANS];
@@ -647,12 +644,7 @@ void SVC_Info( netadr_t from ) {
 
 	Info_SetValueForKey( infostring, "gamename", com_gamename->string );
 
-#ifdef LEGACY_PROTOCOL
-	if(com_legacyprotocol->integer > 0)
-		Info_SetValueForKey(infostring, "protocol", va("%i", com_legacyprotocol->integer));
-	else
-#endif
-		Info_SetValueForKey(infostring, "protocol", va("%i", com_protocol->integer));
+	Info_SetValueForKey(infostring, "protocol", va("%i", com_protocol->integer));
 
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
@@ -804,10 +796,6 @@ static void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		SV_GetChallenge(from);
 	} else if (!Q_stricmp(c, "connect")) {
 		SV_DirectConnect( from );
-#ifndef STANDALONE
-	} else if (!Q_stricmp(c, "ipAuthorize")) {
-		SV_AuthorizeIpPacket( from );
-#endif
 	} else if (!Q_stricmp(c, "rcon")) {
 		SVC_RemoteCommand( from, msg );
 	} else if (!Q_stricmp(c, "disconnect")) {

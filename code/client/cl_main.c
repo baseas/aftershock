@@ -732,24 +732,14 @@ void CL_Record_f( void ) {
 	if ( Cmd_Argc() == 2 ) {
 		s = Cmd_Argv(1);
 		Q_strncpyz( demoName, s, sizeof( demoName ) );
-#ifdef LEGACY_PROTOCOL
-		if(clc.compat)
-			Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_legacyprotocol->integer);
-		else
-#endif
-			Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
+		Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
 	} else {
 		int		number;
 
 		// scan for a free demo name
 		for ( number = 0 ; number <= 9999 ; number++ ) {
 			CL_DemoFilename( number, demoName, sizeof( demoName ) );
-#ifdef LEGACY_PROTOCOL
-			if(clc.compat)
-				Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_legacyprotocol->integer);
-			else
-#endif
-				Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
+			Com_sprintf(name, sizeof(name), "demos/%s.%s%d", demoName, DEMOEXT, com_protocol->integer);
 
 			if (!FS_FileExists(name))
 				break;	// file doesn't exist
@@ -999,40 +989,19 @@ static int CL_WalkDemoExt(char *arg, char *name, int *demofile)
 	int i = 0;
 	*demofile = 0;
 
-#ifdef LEGACY_PROTOCOL
-	if(com_legacyprotocol->integer > 0)
-	{
-		Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, com_legacyprotocol->integer);
-		FS_FOpenFileRead(name, demofile, qtrue);
-		
-		if (*demofile)
-		{
-			Com_Printf("Demo file: %s\n", name);
-			return com_legacyprotocol->integer;
-		}
-	}
-	
-	if(com_protocol->integer != com_legacyprotocol->integer)
-#endif
-	{
-		Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, com_protocol->integer);
-		FS_FOpenFileRead(name, demofile, qtrue);
+	Com_sprintf(name, MAX_OSPATH, "demos/%s.%s%d", arg, DEMOEXT, com_protocol->integer);
+	FS_FOpenFileRead(name, demofile, qtrue);
 
-		if (*demofile)
-		{
-			Com_Printf("Demo file: %s\n", name);
-			return com_protocol->integer;
-		}
+	if (*demofile)
+	{
+		Com_Printf("Demo file: %s\n", name);
+		return com_protocol->integer;
 	}
 
 	Com_Printf("Not found: %s\n", name);
 
 	while(demo_protocols[i])
 	{
-#ifdef LEGACY_PROTOCOL
-		if(demo_protocols[i] == com_legacyprotocol->integer)
-			continue;
-#endif
 		if(demo_protocols[i] == com_protocol->integer)
 			continue;
 	
@@ -1109,11 +1078,7 @@ void CL_PlayDemo_f( void ) {
 				break;
 		}
 
-		if(demo_protocols[i] || protocol == com_protocol->integer
-#ifdef LEGACY_PROTOCOL
-		   || protocol == com_legacyprotocol->integer
-#endif
-		  )
+		if(demo_protocols[i] || protocol == com_protocol->integer)
 		{
 			Com_sprintf(name, sizeof(name), "demos/%s", arg);
 			FS_FOpenFileRead(name, &clc.demofile, qtrue);
@@ -1147,13 +1112,6 @@ void CL_PlayDemo_f( void ) {
 	clc.state = CA_CONNECTED;
 	clc.demoplaying = qtrue;
 	Q_strncpyz( clc.servername, arg, sizeof( clc.servername ) );
-
-#ifdef LEGACY_PROTOCOL
-	if(protocol <= com_legacyprotocol->integer)
-		clc.compat = qtrue;
-	else
-		clc.compat = qfalse;
-#endif
 
 	// read demo messages until connected
 	while ( clc.state >= CA_CONNECTED && clc.state < CA_PRIMED ) {
@@ -1559,89 +1517,6 @@ void CL_RequestMotd( void ) {
 #endif
 }
 
-/*
-===================
-CL_RequestAuthorization
-
-Authorization server protocol
------------------------------
-
-All commands are text in Q3 out of band packets (leading 0xff 0xff 0xff 0xff).
-
-Whenever the client tries to get a challenge from the server it wants to
-connect to, it also blindly fires off a packet to the authorize server:
-
-getKeyAuthorize <challenge> <cdkey>
-
-cdkey may be "demo"
-
-
-#OLD The authorize server returns a:
-#OLD 
-#OLD keyAthorize <challenge> <accept | deny>
-#OLD 
-#OLD A client will be accepted if the cdkey is valid and it has not been used by any other IP
-#OLD address in the last 15 minutes.
-
-
-The server sends a:
-
-getIpAuthorize <challenge> <ip>
-
-The authorize server returns a:
-
-ipAuthorize <challenge> <accept | deny | demo | unknown >
-
-A client will be accepted if a valid cdkey was sent by that ip (only) in the last 15 minutes.
-If no response is received from the authorize server after two tries, the client will be let
-in anyway.
-===================
-*/
-#ifndef STANDALONE
-void CL_RequestAuthorization( void ) {
-	char	nums[64];
-	int		i, j, l;
-	cvar_t	*fs;
-
-	if ( !cls.authorizeServer.port ) {
-		Com_Printf( "Resolving %s\n", AUTHORIZE_SERVER_NAME );
-		if ( !NET_StringToAdr( AUTHORIZE_SERVER_NAME, &cls.authorizeServer, NA_IP ) ) {
-			Com_Printf( "Couldn't resolve address\n" );
-			return;
-		}
-
-		cls.authorizeServer.port = BigShort( PORT_AUTHORIZE );
-		Com_Printf( "%s resolved to %i.%i.%i.%i:%i\n", AUTHORIZE_SERVER_NAME,
-			cls.authorizeServer.ip[0], cls.authorizeServer.ip[1],
-			cls.authorizeServer.ip[2], cls.authorizeServer.ip[3],
-			BigShort( cls.authorizeServer.port ) );
-	}
-	if ( cls.authorizeServer.type == NA_BAD ) {
-		return;
-	}
-
-	// only grab the alphanumeric values from the cdkey, to avoid any dashes or spaces
-	j = 0;
-	l = strlen( cl_cdkey );
-	if ( l > 32 ) {
-		l = 32;
-	}
-	for ( i = 0 ; i < l ; i++ ) {
-		if ( ( cl_cdkey[i] >= '0' && cl_cdkey[i] <= '9' )
-				|| ( cl_cdkey[i] >= 'a' && cl_cdkey[i] <= 'z' )
-				|| ( cl_cdkey[i] >= 'A' && cl_cdkey[i] <= 'Z' )
-			 ) {
-			nums[j] = cl_cdkey[i];
-			j++;
-		}
-	}
-	nums[j] = 0;
-
-	fs = Cvar_Get ("cl_anonymous", "0", CVAR_INIT|CVAR_SYSTEMINFO );
-
-	NET_OutOfBandPrint(NS_CLIENT, cls.authorizeServer, "getKeyAuthorize %i %s", fs->integer, nums );
-}
-#endif
 /*
 ======================================================================
 
@@ -2324,12 +2199,6 @@ void CL_CheckForResend( void ) {
 
 	switch ( clc.state ) {
 	case CA_CONNECTING:
-		// requesting a challenge .. IPv6 users always get in as authorize server supports no ipv6.
-#ifndef STANDALONE
-		if (!com_standalone->integer && clc.serverAddress.type == NA_IP && !Sys_IsLANAddress( clc.serverAddress ) )
-			CL_RequestAuthorization();
-#endif
-
 		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
 		// Add the gamename so the server knows we're running the correct game or can reject the client
 		// with a meaningful message
@@ -2344,15 +2213,7 @@ void CL_CheckForResend( void ) {
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		
-#ifdef LEGACY_PROTOCOL
-		if(com_legacyprotocol->integer == com_protocol->integer)
-			clc.compat = qtrue;
-
-		if(clc.compat)
-			Info_SetValueForKey(info, "protocol", va("%i", com_legacyprotocol->integer));
-		else
-#endif
-			Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
+		Info_SetValueForKey(info, "protocol", va("%i", com_protocol->integer));
 		Info_SetValueForKey( info, "qport", va("%i", port ) );
 		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
 		
@@ -2601,52 +2462,15 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			
 			if(ver != com_protocol->integer)
 			{
-#ifdef LEGACY_PROTOCOL
-				if(com_legacyprotocol->integer > 0)
-				{
-					// Server is ioq3 but has a different protocol than we do.
-					// Fall back to idq3 protocol.
-					clc.compat = qtrue;
+				Com_Printf(S_COLOR_YELLOW "Warning: Server reports protocol version %d, we have %d. "
+					   "Trying anyways.\n", ver, com_protocol->integer);
+			}
+		}
 
-					Com_Printf(S_COLOR_YELLOW "Warning: Server reports protocol version %d, "
-						   "we have %d. Trying legacy protocol %d.\n",
-						   ver, com_protocol->integer, com_legacyprotocol->integer);
-				}
-				else
-#endif
-				{
-					Com_Printf(S_COLOR_YELLOW "Warning: Server reports protocol version %d, we have %d. "
-						   "Trying anyways.\n", ver, com_protocol->integer);
-				}
-			}
-		}
-#ifdef LEGACY_PROTOCOL
-		else
-			clc.compat = qtrue;
-		
-		if(clc.compat)
+		if(!*c || challenge != clc.challenge)
 		{
-			if(!NET_CompareAdr(from, clc.serverAddress))
-			{
-				// This challenge response is not coming from the expected address.
-				// Check whether we have a matching client challenge to prevent
-				// connection hi-jacking.
-			
-				if(!*c || challenge != clc.challenge)
-				{
-					Com_DPrintf("Challenge response received from unexpected source. Ignored.\n");
-					return;
-				}
-			}
-		}
-		else
-#endif
-		{
-			if(!*c || challenge != clc.challenge)
-			{
-				Com_Printf("Bad challenge for challengeResponse. Ignored.\n");
-				return;
-			}
+			Com_Printf("Bad challenge for challengeResponse. Ignored.\n");
+			return;
 		}
 
 		// start sending challenge response instead of challenge request packets
@@ -2677,34 +2501,24 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			return;
 		}
 
-#ifdef LEGACY_PROTOCOL
-		if(!clc.compat)
-#endif
-		{
-			c = Cmd_Argv(1);
+		c = Cmd_Argv(1);
 
-			if(*c)
-				challenge = atoi(c);
-			else
-			{
-				Com_Printf("Bad connectResponse received. Ignored.\n");
-				return;
-			}
-			
-			if(challenge != clc.challenge)
-			{
-				Com_Printf("ConnectResponse with bad challenge received. Ignored.\n");
-				return;
-			}
+		if(*c)
+			challenge = atoi(c);
+		else
+		{
+			Com_Printf("Bad connectResponse received. Ignored.\n");
+			return;
+		}
+		
+		if(challenge != clc.challenge)
+		{
+			Com_Printf("ConnectResponse with bad challenge received. Ignored.\n");
+			return;
 		}
 
-#ifdef LEGACY_PROTOCOL
-		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
-			      clc.challenge, clc.compat);
-#else
 		Netchan_Setup(NS_CLIENT, &clc.netchan, from, Cvar_VariableValue("net_qport"),
 			      clc.challenge, qfalse);
-#endif
 
 		clc.state = CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
@@ -3706,13 +3520,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	// if this isn't the correct gamename, ignore it
 	gamename = Info_ValueForKey( infoString, "gamename" );
 
-#ifdef LEGACY_PROTOCOL
-	// gamename is optional for legacy protocol
-	if (com_legacyprotocol->integer && !*gamename)
-		gameMismatch = qfalse;
-	else
-#endif
-		gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
+	gameMismatch = !*gamename || strcmp(gamename, com_gamename->string) != 0;
 
 	if (gameMismatch)
 	{
@@ -3723,11 +3531,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	// if this isn't the correct protocol version, ignore it
 	prot = atoi( Info_ValueForKey( infoString, "protocol" ) );
 
-	if(prot != com_protocol->integer
-#ifdef LEGACY_PROTOCOL
-	   && prot != com_legacyprotocol->integer
-#endif
-	  )
+	if(prot != com_protocol->integer)
 	{
 		Com_DPrintf( "Different protocol info packet: %s\n", infoString );
 		return;

@@ -228,10 +228,6 @@ typedef struct {
 	int			challenge;
 	int		lastSentTime;
 	int		lastSentSize;
-
-#ifdef LEGACY_PROTOCOL
-	qboolean	compat;
-#endif
 } netchan_t;
 
 void Netchan_Init( int qport );
@@ -259,21 +255,12 @@ PROTOCOL
 // NOTE: that stuff only works with two digits protocols
 extern int demo_protocols[];
 
-#if !defined UPDATE_SERVER_NAME && !defined STANDALONE
-#define	UPDATE_SERVER_NAME	"update.quake3arena.com"
+#ifndef UPDATE_SERVER_NAME
+#define UPDATE_SERVER_NAME	"update.quake3arena.com"
 #endif
 // override on command line, config files etc.
 #ifndef MASTER_SERVER_NAME
 #define MASTER_SERVER_NAME	"master.quake3arena.com"
-#endif
-
-#ifndef STANDALONE
-  #ifndef AUTHORIZE_SERVER_NAME
-    #define	AUTHORIZE_SERVER_NAME	"authorize.quake3arena.com"
-  #endif
-  #ifndef PORT_AUTHORIZE
-  #define	PORT_AUTHORIZE		27952
-  #endif
 #endif
 
 #define	PORT_MASTER			27950
@@ -871,9 +858,6 @@ extern	cvar_t	*sv_packetdelay;
 
 extern	cvar_t	*com_gamename;
 extern	cvar_t	*com_protocol;
-#ifdef LEGACY_PROTOCOL
-extern	cvar_t	*com_legacyprotocol;
-#endif
 
 // com_speeds times
 extern	int		time_game;

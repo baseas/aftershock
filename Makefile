@@ -17,9 +17,6 @@ ifeq ($(COMPILE_PLATFORM),darwin)
   COMPILE_ARCH=$(shell uname -p | sed -e s/i.86/x86/)
 endif
 
-ifndef BUILD_STANDALONE
-  BUILD_STANDALONE =
-endif
 ifndef BUILD_CLIENT
   BUILD_CLIENT     =
 endif
@@ -1061,10 +1058,6 @@ endif
 
 ifeq ($(USE_LOCAL_HEADERS),1)
   BASE_CFLAGS += -DUSE_LOCAL_HEADERS
-endif
-
-ifeq ($(BUILD_STANDALONE),1)
-  BASE_CFLAGS += -DSTANDALONE
 endif
 
 ifeq ($(GENERATE_DEPENDENCIES),1)

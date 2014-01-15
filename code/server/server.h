@@ -124,9 +124,6 @@ typedef enum {
 typedef struct netchan_buffer_s {
 	msg_t           msg;
 	byte            msgBuffer[MAX_MSGLEN];
-#ifdef LEGACY_PROTOCOL
-	char		clientCommandString[MAX_STRING_CHARS];	// valid command string for SV_Netchan_Encode
-#endif
 	struct netchan_buffer_s *next;
 } netchan_buffer_t;
 
@@ -195,10 +192,6 @@ typedef struct client_s {
 
 	int				oldServerTime;
 	qboolean		csUpdated[MAX_CONFIGSTRINGS];
-	
-#ifdef LEGACY_PROTOCOL
-	qboolean		compat;
-#endif
 } client_t;
 
 //=============================================================================
@@ -289,9 +282,6 @@ extern	cvar_t	*sv_gametype;
 extern	cvar_t	*sv_pure;
 extern	cvar_t	*sv_floodProtect;
 extern	cvar_t	*sv_lanForceRate;
-#ifndef STANDALONE
-extern	cvar_t	*sv_strictAuth;
-#endif
 extern	cvar_t	*sv_banFile;
 
 extern	serverBan_t serverBans[SERVER_MAXBANS];
@@ -363,10 +353,6 @@ void SV_SpawnServer( char *server, qboolean killBots );
 void SV_GetChallenge(netadr_t from);
 
 void SV_DirectConnect( netadr_t from );
-
-#ifndef STANDALONE
-void SV_AuthorizeIpPacket( netadr_t from );
-#endif
 
 void SV_ExecuteClientMessage( client_t *cl, msg_t *msg );
 void SV_UserinfoChanged( client_t *cl );
