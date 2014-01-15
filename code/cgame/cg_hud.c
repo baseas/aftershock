@@ -962,6 +962,119 @@ static void Hud_Follow(int hudnumber)
 	CG_DrawHudString(hudnumber, qtrue, va("following %s", name));
 }
 
+static void Hud_NetgraphPing(int hudnumber)
+{
+	if (cgs.localServer) {
+		return;
+	}
+	CG_DrawHudString(hudnumber, qtrue, va("%i ms", cg.snap->ping));
+}
+
+static void Hud_Netgraph(int hudnumber)
+{
+	int		a, i;
+	float	v;
+	float	ax, ay, aw, ah, mid, range;
+	int		color;
+	float	vscale;
+
+	ax = cgs.hud[hudnumber].xpos;
+	ay = cgs.hud[hudnumber].ypos;
+	aw = cgs.hud[hudnumber].width;
+	ah = cgs.hud[hudnumber].height;
+	CG_AdjustFrom640(&ax, &ay, &aw, &ah);
+
+	if (cg.drawDisconnect) {
+		// blink the icon
+		if ((cg.time >> 9) & 1) {
+			return;
+		}
+		trap_R_DrawStretchPic(ax, ay, aw, ah, 0, 0, 1, 1, cgs.media.netgraph);
+		return;
+	}
+
+	if (cgs.localServer) {
+		return;
+	}
+
+	trap_R_SetColor(NULL);
+	CG_DrawHudIcon(hudnumber, qtrue, 0);
+
+	color = -1;
+	range = ah / 3;
+	mid = ay + range;
+
+	vscale = range / MAX_LAGOMETER_RANGE;
+
+	// draw the frame interpoalte / extrapolate graph
+	for (a = 0; a < aw; a++) {
+		i = (lagometer.frameCount - 1 - a) & (LAG_SAMPLES - 1);
+		v = lagometer.frameSamples[i];
+		v *= vscale;
+		if (v > 0) {
+			if (color != 1) {
+				color = 1;
+				trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)]);
+			}
+			if (v > range) {
+				v = range;
+			}
+			trap_R_DrawStretchPic (ax + aw - a, mid - v, 1, v, 0, 0, 0, 0, cgs.media.whiteShader);
+		} else if (v < 0) {
+			if (color != 2) {
+				color = 2;
+				trap_R_SetColor(g_color_table[ColorIndex(COLOR_BLUE)]);
+			}
+			v = -v;
+			if (v > range) {
+				v = range;
+			}
+			trap_R_DrawStretchPic(ax + aw - a, mid, 1, v, 0, 0, 0, 0, cgs.media.whiteShader);
+		}
+	}
+
+	// draw the snapshot latency / drop graph
+	range = ah / 2;
+	vscale = range / MAX_LAGOMETER_PING;
+
+	for (a = 0; a < aw; a++) {
+		i = (lagometer.snapshotCount - 1 - a) & (LAG_SAMPLES - 1);
+		v = lagometer.snapshotSamples[i];
+		if (v > 0) {
+			if (lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED) {
+				if (color != 5) {
+					color = 5;	// YELLOW for rate delay
+					trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)]);
+				}
+			} else {
+				if (color != 3) {
+					color = 3;
+					trap_R_SetColor(g_color_table[ColorIndex(COLOR_GREEN)]);
+				}
+			}
+			v = v * vscale;
+			if (v > range) {
+				v = range;
+			}
+			trap_R_DrawStretchPic(ax + aw - a, ay + ah - v, 1, v,
+				0, 0, 0, 0, cgs.media.whiteShader);
+		} else if (v < 0) {
+			if (color != 4) {
+				color = 4;		// RED for dropped snapshots
+				trap_R_SetColor(g_color_table[ColorIndex(COLOR_RED)]);
+			}
+			trap_R_DrawStretchPic(ax + aw - a, ay + ah - range, 1, range,
+				0, 0, 0, 0, cgs.media.whiteShader);
+		}
+	}
+
+	trap_R_SetColor(NULL);
+
+	if (cg_nopredict.integer || cg_synchronousClients.integer) {
+		CG_DrawBigString(ax, ay, "snc", 1.0);
+	}
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -992,6 +1105,8 @@ void CG_DrawHud()
 		{ HUD_COUNTDOWN, Hud_Countdown },
 		{ HUD_WEAPONLIST, Hud_WeaponList },
 		{ HUD_FOLLOW, Hud_Follow },
+		{ HUD_NETGRAPHPING, Hud_NetgraphPing},
+		{ HUD_NETGRAPH, Hud_Netgraph},
 		{ HUD_MAX, NULL }
 	};
 

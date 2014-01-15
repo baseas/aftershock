@@ -443,6 +443,8 @@ typedef struct {
 	int			zoomTime;
 	float		zoomSensitivity;
 
+	qboolean	drawDisconnect;
+
 	// information screen text during loading
 	qboolean	showInfoScreen;
 
@@ -799,6 +801,8 @@ typedef struct {
 	qhandle_t	sbNotReady;
 	qhandle_t	sbSkull;
 	qhandle_t	sbLocked;
+
+	qhandle_t	netgraph;
 } cgMedia_t;
 
 enum {
