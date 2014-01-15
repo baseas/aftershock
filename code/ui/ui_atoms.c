@@ -811,23 +811,15 @@ void UI_SetActiveMenu( uiMenuCommand_t menu ) {
 	case UIMENU_MAIN:
 		UI_MainMenu();
 		return;
+	case UIMENU_DEMO:
+		// TODO: demo menu
 	case UIMENU_INGAME:
-		/*
-		//GRank
-		UI_RankingsMenu();
-		return;
-		*/
 		trap_Cvar_Set( "cl_paused", "1" );
 		UI_InGameMenu();
 		return;
-		
-	case UIMENU_TEAM:
-	case UIMENU_POSTGAME:
 	default:
-#ifndef NDEBUG
-	  Com_Printf("UI_SetActiveMenu: bad enum %d\n", menu );
-#endif
-	  break;
+		Com_Printf("UI_SetActiveMenu: bad enum %d\n", menu );
+		break;
 	}
 }
 

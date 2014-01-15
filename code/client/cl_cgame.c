@@ -946,6 +946,11 @@ CL_SetCGameTime
 */
 void CL_SetCGameTime( void ) {
 	// getting a valid frame message ends the connection process
+
+	if (clc.demoplaying && cl_paused->integer) {
+		return;
+	}
+
 	if ( clc.state != CA_ACTIVE ) {
 		if ( clc.state != CA_PRIMED ) {
 			return;
@@ -987,36 +992,31 @@ void CL_SetCGameTime( void ) {
 
 	// get our current view of time
 
-	if ( clc.demoplaying && cl_freezeDemo->integer ) {
-		// cl_freezeDemo is used to lock a demo in place for single frame advances
+	// cl_timeNudge is a user adjustable cvar that allows more
+	// or less latency to be added in the interest of better 
+	// smoothness or better responsiveness.
+	int tn;
 
-	} else {
-		// cl_timeNudge is a user adjustable cvar that allows more
-		// or less latency to be added in the interest of better 
-		// smoothness or better responsiveness.
-		int tn;
-		
-		tn = cl_timeNudge->integer;
-		if (tn<-30) {
-			tn = -30;
-		} else if (tn>30) {
-			tn = 30;
-		}
+	tn = cl_timeNudge->integer;
+	if (tn<-30) {
+		tn = -30;
+	} else if (tn>30) {
+		tn = 30;
+	}
 
-		cl.serverTime = cls.realtime + cl.serverTimeDelta - tn;
+	cl.serverTime = cls.realtime + cl.serverTimeDelta - tn;
 
-		// guarantee that time will never flow backwards, even if
-		// serverTimeDelta made an adjustment or cl_timeNudge was changed
-		if ( cl.serverTime < cl.oldServerTime ) {
-			cl.serverTime = cl.oldServerTime;
-		}
-		cl.oldServerTime = cl.serverTime;
+	// guarantee that time will never flow backwards, even if
+	// serverTimeDelta made an adjustment or cl_timeNudge was changed
+	if ( cl.serverTime < cl.oldServerTime ) {
+		cl.serverTime = cl.oldServerTime;
+	}
+	cl.oldServerTime = cl.serverTime;
 
-		// note if we are almost past the latest frame (without timeNudge),
-		// so we will try and adjust back a bit when the next snapshot arrives
-		if ( cls.realtime + cl.serverTimeDelta >= cl.snap.serverTime - 5 ) {
-			cl.extrapolatedSnapshot = qtrue;
-		}
+	// note if we are almost past the latest frame (without timeNudge),
+	// so we will try and adjust back a bit when the next snapshot arrives
+	if ( cls.realtime + cl.serverTimeDelta >= cl.snap.serverTime - 5 ) {
+		cl.extrapolatedSnapshot = qtrue;
 	}
 
 	// if we have gotten new snapshots, drift serverTimeDelta

@@ -288,9 +288,6 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 	Q_vsnprintf (com_errorMessage, sizeof(com_errorMessage),fmt,argptr);
 	va_end (argptr);
 
-	if (code != ERR_DISCONNECT && code != ERR_NEED_CD)
-		Cvar_Set("com_errorMessage", com_errorMessage);
-
 	if (code == ERR_DISCONNECT || code == ERR_SERVERDISCONNECT) {
 		VM_Forced_Unload_Start();
 		SV_Shutdown( "Server disconnected" );
@@ -309,23 +306,6 @@ void QDECL Com_Error( int code, const char *fmt, ... ) {
 		CL_FlushMemory( );
 		VM_Forced_Unload_Done();
 		FS_PureServerSetLoadedPaks("", "");
-		com_errorEntered = qfalse;
-		longjmp (abortframe, -1);
-	} else if ( code == ERR_NEED_CD ) {
-		VM_Forced_Unload_Start();
-		SV_Shutdown( "Server didn't have CD" );
-		if ( com_cl_running && com_cl_running->integer ) {
-			CL_Disconnect( qtrue );
-			CL_FlushMemory( );
-			VM_Forced_Unload_Done();
-			CL_CDDialog();
-		} else {
-			Com_Printf("Server didn't have CD\n" );
-			VM_Forced_Unload_Done();
-		}
-
-		FS_PureServerSetLoadedPaks("", "");
-
 		com_errorEntered = qfalse;
 		longjmp (abortframe, -1);
 	} else {
@@ -2887,6 +2867,7 @@ Com_Frame
 void Com_Frame( void ) {
 
 	int		msec, minMsec;
+	int		modMsec;
 	int		timeVal, timeValSV;
 	static int	lastTime = 0, bias = 0;
  
@@ -2981,7 +2962,7 @@ void Com_Frame( void ) {
 	}
 
 	// mess with msec if needed
-	msec = Com_ModifyMsec(msec);
+	modMsec = Com_ModifyMsec(msec);
 
 	//
 	// server side
@@ -2990,7 +2971,7 @@ void Com_Frame( void ) {
 		timeBeforeServer = Sys_Milliseconds ();
 	}
 
-	SV_Frame( msec );
+	SV_Frame( modMsec );
 
 	// if "dedicated" has been modified, start up
 	// or shut down the client system.
@@ -3028,7 +3009,7 @@ void Com_Frame( void ) {
 		timeBeforeClient = Sys_Milliseconds ();
 	}
 
-	CL_Frame( msec );
+	CL_Frame( modMsec, msec );
 
 	if ( com_speeds->integer ) {
 		timeAfter = Sys_Milliseconds ();

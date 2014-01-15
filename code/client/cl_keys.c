@@ -359,7 +359,7 @@ void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, q
 
 	// draw the cursor
 	if ( showCursor ) {
-		if ( (int)( cls.realtime >> 8 ) & 1 ) {
+		if ( (int)( cls.realRealtime >> 8 ) & 1 ) {
 			return;		// off blink
 		}
 
@@ -1225,17 +1225,6 @@ void CL_KeyDownEvent( int key, unsigned time )
 		return;
 	}
 
-
-	// keys can still be used for bound actions
-	if ( ( key < 128 || key == K_MOUSE1 ) &&
-		( clc.demoplaying || clc.state == CA_CINEMATIC ) && Key_GetCatcher( ) == 0 ) {
-
-		if (Cvar_VariableValue ("com_cameraMode") == 0) {
-			Cvar_Set ("nextdemo","");
-			key = K_ESCAPE;
-		}
-	}
-
 	// escape is always handled special
 	if ( key == K_ESCAPE ) {
 		if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE ) {
@@ -1254,8 +1243,9 @@ void CL_KeyDownEvent( int key, unsigned time )
 		if ( !( Key_GetCatcher( ) & KEYCATCH_UI ) ) {
 			if ( clc.state == CA_ACTIVE && !clc.demoplaying ) {
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_INGAME );
-			}
-			else if ( clc.state != CA_DISCONNECTED ) {
+			} else if (clc.state == CA_ACTIVE && clc.demoplaying) {
+				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_DEMO);
+			} else if ( clc.state != CA_DISCONNECTED ) {
 				CL_Disconnect_f();
 				S_StopAllSounds();
 				VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_MAIN );

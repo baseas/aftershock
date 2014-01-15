@@ -162,17 +162,6 @@ void CL_ShowIP_f(void);
 void CL_ServerStatus_f(void);
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 
-/*
-===============
-CL_CDDialog
-
-Called by Com_Error when a cd is needed
-===============
-*/
-void CL_CDDialog( void ) {
-	cls.cddialog = qtrue;	// start it next frame
-}
-
 #ifdef USE_MUMBLE
 static
 void CL_UpdateMumble(void)
@@ -2712,7 +2701,7 @@ CL_Frame
 
 ==================
 */
-void CL_Frame ( int msec ) {
+void CL_Frame ( int msec, int realMsec ) {
 
 	if ( !com_cl_running->integer ) {
 		return;
@@ -2725,8 +2714,8 @@ void CL_Frame ( int msec ) {
 		// download mode since the ui vm expects clc.state to be
 		// CA_CONNECTED
 		if(clc.cURLDisconnected) {
-			cls.realFrametime = msec;
-			cls.frametime = msec;
+			cls.realFrametime = realMsec;
+			cls.frametime = realMsec;
 			cls.realtime += cls.frametime;
 			SCR_UpdateScreen();
 			S_Update();
@@ -2737,11 +2726,7 @@ void CL_Frame ( int msec ) {
 	}
 #endif
 
-	if ( cls.cddialog ) {
-		// bring up the cd error dialog if needed
-		cls.cddialog = qfalse;
-		VM_Call( uivm, UI_SET_ACTIVE_MENU, UIMENU_NEED_CD );
-	} else	if ( clc.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
+	if ( clc.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
 		&& !com_sv_running->integer && uivm ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
@@ -2801,11 +2786,15 @@ void CL_Frame ( int msec ) {
 	}
 
 	// save the msec before checking pause
-	cls.realFrametime = msec;
+	cls.realFrametime = realMsec;
+	cls.realRealtime += cls.realFrametime;
+
+	if (clc.demoplaying && (cl_paused->integer || cl_freezeDemo->integer)) {
+		msec = 0;
+	}
 
 	// decide the simulation time
 	cls.frametime = msec;
-
 	cls.realtime += cls.frametime;
 
 	if ( cl_timegraph->integer ) {

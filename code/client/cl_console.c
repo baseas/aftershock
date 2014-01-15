@@ -48,7 +48,7 @@ typedef struct {
 
 	int		vislines;		// in scanlines
 
-	int		times[NUM_CON_TIMES];	// cls.realtime time the line was generated
+	int		times[NUM_CON_TIMES];	// cls.realRealtime time the line was generated
 								// for transparent notify lines
 	vec4_t	color;
 } console_t;
@@ -400,7 +400,7 @@ void Con_Linefeed (qboolean skipnotify)
     if (skipnotify)
 		  con.times[con.current % NUM_CON_TIMES] = 0;
     else
-		  con.times[con.current % NUM_CON_TIMES] = cls.realtime;
+		  con.times[con.current % NUM_CON_TIMES] = cls.realRealtime;
 	}
 
 	con.x = 0;
@@ -504,7 +504,7 @@ void CL_ConsolePrint( char *txt ) {
 		}
 		else
 		// -NERVE - SMF
-			con.times[con.current % NUM_CON_TIMES] = cls.realtime;
+			con.times[con.current % NUM_CON_TIMES] = cls.realRealtime;
 	}
 }
 
@@ -570,7 +570,7 @@ void Con_DrawNotify (void)
 		time = con.times[i % NUM_CON_TIMES];
 		if (time == 0)
 			continue;
-		time = cls.realtime - time;
+		time = cls.realRealtime - time;
 		if (time > con_notifytime->value*1000)
 			continue;
 		text = con.text + (i % con.totallines)*con.linewidth;

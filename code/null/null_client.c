@@ -39,7 +39,7 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 void Key_WriteBindings( fileHandle_t f ) {
 }
 
-void CL_Frame ( int msec ) {
+void CL_Frame ( int msec, int realMsec ) {
 }
 
 void CL_PacketEvent( netadr_t from, msg_t *msg ) {
@@ -75,9 +75,6 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 }
 
 void CL_InitKeyCommands( void ) {
-}
-
-void CL_CDDialog( void ) {
 }
 
 void CL_FlushMemory(void)

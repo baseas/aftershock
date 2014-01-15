@@ -309,8 +309,6 @@ typedef struct {
 } serverInfo_t;
 
 typedef struct {
-	qboolean	cddialog;			// bring up the cd needed dialog next frame
-
 	// when the server clears the hunk, all of these must be restarted
 	qboolean	rendererStarted;
 	qboolean	soundStarted;
@@ -320,9 +318,10 @@ typedef struct {
 
 	int			framecount;
 	int			frametime;			// msec since last frame
+	int			realFrametime;		// ignoring pause, so console always works
 
 	int			realtime;			// ignores pause
-	int			realFrametime;		// ignoring pause, so console always works
+	int			realRealtime;		// ignores pause
 
 	int			numlocalservers;
 	serverInfo_t	localServers[MAX_OTHER_SERVERS];
