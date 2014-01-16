@@ -153,6 +153,10 @@ Coordinates are 640*480 virtual values
 */
 void CG_FillRect(float x, float y, float width, float height, const float *color)
 {
+	if (color[3] == 0.0f) {
+		return;
+	}
+
 	trap_R_SetColor(color);
 
 	CG_AdjustFrom640(&x, &y, &width, &height);
@@ -185,6 +189,10 @@ Coordinates are 640*480 virtual values
 */
 void CG_DrawRect(float x, float y, float width, float height, float size, const float *color)
 {
+	if (color[3] == 0.0f) {
+		return;
+	}
+
 	trap_R_SetColor(color);
 
 	CG_DrawTopBottom(x, y, width, height, size);

@@ -87,7 +87,7 @@ static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 
 	if (hudelement->fill) {
 		CG_FillRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, color);
-	} else{
+	} else {
 		CG_DrawRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, 1.0f, color);
 	}
 
