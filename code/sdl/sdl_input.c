@@ -935,16 +935,19 @@ static void IN_ProcessEvents( void )
 
 			case SDL_VIDEORESIZE:
 			{
-				char width[32], height[32];
-				Com_sprintf( width, sizeof(width), "%d", e.resize.w );
-				Com_sprintf( height, sizeof(height), "%d", e.resize.h );
-				Cvar_Set( "r_customwidth", width );
-				Cvar_Set( "r_customheight", height );
-				Cvar_Set( "r_mode", "-1" );
-				/* wait until user stops dragging for 1 second, so
-				   we aren't constantly recreating the GL context while
-				   he tries to drag...*/
-				vidRestartTime = Sys_Milliseconds() + 1000;
+				cvar_t	*r_mode;
+				r_mode = Cvar_Get("r_mode", "-2", 0);
+				if (r_mode->integer == -1) {
+					char width[32], height[32];
+					Com_sprintf( width, sizeof(width), "%d", e.resize.w );
+					Com_sprintf( height, sizeof(height), "%d", e.resize.h );
+					Cvar_Set( "r_customwidth", width );
+					Cvar_Set( "r_customheight", height );
+					/* wait until user stops dragging for 1 second, so
+					   we aren't constantly recreating the GL context while
+					   he tries to drag...*/
+					vidRestartTime = Sys_Milliseconds() + 1000;
+				}
 			}
 			break;
 			case SDL_ACTIVEEVENT:
