@@ -1221,7 +1221,6 @@ void CL_KeyDownEvent( int key, unsigned time )
 	if( key == K_CONSOLE || ( keys[K_SHIFT].down && key == K_ESCAPE ) )
 	{
 		Con_ToggleConsole_f ();
-		Key_ClearStates ();
 		return;
 	}
 
@@ -1404,10 +1403,6 @@ Key_SetCatcher
 ====================
 */
 void Key_SetCatcher( int catcher ) {
-	// If the catcher state is changing, clear all key states
-	if( catcher != keyCatchers )
-		Key_ClearStates( );
-
 	keyCatchers = catcher;
 }
 

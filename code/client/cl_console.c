@@ -55,8 +55,9 @@ typedef struct {
 
 console_t	con;
 
-cvar_t		*con_conspeed;
-cvar_t		*con_notifytime;
+cvar_t	*con_speed;
+cvar_t	*con_notifytime;
+cvar_t	*con_height;
 
 #define	DEFAULT_CONSOLE_WIDTH	78
 
@@ -346,8 +347,9 @@ Con_Init
 void Con_Init (void) {
 	int		i;
 
-	con_notifytime = Cvar_Get ("con_notifytime", "3", 0);
-	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0);
+	con_notifytime = Cvar_Get("con_notifytime", "3", 0);
+	con_speed = Cvar_Get ("con_speed", "3", 0);
+	con_height = Cvar_Get("con_height", "0.5", 0);
 
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
@@ -559,6 +561,10 @@ void Con_DrawNotify (void)
 	int		skip;
 	int		currentColor;
 
+	if (con_notifytime->value < 0) {
+		return;
+	}
+
 	currentColor = 7;
 	re.SetColor( g_color_table[currentColor] );
 
@@ -571,7 +577,7 @@ void Con_DrawNotify (void)
 		if (time == 0)
 			continue;
 		time = cls.realRealtime - time;
-		if (time > con_notifytime->value*1000)
+		if (con_notifytime->value != 0 && time > con_notifytime->value*1000)
 			continue;
 		text = con.text + (i % con.totallines)*con.linewidth;
 
@@ -587,7 +593,7 @@ void Con_DrawNotify (void)
 				currentColor = (text[x]>>8)&7;
 				re.SetColor( g_color_table[currentColor] );
 			}
-			SCR_DrawSmallChar( cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
+			SCR_DrawSmallChar( con.xadjust + (x+1)*SMALLCHAR_WIDTH, v, text[x] & 0xff );
 		}
 
 		v += SMALLCHAR_HEIGHT;
@@ -771,26 +777,29 @@ Scroll it up or down
 */
 void Con_RunConsole (void) {
 	// decide on the destination height of the console
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-		con.finalFrac = 0.5;		// half screen
-	else
+	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE ) {
+		con.finalFrac = con_height->value;
+	} else {
 		con.finalFrac = 0;				// none visible
-	
+	}
+
+	if (con_speed->value < 0.0f) {
+		con.displayFrac = con.finalFrac;
+		return;
+	}
+
 	// scroll towards the destination height
-	if (con.finalFrac < con.displayFrac)
-	{
-		con.displayFrac -= con_conspeed->value*cls.realFrametime*0.001;
-		if (con.finalFrac > con.displayFrac)
+	if (con.finalFrac < con.displayFrac) {
+		con.displayFrac -= con_speed->value * cls.realFrametime * 0.001;
+		if (con.finalFrac > con.displayFrac) {
 			con.displayFrac = con.finalFrac;
-
-	}
-	else if (con.finalFrac > con.displayFrac)
-	{
-		con.displayFrac += con_conspeed->value*cls.realFrametime*0.001;
-		if (con.finalFrac < con.displayFrac)
+		}
+	} else if (con.finalFrac > con.displayFrac) {
+		con.displayFrac += con_speed->value * cls.realFrametime*0.001;
+		if (con.finalFrac < con.displayFrac) {
 			con.displayFrac = con.finalFrac;
+		}
 	}
-
 }
 
 
