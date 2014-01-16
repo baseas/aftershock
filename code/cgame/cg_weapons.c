@@ -1004,11 +1004,7 @@ void CG_OutOfAmmoChange(void)
 	cg.weaponSelectTime = cg.time;
 
 	for (i = MAX_WEAPONS - 1; i > 0; i--) {
-		// When dropping a weapon, it is possible that
-		// the EV_DROP_WEAPON event is received before a new snap
-		// with new ammo stats. That is why we force a weapon change
-		// when the current weapon still seems to be selectable.
-		if (i == cg.weaponSelect || !CG_WeaponSelectable(i)) {
+		if (!CG_WeaponSelectable(i)) {
 			continue;
 		}
 
