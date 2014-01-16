@@ -264,7 +264,7 @@ static void CG_DrawHudField(int hudnumber, int value)
 	hudelement = &cgs.hud[hudnumber];
 	fontWidth = CG_AdjustWidth(hudelement->fontWidth);
 
-	if (hudelement->color[0] == 0 && hudelement->color[1] == 0 && hudelement->color[2] == 0) {
+	if (hudelement->color[0] != 1 || hudelement->color[1] != 1 || hudelement->color[2] != 1) {
 		trap_R_SetColor(hudelement->color);
 	}
 
@@ -290,6 +290,133 @@ static void CG_DrawHudField(int hudnumber, int value)
 			3, value, hudelement->fontWidth, hudelement->fontHeight);
 		break;
 	}
+}
+
+/**
+Draw the powerup whose position in the powerup list is 'index'.
+Powerups are sorted by their time at which they disappear.
+*/
+static void CG_DrawHudPowerup(int hudnumber, int index)
+{
+	int		validPowerups[MAX_POWERUPS];
+	int		i, j, k;
+	int		smallerTime;
+	gitem_t	*item;
+	playerState_t	*ps;
+
+	ps = &cg.snap->ps;
+
+	if (ps->stats[STAT_HEALTH] <= 0) {
+		return;
+	}
+
+	// CTF flags have unlimited time (999 seconds)
+	for (i = 0, j = 0; i < MAX_POWERUPS; ++i) {
+		if (!ps->powerups[i]) {
+			continue;
+		}
+		if (ps->powerups[i] < cg.time || ps->powerups[i] - cg.time > 999000) {
+			continue;
+		}
+		validPowerups[j++] = i;
+	}
+
+	if (j < index) {
+		return;
+	}
+
+	for (i = 0; i < j; ++i) {
+		// Find number of powerups that run out before this powerup
+		smallerTime = 0;
+
+		for (k = 0; k < j; ++k) {
+			if (ps->powerups[validPowerups[k]] < ps->powerups[validPowerups[i]]) {
+				++smallerTime;
+			}
+		}
+		if (smallerTime == index) {
+			break;
+		}
+	}
+
+	i = validPowerups[i];
+	item = BG_FindItemForPowerup(ps->powerups[i]);
+	if (!item) {
+		return;
+	}
+
+	trap_R_SetColor(NULL);
+
+	CG_DrawHudField(hudnumber, (ps->powerups[i] - cg.time) / 1000);
+	CG_DrawHudIcon(hudnumber, qfalse, trap_R_RegisterShader(item->icon));
+}
+
+static void CG_DrawHudScores(int hudnumber, int score)
+{
+	hudElement_t	*hudelement;
+	vec4_t			color;
+	int				x, y, w;
+	qboolean		shadow;
+	const char		*text;
+	qboolean		spec;
+
+	spec = (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR);
+
+	if (score == SCORE_NOT_PRESENT) {
+		text = "-";
+	} else {
+		text = va("%i", score);
+	}
+
+	hudelement = &cgs.hud[hudnumber];
+	shadow = hudelement->textstyle & 1;
+	if (!spec) {
+		if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 1) {
+			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+				color[0] = 1;
+				color[1] = 0;
+				color[2] = 0;
+			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+				color[0] = 0;
+				color[1] = 0;
+				color[2] = 1;
+			}
+		} else if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 2) {
+			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+				color[0] = 1;
+				color[1] = 0;
+				color[2] = 0;
+			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+				color[0] = 0;
+				color[1] = 0;
+				color[2] = 1;
+			}
+		} else {
+			color[0] = hudelement->bgcolor[0];
+			color[1] = hudelement->bgcolor[1];
+			color[2] = hudelement->bgcolor[2];
+		}
+		color[3] = hudelement->bgcolor[3];
+	} else {
+		color[0] = color[1] = color[2] = color[3] = 0.5f;
+	}
+
+	CG_FillRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, color);
+	y = hudelement->ypos + hudelement->height / 2 - hudelement->fontHeight / 2;
+	w = CG_DrawStrlen(text) * hudelement->fontWidth;
+
+	if (hudelement->textAlign == 0) {
+		x = hudelement->xpos;
+	} else if (hudelement->textAlign == 2) {
+		x = hudelement->xpos + hudelement->width - w;
+	} else {
+		x = hudelement->xpos + hudelement->width / 2 - w / 2;
+	}
+
+	Vector4Copy(hudelement->color, color);
+
+	CG_DrawStringExt(x, y, text, color, qfalse, shadow,
+		hudelement->fontWidth, hudelement->fontHeight, 0);
 }
 
 static void CG_ScanForCrosshairEntity(void)
@@ -1075,6 +1202,102 @@ static void Hud_Netgraph(int hudnumber)
 	}
 }
 
+static void Hud_ScoreOwn(int hudnumber)
+{
+	int			score;
+
+	if (cgs.gametype >= GT_TEAM) {
+		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+			score = cgs.scores1;
+		} else {
+			score = cgs.scores2;
+		}
+	} else {
+		score = cg.snap->ps.persistant[PERS_SCORE];
+	}
+
+	CG_DrawHudScores(hudnumber, score);
+}
+
+static void Hud_ScoreNme(int hudnumber)
+{
+	int			score;
+
+	if (cgs.gametype >= GT_TEAM) {
+		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+			score = cgs.scores2;
+		} else {
+			score = cgs.scores1;
+		}
+	} else {
+		score = cgs.scores1;
+	}
+
+	CG_DrawHudScores(hudnumber, score);
+}
+
+static void Hud_FlagStatus(int hudnumber)
+{
+	int		team;
+	gitem_t	*item;
+
+	if (cgs.gametype != GT_CTF) {
+		return;
+	}
+
+	team = cg.snap->ps.persistant[PERS_TEAM];
+	if (team == TEAM_RED) {
+		item = BG_FindItemForPowerup(PW_REDFLAG);
+	} else {
+		item = BG_FindItemForPowerup(PW_BLUEFLAG);
+	}
+
+	if (!item) {
+		return;
+	}
+
+	if (team == TEAM_RED && cgs.redflag >= 0 && cgs.redflag <= 2) {
+		CG_DrawHudIcon(hudnumber, qfalse, cgs.media.redFlagShader[cgs.redflag]);
+	} else if (team == TEAM_BLUE && cgs.blueflag >= 0 && cgs.blueflag <= 2) {
+		CG_DrawHudIcon(hudnumber, qfalse, cgs.media.blueFlagShader[cgs.blueflag]);
+	}
+}
+
+static void Hud_ScoreLimit(int hudnumber)
+{
+	int	limit;
+
+	if (cgs.gametype == GT_CTF) {
+		limit = cgs.capturelimit;
+	} else {
+		limit = cgs.fraglimit;
+	}
+
+	if (limit) {
+		CG_DrawHudScores(hudnumber, limit);
+	}
+}
+
+static void Hud_Powerup1(int hudnumber)
+{
+	CG_DrawHudPowerup(hudnumber, 1);
+}
+
+static void Hud_Powerup2(int hudnumber)
+{
+	CG_DrawHudPowerup(hudnumber, 2);
+}
+
+static void Hud_Powerup3(int hudnumber)
+{
+	CG_DrawHudPowerup(hudnumber, 3);
+}
+
+static void Hud_Powerup4(int hudnumber)
+{
+	CG_DrawHudPowerup(hudnumber, 4);
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1105,8 +1328,17 @@ void CG_DrawHud()
 		{ HUD_COUNTDOWN, Hud_Countdown },
 		{ HUD_WEAPONLIST, Hud_WeaponList },
 		{ HUD_FOLLOW, Hud_Follow },
-		{ HUD_NETGRAPHPING, Hud_NetgraphPing},
-		{ HUD_NETGRAPH, Hud_Netgraph},
+		{ HUD_NETGRAPHPING, Hud_NetgraphPing },
+		{ HUD_NETGRAPH, Hud_Netgraph },
+		{ HUD_SCOREOWN, Hud_ScoreOwn },
+		{ HUD_SCORENME, Hud_ScoreNme },
+		{ HUD_FS_OWN, Hud_FlagStatus },
+		{ HUD_FS_NME, Hud_FlagStatus },
+		{ HUD_SCORELIMIT, Hud_ScoreLimit },
+		{ HUD_PU1, Hud_Powerup1 },
+		{ HUD_PU2, Hud_Powerup2 },
+		{ HUD_PU3, Hud_Powerup3 },
+		{ HUD_PU4, Hud_Powerup4 },
 		{ HUD_MAX, NULL }
 	};
 
