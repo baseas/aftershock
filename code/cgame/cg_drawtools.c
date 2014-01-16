@@ -350,6 +350,11 @@ void CG_DrawSmallStringColor(float x, float y, const char *s, vec4_t color)
 	CG_DrawStringExt(x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 }
 
+float CG_StringWidth(float size, const char *str)
+{
+	return CG_AdjustWidth(size) * CG_DrawStrlen(str);
+}
+
 /**
 Returns character count, skiping color escape codes
 */
@@ -549,6 +554,7 @@ static void UI_DrawProportionalString2(int x, int y, const char* str, vec4_t col
 			fheight = (float)PROP_HEIGHT / 256.0f;
 			aw = (float)propMap[ch][2] * cgs.screenXScale * sizeScale;
 			ah = (float)PROP_HEIGHT * cgs.screenYScale * sizeScale;
+			// FIXME
 			aw = CG_AdjustWidth(aw);
 			trap_R_DrawStretchPic(ax, ay, aw, ah, fcol, frow, fcol+fwidth, frow+fheight, charset);
 		} else {

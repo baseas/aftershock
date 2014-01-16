@@ -231,7 +231,7 @@ static void CG_DrawSpecs(void)
 	clientInfo_t	*ci;
 
 	strcpy(string, "Spectators");
-	CG_DrawStringExt(SB_SPEC_X + SB_SPEC_WIDTH / 2 - SMALLCHAR_WIDTH * CG_DrawStrlen(string) / 2,
+	CG_DrawStringExt(SB_SPEC_X + SB_SPEC_WIDTH / 2 - CG_StringWidth(SMALLCHAR_WIDTH, string) / 2,
 		SB_SPEC_Y, string, colorYellow, qtrue, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 
 	y = SB_SPEC_Y + 20;
@@ -365,27 +365,38 @@ qboolean CG_DrawScoreboard(void)
 		color[3] = 0.25;
 
 		// scores
-		Com_sprintf(string, sizeof string, "^1%i ^4%i", cgs.scores1, cgs.scores2);
-		CG_DrawStringExt(SCREEN_WIDTH/2 - GIANTCHAR_WIDTH*CG_DrawStrlen(string)/2, SB_TEAM_Y,
+		Com_sprintf(string, sizeof string, "^1%i ", cgs.scores1);
+		CG_DrawStringExt(SCREEN_WIDTH / 2 - CG_StringWidth(GIANTCHAR_WIDTH, string), SB_TEAM_Y,
 			string, colorWhite, qfalse, qtrue, GIANTCHAR_WIDTH, GIANTCHAR_HEIGHT, 0);
+
+		Com_sprintf(string, sizeof string, " ^4%i", cgs.scores2);
+		CG_DrawStringExt(SCREEN_WIDTH / 2, SB_TEAM_Y,
+			string, colorWhite, qfalse, qtrue, GIANTCHAR_WIDTH, GIANTCHAR_HEIGHT, 0);
+
 		strcpy(string, "to");
-		CG_DrawStringExt(SCREEN_WIDTH/2 - SMALLCHAR_WIDTH*CG_DrawStrlen(string)/2, SB_TEAM_Y + 25,
-			string, colorWhite, qtrue, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		CG_DrawStringExt(SCREEN_WIDTH / 2 - CG_StringWidth(SMALLCHAR_WIDTH, string) / 2,
+			SB_TEAM_Y + 25, string, colorWhite, qtrue, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
 
 		// team red
 		strcpy(string, "Team red");
-		CG_DrawStringExt(SB_TEAM_RED_X + SB_TEAM_WIDTH/2 - BIGCHAR_WIDTH*CG_DrawStrlen(string)/2,
+		CG_DrawStringExt(SB_TEAM_RED_X + SB_TEAM_WIDTH / 2 - CG_StringWidth(BIGCHAR_WIDTH, string) / 2,
 			SB_TEAM_Y + 15, string, colorRed, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 		CG_TeamScoreboard(SB_TEAM_RED_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT, TEAM_RED, color, SB_MAXDISPLAY);
 		if (cgs.redLocked) {
 			CG_DrawAdjustPic(0, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
 		}
 
+		color[0] = 0;
+		color[1] = 0;
+		color[2] = 1;
+		color[3] = 0.25;
+
 		// team blue
 		strcpy(string, "Team blue");
-		CG_DrawStringExt(SB_TEAM_BLUE_X + SB_TEAM_WIDTH/2 - BIGCHAR_WIDTH*CG_DrawStrlen(string)/2,
+		CG_DrawStringExt(SB_TEAM_BLUE_X + SB_TEAM_WIDTH / 2 - CG_StringWidth(BIGCHAR_WIDTH, string) / 2,
 			SB_TEAM_Y + 15, string, colorBlue, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
-		CG_TeamScoreboard(SB_TEAM_BLUE_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT, TEAM_BLUE, color, SB_MAXDISPLAY);
+		CG_TeamScoreboard(SB_TEAM_BLUE_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT,
+			TEAM_BLUE, color, SB_MAXDISPLAY);
 		if (cgs.blueLocked) {
 			CG_DrawAdjustPic(640-32, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
 		}
@@ -396,7 +407,7 @@ qboolean CG_DrawScoreboard(void)
 			place = CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1);
 			Com_sprintf(string, sizeof string, "%s place with %i",
 				place, cg.snap->ps.persistant[PERS_SCORE]);
-			CG_DrawStringExt(SCREEN_WIDTH/2 - CG_AdjustWidth(BIGCHAR_WIDTH)*CG_DrawStrlen(string)/2,
+			CG_DrawStringExt(SCREEN_WIDTH / 2 - CG_StringWidth(BIGCHAR_WIDTH, string) / 2,
 				SB_FFA_Y, string, colorWhite, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 		}
 

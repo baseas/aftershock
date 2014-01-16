@@ -515,7 +515,7 @@ static void CG_DrawDisconnect(void)
 
 	// also add text in center of screen
 	s = "Connection Interrupted";
-	w = CG_DrawStrlen(s) * CG_AdjustWidth(BIGCHAR_WIDTH);
+	w = CG_StringWidth(BIGCHAR_WIDTH, s);
 	CG_DrawBigString(320 - w/2, 100, s, 1.0F);
 }
 
@@ -549,7 +549,7 @@ static void CG_DrawCenterString(void)
 {
 	char	*start;
 	int		l;
-	float	x, y, w;
+	float	x, y;
 	float	*color;
 
 	if (!cg.centerPrintTime) {
@@ -578,11 +578,7 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-		w = cg.centerPrintCharWidth * CG_DrawStrlen(linebuffer);
-		w *= cgs.screenYScale / cgs.screenXScale;
-
-		x = (SCREEN_WIDTH - w) / 2;
-
+		x = (SCREEN_WIDTH - CG_StringWidth(cg.centerPrintCharWidth, linebuffer)) / 2;
 		CG_DrawStringExt(x, y, linebuffer, color, qfalse, qtrue,
 			cg.centerPrintCharWidth, cg.centerPrintCharWidth, 0);
 

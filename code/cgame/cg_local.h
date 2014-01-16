@@ -1212,6 +1212,7 @@ void	CG_DrawBigString(float x, float y, const char *s, float alpha);
 void	CG_DrawBigStringColor(float x, float y, const char *s, vec4_t color);
 void	CG_DrawSmallString(float x, float y, const char *s, float alpha);
 void	CG_DrawSmallStringColor(float x, float y, const char *s, vec4_t color);
+float	CG_StringWidth(float size, const char *str);
 int		CG_DrawStrlen(const char *str);
 float	*CG_FadeColor(int startMsec, int totalMsec);
 float	*CG_TeamColor(int team);
