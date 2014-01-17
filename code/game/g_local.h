@@ -591,7 +591,6 @@ void	G_RunClient(gentity_t *ent);
 //
 qboolean	OnSameTeam(gentity_t *ent1, gentity_t *ent2);
 void		Team_CheckDroppedItem(gentity_t *dropped);
-qboolean	CheckObeliskAttack(gentity_t *obelisk, gentity_t *attacker);
 
 //
 // g_mem.c
@@ -688,18 +687,9 @@ extern vmCvar_t	g_teamAutoJoin;
 extern vmCvar_t	g_teamForceBalance;
 extern vmCvar_t	g_banIPs;
 extern vmCvar_t	g_filterBan;
-extern vmCvar_t	g_obeliskHealth;
-extern vmCvar_t	g_obeliskRegenPeriod;
-extern vmCvar_t	g_obeliskRegenAmount;
-extern vmCvar_t	g_obeliskRespawnDelay;
-extern vmCvar_t	g_cubeTimeout;
-extern vmCvar_t	g_redteam;
-extern vmCvar_t	g_blueteam;
 extern vmCvar_t	g_smoothClients;
 extern vmCvar_t	pmove_fixed;
 extern vmCvar_t	pmove_msec;
-extern vmCvar_t	g_enableDust;
-extern vmCvar_t	g_enableBreath;
 extern vmCvar_t	g_singlePlayer;
 extern vmCvar_t	g_newItemHeight;
 extern vmCvar_t	g_instantgib;

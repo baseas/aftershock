@@ -2046,17 +2046,7 @@ void BotAimAtEnemy(bot_state_t *bs) {
 	}
 	//get the enemy entity information
 	BotEntityInfo(bs->enemy, &entinfo);
-	//if this is not a player (should be an obelisk)
-	if (bs->enemy >= MAX_CLIENTS) {
-		//if the obelisk is visible
-		VectorCopy(entinfo.origin, target);
-		//aim at the obelisk
-		VectorSubtract(target, bs->eye, dir);
-		vectoangles(dir, bs->ideal_viewangles);
-		//set the aim target before trying to attack
-		VectorCopy(target, bs->aimtarget);
-		return;
-	}
+
 	//
 	//BotAI_Print(PRT_MESSAGE, "client %d: aiming at client %d\n", bs->entitynum, bs->enemy);
 	//
@@ -2392,7 +2382,7 @@ void BotCheckAttack(bot_state_t *bs) {
 				return;
 		}
 	}
-	//if won't hit the enemy or not attacking a player (obelisk)
+	//if won't hit the enemy or not attacking a player
 	if (trace.ent != attackentity || attackentity >= MAX_CLIENTS) {
 		//if the projectile does radial damage
 		if (wi.proj.damagetype & DAMAGETYPE_RADIAL) {

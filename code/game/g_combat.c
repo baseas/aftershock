@@ -131,35 +131,6 @@ static void CheckAlmostCapture(gentity_t *self, gentity_t *attacker)
 	}
 }
 
-static void CheckAlmostScored(gentity_t *self, gentity_t *attacker)
-{
-	gentity_t	*ent;
-	vec3_t		dir;
-	char		*classname;
-
-	// if the player was carrying cubes
-	if (self->client->ps.generic1) {
-		if (self->client->sess.sessionTeam == TEAM_BLUE) {
-			classname = "team_redobelisk";
-		}
-		else {
-			classname = "team_blueobelisk";
-		}
-		ent = G_Find(NULL, FOFS(classname), classname);
-		// if we found the destination obelisk
-		if (ent) {
-			// if the player was *very* close
-			VectorSubtract(self->client->ps.origin, ent->s.origin, dir);
-			if (VectorLength(dir) < 200) {
-				self->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-				if (attacker->client) {
-					attacker->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
-				}
-			}
-		}
-	}
-}
-
 static int CheckArmor(gentity_t *ent, int damage, int dflags)
 {
 	gclient_t	*client;
@@ -379,8 +350,6 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	// check for an almost capture
 	CheckAlmostCapture(self, attacker);
-	// check for a player that almost brought in cubes
-	CheckAlmostScored(self, attacker);
 
 	if (self->client && self->client->hook) {
 		Weapon_HookFree(self->client->hook);
