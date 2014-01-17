@@ -580,6 +580,28 @@ static void CG_WarmupSounds(void)
 	}
 }
 
+static void CG_PopReward(void)
+{
+	int	i;
+
+	if (!cg_drawRewards.integer || cg.rewardStack <= 0) {
+		return;
+	}
+
+	if (cg.time - cg.rewardTime > REWARD_TIME) {
+		return;
+	}
+
+	for (i = 0; i < cg.rewardStack; i++) {
+		cg.rewardSound[i] = cg.rewardSound[i + 1];
+		cg.rewardShader[i] = cg.rewardShader[i + 1];
+		cg.rewardCount[i] = cg.rewardCount[i + 1];
+	}
+	cg.rewardTime = cg.time;
+	cg.rewardStack--;
+	trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
+}
+
 static void CG_PowerupTimerSounds(void)
 {
 	int		i;
@@ -700,6 +722,8 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 
 	CG_WarmupSounds();
+
+	CG_PopReward();
 
 	// warning sounds when powerup is wearing off
 	CG_PowerupTimerSounds();

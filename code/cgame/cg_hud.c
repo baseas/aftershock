@@ -1331,6 +1331,28 @@ static void Hud_Powerup4(int hudnumber)
 	CG_DrawHudPowerup(hudnumber, 4);
 }
 
+static void Hud_Reward(int hudnumber)
+{
+	if (!cg_drawRewards.integer || cg.rewardStack <= 0) {
+		return;
+	}
+	if (cg.time - cg.rewardTime > REWARD_TIME) {
+		return;
+	}
+	CG_DrawHudIcon(hudnumber, qtrue, cg.rewardShader[0]);
+}
+
+static void Hud_RewardCount(int hudnumber)
+{
+	if (!cg_drawRewards.integer || cg.rewardStack <= 0) {
+		return;
+	}
+	if (cg.time - cg.rewardTime > REWARD_TIME) {
+		return;
+	}
+	CG_DrawHudString(hudnumber, qtrue, va("%i", cg.rewardCount[0]));
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1374,6 +1396,8 @@ void CG_DrawHud()
 		{ HUD_PU2, Hud_Powerup2 },
 		{ HUD_PU3, Hud_Powerup3 },
 		{ HUD_PU4, Hud_Powerup4 },
+		{ HUD_REWARD, Hud_Reward },
+		{ HUD_REWARDCOUNT, Hud_RewardCount },
 		{ HUD_MAX, NULL }
 	};
 

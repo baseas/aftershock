@@ -405,58 +405,6 @@ static void CG_DrawHoldableItem(void)
 	}
 }
 
-static void CG_DrawReward(void)
-{
-	float	*color;
-	int		i, count;
-	float	x, y;
-	char	buf[32];
-
-	if (!cg_drawRewards.integer) {
-		return;
-	}
-
-	color = CG_FadeColor(cg.rewardTime, REWARD_TIME);
-	if (!color) {
-		if (cg.rewardStack > 0) {
-			for (i = 0; i < cg.rewardStack; i++) {
-				cg.rewardSound[i] = cg.rewardSound[i+1];
-				cg.rewardShader[i] = cg.rewardShader[i+1];
-				cg.rewardCount[i] = cg.rewardCount[i+1];
-			}
-			cg.rewardTime = cg.time;
-			cg.rewardStack--;
-			color = CG_FadeColor(cg.rewardTime, REWARD_TIME);
-			trap_S_StartLocalSound(cg.rewardSound[0], CHAN_ANNOUNCER);
-		} else {
-			return;
-		}
-	}
-
-	trap_R_SetColor(color);
-
-	if (cg.rewardCount[0] >= 10) {
-		y = 56;
-		x = 320 - ICON_SIZE/2;
-		CG_DrawAdjustPic(x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0]);
-		Com_sprintf(buf, sizeof(buf), "%d", cg.rewardCount[0]);
-		x = (SCREEN_WIDTH - SMALLCHAR_WIDTH * CG_DrawStrlen(buf)) / 2;
-		CG_DrawStringExt(x, y+ICON_SIZE, buf, color, qfalse, qtrue,
-								SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
-	}
-	else {
-		count = cg.rewardCount[0];
-
-		y = 56;
-		x = 320 - count * ICON_SIZE/2;
-		for (i = 0; i < count; i++) {
-			CG_DrawAdjustPic(x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0]);
-			x += ICON_SIZE;
-		}
-	}
-	trap_R_SetColor(NULL);
-}
-
 /* LAGOMETER */
 
 /**
@@ -828,7 +776,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			}
 
 			CG_DrawHoldableItem();
-			CG_DrawReward();
 		}
 
 		if (cgs.gametype >= GT_TEAM) {
