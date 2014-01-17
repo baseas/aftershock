@@ -824,7 +824,8 @@ enum {
 	HUD_FPS,
 	HUD_FRAGMSG,
 	HUD_GAMETIME,
-	HUD_CATIME,
+	HUD_ROUNDTIME,
+	HUD_REALTIME,
 	HUD_GAMETYPE,
 	HUD_ITEMPICKUPNAME,
 	HUD_ITEMPICKUPTIME,
@@ -908,7 +909,6 @@ enum {
 	HUD_POSTDECORATE6,
 	HUD_POSTDECORATE7,
 	HUD_POSTDECORATE8,
-
 	HUD_MAX
 };
 
@@ -980,6 +980,7 @@ typedef struct {
 
 	int				levelStartTime;
 	int				roundStartTime;			// for elimination gametype
+	int				roundTimelimit;
 
 	int				scores1, scores2;		// from configstrings
 	int				redflag, blueflag;		// flag status from configstrings

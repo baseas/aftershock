@@ -700,6 +700,7 @@ extern vmCvar_t	g_selfDamage;
 extern vmCvar_t	g_itemDrop;
 extern vmCvar_t	g_startWhenReady;
 extern vmCvar_t	g_autoReady;
+extern vmCvar_t	g_roundTimelimit;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

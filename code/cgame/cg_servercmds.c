@@ -343,6 +343,7 @@ void CG_ParseServerinfo(void)
 	cgs.fraglimit = atoi(Info_ValueForKey(info, "fraglimit"));
 	cgs.capturelimit = atoi(Info_ValueForKey(info, "capturelimit"));
 	cgs.timelimit = atoi(Info_ValueForKey(info, "timelimit"));
+	cgs.roundTimelimit = atoi(Info_ValueForKey(info, "g_roundTimelimit"));
 	cgs.maxclients = atoi(Info_ValueForKey(info, "sv_maxclients"));
 	cgs.newItemHeight = atoi(Info_ValueForKey(info, "g_newItemHeight"));
 	cgs.startWhenReady = atoi(Info_ValueForKey(info, "g_startWhenReady"));

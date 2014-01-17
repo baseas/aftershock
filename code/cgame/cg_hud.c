@@ -597,7 +597,7 @@ static void Hud_FPS(int hudnumber)
 	}
 }
 
-static void Hud_Gametime(int hudnumber)
+static void Hud_GameTime(int hudnumber)
 {
 	char		*s;
 	int			mins, seconds, tens;
@@ -614,6 +614,39 @@ static void Hud_Gametime(int hudnumber)
 	s = va("%i:%i%i", mins, tens, seconds);
 
 	CG_DrawHudString(hudnumber, qtrue, s);
+}
+
+static void Hud_RoundTime(int hudnumber)
+{
+	const char	*str;
+	int			mins, seconds, tens;
+	int			msec;
+
+	if (cgs.gametype != GT_ELIMINATION || cg.time < cgs.roundStartTime) {
+		return;
+	}
+
+	msec = cgs.roundTimelimit * 1000 - (cg.time - cgs.roundStartTime);
+	msec += 1000;
+
+	seconds = msec / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+	tens = seconds / 10;
+	seconds -= tens * 10;
+
+	str = va("%i:%i%i", mins, tens, seconds);
+	CG_DrawHudString(hudnumber, qtrue, str);
+}
+
+static void Hud_RealTime(int hudnumber)
+{
+	qtime_t		now;
+	const char	*str;
+
+	trap_RealTime(&now);
+	str = va("%02i:%02i", now.tm_hour, now.tm_min);
+	CG_DrawHudString(hudnumber, qtrue, str);
 }
 
 static void Hud_ItemPickupIcon(int hudnumber)
@@ -1313,7 +1346,9 @@ void CG_DrawHud()
 		{ HUD_AMMOICON, &Hud_AmmoIcon },
 		{ HUD_AMMOCOUNT, &Hud_Ammo },
 		{ HUD_FPS, &Hud_FPS },
-		{ HUD_GAMETIME, &Hud_Gametime },
+		{ HUD_GAMETIME, &Hud_GameTime },
+		{ HUD_ROUNDTIME, &Hud_RoundTime},
+		{ HUD_REALTIME, Hud_RealTime },
 		{ HUD_ITEMPICKUPICON, &Hud_ItemPickupIcon },
 		{ HUD_ITEMPICKUPNAME, &Hud_ItemPickupName },
 		{ HUD_ITEMPICKUPTIME, &Hud_ItemPickupTime },

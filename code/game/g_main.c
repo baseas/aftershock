@@ -89,6 +89,7 @@ vmCvar_t	g_selfDamage;
 vmCvar_t	g_itemDrop;
 vmCvar_t	g_startWhenReady;
 vmCvar_t	g_autoReady;
+vmCvar_t	g_roundTimelimit;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -158,7 +159,8 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_selfDamage, "g_selfDamage", "1", 0, 0, qfalse },
 	{ &g_itemDrop, "g_itemDrop", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_startWhenReady, "g_startWhenReady", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
-	{ &g_autoReady, "g_autoReady", "0", CVAR_ARCHIVE, 0, qfalse }
+	{ &g_autoReady, "g_autoReady", "0", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_roundTimelimit, "g_roundTimelimit", "120", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
