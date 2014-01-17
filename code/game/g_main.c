@@ -79,7 +79,6 @@ vmCvar_t	g_filterBan;
 vmCvar_t	g_smoothClients;
 vmCvar_t	pmove_fixed;
 vmCvar_t	pmove_msec;
-vmCvar_t	g_rankings;
 vmCvar_t	g_listEntity;
 vmCvar_t	g_newItemHeight;
 vmCvar_t	g_instantgib;
@@ -151,7 +150,6 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &pmove_fixed, "pmove_fixed", "1", CVAR_SYSTEMINFO, 0, qfalse},
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, 0, qfalse},
 
-	{ &g_rankings, "g_rankings", "0", 0, 0, qfalse},
 	{ &g_newItemHeight, "g_newItemHeight", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_instantgib, "g_instantgib", "0", CVAR_LATCH, 0, qfalse },
 	{ &g_instantgibGauntlet, "g_instantgibGauntlet", "1", CVAR_LATCH, 0, qfalse },
