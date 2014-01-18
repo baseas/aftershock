@@ -127,6 +127,11 @@ void Add_Ammo (gentity_t *ent, int weapon, int count)
 		return;
 	}
 
+	if (count < 0) {
+		ent->client->ps.ammo[weapon] = -1;
+		return;
+	}
+
 	ent->client->ps.ammo[weapon] += count;
 	if (ent->client->ps.ammo[weapon] > 200) {
 		ent->client->ps.ammo[weapon] = 200;
@@ -153,7 +158,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	int		quantity;
 
 	if (ent->count < 0) {
-		quantity = 0; // None for you, sir!
+		quantity = -1;
 	} else {
 		if (ent->count) {
 			quantity = ent->count;
@@ -511,7 +516,7 @@ void Drop_Item_Health(gentity_t *ent, gitem_t *item)
 void Drop_Item_Ammo(gentity_t *ent, gitem_t *item)
 {
 	gentity_t *dropped;
-	if(ent->client->ps.ammo[item->giTag] < item->quantity) {
+	if (ent->client->ps.ammo[item->giTag] < item->quantity) {
 		return;
 	}
 
@@ -524,6 +529,10 @@ void Drop_Item_Ammo(gentity_t *ent, gitem_t *item)
 void Drop_Item_Weapon(gentity_t *ent, gitem_t *item)
 {
 	gentity_t *dropped;
+
+	if (!ent->client->ps.ammo[item->giTag]) {
+		return;
+	}
 
 	ent->client->ps.stats[STAT_WEAPONS] &= ~(1 << item->giTag);
 	ent->client->pers.lastDrop = item;
