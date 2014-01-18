@@ -946,11 +946,6 @@ CL_SetCGameTime
 */
 void CL_SetCGameTime( void ) {
 	// getting a valid frame message ends the connection process
-
-	if (clc.demoplaying && cl_paused->integer) {
-		return;
-	}
-
 	if ( clc.state != CA_ACTIVE ) {
 		if ( clc.state != CA_PRIMED ) {
 			return;
