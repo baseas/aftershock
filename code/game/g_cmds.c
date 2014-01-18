@@ -366,23 +366,16 @@ void Cmd_Kill_f(gentity_t *ent)
 	player_die(ent, ent, ent, 100000, MOD_SUICIDE);
 }
 
-/**
-Let everyone know about a team change
-*/
-void BroadcastTeamChange(gclient_t *client, int oldTeam)
+void LogTeamChange(gclient_t *client, int oldTeam)
 {
 	if (client->sess.sessionTeam == TEAM_RED) {
-		trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the red team.\n\"",
-			client->pers.netname));
+		G_LogPrintf("%s" S_COLOR_WHITE " joined the red team.\n", client->pers.netname);
 	} else if (client->sess.sessionTeam == TEAM_BLUE) {
-		trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the blue team.\n\"",
-		client->pers.netname));
+		G_LogPrintf("%s" S_COLOR_WHITE " joined the blue team.\n", client->pers.netname);
 	} else if (client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR) {
-		trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the spectators.\n\"",
-		client->pers.netname));
+		G_LogPrintf("%s" S_COLOR_WHITE " joined the spectators.\n", client->pers.netname);
 	} else if (client->sess.sessionTeam == TEAM_FREE) {
-		trap_SendServerCommand(-1, va("cp \"%s" S_COLOR_WHITE " joined the battle.\n\"",
-		client->pers.netname));
+		G_LogPrintf("%s" S_COLOR_WHITE " joined the battle.\n", client->pers.netname);
 	}
 }
 
@@ -512,7 +505,7 @@ void SetTeam(gentity_t *ent, char *s)
 		CheckTeamLeader(oldTeam);
 	}
 
-	BroadcastTeamChange(client, oldTeam);
+	LogTeamChange(client, oldTeam);
 
 	// get and distribute relevent paramters
 	ClientUserinfoChanged(clientNum);

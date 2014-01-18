@@ -724,9 +724,8 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
 	}
 
-	if (g_gametype.integer >= GT_TEAM &&
-		client->sess.sessionTeam != TEAM_SPECTATOR) {
-		BroadcastTeamChange(client, -1);
+	if (g_gametype.integer >= GT_TEAM && client->sess.sessionTeam != TEAM_SPECTATOR) {
+		LogTeamChange(client, -1);
 	}
 
 	// count current clients and rank for scoreboard

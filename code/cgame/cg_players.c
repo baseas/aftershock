@@ -481,6 +481,30 @@ static void CG_SetPlayerModel(int clientNum)
 	}
 }
 
+static void CG_PrintTeamChange(clientInfo_t *cl)
+{
+	const char	*str;
+
+	switch (cl->team) {
+	case TEAM_FREE:
+		str = va("%s joined the battle", cl->name);
+		break;
+	case TEAM_RED:
+		str = va("%s joined the red team", cl->name);
+		break;
+	case TEAM_BLUE:
+		str = va("%s joined the blue team", cl->name);
+		break;
+	case TEAM_SPECTATOR:
+		str = va("%s joined the spectators", cl->name);
+		break;
+	default:
+		return;
+	}
+
+	CG_CenterPrint(str, 100, BIGCHAR_WIDTH);
+}
+
 /**
 If cvar is a variable that specifies a model, load that model and
 return zero. Otherwise, return value is non-zero.
@@ -642,6 +666,10 @@ void CG_NewClientInfo(int clientNum)
 
 	v = Info_ValueForKey(configstring, "t");
 	ci->team = atoi(v);
+
+	if ((!oldValid && ci->team != TEAM_SPECTATOR) || (oldValid && oldTeam != ci->team)) {
+		CG_PrintTeamChange(ci);
+	}
 
 	if (oldValid && cg_forceTeamModels.integer == 2 && clientNum == cg.clientNum && oldTeam != ci->team
 		&& (ci->team == TEAM_SPECTATOR || oldTeam == TEAM_SPECTATOR))

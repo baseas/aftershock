@@ -94,7 +94,7 @@ void G_InitSessionData(gclient_t *client, char *userinfo)
 	if (g_gametype.integer >= GT_TEAM) {
 		if (g_teamAutoJoin.integer && !(g_entities[ client - level.clients ].r.svFlags & SVF_BOT)) {
 			sess->sessionTeam = PickTeam(-1);
-			BroadcastTeamChange(client, -1);
+			LogTeamChange(client, -1);
 		} else {
 			// always spawn as spectator in team games
 			sess->sessionTeam = TEAM_SPECTATOR;
