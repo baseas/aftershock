@@ -473,15 +473,13 @@ static void CG_DrawDisconnect(void)
 Called for important messages that should stay in the center of the screen
 for a few moments
 */
-void CG_CenterPrint(const char *str, int y, int charWidth)
+void CG_CenterPrint(const char *str)
 {
 	char	*s;
 
 	Q_strncpyz(cg.centerPrint, str, sizeof(cg.centerPrint));
 
 	cg.centerPrintTime = cg.time;
-	cg.centerPrintY = y;
-	cg.centerPrintCharWidth = charWidth;
 
 	// count the number of lines for centering
 	cg.centerPrintLines = 1;
@@ -513,7 +511,7 @@ static void CG_DrawCenterString(void)
 
 	start = cg.centerPrint;
 
-	y = cg.centerPrintY - cg.centerPrintLines * BIGCHAR_HEIGHT / 2;
+	y = SCREEN_HEIGHT / 5;
 
 	while (1) {
 		char linebuffer[1024];
@@ -526,11 +524,10 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-		x = (SCREEN_WIDTH - CG_StringWidth(cg.centerPrintCharWidth, linebuffer)) / 2;
-		CG_DrawStringExt(x, y, linebuffer, color, qfalse, qtrue,
-			cg.centerPrintCharWidth, cg.centerPrintCharWidth, 0);
+		x = (SCREEN_WIDTH - CG_StringWidth(BIGCHAR_WIDTH, linebuffer)) / 2;
+		CG_DrawStringExt(x, y, linebuffer, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
 
-		y += cg.centerPrintCharWidth;
+		y += BIGCHAR_HEIGHT;
 		while (*start && (*start != '\n')) {
 			start++;
 		}

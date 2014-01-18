@@ -456,8 +456,6 @@ typedef struct {
 
 	// centerprinting
 	int			centerPrintTime;
-	float		centerPrintCharWidth;
-	float		centerPrintY;
 	char		centerPrint[1024];
 	int			centerPrintLines;
 
@@ -1239,7 +1237,7 @@ extern char		teamChat2[256];
 
 void		CG_AddLagometerFrameInfo(void);
 void		CG_AddLagometerSnapshotInfo(snapshot_t *snap);
-void		CG_CenterPrint(const char *str, int y, int charWidth);
+void		CG_CenterPrint(const char *str);
 void		CG_DrawActive(stereoFrame_t stereoView);
 void		CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D);
 void		CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags,

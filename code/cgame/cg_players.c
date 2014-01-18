@@ -502,7 +502,7 @@ static void CG_PrintTeamChange(clientInfo_t *cl)
 		return;
 	}
 
-	CG_CenterPrint(str, 100, BIGCHAR_WIDTH);
+	CG_CenterPrint(str);
 }
 
 /**
@@ -658,9 +658,9 @@ void CG_NewClientInfo(int clientNum)
 	ci->ready = !!atoi(v);
 	if (cgs.startWhenReady && cg.warmup < 0 && oldValid && ci->ready != oldReady) {
 		if (ci->ready) {
-			CG_CenterPrint(va("%s ^2is ready", ci->name), 100, BIGCHAR_WIDTH);
+			CG_CenterPrint(va("%s ^2is ready", ci->name));
 		} else {
-			CG_CenterPrint(va("%s ^1is not ready", ci->name), 100, BIGCHAR_WIDTH);
+			CG_CenterPrint(va("%s ^1is not ready", ci->name));
 		}
 	}
 

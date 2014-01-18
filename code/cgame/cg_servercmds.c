@@ -105,11 +105,11 @@ static void CG_ConfigStringModified(void)
 			if ((cgs.redflag == 1 && str[0] - '0' == 2 && team == TEAM_RED)
 				|| (cgs.blueflag == 1 && str[1] - '0' == 2 && team == TEAM_BLUE))
 			{
-				CG_CenterPrint("^2The enemy dropped your flag", 100, SMALLCHAR_WIDTH);
+				CG_CenterPrint("^2The enemy dropped your flag");
 			} else if ((cgs.redflag == 1 && str[0] - '0' == 2 && team == TEAM_BLUE)
 				|| (cgs.blueflag == 1 && str[1] - '0' == 2 && team == TEAM_RED))
 			{
-				CG_CenterPrint("^1You team dropped the flag", 100, SMALLCHAR_WIDTH);
+				CG_CenterPrint("^1You team dropped the flag");
 			}
 
 			cgs.redflag = str[0] - '0';
@@ -226,7 +226,7 @@ static void CG_MapRestart(void)
 	// play the "fight" sound if this is a restart without warmup
 	if (cg.warmup == 0) {
 		trap_S_StartLocalSound(cgs.media.countFightSound, CHAN_ANNOUNCER);
-		CG_CenterPrint("Fight!", 100, BIGCHAR_WIDTH);
+		CG_CenterPrint("Fight!");
 	}
 
 	trap_Cvar_Set("cg_thirdPerson", "0");
@@ -262,7 +262,7 @@ static void CG_ServerCommand(void)
 	}
 
 	if (!strcmp(cmd, "cp")) {
-		CG_CenterPrint(CG_Argv(1), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
+		CG_CenterPrint(CG_Argv(1));
 		return;
 	}
 
