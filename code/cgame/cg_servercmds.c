@@ -366,6 +366,10 @@ void CG_ParseServerinfo(void)
 		cgs.gametypeName = "Tournament";
 		cgs.gametypeShortName = "1v1";
 		break;
+	case GT_DEFRAG:
+		cgs.gametypeName = "Defrag";
+		cgs.gametypeShortName = "DF";
+		break;
 	case GT_TEAM:
 		cgs.gametypeName = "Team Deathmatch";
 		cgs.gametypeShortName = "TDM";

@@ -1098,8 +1098,13 @@ can see the last frag.
 */
 void CheckExitRules(void)
 {
- 	int			i;
+	int			i;
 	gclient_t	*cl;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		return;
+	}
+
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
 	if (level.intermissiontime) {
@@ -1227,6 +1232,10 @@ Once a frame, check for changes in tournement player state
 */
 void CheckTournament(void)
 {
+	if (g_gametype.integer == GT_DEFRAG) {
+		return;
+	}
+
 	// check because we run 3 game frames before calling Connect and/or ClientBegin
 	// for clients on a map_restart
 	if (level.numPlayingClients == 0) {

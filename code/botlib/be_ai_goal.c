@@ -93,11 +93,13 @@ typedef enum {
 	GT_FFA,				// free for all
 	GT_TOURNAMENT,		// one on one tournament
 	GT_SINGLE_PLAYER,	// single player tournament
+	GT_DEFRAG,
 
 	//-- team games go after this --
 
 	GT_TEAM,			// team deathmatch
 	GT_CTF,				// capture the flag
+	GT_ELIMINATION,
 	GT_MAX_GAME_TYPE
 } gametype_t;
 
