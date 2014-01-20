@@ -519,6 +519,8 @@ typedef struct {
 	float		v_dmg_roll;
 
 	// temp working variables for player view
+	float		bobfracsin;
+	int			bobcycle;
 	float		xyspeed;
 	int			nextOrbitTime;
 

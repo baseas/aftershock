@@ -368,7 +368,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_lightningStyle, "cg_lightningStyle", "1", CVAR_ARCHIVE, RANGE_INT(0, MAX_LGSTYLES - 1) },
 	{ &cg_muzzleFlash, "cg_muzzleFlash", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_lightningExplosion, "cg_lightningExplosion", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE, RANGE_INT(0, 2) },
 	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_hud, "cg_hud", "hud/default.txt", CVAR_ARCHIVE, RANGE_ALL }

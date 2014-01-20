@@ -501,9 +501,10 @@ static int CG_CalcViewValues(void)
 		return CG_CalcFov();
 	}
 
+	cg.bobcycle = (ps->bobCycle & 128) >> 7;
+	cg.bobfracsin = fabs(sin((ps->bobCycle & 127) / 127.0 * M_PI));
 	cg.xyspeed = sqrt(ps->velocity[0] * ps->velocity[0] +
 		ps->velocity[1] * ps->velocity[1]);
-
 
 	VectorCopy(ps->origin, cg.refdef.vieworg);
 	VectorCopy(ps->viewangles, cg.refdefViewAngles);
