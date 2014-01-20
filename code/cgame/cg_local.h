@@ -257,8 +257,7 @@ typedef struct localEntity_s {
 #define MAX_CUSTOM_SOUNDS	32
 
 typedef struct {
-	char	*modelName;
-
+	char		*modelName;
 	qhandle_t	modelIcon;
 
 	qhandle_t	headModel;
@@ -702,71 +701,71 @@ typedef struct {
 	sfxHandle_t	teleOutSound;
 	sfxHandle_t	noAmmoSound;
 	sfxHandle_t	respawnSound;
-	sfxHandle_t talkSound;
-	sfxHandle_t landSound;
-	sfxHandle_t fallSound;
-	sfxHandle_t jumpPadSound;
+	sfxHandle_t	talkSound;
+	sfxHandle_t	landSound;
+	sfxHandle_t	fallSound;
+	sfxHandle_t	jumpPadSound;
 
-	sfxHandle_t oneMinuteSound;
-	sfxHandle_t fiveMinuteSound;
-	sfxHandle_t suddenDeathSound;
+	sfxHandle_t	oneMinuteSound;
+	sfxHandle_t	fiveMinuteSound;
+	sfxHandle_t	suddenDeathSound;
 
-	sfxHandle_t threeFragSound;
-	sfxHandle_t twoFragSound;
-	sfxHandle_t oneFragSound;
+	sfxHandle_t	threeFragSound;
+	sfxHandle_t	twoFragSound;
+	sfxHandle_t	oneFragSound;
 
-	sfxHandle_t hitSound0;
-	sfxHandle_t hitSound1;
-	sfxHandle_t hitSound2;
-	sfxHandle_t hitSound3;
-	sfxHandle_t hitSound4;
-	sfxHandle_t hitSoundHighArmor;
-	sfxHandle_t hitSoundLowArmor;
-	sfxHandle_t hitTeamSound;
-	sfxHandle_t impressiveSound;
-	sfxHandle_t excellentSound;
-	sfxHandle_t deniedSound;
-	sfxHandle_t humiliationSound;
-	sfxHandle_t assistSound;
-	sfxHandle_t defendSound;
-	sfxHandle_t airrocketSound;
-	sfxHandle_t airgrenadeSound;
-	sfxHandle_t lgAccuracySound;
+	sfxHandle_t	hitSound0;
+	sfxHandle_t	hitSound1;
+	sfxHandle_t	hitSound2;
+	sfxHandle_t	hitSound3;
+	sfxHandle_t	hitSound4;
+	sfxHandle_t	hitSoundHighArmor;
+	sfxHandle_t	hitSoundLowArmor;
+	sfxHandle_t	hitTeamSound;
+	sfxHandle_t	impressiveSound;
+	sfxHandle_t	excellentSound;
+	sfxHandle_t	deniedSound;
+	sfxHandle_t	humiliationSound;
+	sfxHandle_t	assistSound;
+	sfxHandle_t	defendSound;
+	sfxHandle_t	airrocketSound;
+	sfxHandle_t	airgrenadeSound;
+	sfxHandle_t	lgAccuracySound;
 
-	sfxHandle_t takenLeadSound;
-	sfxHandle_t tiedLeadSound;
-	sfxHandle_t lostLeadSound;
+	sfxHandle_t	takenLeadSound;
+	sfxHandle_t	tiedLeadSound;
+	sfxHandle_t	lostLeadSound;
 
-	sfxHandle_t voteNow;
-	sfxHandle_t votePassed;
-	sfxHandle_t voteFailed;
+	sfxHandle_t	voteNow;
+	sfxHandle_t	votePassed;
+	sfxHandle_t	voteFailed;
 
-	sfxHandle_t watrInSound;
-	sfxHandle_t watrOutSound;
-	sfxHandle_t watrUnSound;
+	sfxHandle_t	watrInSound;
+	sfxHandle_t	watrOutSound;
+	sfxHandle_t	watrUnSound;
 
-	sfxHandle_t flightSound;
-	sfxHandle_t medkitSound;
+	sfxHandle_t	flightSound;
+	sfxHandle_t	medkitSound;
 
 	// teamplay sounds
-	sfxHandle_t captureAwardSound;
-	sfxHandle_t redScoredSound;
-	sfxHandle_t blueScoredSound;
-	sfxHandle_t redLeadsSound;
-	sfxHandle_t blueLeadsSound;
-	sfxHandle_t teamsTiedSound;
+	sfxHandle_t	captureAwardSound;
+	sfxHandle_t	redScoredSound;
+	sfxHandle_t	blueScoredSound;
+	sfxHandle_t	redLeadsSound;
+	sfxHandle_t	blueLeadsSound;
+	sfxHandle_t	teamsTiedSound;
 
 	sfxHandle_t	captureYourTeamSound;
 	sfxHandle_t	captureOpponentSound;
 	sfxHandle_t	returnYourTeamSound;
 	sfxHandle_t	returnOpponentSound;
 
-	sfxHandle_t redFlagReturnedSound;
-	sfxHandle_t blueFlagReturnedSound;
+	sfxHandle_t	redFlagReturnedSound;
+	sfxHandle_t	blueFlagReturnedSound;
 	sfxHandle_t	enemyTookYourFlagSound;
-	sfxHandle_t yourTeamTookEnemyFlagSound;
+	sfxHandle_t	yourTeamTookEnemyFlagSound;
 	sfxHandle_t	youHaveFlagSound;
-	sfxHandle_t holyShitSound;
+	sfxHandle_t	holyShitSound;
 
 	// tournament sounds
 	sfxHandle_t	count3Sound;
