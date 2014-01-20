@@ -583,12 +583,8 @@ typedef struct gitem_s {
 	char		*pickup_name;	// for printing on pickup
 
 	int			quantity;		// for ammo how much, or duration of powerup
-	itemType_t  giType;			// IT_* flags
-
+	itemType_t	giType;			// IT_* flags
 	int			giTag;
-
-	char		*precaches;		// string of all models and images this item will use
-	char		*sounds;		// string of all sounds this item will use
 } gitem_t;
 
 // included in both the game dll and the client

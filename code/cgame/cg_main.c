@@ -382,7 +382,6 @@ This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics(void)
 {
 	int			i;
-	char		items[MAX_ITEMS+1];
 	static char	*sb_nums[11] = {
 		"gfx/2d/numbers/zero_32b",
 		"gfx/2d/numbers/one_32b",
@@ -528,19 +527,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.sbNotReady = trap_R_RegisterShaderNoMip("sb_notready");
 	cgs.media.sbSkull = trap_R_RegisterShaderNoMip("sb_skull");
 
-	memset(cg_items, 0, sizeof(cg_items));
-	memset(cg_weapons, 0, sizeof(cg_weapons));
-
-	// only register the items that the server says we need
-	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
-
-	for (i = 1; i < bg_numItems; i++) {
-		if (items[ i ] == '1' || cg_buildScript.integer) {
-			CG_LoadingItem(i);
-			CG_RegisterItemVisuals(i);
-		}
-	}
-
 	// wall marks
 	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");
 	cgs.media.burnMarkShader = trap_R_RegisterShader("gfx/damage/burn_med_mrk");
@@ -579,47 +565,21 @@ static void CG_RegisterGraphics(void)
 	CG_ClearParticles ();
 }
 
-/**
-The server says this item is used on this level
-*/
-static void CG_RegisterItemSounds(int itemNum)
+static void CG_RegisterItems(void)
 {
-	gitem_t			*item;
-	char			data[MAX_QPATH];
-	char			*s, *start;
-	int				len;
+	char	items[MAX_ITEMS + 1];
+	int		i;
 
-	item = &bg_itemlist[ itemNum ];
+	memset(cg_items, 0, sizeof(cg_items));
+	memset(cg_weapons, 0, sizeof(cg_weapons));
 
-	if (item->pickup_sound) {
-		trap_S_RegisterSound(item->pickup_sound, qfalse);
-	}
+	// only register the items that the server says we need
+	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof items);
 
-	// parse the space seperated precache string for other media
-	s = item->sounds;
-	if (!s || !s[0])
-		return;
-
-	while (*s) {
-		start = s;
-		while (*s && *s != ' ') {
-			s++;
-		}
-
-		len = s - start;
-		if (len >= MAX_QPATH || len < 5) {
-			CG_Error("PrecacheItem: %s has bad precache string", item->classname);
-			return;
-		}
-
-		memcpy (data, start, len);
-		data[len] = 0;
-		if (*s) {
-			s++;
-		}
-
-		if (!strcmp(data + len - 3, "wav")) {
-			trap_S_RegisterSound(data, qfalse);
+	for (i = 1; i < bg_numItems; i++) {
+		if (items[i] == '1' || cg_buildScript.integer) {
+			CG_LoadingItem(i);
+			CG_RegisterItem(i);
 		}
 	}
 }
@@ -630,9 +590,11 @@ Called during a precache command
 static void CG_RegisterSounds(void)
 {
 	int		i;
-	char	items[MAX_ITEMS+1];
 	char	name[MAX_QPATH];
 	const char	*soundName;
+
+	cgs.media.gurp1Sound = trap_S_RegisterSound("sound/player/gurp1.wav", qfalse);
+	cgs.media.gurp2Sound = trap_S_RegisterSound("sound/player/gurp2.wav", qfalse);
 
 	// voice commands
 	cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/feedback/1_minute.wav", qtrue);
@@ -740,15 +702,6 @@ static void CG_RegisterSounds(void)
 
 		Com_sprintf (name, sizeof(name), "sound/player/footsteps/clank%i.wav", i+1);
 		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound (name, qfalse);
-	}
-
-	// only register the items that the server says we need
-	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof(items));
-
-	for (i = 1; i < bg_numItems; i++) {
-//		if (items[ i ] == '1' || cg_buildScript.integer) {
-			CG_RegisterItemSounds(i);
-//		}
 	}
 
 	for (i = 1; i < MAX_SOUNDS; i++) {
@@ -935,6 +888,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_RegisterSounds();
 
 	CG_RegisterGraphics();
+
+	CG_RegisterItems();
 
 	CG_RegisterModels();
 

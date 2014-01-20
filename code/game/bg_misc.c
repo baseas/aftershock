@@ -53,9 +53,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	NULL,
 		0,
 		0,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},	// leave index 0 alone
 
 	//
@@ -74,9 +72,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Armor Shard",
 		5,
 		IT_ARMOR,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 /*QUAKED item_armor_jacket (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -90,9 +86,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Green Armor",
 		25,
 		IT_ARMOR,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 /*QUAKED item_armor_combat (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -106,9 +100,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Armor",
 		50,
 		IT_ARMOR,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 /*QUAKED item_armor_body (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -122,9 +114,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Heavy Armor",
 		100,
 		IT_ARMOR,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 	//
@@ -142,9 +132,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"5 Health",
 		5,
 		IT_HEALTH,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 /*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -159,9 +147,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"25 Health",
 		25,
 		IT_HEALTH,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 /*QUAKED item_health_large (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -176,9 +162,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"50 Health",
 		50,
 		IT_HEALTH,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 /*QUAKED item_health_mega (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -193,9 +177,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Mega Health",
 		100,
 		IT_HEALTH,
-		0,
-/* precache */ "",
-/* sounds */ ""
+		0
 	},
 
 
@@ -214,9 +196,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Gauntlet",
 		0,
 		IT_WEAPON,
-		WP_GAUNTLET,
-/* precache */ "",
-/* sounds */ ""
+		WP_GAUNTLET
 	},
 
 /*QUAKED weapon_shotgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -230,9 +210,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Shotgun",
 		10,
 		IT_WEAPON,
-		WP_SHOTGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_SHOTGUN
 	},
 
 /*QUAKED weapon_machinegun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -246,9 +224,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Machinegun",
 		40,
 		IT_WEAPON,
-		WP_MACHINEGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_MACHINEGUN
 	},
 
 /*QUAKED weapon_grenadelauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -262,9 +238,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Grenade Launcher",
 		10,
 		IT_WEAPON,
-		WP_GRENADE_LAUNCHER,
-/* precache */ "",
-/* sounds */ "sound/weapons/grenade/hgrenb1a.wav sound/weapons/grenade/hgrenb2a.wav"
+		WP_GRENADE_LAUNCHER
 	},
 
 /*QUAKED weapon_rocketlauncher (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -278,9 +252,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Rocket Launcher",
 		10,
 		IT_WEAPON,
-		WP_ROCKET_LAUNCHER,
-/* precache */ "",
-/* sounds */ ""
+		WP_ROCKET_LAUNCHER
 	},
 
 /*QUAKED weapon_lightning (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -294,9 +266,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Lightning Gun",
 		100,
 		IT_WEAPON,
-		WP_LIGHTNING,
-/* precache */ "",
-/* sounds */ ""
+		WP_LIGHTNING
 	},
 
 /*QUAKED weapon_railgun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -310,9 +280,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Railgun",
 		10,
 		IT_WEAPON,
-		WP_RAILGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_RAILGUN
 	},
 
 /*QUAKED weapon_plasmagun (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -326,9 +294,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Plasma Gun",
 		50,
 		IT_WEAPON,
-		WP_PLASMAGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_PLASMAGUN
 	},
 
 /*QUAKED weapon_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -342,9 +308,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"BFG10K",
 		20,
 		IT_WEAPON,
-		WP_BFG,
-/* precache */ "",
-/* sounds */ ""
+		WP_BFG
 	},
 
 /*QUAKED weapon_grapplinghook (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -358,9 +322,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Grappling Hook",
 		0,
 		IT_WEAPON,
-		WP_GRAPPLING_HOOK,
-/* precache */ "",
-/* sounds */ ""
+		WP_GRAPPLING_HOOK
 	},
 
 	//
@@ -378,9 +340,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Shells",
 		10,
 		IT_AMMO,
-		WP_SHOTGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_SHOTGUN
 	},
 
 /*QUAKED ammo_bullets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -394,9 +354,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Bullets",
 		50,
 		IT_AMMO,
-		WP_MACHINEGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_MACHINEGUN
 	},
 
 /*QUAKED ammo_grenades (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -410,9 +368,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Grenades",
 		5,
 		IT_AMMO,
-		WP_GRENADE_LAUNCHER,
-/* precache */ "",
-/* sounds */ ""
+		WP_GRENADE_LAUNCHER
 	},
 
 /*QUAKED ammo_cells (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -426,9 +382,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Cells",
 		30,
 		IT_AMMO,
-		WP_PLASMAGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_PLASMAGUN
 	},
 
 /*QUAKED ammo_lightning (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -442,9 +396,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Lightning",
 		60,
 		IT_AMMO,
-		WP_LIGHTNING,
-/* precache */ "",
-/* sounds */ ""
+		WP_LIGHTNING
 	},
 
 /*QUAKED ammo_rockets (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -458,9 +410,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Rockets",
 		5,
 		IT_AMMO,
-		WP_ROCKET_LAUNCHER,
-/* precache */ "",
-/* sounds */ ""
+		WP_ROCKET_LAUNCHER
 	},
 
 /*QUAKED ammo_slugs (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -474,9 +424,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Slugs",
 		10,
 		IT_AMMO,
-		WP_RAILGUN,
-/* precache */ "",
-/* sounds */ ""
+		WP_RAILGUN
 	},
 
 /*QUAKED ammo_bfg (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -490,9 +438,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Bfg Ammo",
 		15,
 		IT_AMMO,
-		WP_BFG,
-/* precache */ "",
-/* sounds */ ""
+		WP_BFG
 	},
 
 	//
@@ -509,9 +455,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Personal Teleporter",
 		60,
 		IT_HOLDABLE,
-		HI_TELEPORTER,
-/* precache */ "",
-/* sounds */ ""
+		HI_TELEPORTER
 	},
 /*QUAKED holdable_medkit (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
 */
@@ -526,9 +470,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Medkit",
 		60,
 		IT_HOLDABLE,
-		HI_MEDKIT,
-/* precache */ "",
-/* sounds */ "sound/items/use_medkit.wav"
+		HI_MEDKIT
 	},
 
 	//
@@ -546,9 +488,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Quad Damage",
 		30,
 		IT_POWERUP,
-		PW_QUAD,
-/* precache */ "",
-/* sounds */ "sound/items/damage2.wav sound/items/damage3.wav"
+		PW_QUAD
 	},
 
 /*QUAKED item_enviro (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -563,9 +503,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Battle Suit",
 		30,
 		IT_POWERUP,
-		PW_BATTLESUIT,
-/* precache */ "",
-/* sounds */ "sound/items/airout.wav sound/items/protect3.wav"
+		PW_BATTLESUIT
 	},
 
 /*QUAKED item_haste (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -580,9 +518,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Speed",
 		30,
 		IT_POWERUP,
-		PW_HASTE,
-/* precache */ "",
-/* sounds */ ""
+		PW_HASTE
 	},
 
 /*QUAKED item_invis (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -597,9 +533,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Invisibility",
 		30,
 		IT_POWERUP,
-		PW_INVIS,
-/* precache */ "",
-/* sounds */ ""
+		PW_INVIS
 	},
 
 /*QUAKED item_regen (.3 .3 1) (-16 -16 -16) (16 16 16) suspended
@@ -614,9 +548,7 @@ gitem_t	bg_itemlist[] = {
 /* pickup */	"Regeneration",
 		30,
 		IT_POWERUP,
-		PW_REGEN,
-/* precache */ "",
-/* sounds */ "sound/items/regen.wav"
+		PW_REGEN
 	},
 
 /*QUAKED team_CTF_redflag (1 0 0) (-16 -16 -16) (16 16 16)
@@ -631,9 +563,7 @@ Only in CTF games
 /* pickup */	"Red Flag",
 		0,
 		IT_TEAM,
-		PW_REDFLAG,
-/* precache */ "",
-/* sounds */ ""
+		PW_REDFLAG
 	},
 
 /*QUAKED team_CTF_blueflag (0 0 1) (-16 -16 -16) (16 16 16)
@@ -648,13 +578,11 @@ Only in CTF games
 /* pickup */	"Blue Flag",
 		0,
 		IT_TEAM,
-		PW_BLUEFLAG,
-/* precache */ "",
-/* sounds */ ""
+		PW_BLUEFLAG
 	},
 
 	// end of list marker
-	{NULL}
+	{ NULL }
 };
 
 int		bg_numItems = ARRAY_LEN(bg_itemlist) - 1;

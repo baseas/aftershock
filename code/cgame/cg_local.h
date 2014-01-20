@@ -254,11 +254,6 @@ typedef struct localEntity_s {
 	refEntity_t		refEntity;		
 } localEntity_t;
 
-// each client has an associated clientInfo_t
-// that contains media references necessary to present the
-// client model and other color coded effects
-// this is regenerated each time a client's configstring changes,
-// usually as a result of a userinfo (name, model, etc) change
 #define MAX_CUSTOM_SOUNDS	32
 
 typedef struct {
@@ -291,6 +286,11 @@ typedef struct {
 	sfxHandle_t	sounds[MAX_CUSTOM_SOUNDS];
 } model_t;
 
+// each client has an associated clientInfo_t
+// that contains media references necessary to present the
+// client model and other color coded effects
+// this is regenerated each time a client's configstring changes,
+// usually as a result of a userinfo (name, model, etc) change
 typedef struct {
 	qboolean		infoValid;
     qboolean		ready;
@@ -354,6 +354,7 @@ typedef struct {
 	qboolean		registered;
 	qhandle_t		models[MAX_ITEM_MODELS];
 	qhandle_t		icon;
+	qhandle_t		pickupSound;
 } itemInfo_t;
 
 typedef struct {
@@ -783,6 +784,9 @@ typedef struct {
 	sfxHandle_t	wstbimpmSound;
 	sfxHandle_t	wstbimpdSound;
 	sfxHandle_t	wstbactvSound;
+
+	sfxHandle_t	gurp1Sound;
+	sfxHandle_t	gurp2Sound;
 
 	model_t	teamModel;
 	model_t	enemyModel;
@@ -1321,8 +1325,7 @@ void	CG_NextWeapon_f(void);
 void	CG_PrevWeapon_f(void);
 void	CG_Weapon_f(void);
 
-void	CG_RegisterWeapon(int weaponNum);
-void	CG_RegisterItemVisuals(int itemNum);
+void	CG_RegisterItem(int itemNum);
 
 void	CG_FireWeapon(centity_t *cent);
 void	CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType);

@@ -212,7 +212,7 @@ void CG_GrappleTrail(centity_t *ent, const weaponInfo_t *wi)
 /**
 The server says this item is used on this level
 */
-void CG_RegisterWeapon(int weaponNum)
+static void CG_RegisterWeapon(int weaponNum)
 {
 	weaponInfo_t	*weaponInfo;
 	gitem_t			*item, *ammo;
@@ -242,7 +242,7 @@ void CG_RegisterWeapon(int weaponNum)
 	if (!item->classname) {
 		CG_Error("Couldn't find weapon %i", weaponNum);
 	}
-	CG_RegisterItemVisuals(item - bg_itemlist);
+	CG_RegisterItem(item - bg_itemlist);
 
 	// load cmodel before model so filecache works
 	weaponInfo->weaponModel = trap_R_RegisterModel(item->world_model[0]);
@@ -394,7 +394,7 @@ void CG_RegisterWeapon(int weaponNum)
 /**
 The server says this item is used on this level
 */
-void CG_RegisterItemVisuals(int itemNum)
+void CG_RegisterItem(int itemNum)
 {
 	itemInfo_t		*itemInfo;
 	gitem_t			*item;
@@ -414,8 +414,10 @@ void CG_RegisterItemVisuals(int itemNum)
 	itemInfo->registered = qtrue;
 
 	itemInfo->models[0] = trap_R_RegisterModel(item->world_model[0]);
-
 	itemInfo->icon = trap_R_RegisterShader(item->icon);
+	if (item->pickup_sound) {
+		itemInfo->pickupSound = trap_S_RegisterSound(item->pickup_sound, qfalse);
+	}
 
 	if (item->giType == IT_WEAPON) {
 		CG_RegisterWeapon(item->giTag);
