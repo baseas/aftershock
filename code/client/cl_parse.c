@@ -69,13 +69,9 @@ static void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityS
 	state = &cl.parseEntities[cl.parseEntitiesNum & (MAX_PARSE_ENTITIES-1)];
 
 	if ( unchanged ) {
-		CopyEntity(state, old);
+		*state = *old;
 	} else {
-		int oldscore = state->pubStats[0];
 		MSG_ReadDeltaEntity( msg, old, state, newnum );
-		if (state->clientNum != 0 && oldscore != state->pubStats[0]) {
-		printf("score from %d to %d\n", oldscore, state->pubStats[0]);
-		}
 	}
 
 	if ( state->number == (MAX_GENTITIES-1) ) {

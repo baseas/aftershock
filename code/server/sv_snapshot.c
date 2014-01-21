@@ -510,7 +510,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	for ( i = 0 ; i < entityNumbers.numSnapshotEntities ; i++ ) {
 		ent = SV_GentityNum(entityNumbers.snapshotEntities[i]);
 		state = &svs.snapshotEntities[svs.nextSnapshotEntities % svs.numSnapshotEntities];
-		CopyEntity(state, &ent->s);
+		*state = ent->s;
 		svs.nextSnapshotEntities++;
 		// this should never hit, map should always be restarted first in SV_Frame
 		if ( svs.nextSnapshotEntities >= 0x7FFFFFFE ) {

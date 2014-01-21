@@ -1020,8 +1020,6 @@ void BG_PlayerStateToEntityState(playerState_t *ps, entityState_t *s, qboolean s
 		SnapVector(s->apos.trBase);
 	}
 
-//	memcpy(s->pubStats, ps->pubStats, sizeof s->pubStats);
-//	memcpy(&s->privStats, &ps->privStats, sizeof s->privStats);
 	s->angles2[YAW] = ps->movementDir;
 	s->legsAnim = ps->legsAnim;
 	s->torsoAnim = ps->torsoAnim;

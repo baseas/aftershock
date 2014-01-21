@@ -877,10 +877,11 @@ Updates the cl->ping variables
 ===================
 */
 static void SV_CalcPings( void ) {
-	int			i, j;
-	client_t	*cl;
-	int			total, count;
-	int			delta;
+	int				i, j;
+	client_t		*cl;
+	int				total, count;
+	int				delta;
+	playerState_t	*ps;
 
 	for (i=0 ; i < sv_maxclients->integer ; i++) {
 		cl = &svs.clients[i];
@@ -916,6 +917,9 @@ static void SV_CalcPings( void ) {
 			}
 		}
 	}
+
+	ps = SV_GameClientNum(i);
+	ps->ping = cl->ping;
 }
 
 /*

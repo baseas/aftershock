@@ -991,10 +991,7 @@ void LogExit(const char *string)
 			continue;
 		}
 
-		ping = g_entities[level.sortedClients[i]].s.pubStats[PUBSTAT_PING];
-		if (ping > 999) {
-			ping = 999;
-		}
+		ping = (cl->ps.ping < 999 ? cl->ps.ping : 999);
 
 		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE],
 			ping, level.sortedClients[i], cl->pers.netname);

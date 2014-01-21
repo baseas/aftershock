@@ -158,8 +158,8 @@ qboolean	CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	}
 	snapshot->numEntities = count;
 	for ( i = 0 ; i < count ; i++ ) {
-		CopyEntity(&snapshot->entities[i],
-			&cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ]);
+		snapshot->entities[i] =
+			cl.parseEntities[ ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ];
 	}
 
 	// FIXME: configstring changes and server commands!!!

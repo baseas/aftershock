@@ -858,46 +858,6 @@ static void MSG_ReadDeltaArray(msg_t *msg, int bitcount, int *to)
 	}
 }
 
-static void MSG_WriteDeltaStats(msg_t *msg, entityState_t *from, entityState_t *to)
-{
-	if (MSG_ArrayChanged(MAX_PUBSTAT, from->pubStats, to->pubStats)) {
-		MSG_WriteBits(msg, 1, 1);
-		MSG_WriteDeltaArray(msg, MAX_PUBSTAT, from->pubStats, to->pubStats);
-	} else {
-		MSG_WriteBits(msg, 0, 1);
-	}
-
-	if (MSG_ArrayChanged(MAX_REWARDS, from->privStats.rewards, to->privStats.rewards)
-		|| MSG_ArrayChanged(MAX_WEAPONS, from->privStats.shots, to->privStats.shots)
-		|| MSG_ArrayChanged(MAX_WEAPONS, from->privStats.teamHits, to->privStats.teamHits)
-		|| MSG_ArrayChanged(MAX_WEAPONS, from->privStats.enemyHits, to->privStats.enemyHits))
-	{
-		MSG_WriteBits(msg, 1, 1);
-		MSG_WriteDeltaArray(msg, MAX_REWARDS, from->privStats.rewards, to->privStats.rewards);
-		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->privStats.shots, to->privStats.shots);
-		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->privStats.teamHits, to->privStats.teamHits);
-		MSG_WriteDeltaArray(msg, MAX_WEAPONS, from->privStats.enemyHits, to->privStats.enemyHits);
-	} else {
-		MSG_WriteBits(msg, 0, 1);
-	}
-}
-
-static void MSG_ReadDeltaStats(msg_t *msg, entityState_t *to)
-{
-	if (MSG_ReadBits(msg, 1)) {
-		MSG_ReadDeltaArray(msg, MAX_PUBSTAT, to->pubStats);
-		to->pubStats[0] = 222;
-		printf("read\n");
-	}
-
-	if (MSG_ReadBits(msg, 1)) {
-		MSG_ReadDeltaArray(msg, MAX_REWARDS, to->privStats.rewards);
-		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->privStats.shots);
-		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->privStats.teamHits);
-		MSG_ReadDeltaArray(msg, MAX_WEAPONS, to->privStats.enemyHits);
-	}
-}
-
 /*
 ==================
 MSG_WriteDeltaEntity
@@ -934,7 +894,7 @@ void MSG_WriteDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, q
 
 	numFields = ARRAY_LEN(entityStateFields);
 	lc = MSG_ChangeVector(entityStateFields, numFields, from, to);
-#if 0
+
 	if ( lc == 0 ) {
 		// nothing at all changed
 		if ( !force ) {
@@ -946,7 +906,6 @@ void MSG_WriteDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, q
 		MSG_WriteBits( msg, 0, 1 );		// no delta
 		return;
 	}
-#endif
 
 	MSG_WriteBits( msg, to->number, GENTITYNUM_BITS );
 	MSG_WriteBits( msg, 0, 1 );			// not removed
@@ -995,10 +954,6 @@ void MSG_WriteDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to, q
 			}
 		}
 	}
-
-	if (to->number < MAX_CLIENTS) {
-		MSG_WriteDeltaStats(msg, from, to);
-	}
 }
 
 /*
@@ -1045,7 +1000,7 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 	// check for no delta
 	if ( MSG_ReadBits( msg, 1 ) == 0 ) {
-		CopyEntity(to, from);
+		*to = *from;
 		to->number = number;
 		return;
 	}
@@ -1126,10 +1081,6 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 			endBit = ( msg->readcount - 1 ) * 8 + msg->bit - GENTITYNUM_BITS;
 		}
 		Com_Printf( " (%i bits)\n", endBit - startBit  );
-	}
-
-	if (to->number < MAX_CLIENTS) {
-		MSG_ReadDeltaStats(msg, to); 
 	}
 }
 
@@ -1269,8 +1220,6 @@ void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *
 	} else {
 		MSG_WriteBits(msg, 0, 1);
 	}
-
-//	MSG_WriteDeltaStats(msg, (entityState_t *) from, (entityState_t *) to);
 }
 
 /*
@@ -1364,8 +1313,6 @@ void MSG_ReadDeltaPlayerstate (msg_t *msg, playerState_t *from, playerState_t *t
 		MSG_ReadDeltaArray(msg, MAX_PERSISTANT, to->persistant);
 		MSG_ReadDeltaArray(msg, MAX_POWERUPS, to->powerups);
 	}
-
-//	MSG_ReadDeltaStats(msg, (entityState_t *) to);
 
 	if ( print ) {
 		if ( msg->bit == 0 ) {

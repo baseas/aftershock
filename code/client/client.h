@@ -511,7 +511,6 @@ extern int cl_connectedToCheatServer;
 void CL_Voip_f( void );
 #endif
 
-void CL_CopyEntity(entityState_t *dest, entityState_t *src);
 void CL_SystemInfoChanged( void );
 void CL_ParseServerMessage( msg_t *msg );
 

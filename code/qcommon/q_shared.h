@@ -1161,6 +1161,7 @@ typedef struct playerState_s {
 	int			jumppad_ent;	// jumppad entity hit this frame
 
 	// not communicated over the net at all
+	int			ping;
 	int			pmove_framecount;
 	int			jumppad_frame;
 	int			entityEventSequence;
@@ -1233,7 +1234,6 @@ typedef struct {
 // Different eTypes may use the information in different ways
 // The messages are delta compressed, so it doesn't really matter if
 // the structure size is fairly large
-// TODO use unions to reduce memory and bandwidth usage
 typedef struct entityState_s {
 	int		number;			// entity index
 	int		eType;			// entityType_t
@@ -1261,25 +1261,24 @@ typedef struct entityState_s {
 
 	int		modelindex;
 	int		modelindex2;
+	int		clientNum;
 	int		frame;
 
 	int		solid;			// for client side prediction, trap_linkentity sets this properly
+	int		event;			// impulse events -- muzzle flashes, footsteps, etc
+	int		eventParm;
 
-	int		clientNum;
+	// for players
 	int		powerups;		// bit flags
 	int		weapon;			// determines weapon and flash model, etc
 	int		legsAnim;		// mask off ANIM_TOGGLEBIT
 	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
 
-	int		event;			// impulse events -- muzzle flashes, footsteps, etc
-	int		eventParm;
 	int		generic1;
 
 	int			pubStats[MAX_PUBSTAT];
 	privStats_t	privStats;
 } entityState_t;
-
-void CopyEntity(entityState_t *dest, entityState_t *src);
 
 typedef enum {
 	CA_UNINITIALIZED,
