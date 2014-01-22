@@ -26,6 +26,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+static void CG_ParsePings(void)
+{
+	int	i, k;
+	int	numClients;
+
+	numClients = trap_Argc() - 1;
+	if (numClients > MAX_CLIENTS) {
+		numClients = MAX_CLIENTS;
+	}
+
+	for (i = 0, k = 0; i < numClients; ++i) {
+		if (!cgs.clientinfo[k].infoValid) {
+			continue;
+		}
+		if (cgs.clientinfo[k].botSkill) {
+			cgs.clientinfo[k].ping = 0;
+			continue;
+		}
+		cgs.clientinfo[k++].ping = atoi(CG_Argv(i + 1));
+	}
+}
+
 static void CG_ParseWarmup(void)
 {
 	int			warmup;
@@ -268,6 +290,11 @@ static void CG_ServerCommand(void)
 
 	if (!strcmp(cmd, "cs")) {
 		CG_ConfigStringModified();
+		return;
+	}
+
+	if (!strcmp(cmd, "pings")) {
+		CG_ParsePings();
 		return;
 	}
 

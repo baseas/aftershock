@@ -297,6 +297,8 @@ typedef struct {
 	char			name[MAX_QPATH];
 	team_t			team;
 
+	int				ping;
+
 	int				botSkill;		// 0 = not bot, 1-5 = bot
 
 	int				handicap;

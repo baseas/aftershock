@@ -24,6 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+#define PING_UPDATE_INTERVAL	1000
+
 typedef struct {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
@@ -1181,6 +1183,33 @@ void CheckExitRules(void)
 
 // FUNCTIONS CALLED EVERY FRAME
 
+static void CheckPings(void)
+{
+	int			i;
+	gclient_t	*cl;
+	char		pings[1024];
+
+	if (level.time - level.lastPingTime < PING_UPDATE_INTERVAL) {
+		return;
+	}
+
+	strcpy(pings, "pings");
+
+	for (i = 0; i < g_maxclients.integer; ++i) {
+		cl = level.clients + i;
+		if (cl->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			continue;
+		}
+		Q_strcat(pings, sizeof pings, va(" %i", cl->ps.ping));
+	}
+
+	level.lastPingTime = level.time;
+	trap_SendServerCommand(-1, pings);
+}
+
 static qboolean EnoughReady(void)
 {
 	int	i, clientsReady, humanPlayers;
@@ -1614,6 +1643,8 @@ void G_RunFrame(int levelTime)
 
 	// update to team status?
 	CheckTeamStatus();
+
+	CheckPings();
 
 	// cancel vote if timed out
 	CheckVote();

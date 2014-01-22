@@ -86,7 +86,8 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	es = &cg_entities[clientNum].currentState;
 
 	// don't draw the client while he's connecting
-	if (es->pubStats[PUBSTAT_PING] == -1) {
+	// FIXME need other check
+	if (ci->ping == -1) {
 		return;
 	}
 
@@ -101,7 +102,7 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	CG_DrawStringExt(x + w*0.7, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
 		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 
-	Com_sprintf(string, sizeof string, "%i", es->pubStats[PUBSTAT_PING]);
+	Com_sprintf(string, sizeof string, "%i", ci->ping);
 	CG_DrawStringExt(x + w*0.8, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
 		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 3);
 
