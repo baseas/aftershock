@@ -298,6 +298,7 @@ typedef struct {
 	team_t			team;
 
 	int				ping;
+	int				enterTime;
 
 	int				botSkill;		// 0 = not bot, 1-5 = bot
 

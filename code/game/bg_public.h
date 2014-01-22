@@ -231,7 +231,6 @@ typedef enum {
 	PUBSTAT_HEALTH,
 	PUBSTAT_ARMOR,
 	PUBSTAT_LOCATION,
-	PUBSTAT_TIME
 } pubStatsEnum_t;
 
 typedef enum {

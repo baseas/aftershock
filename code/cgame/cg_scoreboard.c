@@ -106,7 +106,7 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	CG_DrawStringExt(x + w*0.8, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
 		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 3);
 
-	time = cg.time - es->pubStats[PUBSTAT_TIME];
+	time = cg.time - ci->enterTime;
 	Com_sprintf(string, sizeof string, "%i", time / 60 / 1000);
 	CG_DrawStringExt(x + w*0.88, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
 		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 3);

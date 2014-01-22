@@ -681,6 +681,10 @@ void CG_NewClientInfo(int clientNum)
 	} else {
 		CG_SetPlayerModel(clientNum);
 	}
+
+	if (!oldValid) {
+		ci->enterTime = cg.time;
+	}
 }
 
 // PLAYER ANIMATION
