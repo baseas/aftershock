@@ -634,7 +634,10 @@ void CG_NewClientInfo(int clientNum)
 
 	// isolate the player's name
 	v = Info_ValueForKey(configstring, "n");
-	Q_strncpyz(ci->name, v, sizeof(ci->name));
+	if (oldValid && strcmp(v, ci->name)) {
+		CG_Printf("%s" S_COLOR_WHITE " renamed to %s\n", ci->name, v);
+	}
+	Q_strncpyz(ci->name, v, sizeof ci->name);
 
 	v = Info_ValueForKey(configstring, "skill");
 	ci->botSkill = atoi(v);

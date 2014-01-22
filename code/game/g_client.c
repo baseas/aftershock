@@ -575,11 +575,8 @@ void ClientUserinfoChanged(int clientNum)
 		}
 	}
 
-	if (client->pers.connected == CON_CONNECTED) {
-		if (strcmp(oldname, client->pers.netname)) {
-			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " renamed to %s\n\"", oldname,
-				client->pers.netname));
-		}
+	if (client->pers.connected == CON_CONNECTED && strcmp(oldname, client->pers.netname)) {
+		G_LogPrintf("%s" S_COLOR_WHITE " renamed to %s\n", oldname, client->pers.netname);
 	}
 
 	// set max health
