@@ -271,7 +271,7 @@ void CG_DrawStringExt(float x, float y, const char *string, const float *setColo
 {
 	vec4_t		color;
 	const char	*s;
-	int			xx;
+	float		xx;
 	int			cnt;
 
 	if (maxChars <= 0)
