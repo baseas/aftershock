@@ -43,10 +43,6 @@ typedef struct {
 
 lagometer_t		lagometer;
 
-char	systemChat[256];
-char	teamChat1[256];
-char	teamChat2[256];
-
 static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 {
 	hudElement_t	*hudelement;
@@ -351,6 +347,84 @@ static void CG_DrawHudPowerup(int hudnumber, int index)
 	CG_DrawHudIcon(hudnumber, qfalse, trap_R_RegisterShader(item->icon));
 }
 
+static void CG_DrawHudChat(int hudnumber, msgItem_t list[CHAT_HEIGHT], int duration, int index)
+{
+	int	i;
+
+	// find the index of the oldest chat message to display
+	for (i = 0; i < CHAT_HEIGHT; ++i) {
+		if (list[i].time == 0) {
+			break;
+		}
+		if (!cg.showChat && (cg.time - list[i].time > duration)) {
+			break;
+		}
+	}
+
+	index = i - index - 1;
+	if (index < 0) {
+		return;
+	}
+
+	CG_DrawHudString(hudnumber, qfalse, list[index].message);
+}
+
+static void CG_DrawHudDeathNotice(int hudnumber, int index)
+{
+	int		i;
+	float	x;
+	float	y;
+	float	width;
+	hudElement_t	*hudelement;
+	deathNotice_t	*notice;
+
+	for (i = 0; i < DEATHNOTICE_HEIGHT; ++i) {
+		if (cgs.deathNotices[i].time == 0) {
+			break;
+		}
+		if (cg.time - cgs.deathNotices[i].time > cg_deathNoticeTime.integer) {
+			break;
+		}
+	}
+
+	index = i - index - 1;
+	if (index < 0) {
+		return;
+	}
+
+	notice = &cgs.deathNotices[index];
+
+	hudelement = &cgs.hud[hudnumber];
+	y = hudelement->ypos;
+
+	width = CG_StringWidth(hudelement->fontWidth, notice->target);
+	width += CG_StringWidth(hudelement->fontWidth, notice->attacker);
+	width += (notice->directHit ? 2 : 1) * (CG_AdjustWidth(hudelement->fontHeight) + 2);
+
+	if (hudelement->textAlign == 0) {
+		x = hudelement->xpos;
+	} else if (hudelement->textAlign == 2) {
+		x = hudelement->xpos + hudelement->width - width;
+	} else {
+		x = hudelement->xpos + hudelement->width / 2 - width / 2;
+	}
+
+	CG_DrawStringExt(x, y, notice->attacker, hudelement->color, qfalse, qfalse,
+		hudelement->fontWidth, hudelement->fontHeight, 0);
+
+	x += CG_StringWidth(hudelement->fontWidth, notice->attacker);
+
+	if (notice->directHit) {
+		CG_DrawAdjustPic(x + 1 , y, hudelement->fontHeight, hudelement->fontHeight, cgs.media.directHit);
+		x += CG_AdjustWidth(hudelement->fontHeight) + 2;
+	}
+
+	CG_DrawAdjustPic(x + 1, y, hudelement->fontHeight, hudelement->fontHeight, notice->icon);
+	x += CG_AdjustWidth(hudelement->fontHeight) + 2;
+	CG_DrawStringExt(x, y, notice->target, hudelement->color, qfalse, qfalse,
+		hudelement->fontWidth, hudelement->fontHeight, 0);
+}
+
 static void CG_DrawHudScores(int hudnumber, int score)
 {
 	hudElement_t	*hudelement;
@@ -441,7 +515,7 @@ static void CG_ScanForCrosshairEntity(void)
 	}
 
 	// if the player is invisible, don't show it
-	if (cg_entities[ trace.entityNum ].currentState.powerups & (1 << PW_INVIS)) {
+	if (cg_entities[trace.entityNum].currentState.powerups & (1 << PW_INVIS)) {
 		return;
 	}
 
@@ -1406,6 +1480,15 @@ void CG_DrawHud()
 			continue;
 		}
 		hudCallbacks[i].func(hudCallbacks[i].hudnumber);
+	}
+
+	for (i = 0; i < CHAT_HEIGHT; ++i) {
+		CG_DrawHudChat(HUD_CHAT1 + i, cgs.chatMessages, cg_chatTime.integer, i);
+		CG_DrawHudChat(HUD_TEAMCHAT1 + i, cgs.teamChatMessages, cg_teamChatTime.integer, i);
+	}
+
+	for (i = 0; i < DEATHNOTICE_HEIGHT; ++i) {
+		CG_DrawHudDeathNotice(HUD_DEATHNOTICE1 + i, i);
 	}
 }
 

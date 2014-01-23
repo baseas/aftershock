@@ -90,6 +90,16 @@ static void CG_AccUp_f(void)
 	cg.showAcc = qfalse;
 }
 
+static void CG_ChatUp_f(void)
+{
+	cg.showChat = qtrue;
+}
+
+static void CG_ChatDown_f(void)
+{
+	cg.showChat = qfalse;
+}
+
 static void CG_TellTarget_f(void)
 {
 	int		clientNum;
@@ -155,6 +165,8 @@ static consoleCommand_t	commands[] = {
 	{ "-acc", CG_AccUp_f },
 	{ "+zoom", CG_ZoomDown_f },
 	{ "-zoom", CG_ZoomUp_f },
+	{ "+chat", CG_ChatUp_f },
+	{ "-chat", CG_ChatDown_f },
 	{ "sizeup", CG_SizeUp_f },
 	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },

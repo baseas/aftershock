@@ -146,8 +146,9 @@ vmCvar_t	cg_thirdPersonAngle;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_synchronousClients;
+vmCvar_t	cg_chatTime;
 vmCvar_t	cg_teamChatTime;
-vmCvar_t	cg_teamChatHeight;
+vmCvar_t	cg_deathNoticeTime;
 vmCvar_t	cg_stats;
 vmCvar_t	cg_buildScript;
 vmCvar_t	cg_paused;
@@ -279,8 +280,9 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_thirdPersonRange, "cg_thirdPersonRange", "40", 0, RANGE_FLOAT(FLT_MIN, FLT_MAX) },
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle", "0", 0, RANGE_FLOAT(FLT_MIN, FLT_MAX) },
 	{ &cg_thirdPerson, "cg_thirdPerson", "0", CVAR_CHEAT, RANGE_BOOL },
+	{ &cg_chatTime, "cg_chatTime", "3000", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
 	{ &cg_teamChatTime, "cg_teamChatTime", "3000", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
-	{ &cg_teamChatHeight, "cg_teamChatHeight", "0", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_deathNoticeTime, "cg_deathNoticeTime", "3000", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
 	{ &cg_predictItems, "cg_predictItems", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay", "0", CVAR_ARCHIVE, RANGE_INT(0, 3) },
 	{ &cg_teamOverlayUserinfo, "teamoverlay", "0", CVAR_ROM | CVAR_USERINFO, RANGE_BOOL },
@@ -472,7 +474,6 @@ static void CG_RegisterGraphics(void)
 	if (cgs.gametype >= GT_TEAM || cg_buildScript.integer) {
 		cgs.media.friendShader = trap_R_RegisterShader("sprites/foe");
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
-		cgs.media.teamStatusBar = trap_R_RegisterShader("gfx/2d/colorbar.tga");
 	}
 
 	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3");
@@ -528,6 +529,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.sbReady = trap_R_RegisterShaderNoMip("sb_ready");
 	cgs.media.sbNotReady = trap_R_RegisterShaderNoMip("sb_notready");
 	cgs.media.sbSkull = trap_R_RegisterShaderNoMip("sb_skull");
+
+	cgs.media.skull = trap_R_RegisterShaderNoMip("icons/skull");
+	cgs.media.directHit = trap_R_RegisterShaderNoMip("icons/direct_hit");
 
 	// wall marks
 	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");

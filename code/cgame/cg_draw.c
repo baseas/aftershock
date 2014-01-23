@@ -212,9 +212,6 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 		hcolor[2] = 1.0f;
 		hcolor[3] = 0.33f;
 	}
-	trap_R_SetColor(hcolor);
-	CG_DrawAdjustPic(x, y, w, h, cgs.media.teamStatusBar);
-	trap_R_SetColor(NULL);
 
 	for (i = 0; i < count; i++) {
 		ci = &cgs.clientinfo[sortedTeamPlayers[i]];
@@ -334,63 +331,6 @@ static void CG_DrawLowerLeft(void)
 
 	if (cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 3) {
 		y = CG_DrawTeamOverlay(y, qfalse, qfalse);
-	}
-}
-
-static void CG_DrawTeamInfo(void)
-{
-	int h;
-	int i;
-	vec4_t		hcolor;
-	int		chatHeight;
-
-#define CHATLOC_Y 420 // bottom end
-#define CHATLOC_X 0
-
-	if (cg_teamChatHeight.integer < TEAMCHAT_HEIGHT)
-		chatHeight = cg_teamChatHeight.integer;
-	else
-		chatHeight = TEAMCHAT_HEIGHT;
-	if (chatHeight <= 0)
-		return; // disabled
-
-	if (cgs.teamLastChatPos != cgs.teamChatPos) {
-		if (cg.time - cgs.teamChatMsgTimes[cgs.teamLastChatPos % chatHeight] > cg_teamChatTime.integer) {
-			cgs.teamLastChatPos++;
-		}
-
-		h = (cgs.teamChatPos - cgs.teamLastChatPos) * TINYCHAR_HEIGHT;
-
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-			hcolor[0] = 1.0f;
-			hcolor[1] = 0.0f;
-			hcolor[2] = 0.0f;
-			hcolor[3] = 0.33f;
-		} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			hcolor[0] = 0.0f;
-			hcolor[1] = 0.0f;
-			hcolor[2] = 1.0f;
-			hcolor[3] = 0.33f;
-		} else {
-			hcolor[0] = 0.0f;
-			hcolor[1] = 1.0f;
-			hcolor[2] = 0.0f;
-			hcolor[3] = 0.33f;
-		}
-
-		trap_R_SetColor(hcolor);
-		CG_DrawAdjustPic(CHATLOC_X, CHATLOC_Y - h, 640, h, cgs.media.teamStatusBar);
-		trap_R_SetColor(NULL);
-
-		hcolor[0] = hcolor[1] = hcolor[2] = 1.0f;
-		hcolor[3] = 1.0f;
-
-		for (i = cgs.teamChatPos - 1; i >= cgs.teamLastChatPos; i--) {
-			CG_DrawStringExt(CHATLOC_X + TINYCHAR_WIDTH,
-				CHATLOC_Y - (cgs.teamChatPos - i)*TINYCHAR_HEIGHT,
-				cgs.teamChatMsgs[i % chatHeight], hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
-		}
 	}
 }
 
@@ -773,10 +713,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			}
 
 			CG_DrawHoldableItem();
-		}
-
-		if (cgs.gametype >= GT_TEAM) {
-			CG_DrawTeamInfo();
 		}
 	}
 

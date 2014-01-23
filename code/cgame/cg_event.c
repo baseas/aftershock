@@ -67,6 +67,20 @@ const char	*CG_PlaceString(int rank)
 	return str;
 }
 
+static void CG_AddDeathNotice(const char *target, const char *attacker,
+	qhandle_t icon, qboolean directHit)
+{
+	int	i;
+	for (i = DEATHNOTICE_HEIGHT - 1; i > 0; --i) {
+		cgs.deathNotices[i] = cgs.deathNotices[i - 1];
+	}
+	cgs.deathNotices[0].time = cg.time;
+	cgs.deathNotices[0].directHit = directHit;
+	cgs.deathNotices[0].icon = icon;
+	Q_strncpyz(cgs.deathNotices[0].target, target, sizeof cgs.deathNotices[0].target);
+	Q_strncpyz(cgs.deathNotices[0].attacker, attacker, sizeof cgs.deathNotices[0].attacker);
+}
+
 static void CG_Obituary(entityState_t *ent)
 {
 	int			mod;
@@ -77,6 +91,8 @@ static void CG_Obituary(entityState_t *ent)
 	const char	*attackerInfo;
 	char		targetName[32];
 	char		attackerName[32];
+	qhandle_t	icon;
+	qboolean	directHit;
 	gender_t	gender;
 	clientInfo_t	*ci;
 
@@ -104,10 +120,12 @@ static void CG_Obituary(entityState_t *ent)
 	strcat(targetName, S_COLOR_WHITE);
 
 	message2 = "";
+	directHit = qfalse;
+	icon = cgs.media.skull;
 
 	// check for single client messages
 
-	switch(mod) {
+	switch (mod) {
 	case MOD_SUICIDE:
 		message = "suicides";
 		break;
@@ -137,48 +155,60 @@ static void CG_Obituary(entityState_t *ent)
 		break;
 	}
 
-	if (attacker == target) {
+	if (!message && attacker == target) {
 		gender = ci->model->gender;
+
+		// FIXME missing direct hit cases
 		switch (mod) {
 		case MOD_GRENADE_SPLASH:
-			if (gender == GENDER_FEMALE)
+			icon = cg_weapons[WP_GRENADE_LAUNCHER].weaponIcon;
+			if (gender == GENDER_FEMALE) {
 				message = "tripped on her own grenade";
-			else if (gender == GENDER_NEUTER)
+			} else if (gender == GENDER_NEUTER) {
 				message = "tripped on its own grenade";
-			else
+			} else {
 				message = "tripped on his own grenade";
+			}
 			break;
 		case MOD_ROCKET_SPLASH:
-			if (gender == GENDER_FEMALE)
+			icon = cg_weapons[WP_ROCKET_LAUNCHER].weaponIcon;
+			if (gender == GENDER_FEMALE) {
 				message = "blew herself up";
-			else if (gender == GENDER_NEUTER)
+			} else if (gender == GENDER_NEUTER) {
 				message = "blew itself up";
-			else
+			} else {
 				message = "blew himself up";
+			}
 			break;
 		case MOD_PLASMA_SPLASH:
-			if (gender == GENDER_FEMALE)
+			icon = cg_weapons[WP_PLASMAGUN].weaponIcon;
+			if (gender == GENDER_FEMALE) {
 				message = "melted herself";
-			else if (gender == GENDER_NEUTER)
+			} else if (gender == GENDER_NEUTER) {
 				message = "melted itself";
-			else
+			} else {
 				message = "melted himself";
+			}
 			break;
 		case MOD_BFG_SPLASH:
+			icon = cg_weapons[WP_BFG].weaponIcon;
 			message = "should have used a smaller gun";
 			break;
 		default:
-			if (gender == GENDER_FEMALE)
+			icon = cgs.media.skull;
+			if (gender == GENDER_FEMALE) {
 				message = "killed herself";
-			else if (gender == GENDER_NEUTER)
+			} else if (gender == GENDER_NEUTER) {
 				message = "killed itself";
-			else
+			} else {
 				message = "killed himself";
+			}
 			break;
 		}
 	}
 
 	if (message) {
+		CG_AddDeathNotice(targetName, "", icon, directHit);
 		CG_Printf("%s %s.\n", targetName, message);
 		return;
 	}
@@ -216,73 +246,91 @@ static void CG_Obituary(entityState_t *ent)
 		}
 	}
 
-	if (attacker != ENTITYNUM_WORLD) {
-		switch (mod) {
-		case MOD_GRAPPLE:
-			message = "was caught by";
-			break;
-		case MOD_GAUNTLET:
-			message = "was pummeled by";
-			break;
-		case MOD_MACHINEGUN:
-			message = "was machinegunned by";
-			break;
-		case MOD_SHOTGUN:
-			message = "was gunned down by";
-			break;
-		case MOD_GRENADE:
-			message = "ate";
-			message2 = "'s grenade";
-			break;
-		case MOD_GRENADE_SPLASH:
-			message = "was shredded by";
-			message2 = "'s shrapnel";
-			break;
-		case MOD_ROCKET:
-			message = "ate";
-			message2 = "'s rocket";
-			break;
-		case MOD_ROCKET_SPLASH:
-			message = "almost dodged";
-			message2 = "'s rocket";
-			break;
-		case MOD_PLASMA:
-			message = "was melted by";
-			message2 = "'s plasmagun";
-			break;
-		case MOD_PLASMA_SPLASH:
-			message = "was melted by";
-			message2 = "'s plasmagun";
-			break;
-		case MOD_RAILGUN:
-			message = "was railed by";
-			break;
-		case MOD_LIGHTNING:
-			message = "was electrocuted by";
-			break;
-		case MOD_BFG:
-		case MOD_BFG_SPLASH:
-			message = "was blasted by";
-			message2 = "'s BFG";
-			break;
-		case MOD_TELEFRAG:
-			message = "tried to invade";
-			message2 = "'s personal space";
-			break;
-		default:
-			message = "was killed by";
-			break;
-		}
-
-		if (message) {
-			CG_Printf("%s %s %s%s\n", 
-				targetName, message, attackerName, message2);
-			return;
-		}
+	if (attacker == ENTITYNUM_WORLD) {
+		// we don't know what it was
+		CG_AddDeathNotice(targetName, "", cgs.media.skull, qfalse);
+		CG_Printf("%s died.\n", targetName);
+		return;
 	}
 
-	// we don't know what it was
-	CG_Printf("%s died.\n", targetName);
+	switch (mod) {
+	case MOD_GRAPPLE:
+		icon = cg_weapons[WP_GRAPPLING_HOOK].weaponIcon;
+		message = "was caught by";
+		break;
+	case MOD_GAUNTLET:
+		icon = cg_weapons[WP_GAUNTLET].weaponIcon;
+		message = "was pummeled by";
+		break;
+	case MOD_MACHINEGUN:
+		icon = cg_weapons[WP_MACHINEGUN].weaponIcon;
+		message = "was machinegunned by";
+		break;
+	case MOD_SHOTGUN:
+		icon = cg_weapons[WP_SHOTGUN].weaponIcon;
+		message = "was gunned down by";
+		break;
+	case MOD_GRENADE:
+		icon = cg_weapons[WP_GRENADE_LAUNCHER].weaponIcon;
+		directHit = qtrue;
+		message = "ate";
+		message2 = "'s grenade";
+		break;
+	case MOD_GRENADE_SPLASH:
+		icon = cg_weapons[WP_GRENADE_LAUNCHER].weaponIcon;
+		message = "was shredded by";
+		message2 = "'s shrapnel";
+		break;
+	case MOD_ROCKET:
+		icon = cg_weapons[WP_ROCKET_LAUNCHER].weaponIcon;
+		directHit = qtrue;
+		message = "ate";
+		message2 = "'s rocket";
+		break;
+	case MOD_ROCKET_SPLASH:
+		icon = cg_weapons[WP_ROCKET_LAUNCHER].weaponIcon;
+		message = "almost dodged";
+		message2 = "'s rocket";
+		break;
+	case MOD_PLASMA:
+		icon = cg_weapons[WP_PLASMAGUN].weaponIcon;
+		message = "was melted by";
+		message2 = "'s plasmagun";
+		break;
+	case MOD_PLASMA_SPLASH:
+		icon = cg_weapons[WP_PLASMAGUN].weaponIcon;
+		message = "was melted by";
+		message2 = "'s plasmagun";
+		break;
+	case MOD_RAILGUN:
+		icon = cg_weapons[WP_RAILGUN].weaponIcon;
+		message = "was railed by";
+		break;
+	case MOD_LIGHTNING:
+		icon = cg_weapons[WP_LIGHTNING].weaponIcon;
+		message = "was electrocuted by";
+		break;
+	case MOD_BFG:
+		icon = cg_weapons[WP_BFG].weaponIcon;
+		directHit = qtrue;
+	case MOD_BFG_SPLASH:
+		icon = cg_weapons[WP_BFG].weaponIcon;
+		message = "was blasted by";
+		message2 = "'s BFG";
+		break;
+	case MOD_TELEFRAG:
+		icon = cgs.media.skull;
+		message = "tried to invade";
+		message2 = "'s personal space";
+		break;
+	default:
+		icon = cgs.media.skull;
+		message = "was killed by";
+		break;
+	}
+
+	CG_AddDeathNotice(targetName, attackerName, icon, directHit);
+	CG_Printf("%s %s %s%s\n", targetName, message, attackerName, message2);
 }
 
 static void CG_UseItem(centity_t *cent)

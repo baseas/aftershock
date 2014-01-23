@@ -68,8 +68,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CHAR_HEIGHT			48
 #define TEXT_ICON_SPACE		4
 
-#define TEAMCHAT_WIDTH		80
-#define TEAMCHAT_HEIGHT		8
+#define CHAT_WIDTH			80
+#define CHAT_HEIGHT			8
+#define DEATHNOTICE_HEIGHT	5
 
 // very large characters
 #define GIANT_WIDTH			32
@@ -451,6 +452,8 @@ typedef struct {
 	// information screen text during loading
 	qboolean	showInfoScreen;
 
+	qboolean	showChat;
+
 	// scoreboard
 	qboolean	showScores;
 	qboolean	showAcc;
@@ -575,8 +578,6 @@ typedef struct {
 	qhandle_t	healthRed;
 	qhandle_t	healthBlue;
 	qhandle_t	healthYellow;
-
-	qhandle_t	teamStatusBar;
 
 	qhandle_t	deferShader;
 
@@ -807,6 +808,9 @@ typedef struct {
 	qhandle_t	sbSkull;
 	qhandle_t	sbLocked;
 
+	qhandle_t	skull;
+	qhandle_t	directHit;
+
 	qhandle_t	netgraph;
 } cgMedia_t;
 
@@ -940,6 +944,22 @@ typedef struct {
 	int			cvarValue;
 } hudElement_t;
 
+typedef struct {
+	// chat width is *3 because of embedded color codes
+	char	message[3 * CHAT_WIDTH + 1];
+	int		time;
+} msgItem_t;
+
+typedef struct {
+	// need to store names instead of clientNumber,
+	// because the clientInfo is lost on disconnect
+	char		target[MAX_NAME_LENGTH];
+	char		attacker[MAX_NAME_LENGTH];
+	qhandle_t	icon;
+	qboolean	directHit;
+	int			time;
+} deathNotice_t;
+
 // The client game static (cgs) structure hold everything
 // loaded or calculated from the gamestate.  It will NOT
 // be cleared when a tournement restart is done, allowing
@@ -1005,11 +1025,9 @@ typedef struct {
 
 	clientInfo_t	clientinfo[MAX_CLIENTS];
 
-	// teamchat width is *3 because of embedded color codes
-	char			teamChatMsgs[TEAMCHAT_HEIGHT][TEAMCHAT_WIDTH*3+1];
-	int				teamChatMsgTimes[TEAMCHAT_HEIGHT];
-	int				teamChatPos;
-	int				teamLastChatPos;
+	msgItem_t		chatMessages[CHAT_HEIGHT];
+	msgItem_t		teamChatMessages[CHAT_HEIGHT];
+	deathNotice_t	deathNotices[DEATHNOTICE_HEIGHT];
 
 	int			cursorX;
 	int			cursorY;
@@ -1090,8 +1108,9 @@ extern vmCvar_t		cg_thirdPerson;
 extern vmCvar_t		cg_lagometer;
 extern vmCvar_t		cg_drawAttacker;
 extern vmCvar_t		cg_synchronousClients;
+extern vmCvar_t		cg_chatTime;
 extern vmCvar_t		cg_teamChatTime;
-extern vmCvar_t		cg_teamChatHeight;
+extern vmCvar_t		cg_deathNoticeTime;
 extern vmCvar_t		cg_stats;
 extern vmCvar_t		cg_buildScript;
 extern vmCvar_t		cg_paused;
