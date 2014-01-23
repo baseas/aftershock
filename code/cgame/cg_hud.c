@@ -149,7 +149,7 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char* text)
 
 	CG_DrawHudIcon(hudnumber, qtrue, hudelement->imageHandle);
 
-	w = CG_DrawStrlen(text) * CG_AdjustWidth(hudelement->fontWidth);
+	w = CG_StringWidth(hudelement->fontWidth, text);
 
 	if (hudelement->textAlign == 0)
 		x = hudelement->xpos;
