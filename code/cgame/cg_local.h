@@ -789,6 +789,7 @@ typedef struct {
 
 	sfxHandle_t	gurp1Sound;
 	sfxHandle_t	gurp2Sound;
+	sfxHandle_t	killbeep;
 
 	model_t	teamModel;
 	model_t	enemyModel;
@@ -1172,6 +1173,7 @@ extern vmCvar_t		cg_weaponBobbing;
 extern vmCvar_t		cg_switchOnEmpty;
 extern vmCvar_t		cg_switchToEmpty;
 extern vmCvar_t		cg_hud;
+extern vmCvar_t		cg_killbeep;
 
 //
 // cg_main.c

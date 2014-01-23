@@ -232,6 +232,7 @@ vmCvar_t	cg_weaponBobbing;
 vmCvar_t	cg_switchOnEmpty;
 vmCvar_t	cg_switchToEmpty;
 vmCvar_t	cg_hud;
+vmCvar_t	cg_killbeep;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -371,7 +372,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE, RANGE_INT(0, 2) },
 	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_hud, "cg_hud", "hud/default.txt", CVAR_ARCHIVE, RANGE_ALL }
+	{ &cg_hud, "cg_hud", "hud/default.txt", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_killbeep, "cg_killbeep", "1", CVAR_ARCHIVE, RANGE_BOOL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
@@ -595,6 +597,7 @@ static void CG_RegisterSounds(void)
 
 	cgs.media.gurp1Sound = trap_S_RegisterSound("sound/player/gurp1.wav", qfalse);
 	cgs.media.gurp2Sound = trap_S_RegisterSound("sound/player/gurp2.wav", qfalse);
+	cgs.media.killbeep = trap_S_RegisterSound("sound/feedback/killbeep1.wav", qfalse);
 
 	// voice commands
 	cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/feedback/1_minute.wav", qtrue);
