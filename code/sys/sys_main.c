@@ -517,18 +517,28 @@ Sys_ParseArgs
 */
 void Sys_ParseArgs( int argc, char **argv )
 {
-	if( argc == 2 )
-	{
-		if( !strcmp( argv[1], "--version" ) ||
-				!strcmp( argv[1], "-v" ) )
-		{
+	if (argc == 2) {
+		if (!strcmp( argv[1], "--version" ) || !strcmp( argv[1], "-v" ) ) {
 			const char* date = __DATE__;
 #ifdef DEDICATED
 			fprintf( stdout, Q3_VERSION " dedicated server (%s)\n", date );
 #else
 			fprintf( stdout, Q3_VERSION " client (%s)\n", date );
 #endif
-			Sys_Exit( 0 );
+		} else if (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h")) {
+			fprintf(stdout, "Aftershock FPS (aftershock-fps.com)\nOptions:\n"
+				"\t-v, --version\t\tshow the program version\n"
+				"\t-h, --help\t\tshow this help text\n"
+				"\t-d, --demo <file>\tplay the specified demo\n"
+				"\t+<command>\t\trun a console command, e. g. +set <cvar> <value> or +connect <address>\n"
+				);
+		} else {
+			fprintf(stdout, "Use the --help option for help.\n");
+		}
+		Sys_Exit( 0 );
+	} else if (argc > 2) {
+		if (!strcmp(argv[1], "--demo") || !strcmp(argv[1], "-d")) {
+			Com_SetDemoPath(argv[2]);
 		}
 	}
 }

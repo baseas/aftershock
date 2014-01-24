@@ -43,8 +43,9 @@ int demo_protocols[] =
 #define DEF_COMHUNKMEGS_S	XSTRING(DEF_COMHUNKMEGS)
 #define DEF_COMZONEMEGS_S	XSTRING(DEF_COMZONEMEGS)
 
-int		com_argc;
+int	com_argc;
 char	*com_argv[MAX_NUM_ARGVS+1];
+char	demoPath[MAX_OSPATH];
 
 jmp_buf abortframe;		// an ERR_DROP occured, exit the entire frame
 
@@ -2469,6 +2470,11 @@ static void Com_InitRand(void)
 		srand(time(NULL));
 }
 
+void Com_SetDemoPath(const char *path)
+{
+	Q_strncpyz(demoPath, path, sizeof demoPath);
+}
+
 /*
 =================
 Com_Init
@@ -2657,6 +2663,10 @@ void Com_Init( char *commandLine ) {
 	}
 
 	Com_Printf ("--- Common Initialization Complete ---\n");
+
+	if (*demoPath) {
+		Cbuf_AddText(va("demo %s", demoPath));
+	}
 }
 
 /*

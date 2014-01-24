@@ -931,6 +931,7 @@ int	Hunk_MemoryRemaining( void );
 void Hunk_Log( void);
 
 void Com_TouchMemory( void );
+void Com_SetDemoPath(const char *path);
 
 // commandLine should not include the executable name (argv[0])
 void Com_Init( char *commandLine );
