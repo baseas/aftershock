@@ -78,6 +78,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define NUM_CROSSHAIRS		10
 
+#define MAX_SPAWNPOINTS		32
+
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
 
@@ -533,6 +535,12 @@ typedef struct {
 	refEntity_t		testModelEntity;
 	char			testModelName[MAX_QPATH];
 	qboolean		testGun;
+
+	// spawnpoints
+	vec3_t		spawnOrigin[MAX_SPAWNPOINTS];
+	vec3_t		spawnAngle[MAX_SPAWNPOINTS];
+	int			spawnTeam[MAX_SPAWNPOINTS];
+	int			numSpawnpoints;
 } cg_t;
 
 #define MAX_LGSTYLES	4
@@ -810,6 +818,8 @@ typedef struct {
 	qhandle_t	directHit;
 
 	qhandle_t	netgraph;
+	qhandle_t	spawnpoint;
+	qhandle_t	spawnpointShader;
 } cgMedia_t;
 
 enum {
@@ -1191,6 +1201,7 @@ extern vmCvar_t		cg_switchOnEmpty;
 extern vmCvar_t		cg_switchToEmpty;
 extern vmCvar_t		cg_hud;
 extern vmCvar_t		cg_killbeep;
+extern vmCvar_t		cg_drawSpawnpoints;
 
 //
 // cg_main.c

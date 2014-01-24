@@ -234,6 +234,7 @@ vmCvar_t	cg_switchOnEmpty;
 vmCvar_t	cg_switchToEmpty;
 vmCvar_t	cg_hud;
 vmCvar_t	cg_killbeep;
+vmCvar_t	cg_drawSpawnpoints;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
@@ -375,7 +376,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_hud, "cg_hud", "hud/default.txt", CVAR_ARCHIVE, RANGE_ALL },
-	{ &cg_killbeep, "cg_killbeep", "1", CVAR_ARCHIVE, RANGE_BOOL }
+	{ &cg_killbeep, "cg_killbeep", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE, RANGE_BOOL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
@@ -540,6 +542,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
 	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
 	cgs.media.bloodMarkShader = trap_R_RegisterShader("bloodMark");
+
+	cgs.media.spawnpoint = trap_R_RegisterModel("models/mapobjects/spawnpoint.md3");
+	cgs.media.spawnpointShader = trap_R_RegisterShader("spawnpoint");
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();

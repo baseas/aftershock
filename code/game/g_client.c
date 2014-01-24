@@ -522,6 +522,38 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 		Q_strncpyz(out, "UnnamedPlayer", outSize);
 }
 
+static void ClientSendTeamSpawnpoints(gentity_t *ent, const char *label, int team) 
+{
+	gentity_t	*spot;
+	char		buffer[2048];
+	char		entry[64];
+
+	Com_sprintf(buffer, sizeof buffer, "spawnpoints %d", team);
+
+	spot = NULL;
+	while ((spot = G_Find(spot, FOFS(classname), label)) != NULL) {
+		Com_sprintf(entry, sizeof entry, " %i %i %i %i %i %i",
+			(int) spot->s.origin[0], (int) spot->s.origin[1], (int) spot->s.origin[2],
+			(int) spot->s.angles[0], (int) spot->s.angles[1], (int) spot->s.angles[2]);
+		Q_strcat(buffer, sizeof buffer, entry);
+	}
+	trap_SendServerCommand(ent - g_entities, buffer);
+}
+
+static void ClientSendSpawnpoints(gentity_t *ent)
+{
+	if (level.warmupTime >= 0) {
+		return;
+	}
+
+	if (g_gametype.integer == GT_CTF) {
+		ClientSendTeamSpawnpoints(ent, "team_CTF_redspawn", TEAM_RED);
+		ClientSendTeamSpawnpoints(ent, "team_CTF_bluespawn", TEAM_BLUE);
+	} else {
+		ClientSendTeamSpawnpoints(ent, "info_player_deathmatch", TEAM_FREE);
+	}
+}
+
 /**
 Called from ClientConnect when the player first connects and
 directly by the server system when the player updates a userinfo variable.
@@ -782,6 +814,8 @@ void ClientBegin(int clientNum)
 
 	ent->client->pers.lastTarget = -1;
 	ent->client->pers.lastKiller = -1;
+
+	ClientSendSpawnpoints(ent);
 }
 
 /**

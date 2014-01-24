@@ -646,6 +646,40 @@ static void CG_PlayBufferedSounds(void)
 	}
 }
 
+static void CG_AddSpawnpoints(void)
+{
+	refEntity_t	re;
+	int			i;
+
+	if (!cg_drawSpawnpoints.integer) {
+		return;
+	}
+
+	memset(&re, 0, sizeof re);
+	re.hModel = cgs.media.spawnpoint;
+	re.customShader = cgs.media.spawnpointShader;
+
+	for (i = 0; i < cg.numSpawnpoints; i++) {
+		VectorCopy(cg.spawnOrigin[i], re.origin);
+		AnglesToAxis(cg.spawnAngle[i], re.axis);
+
+		switch (cg.spawnTeam[i]) {
+		case TEAM_FREE:
+			CG_SetRGBA(re.shaderRGBA, colorGreen);
+			break;
+		case TEAM_RED:
+			CG_SetRGBA(re.shaderRGBA, colorRed);
+			break;
+		case TEAM_BLUE:
+			CG_SetRGBA(re.shaderRGBA, colorBlue);
+			break;
+		default:
+			continue;
+		}
+		trap_R_AddRefEntityToScene(&re);
+	}
+}
+
 /**
 Generates and draws a game scene and status information at the given time.
 */
@@ -709,6 +743,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 		CG_AddMarks();
 		CG_AddParticles ();
 		CG_AddLocalEntities();
+		CG_AddSpawnpoints();
 	}
 	CG_AddViewWeapon(&cg.predictedPlayerState);
 
