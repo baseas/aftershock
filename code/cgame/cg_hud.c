@@ -292,18 +292,17 @@ static void CG_DrawHudField(int hudnumber, int value)
 Draw the powerup whose position in the powerup list is 'index'.
 Powerups are sorted by their time at which they disappear.
 */
-static void CG_DrawHudPowerup(int hudnumber, int index)
+static powerup_t CG_GetActivePowerup(int index)
 {
 	int		validPowerups[MAX_POWERUPS];
 	int		i, j, k;
 	int		smallerTime;
-	gitem_t	*item;
 	playerState_t	*ps;
 
 	ps = &cg.snap->ps;
 
 	if (ps->stats[STAT_HEALTH] <= 0) {
-		return;
+		return PW_NONE;
 	}
 
 	// CTF flags have unlimited time (999 seconds)
@@ -311,14 +310,14 @@ static void CG_DrawHudPowerup(int hudnumber, int index)
 		if (!ps->powerups[i]) {
 			continue;
 		}
-		if (ps->powerups[i] < cg.time || ps->powerups[i] - cg.time > 999000) {
+		if (ps->powerups[i] < cg.time || ps->powerups[i] - cg.time >= 999000) {
 			continue;
 		}
 		validPowerups[j++] = i;
 	}
 
-	if (j < index) {
-		return;
+	if (j <= index) {
+		return PW_NONE;
 	}
 
 	for (i = 0; i < j; ++i) {
@@ -326,7 +325,7 @@ static void CG_DrawHudPowerup(int hudnumber, int index)
 		smallerTime = 0;
 
 		for (k = 0; k < j; ++k) {
-			if (ps->powerups[validPowerups[k]] < ps->powerups[validPowerups[i]]) {
+			if (i != k && ps->powerups[validPowerups[k]] <= ps->powerups[validPowerups[i]]) {
 				++smallerTime;
 			}
 		}
@@ -334,17 +333,22 @@ static void CG_DrawHudPowerup(int hudnumber, int index)
 			break;
 		}
 	}
+	return validPowerups[i];
+}
 
-	i = validPowerups[i];
-	item = BG_FindItemForPowerup(ps->powerups[i]);
+static void CG_DrawHudPowerup(int hudnumber, powerup_t powerup)
+{
+	CG_DrawHudField(hudnumber, (cg.snap->ps.powerups[powerup] - cg.time) / 1000);
+}
+
+static void CG_DrawHudPowerupIcon(int hudnumber, powerup_t powerup)
+{
+	gitem_t		*item;
+	item = BG_FindItemForPowerup(powerup);
 	if (!item) {
 		return;
 	}
-
-	trap_R_SetColor(NULL);
-
-	CG_DrawHudField(hudnumber, (ps->powerups[i] - cg.time) / 1000);
-	CG_DrawHudIcon(hudnumber, qfalse, trap_R_RegisterShader(item->icon));
+	CG_DrawHudIcon(hudnumber, qfalse, cg_items[ITEM_INDEX(item)].icon);
 }
 
 static void CG_DrawHudChat(int hudnumber, msgItem_t list[CHAT_HEIGHT], int duration, int index)
@@ -1385,26 +1389,6 @@ static void Hud_ScoreLimit(int hudnumber)
 	}
 }
 
-static void Hud_Powerup1(int hudnumber)
-{
-	CG_DrawHudPowerup(hudnumber, 1);
-}
-
-static void Hud_Powerup2(int hudnumber)
-{
-	CG_DrawHudPowerup(hudnumber, 2);
-}
-
-static void Hud_Powerup3(int hudnumber)
-{
-	CG_DrawHudPowerup(hudnumber, 3);
-}
-
-static void Hud_Powerup4(int hudnumber)
-{
-	CG_DrawHudPowerup(hudnumber, 4);
-}
-
 static void Hud_Reward(int hudnumber)
 {
 	if (!cg_drawRewards.integer || cg.rewardStack <= 0) {
@@ -1466,10 +1450,6 @@ void CG_DrawHud()
 		{ HUD_FS_OWN, Hud_FlagStatus },
 		{ HUD_FS_NME, Hud_FlagStatus },
 		{ HUD_SCORELIMIT, Hud_ScoreLimit },
-		{ HUD_PU1, Hud_Powerup1 },
-		{ HUD_PU2, Hud_Powerup2 },
-		{ HUD_PU3, Hud_Powerup3 },
-		{ HUD_PU4, Hud_Powerup4 },
 		{ HUD_REWARD, Hud_Reward },
 		{ HUD_REWARDCOUNT, Hud_RewardCount },
 		{ HUD_MAX, NULL }
@@ -1489,6 +1469,19 @@ void CG_DrawHud()
 
 	for (i = 0; i < DEATHNOTICE_HEIGHT; ++i) {
 		CG_DrawHudDeathNotice(HUD_DEATHNOTICE1 + i, i);
+	}
+
+	for (i = 0; i < 4; ++i) {
+		powerup_t	powerup;
+		if (!cgs.hud[HUD_PU1 + i].inuse || !cgs.hud[HUD_PU1ICON + i].inuse) {
+			continue;
+		}
+		powerup = CG_GetActivePowerup(i);
+		if (powerup == PW_NONE) {
+			continue;
+		}
+		CG_DrawHudPowerup(HUD_PU1 + i, powerup);
+		CG_DrawHudPowerupIcon(HUD_PU1ICON + i, powerup);
 	}
 }
 

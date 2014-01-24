@@ -837,7 +837,7 @@ static void MSG_WriteDeltaArray(msg_t *msg, int bitcount, int *from, int *to)
 	MSG_WriteBits(msg, bits, bitcount);
 	for (i = 0; i < bitcount; ++i) {
 		if (bits & (1 << i)) {
-			MSG_WriteShort(msg, to[i]);
+			MSG_WriteLong(msg, to[i]);
 		}
 	}
 }
@@ -853,7 +853,7 @@ static void MSG_ReadDeltaArray(msg_t *msg, int bitcount, int *to)
 	bits = MSG_ReadBits(msg, bitcount);
 	for (i = 0; i < bitcount; ++i) {
 		if (bits & (1 << i)) {
-			to[i] = MSG_ReadShort(msg);
+			to[i] = MSG_ReadLong(msg);
 		}
 	}
 }
