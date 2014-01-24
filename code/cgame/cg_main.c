@@ -476,8 +476,6 @@ static void CG_RegisterGraphics(void)
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
 	}
 
-	cgs.media.armorModel = trap_R_RegisterModel("models/powerups/armor/armor_yel.md3");
-
 	cgs.media.armorRed = trap_R_RegisterShaderNoMip("icons/armorRed");
 	cgs.media.armorBlue = trap_R_RegisterShaderNoMip("icons/armorBlue");
 	cgs.media.armorYellow = trap_R_RegisterShaderNoMip("icons/armorYellow");
