@@ -527,6 +527,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.sbReady = trap_R_RegisterShaderNoMip("sb_ready");
 	cgs.media.sbNotReady = trap_R_RegisterShaderNoMip("sb_notready");
 	cgs.media.sbSkull = trap_R_RegisterShaderNoMip("sb_skull");
+	cgs.media.sbLocked = trap_R_RegisterShaderNoMip("sb_locked");
 
 	cgs.media.skull = trap_R_RegisterShaderNoMip("icons/skull");
 	cgs.media.directHit = trap_R_RegisterShaderNoMip("icons/direct_hit");
