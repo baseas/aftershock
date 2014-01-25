@@ -591,6 +591,7 @@ void	G_RunClient(gentity_t *ent);
 // g_team.c
 //
 qboolean	OnSameTeam(gentity_t *ent1, gentity_t *ent2);
+void		Team_Shuffle(void);
 void		Team_CheckDroppedItem(gentity_t *dropped);
 
 //
