@@ -1157,13 +1157,21 @@ static void CG_PlayerSprites(centity_t *cent)
 {
 	int		team;
 
+	team = cgs.clientinfo[cent->currentState.clientNum].team;
+
 	if (cent->currentState.eFlags & EF_CONNECTION) {
 		CG_PlayerFloatSprite(cent, cgs.media.connectionShader);
 		return;
 	}
 
 	if (cent->currentState.eFlags & EF_TALK) {
-		CG_PlayerFloatSprite(cent, cgs.media.balloonShader);
+		if (!(cent->currentState.eFlags & EF_DEAD) && cg.snap->ps.persistant[PERS_TEAM] == team
+			&& cgs.gametype > GT_TEAM && cgs.friendsThroughWalls)
+		{
+			CG_PlayerFloatSprite(cent, cgs.media.balloonShaderVisible);
+		} else {
+			CG_PlayerFloatSprite(cent, cgs.media.balloonShader);
+		}
 		return;
 	}
 
@@ -1197,11 +1205,12 @@ static void CG_PlayerSprites(centity_t *cent)
 		return;
 	}
 
-	team = cgs.clientinfo[ cent->currentState.clientNum ].team;
-	if (!(cent->currentState.eFlags & EF_DEAD) && 
-		cg.snap->ps.persistant[PERS_TEAM] == team &&
-		cgs.gametype >= GT_TEAM) {
-		if (cg_drawFriend.integer) {
+	if (!(cent->currentState.eFlags & EF_DEAD) && cg_drawFriend.integer
+		&& cg.snap->ps.persistant[PERS_TEAM] == team && cgs.gametype >= GT_TEAM)
+	{
+		if (cgs.friendsThroughWalls) {
+			CG_PlayerFloatSprite(cent, cgs.media.friendShaderVisible);
+		} else {
 			CG_PlayerFloatSprite(cent, cgs.media.friendShader);
 		}
 		return;

@@ -341,6 +341,7 @@ void CG_ParseServerinfo(void)
 	cgs.startWhenReady = atoi(Info_ValueForKey(info, "g_startWhenReady"));
 	cgs.redLocked = atoi(Info_ValueForKey(info, "g_redLocked"));
 	cgs.blueLocked = atoi(Info_ValueForKey(info, "g_blueLocked"));
+	cgs.friendsThroughWalls = atoi(Info_ValueForKey(info, "g_friendsThroughWalls"));
 
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cgs.mapname, sizeof cgs.mapname, "maps/%s.bsp", mapname);

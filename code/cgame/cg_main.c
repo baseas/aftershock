@@ -475,6 +475,7 @@ static void CG_RegisterGraphics(void)
 
 	if (cgs.gametype >= GT_TEAM || cg_buildScript.integer) {
 		cgs.media.friendShader = trap_R_RegisterShader("sprites/foe");
+		cgs.media.friendShaderVisible = trap_R_RegisterShader("sprites/foe2");
 		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
 	}
 
@@ -500,6 +501,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
 
 	cgs.media.balloonShader = trap_R_RegisterShader("sprites/balloon3");
+	cgs.media.balloonShaderVisible = trap_R_RegisterShader("sprites/balloon4");
 
 	cgs.media.bloodExplosionShader = trap_R_RegisterShader("bloodExplosion");
 

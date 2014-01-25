@@ -606,8 +606,10 @@ typedef struct {
 	qhandle_t	lightningShader[MAX_LGSTYLES];
 
 	qhandle_t	friendShader;
+	qhandle_t	friendShaderVisible;
 
 	qhandle_t	balloonShader;
+	qhandle_t	balloonShaderVisible;
 	qhandle_t	connectionShader;
 
 	qhandle_t	selectShader;
@@ -1056,6 +1058,7 @@ typedef struct {
 	char		acceptVoice[MAX_NAME_LENGTH];
 
 	qboolean	redLocked, blueLocked;
+	qboolean	friendsThroughWalls;
 
 	// media
 	cgMedia_t		media;
