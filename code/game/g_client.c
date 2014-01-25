@@ -405,8 +405,8 @@ void SetClientViewAngle(gentity_t *ent, vec3_t angle)
 	VectorCopy (ent->s.angles, ent->client->ps.viewangles);
 }
 
-void ClientRespawn(gentity_t *ent) {
-
+void ClientRespawn(gentity_t *ent)
+{
 	CopyToBodyQue (ent);
 	ClientSpawn(ent);
 }
@@ -552,6 +552,13 @@ static void ClientSendSpawnpoints(gentity_t *ent)
 	} else {
 		ClientSendTeamSpawnpoints(ent, "info_player_deathmatch", TEAM_FREE);
 	}
+}
+
+void ClientPrint(gentity_t *ent, char *str)
+{
+	int	clientNum;
+	clientNum = (ent ? ent - g_entities : -1);
+	trap_SendServerCommand(clientNum, va("print \"%s\n\"", str));
 }
 
 /**
