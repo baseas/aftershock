@@ -1292,15 +1292,10 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("map_restart", SV_MapRestart_f);
 	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
 	Cmd_AddCommand ("map", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
-#ifndef PRE_RELEASE_DEMO
 	Cmd_AddCommand ("devmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
 	Cmd_AddCommand ("spmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
 	Cmd_AddCommand ("spdevmap", SV_Map_f);
-	Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
-#endif
+
 	Cmd_AddCommand ("killserver", SV_KillServer_f);
 	if( com_dedicated->integer ) {
 		Cmd_AddCommand ("say", SV_ConSay_f);
@@ -1314,6 +1309,11 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand("bandel", SV_BanDel_f);
 	Cmd_AddCommand("exceptdel", SV_ExceptDel_f);
 	Cmd_AddCommand("flushbans", SV_FlushBans_f);
+
+	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
+	Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
+	Cmd_SetCommandCompletionFunc( "spmap", SV_CompleteMapName );
+	Cmd_SetCommandCompletionFunc( "spdevmap", SV_CompleteMapName );
 }
 
 /*
