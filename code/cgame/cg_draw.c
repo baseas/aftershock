@@ -663,6 +663,22 @@ static void CG_DrawIntermission(void)
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
+static void CG_DrawAcc(void)
+{
+	int	x, y;
+
+	if (!cg.showAcc) {
+		return;
+	}
+
+	x = SCREEN_WIDTH - 175 - 50;
+	y = (SCREEN_HEIGHT - 250) / 2;
+
+	CG_DrawPic(x, y, 175, 250, cgs.media.accBackground);
+
+	// TODO
+}
+
 static void CG_Draw2D(stereoFrame_t stereoFrame)
 {
 	// if we are taking a levelshot for the menu, don't draw anything
@@ -703,6 +719,8 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawLowerRight();
 	CG_DrawLowerLeft();
 
+	CG_DrawAcc();
+
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 	if (!cg.scoreBoardShowing) {
@@ -737,9 +755,9 @@ void CG_DrawActive(stereoFrame_t stereoView)
 	// draw 3D view
 	trap_R_RenderScene(&cg.refdef);
 
+	CG_DrawHud();
+
 	// draw status bar and other floating elements
 	CG_Draw2D(stereoView);
-
-	CG_DrawHud();
 }
 

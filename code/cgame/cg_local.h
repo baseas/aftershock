@@ -826,6 +826,8 @@ typedef struct {
 	qhandle_t	sbSkull;
 	qhandle_t	sbLocked;
 
+	qhandle_t	accBackground;
+
 	qhandle_t	skull;
 	qhandle_t	directHit;
 
