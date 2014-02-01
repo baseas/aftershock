@@ -25,23 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#define FPS_FRAMES	4
-
-#define LAG_SAMPLES			128
+#define FPS_FRAMES			4
 #define MAX_LAGOMETER_PING	900
 #define MAX_LAGOMETER_RANGE	300
-
 #define ICON_BLEND_TIME		3000
-
-typedef struct {
-	int		frameSamples[LAG_SAMPLES];
-	int		frameCount;
-	int		snapshotFlags[LAG_SAMPLES];
-	int		snapshotSamples[LAG_SAMPLES];
-	int		snapshotCount;
-} lagometer_t;
-
-lagometer_t		lagometer;
 
 static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 {
@@ -1246,8 +1233,8 @@ static void Hud_Netgraph(int hudnumber)
 
 	// draw the frame interpoalte / extrapolate graph
 	for (a = 0; a < aw; a++) {
-		i = (lagometer.frameCount - 1 - a) & (LAG_SAMPLES - 1);
-		v = lagometer.frameSamples[i];
+		i = (cg.lagometer.frameCount - 1 - a) & (LAG_SAMPLES - 1);
+		v = cg.lagometer.frameSamples[i];
 		v *= vscale;
 		if (v > 0) {
 			if (color != 1) {
@@ -1276,10 +1263,10 @@ static void Hud_Netgraph(int hudnumber)
 	vscale = range / MAX_LAGOMETER_PING;
 
 	for (a = 0; a < aw; a++) {
-		i = (lagometer.snapshotCount - 1 - a) & (LAG_SAMPLES - 1);
-		v = lagometer.snapshotSamples[i];
+		i = (cg.lagometer.snapshotCount - 1 - a) & (LAG_SAMPLES - 1);
+		v = cg.lagometer.snapshotSamples[i];
 		if (v > 0) {
-			if (lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED) {
+			if (cg.lagometer.snapshotFlags[i] & SNAPFLAG_RATE_DELAYED) {
 				if (color != 5) {
 					color = 5;	// YELLOW for rate delay
 					trap_R_SetColor(g_color_table[ColorIndex(COLOR_YELLOW)]);

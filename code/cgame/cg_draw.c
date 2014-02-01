@@ -25,22 +25,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#define FPS_FRAMES	4
-
-#define LAG_SAMPLES			128
-#define MAX_LAGOMETER_PING	900
-#define MAX_LAGOMETER_RANGE	300
-
-typedef struct {
-	int		frameSamples[LAG_SAMPLES];
-	int		frameCount;
-	int		snapshotFlags[LAG_SAMPLES];
-	int		snapshotSamples[LAG_SAMPLES];
-	int		snapshotCount;
-} lagometer_t;
-
-lagometer_t		lagometer;
-
 int	drawTeamOverlayModificationCount = -1;
 int	sortedTeamPlayers[TEAM_MAXOVERLAY];
 int	numSortedTeamPlayers;
@@ -355,8 +339,8 @@ void CG_AddLagometerFrameInfo(void)
 	int			offset;
 
 	offset = cg.time - cg.latestSnapshotTime;
-	lagometer.frameSamples[ lagometer.frameCount & (LAG_SAMPLES - 1) ] = offset;
-	lagometer.frameCount++;
+	cg.lagometer.frameSamples[cg.lagometer.frameCount & (LAG_SAMPLES - 1)] = offset;
+	cg.lagometer.frameCount++;
 }
 
 /**
@@ -369,15 +353,15 @@ void CG_AddLagometerSnapshotInfo(snapshot_t *snap)
 {
 	// dropped packet
 	if (!snap) {
-		lagometer.snapshotSamples[ lagometer.snapshotCount & (LAG_SAMPLES - 1) ] = -1;
-		lagometer.snapshotCount++;
+		cg.lagometer.snapshotSamples[cg.lagometer.snapshotCount & (LAG_SAMPLES - 1)] = -1;
+		cg.lagometer.snapshotCount++;
 		return;
 	}
 
 	// add this snapshot's info
-	lagometer.snapshotSamples[ lagometer.snapshotCount & (LAG_SAMPLES - 1) ] = snap->ping;
-	lagometer.snapshotFlags[ lagometer.snapshotCount & (LAG_SAMPLES - 1) ] = snap->snapFlags;
-	lagometer.snapshotCount++;
+	cg.lagometer.snapshotSamples[cg.lagometer.snapshotCount & (LAG_SAMPLES - 1)] = snap->ping;
+	cg.lagometer.snapshotFlags[cg.lagometer.snapshotCount & (LAG_SAMPLES - 1)] = snap->snapFlags;
+	cg.lagometer.snapshotCount++;
 }
 
 /**

@@ -80,6 +80,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_SPAWNPOINTS		32
 
+#define LAG_SAMPLES			128
+
 #define TEAM_OVERLAY_MAXNAME_WIDTH	12
 #define TEAM_OVERLAY_MAXLOCATION_WIDTH	16
 
@@ -390,6 +392,14 @@ typedef struct {
 	snapshot_t	*snap;				// cg.snap->serverTime <= cg.time
 	snapshot_t	*nextSnap;			// cg.nextSnap->serverTime > cg.time, or NULL
 	snapshot_t	activeSnapshots[2];
+
+	struct {
+		int		frameSamples[LAG_SAMPLES];
+		int		frameCount;
+		int		snapshotFlags[LAG_SAMPLES];
+		int		snapshotSamples[LAG_SAMPLES];
+		int		snapshotCount;
+	} lagometer;
 
 	float		frameInterpolation;	// (float)(cg.time - cg.frame->serverTime) / (cg.nextFrame->serverTime - cg.frame->serverTime)
 
