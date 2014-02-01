@@ -126,11 +126,6 @@ static int GametypeBits( char *string ) {
 			continue;
 		}
 
-		if( Q_stricmp( token, "single" ) == 0 ) {
-			bits |= 1 << GT_SINGLE_PLAYER;
-			continue;
-		}
-
 		if( Q_stricmp( token, "team" ) == 0 ) {
 			bits |= 1 << GT_TEAM;
 			continue;
@@ -249,12 +244,10 @@ static void StartServer_GametypeEvent( void* ptr, int event ) {
 		return;
 	}
 
+#if 0
 	count = UI_GetNumArenas();
 	s_startserver.nummaps = 0;
 	matchbits = 1 << gametype_remap[s_startserver.gametype.curvalue];
-	if( gametype_remap[s_startserver.gametype.curvalue] == GT_FFA ) {
-		matchbits |= ( 1 << GT_SINGLE_PLAYER );
-	}
 	for( i = 0; i < count; i++ ) {
 		info = UI_GetArenaInfoByNumber( i );
 	
@@ -269,7 +262,7 @@ static void StartServer_GametypeEvent( void* ptr, int event ) {
 	s_startserver.maxpages = (s_startserver.nummaps + MAX_MAPSPERPAGE-1)/MAX_MAPSPERPAGE;
 	s_startserver.page = 0;
 	s_startserver.currentmap = 0;
-
+#endif
 	StartServer_Update();
 }
 
@@ -547,6 +540,7 @@ void StartServer_Cache( void )
 	trap_R_RegisterShaderNoMip( GAMESERVER_ARROWSL );
 	trap_R_RegisterShaderNoMip( GAMESERVER_ARROWSR );
 
+#if 0
 	precache = trap_Cvar_VariableValue("com_buildscript");
 
 	if( precache ) {
@@ -559,6 +553,7 @@ void StartServer_Cache( void )
 			trap_R_RegisterShaderNoMip(picname);
 		}
 	}
+#endif
 }
 
 

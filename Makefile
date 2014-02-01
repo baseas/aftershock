@@ -2173,7 +2173,6 @@ Q3GOBJ_ = \
   $(B)/$(BASEGAME)/game/bg_slidemove.o \
   $(B)/$(BASEGAME)/game/bg_lib.o \
   $(B)/$(BASEGAME)/game/g_active.o \
-  $(B)/$(BASEGAME)/game/g_arenas.o \
   $(B)/$(BASEGAME)/game/g_bot.o \
   $(B)/$(BASEGAME)/game/g_client.o \
   $(B)/$(BASEGAME)/game/g_cmds.o \
@@ -2221,7 +2220,6 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_controls.o \
   $(B)/$(BASEGAME)/ui/ui_demo.o \
   $(B)/$(BASEGAME)/ui/ui_display.o \
-  $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
   $(B)/$(BASEGAME)/ui/ui_ingame.o \
   $(B)/$(BASEGAME)/ui/ui_loadconfig.o \
   $(B)/$(BASEGAME)/ui/ui_menu.o \
@@ -2239,15 +2237,12 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_servers.o \
   $(B)/$(BASEGAME)/ui/ui_setup.o \
   $(B)/$(BASEGAME)/ui/ui_sound.o \
-  $(B)/$(BASEGAME)/ui/ui_sparena.o \
   $(B)/$(BASEGAME)/ui/ui_specifyserver.o \
-  $(B)/$(BASEGAME)/ui/ui_splevel.o \
-  $(B)/$(BASEGAME)/ui/ui_sppostgame.o \
-  $(B)/$(BASEGAME)/ui/ui_spskill.o \
   $(B)/$(BASEGAME)/ui/ui_startserver.o \
   $(B)/$(BASEGAME)/ui/ui_team.o \
   $(B)/$(BASEGAME)/ui/ui_teamorders.o \
   $(B)/$(BASEGAME)/ui/ui_video.o \
+  $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o

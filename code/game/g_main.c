@@ -71,8 +71,6 @@ vmCvar_t	g_restarted;
 vmCvar_t	g_logfile;
 vmCvar_t	g_logfileSync;
 vmCvar_t	g_blood;
-vmCvar_t	g_podiumDist;
-vmCvar_t	g_podiumDrop;
 vmCvar_t	g_allowVote;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
@@ -143,9 +141,6 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_debugAlloc, "g_debugAlloc", "0", 0, 0, qfalse },
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
 	{ &g_blood, "com_blood", "1", 0, 0, qfalse },
-
-	{ &g_podiumDist, "g_podiumDist", "80", 0, 0, qfalse },
-	{ &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
@@ -355,7 +350,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	level.snd_fry = G_SoundIndex("sound/player/fry.wav");	// FIXME standing in lava / slime
 
-	if (g_gametype.integer != GT_SINGLE_PLAYER && g_logfile.string[0]) {
+	if (g_logfile.string[0]) {
 		if (g_logfileSync.integer) {
 			trap_FS_FOpenFile(g_logfile.string, &level.logFile, FS_APPEND_SYNC);
 		} else {
@@ -421,10 +416,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 
 	SaveRegisteredItems();
-
-	if (g_gametype.integer == GT_SINGLE_PLAYER || trap_Cvar_VariableIntegerValue("com_buildScript")) {
-		G_ModelIndex(SP_PODIUM_MODEL);
-	}
 
 	if (trap_Cvar_VariableIntegerValue("bot_enable")) {
 		BotAISetup(restart);
@@ -741,9 +732,6 @@ void CalculateRanks(void)
 				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
 			}
 			score = newScore;
-			if (g_gametype.integer == GT_SINGLE_PLAYER && level.numPlayingClients == 1) {
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-			}
 		}
 	}
 
@@ -851,12 +839,6 @@ void BeginIntermission(void)
 			ClientRespawn(client);
 		}
 		MoveClientToIntermission(client);
-	}
-
-	// if single player game
-	if (g_gametype.integer == GT_SINGLE_PLAYER) {
-		UpdateTournamentInfo();
-		SpawnModelsOnVictoryPads();
 	}
 }
 
@@ -1013,10 +995,6 @@ void CheckIntermissionExit(void)
 	int			ready, notReady, playerCount;
 	int			i;
 	gclient_t	*cl;
-
-	if (g_gametype.integer == GT_SINGLE_PLAYER) {
-		return;
-	}
 
 	// see which players are ready
 	ready = 0;
@@ -1321,7 +1299,7 @@ void CheckTournament(void)
 			level.restarted = qtrue;
 			return;
 		}
-	} else if (g_gametype.integer != GT_SINGLE_PLAYER && level.warmupTime != 0) {
+	} else if (level.warmupTime != 0) {
 		if (!EnoughReady()) {
 			if (level.warmupTime != -1) {
 				level.warmupTime = -1;

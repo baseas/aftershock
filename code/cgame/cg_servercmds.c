@@ -351,10 +351,6 @@ void CG_ParseServerinfo(void)
 		cgs.gametypeName = "Free For All";
 		cgs.gametypeShortName = "FFA";
 		break;
-	case GT_SINGLE_PLAYER:
-		cgs.gametypeName = "Single Player";
-		cgs.gametypeShortName = "SP";
-		break;
 	case GT_TOURNAMENT:
 		cgs.gametypeName = "Tournament";
 		cgs.gametypeShortName = "1v1";

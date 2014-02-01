@@ -58,8 +58,6 @@ typedef enum {
 	MOVER_2TO1
 } moverState_t;
 
-#define SP_PODIUM_MODEL		"models/mapobjects/podium/podium4.md3"
-
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
@@ -612,13 +610,6 @@ void	G_InitWorldSession(void);
 void	G_WriteSessionData(void);
 
 //
-// g_arenas.c
-//
-void	UpdateTournamentInfo(void);
-void	SpawnModelsOnVictoryPads(void);
-void	Svcmd_AbortPodium_f(void);
-
-//
 // g_bot.c
 //
 void		G_InitBots(qboolean restart);
@@ -693,7 +684,6 @@ extern vmCvar_t	g_filterBan;
 extern vmCvar_t	g_smoothClients;
 extern vmCvar_t	pmove_fixed;
 extern vmCvar_t	pmove_msec;
-extern vmCvar_t	g_singlePlayer;
 extern vmCvar_t	g_newItemHeight;
 extern vmCvar_t	g_instantgib;
 extern vmCvar_t	g_instantgibGauntlet;

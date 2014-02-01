@@ -45,8 +45,6 @@ MULTIPLAYER MENU (SERVER BROWSER)
 
 #define ART_BACK0				"menu/art/back_0"
 #define ART_BACK1				"menu/art/back_1"
-#define ART_CREATE0				"menu/art/create_0"
-#define ART_CREATE1				"menu/art/create_1"
 #define ART_SPECIFY0			"menu/art/specify_0"
 #define ART_SPECIFY1			"menu/art/specify_1"
 #define ART_REFRESH0			"menu/art/refresh_0"
@@ -205,7 +203,6 @@ typedef struct {
 	menubitmap_s		back;
 	menubitmap_s		refresh;
 	menubitmap_s		specify;
-	menubitmap_s		create;
 	menubitmap_s		go;
 
 	pinglist_t			pinglist[MAX_PINGREQUESTS];
@@ -1089,10 +1086,6 @@ static void ArenaServers_Event( void* ptr, int event )
 		UI_SpecifyServerMenu();
 		break;
 
-	case ID_CREATE:
-		UI_StartServerMenu( qtrue );
-		break;
-
 	case ID_CONNECT:
 		ArenaServers_Go();
 		break;
@@ -1343,17 +1336,6 @@ static void ArenaServers_MenuInit( void )
 	g_arenaservers.refresh.height			= 64;
 	g_arenaservers.refresh.focuspic			= ART_REFRESH1;
 
-	g_arenaservers.create.generic.type		= MTYPE_BITMAP;
-	g_arenaservers.create.generic.name		= ART_CREATE0;
-	g_arenaservers.create.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
-	g_arenaservers.create.generic.callback	= ArenaServers_Event;
-	g_arenaservers.create.generic.id		= ID_CREATE;
-	g_arenaservers.create.generic.x			= 384;
-	g_arenaservers.create.generic.y			= 480-64;
-	g_arenaservers.create.width				= 128;
-	g_arenaservers.create.height			= 64;
-	g_arenaservers.create.focuspic			= ART_CREATE1;
-
 	g_arenaservers.go.generic.type			= MTYPE_BITMAP;
 	g_arenaservers.go.generic.name			= ART_CONNECT0;
 	g_arenaservers.go.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -1388,7 +1370,6 @@ static void ArenaServers_MenuInit( void )
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.back );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.specify );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.refresh );
-	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.create );
 	Menu_AddItem( &g_arenaservers.menu, (void*) &g_arenaservers.go );
 
 	ArenaServers_LoadFavorites();
@@ -1414,8 +1395,6 @@ void ArenaServers_Cache( void )
 {
 	trap_R_RegisterShaderNoMip( ART_BACK0 );
 	trap_R_RegisterShaderNoMip( ART_BACK1 );
-	trap_R_RegisterShaderNoMip( ART_CREATE0 );
-	trap_R_RegisterShaderNoMip( ART_CREATE1 );
 	trap_R_RegisterShaderNoMip( ART_SPECIFY0 );
 	trap_R_RegisterShaderNoMip( ART_SPECIFY1 );
 	trap_R_RegisterShaderNoMip( ART_REFRESH0 );

@@ -73,7 +73,7 @@ void Main_MenuEvent (void* ptr, int event)
 
 	switch (((menucommon_s*)ptr)->id) {
 	case ID_SINGLEPLAYER:
-		UI_SPLevelMenu();
+		UI_StartServerMenu(qtrue);
 		break;
 
 	case ID_MULTIPLAYER:
@@ -161,7 +161,7 @@ void UI_MainMenu(void)
 	s_main.singleplayer.generic.y			= y;
 	s_main.singleplayer.generic.id			= ID_SINGLEPLAYER;
 	s_main.singleplayer.generic.callback	= Main_MenuEvent;
-	s_main.singleplayer.string				= "SINGLE PLAYER";
+	s_main.singleplayer.string				= "CREATE GAME";
 	s_main.singleplayer.color				= color_red;
 	s_main.singleplayer.style				= style;
 

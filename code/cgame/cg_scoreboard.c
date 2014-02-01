@@ -342,10 +342,6 @@ qboolean CG_DrawScoreboard(void)
 		return qfalse;
 	}
 
-	if (cgs.gametype == GT_SINGLE_PLAYER && cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
-		return qfalse;
-	}
-
 	// don't draw scoreboard during death while warmup up
 	if (!cg.showScores && cg.warmup) {
 		return qfalse;

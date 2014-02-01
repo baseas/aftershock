@@ -59,11 +59,6 @@ void SV_GetChallenge(netadr_t from)
 	char *gameName;
 	qboolean gameMismatch;
 
-	// ignore if we are in single player
-	if ( Cvar_VariableValue( "g_gametype" ) == GT_SINGLE_PLAYER || Cvar_VariableValue("ui_singlePlayerActive")) {
-		return;
-	}
-
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
 		Com_DPrintf( "SV_GetChallenge: rate limit from %s exceeded, dropping request\n",
