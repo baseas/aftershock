@@ -42,8 +42,6 @@ cvar_t *s_alGraceDistance;
 cvar_t *s_alDriver;
 cvar_t *s_alDevice;
 cvar_t *s_alInputDevice;
-cvar_t *s_alAvailableDevices;
-cvar_t *s_alAvailableInputDevices;
 
 static qboolean enumeration_ext = qfalse;
 static qboolean enumeration_all_ext = qfalse;
@@ -2108,6 +2106,27 @@ void S_AL_MasterGain( float gain )
 }
 #endif
 
+static void S_AL_PrintDevices(int specifier)
+{
+	char		devicenames[16384] = "";
+	const char	*devicelist;
+	int			curlen;
+
+	devicelist = qalcGetString(NULL, specifier);
+
+	if (!devicelist) {
+		Com_Printf("None");
+		return;
+	}
+
+	while ((curlen = strlen(devicelist))) {
+		Q_strcat(devicenames, sizeof devicenames, devicelist);
+		Q_strcat(devicenames, sizeof devicenames, "\n");
+		devicelist += curlen + 1;
+	}
+
+	Com_Printf("%s", devicenames);
+}
 
 /*
 =================
@@ -2123,19 +2142,22 @@ static void S_AL_SoundInfo(void)
 	Com_Printf( "  AL Extensions:  %s\n", qalGetString( AL_EXTENSIONS ) );
 	Com_Printf( "  ALC Extensions: %s\n", qalcGetString( alDevice, ALC_EXTENSIONS ) );
 
-	if(enumeration_all_ext)
+	if (enumeration_all_ext) {
 		Com_Printf("  Device:         %s\n", qalcGetString(alDevice, ALC_ALL_DEVICES_SPECIFIER));
-	else if(enumeration_ext)
+		Com_Printf("  Available Devices:\n");
+		S_AL_PrintDevices(ALC_ALL_DEVICES_SPECIFIER);
+	} else if (enumeration_ext) {
 		Com_Printf("  Device:         %s\n", qalcGetString(alDevice, ALC_DEVICE_SPECIFIER));
-
-	if(enumeration_all_ext || enumeration_ext)
-		Com_Printf("  Available Devices:\n%s", s_alAvailableDevices->string);
+		Com_Printf("  Available Devices:\n");
+		S_AL_PrintDevices(ALC_DEVICE_SPECIFIER);
+	}
 
 #ifdef USE_VOIP
 	if(capture_ext)
 	{
 		Com_Printf("  Input Device:   %s\n", qalcGetString(alCaptureDevice, ALC_CAPTURE_DEVICE_SPECIFIER));
-		Com_Printf("  Available Input Devices:\n%s", s_alAvailableInputDevices->string);
+		Com_Printf("  Available Input Devices:\n");
+		S_AL_PrintDevices(ALC_CAPTURE_DEVICE_SPECIFIER);
 	}
 #endif
 }
@@ -2243,25 +2265,19 @@ qboolean S_AL_Init( soundInterface_t *si )
 
 	if(enumeration_ext || enumeration_all_ext)
 	{
-		char devicenames[16384] = "";
-		const char *devicelist;
 #ifdef _WIN32
 		const char *defaultdevice;
 #endif
-		int curlen;
 
 		// get all available devices + the default device name.
 		if(enumeration_all_ext)
 		{
-			devicelist = qalcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
 #ifdef _WIN32
 			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
 #endif
 		}
 		else
 		{
-			// We don't have ALC_ENUMERATE_ALL_EXT but normal enumeration.
-			devicelist = qalcGetString(NULL, ALC_DEVICE_SPECIFIER);
 #ifdef _WIN32
 			defaultdevice = qalcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
 #endif
@@ -2276,21 +2292,6 @@ qboolean S_AL_Init( soundInterface_t *si )
 		if(!device && defaultdevice && !strcmp(defaultdevice, "Generic Hardware"))
 			device = "Generic Software";
 #endif
-
-		// dump a list of available devices to a cvar for the user to see.
-
-		if(devicelist)
-		{
-			while((curlen = strlen(devicelist)))
-			{
-				Q_strcat(devicenames, sizeof(devicenames), devicelist);
-				Q_strcat(devicenames, sizeof(devicenames), "\n");
-
-				devicelist += curlen + 1;
-			}
-		}
-
-		s_alAvailableDevices = Cvar_Get("s_alAvailableDevices", devicenames, CVAR_ROM | CVAR_NORESTART);
 	}
 
 	alDevice = qalcOpenDevice(device);
@@ -2359,29 +2360,11 @@ qboolean S_AL_Init( soundInterface_t *si )
 		}
 		else
 		{
-			char inputdevicenames[16384] = "";
-			const char *inputdevicelist;
 			const char *defaultinputdevice;
-			int curlen;
 
 			capture_ext = qtrue;
 
-			// get all available input devices + the default input device name.
-			inputdevicelist = qalcGetString(NULL, ALC_CAPTURE_DEVICE_SPECIFIER);
 			defaultinputdevice = qalcGetString(NULL, ALC_CAPTURE_DEFAULT_DEVICE_SPECIFIER);
-
-			// dump a list of available devices to a cvar for the user to see.
-			if (inputdevicelist)
-			{
-				while((curlen = strlen(inputdevicelist)))
-				{
-					Q_strcat(inputdevicenames, sizeof(inputdevicenames), inputdevicelist);
-					Q_strcat(inputdevicenames, sizeof(inputdevicenames), "\n");
-					inputdevicelist += curlen + 1;
-				}
-			}
-
-			s_alAvailableInputDevices = Cvar_Get("s_alAvailableInputDevices", inputdevicenames, CVAR_ROM | CVAR_NORESTART);
 
 			// !!! FIXME: 8000Hz is what Speex narrowband mode needs, but we
 			// !!! FIXME:  should probably open the capture device after
