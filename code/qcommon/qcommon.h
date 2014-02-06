@@ -547,6 +547,7 @@ char	*Cvar_InfoString_Big( int bit );
 // in their flags ( CVAR_USERINFO, CVAR_SERVERINFO, CVAR_SYSTEMINFO, etc )
 void	Cvar_InfoStringBuffer( int bit, char *buff, int buffsize );
 
+void Cvar_HelpText(cvar_t *cv, const char *text);
 void Cvar_CheckRange( cvar_t *cv, float minVal, float maxVal, qboolean shouldBeIntegral );
 void Cvar_CheckRangeSafe(const char *varname, float minVal, float maxVal, qboolean shouldBeIntegral);
 

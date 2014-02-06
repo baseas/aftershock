@@ -445,7 +445,7 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	var->integer = atoi(var_value);
 	var->resetString = CopyString(var_value);
 	var->validate = qfalse;
-
+	var->help = NULL;
 	var->string = CopyString(Cvar_Validate(var, var_value, qtrue));
 
 	// link the variable in
@@ -792,7 +792,33 @@ void Cvar_Print_f(void)
 	if(cv)
 		Cvar_Print(cv);
 	else
-		Com_Printf ("Cvar %s does not exist.\n", name);
+		Com_Printf ("Cvar '%s' does not exist.\n", name);
+}
+
+void Cvar_Help_f(void)
+{
+	char	*name;
+	cvar_t	*cv;
+
+	if (Cmd_Argc() != 2) {
+		Com_Printf("usage: help <variable>\n");
+		return;
+	}
+
+	name = Cmd_Argv(1);
+	cv = Cvar_FindVar(name);
+
+	if (!cv) {
+		Com_Printf("Cvar '%s' does not exist.\n", name);
+		return;
+	}
+
+	if (!cv->help) {
+		Com_Printf("Cvar '%s' has no help text.\n", cv->name);
+		return;
+	}
+
+	Com_Printf("%s: %s\n", cv->name, cv->help);
 }
 
 /*
@@ -1030,6 +1056,10 @@ cvar_t *Cvar_Unset(cvar_t *cv)
 {
 	cvar_t *next = cv->next;
 
+	if (cv->help) {
+		Z_Free(cv->help);
+	}
+
 	if(cv->name)
 		Z_Free(cv->name);
 	if(cv->string)
@@ -1191,6 +1221,14 @@ void Cvar_InfoStringBuffer( int bit, char* buff, int buffsize ) {
 	Q_strncpyz(buff,Cvar_InfoString(bit),buffsize);
 }
 
+void Cvar_HelpText(cvar_t *cv, const char *text)
+{
+	if (cv->help) {
+		Z_Free(cv->help);
+	}
+	cv->help = CopyString(text);
+}
+
 /*
 =====================
 Cvar_CheckRange
@@ -1330,6 +1368,7 @@ void Cvar_Init (void)
 	cvar_cheats = Cvar_Get("sv_cheats", "1", CVAR_ROM | CVAR_SYSTEMINFO );
 
 	Cmd_AddCommand ("print", Cvar_Print_f);
+	Cmd_AddCommand("help", Cvar_Help_f);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
 	Cmd_SetCommandCompletionFunc( "toggle", Cvar_CompleteCvarName );
 	Cmd_AddCommand ("set", Cvar_Set_f);
