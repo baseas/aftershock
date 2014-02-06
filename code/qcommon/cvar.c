@@ -62,18 +62,18 @@ Cvar_ValidateString
 ============
 */
 static qboolean Cvar_ValidateString( const char *s ) {
+	int	i;
+
 	if ( !s ) {
 		return qfalse;
 	}
-	if ( strchr( s, '\\' ) ) {
-		return qfalse;
+
+	for (i = 0; s[i]; ++i) {
+		if (s[i] == '\\' || s[i] == '"' || s[i] == ';' || s[i] < 0x20 || s[i] > 0x7E) {
+			return qfalse;
+		}
 	}
-	if ( strchr( s, '\"' ) ) {
-		return qfalse;
-	}
-	if ( strchr( s, ';' ) ) {
-		return qfalse;
-	}
+
 	return qtrue;
 }
 
@@ -206,11 +206,25 @@ static const char *Cvar_Validate( cvar_t *var,
 	static char s[ MAX_CVAR_VALUE_STRING ];
 	float valuef;
 	qboolean changed = qfalse;
+	int		i;
+
+	if (!value) {
+		return value;
+	}
+
+	for (i = 0; value[i]; ++i) {
+		if (value[i] >= 0x20 && value[i] <= 0x7E) {
+			continue;
+		}
+
+		if (warn) {
+			Com_Printf("WARNING: value of cvar %s has invalid characters\n", var->name);
+		}
+		s[0] = '\0';
+		return s;
+	}
 
 	if( !var->validate )
-		return value;
-
-	if( !value )
 		return value;
 
 	if( Q_isanumber( value ) )
@@ -321,13 +335,6 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 		var_name = "BADNAME";
 	}
 
-#if 0		// FIXME: values with backslash happen
-	if ( !Cvar_ValidateString( var_value ) ) {
-		Com_Printf("invalid cvar value string: %s\n", var_value );
-		var_value = "BADVALUE";
-	}
-#endif
-
 	var = Cvar_FindVar (var_name);
 	
 	if(var)
@@ -430,14 +437,16 @@ cvar_t *Cvar_Get( const char *var_name, const char *var_value, int flags ) {
 	if(index >= cvar_numIndexes)
 		cvar_numIndexes = index + 1;
 		
-	var->name = CopyString (var_name);
-	var->string = CopyString (var_value);
+	var->name = CopyString(var_name);
+	var->string = NULL;
 	var->modified = qtrue;
 	var->modificationCount = 1;
-	var->value = atof (var->string);
-	var->integer = atoi(var->string);
-	var->resetString = CopyString( var_value );
+	var->value = atof(var_value);
+	var->integer = atoi(var_value);
+	var->resetString = CopyString(var_value);
 	var->validate = qfalse;
+
+	var->string = CopyString(Cvar_Validate(var, var_value, qtrue));
 
 	// link the variable in
 	var->next = cvar_vars;
@@ -505,13 +514,6 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, qboolean force ) {
 		Com_Printf("invalid cvar name string: %s\n", var_name );
 		var_name = "BADNAME";
 	}
-
-#if 0	// FIXME
-	if ( value && !Cvar_ValidateString( value ) ) {
-		Com_Printf("invalid cvar value string: %s\n", value );
-		var_value = "BADVALUE";
-	}
-#endif
 
 	var = Cvar_FindVar (var_name);
 	if (!var) {

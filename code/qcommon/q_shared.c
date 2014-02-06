@@ -1185,13 +1185,15 @@ Some characters are illegal in info strings because they
 can mess up the server's parsing
 ==================
 */
-qboolean Info_Validate( const char *s ) {
-	if ( strchr( s, '\"' ) ) {
-		return qfalse;
+qboolean Info_Validate( const char *s )
+{
+	int	i;
+	for (i = 0; s[i]; ++i) {
+		if (s[i] == '"' || s[i] == ';' || s[i] < 0x20 || s[i] > 0x7E) {
+			return qfalse;
+		}
 	}
-	if ( strchr( s, ';' ) ) {
-		return qfalse;
-	}
+
 	return qtrue;
 }
 

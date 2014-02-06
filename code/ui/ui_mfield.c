@@ -249,7 +249,7 @@ void MField_CharEvent( mfield_t *edit, int ch ) {
 	//
 	// ignore any other non printable chars
 	//
-	if ( ch < 32 ) {
+	if (ch < 0x20 || ch > 0x7E) {
 		return;
 	}
 
