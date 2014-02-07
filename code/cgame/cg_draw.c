@@ -39,10 +39,6 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model,
 	refdef_t		refdef;
 	refEntity_t		ent;
 
-	if (!cg_drawIcons.integer) {
-		return;
-	}
-
 	CG_AdjustFrom640(&x, &y, &w, &h);
 
 	memset(&refdef, 0, sizeof(refdef));
@@ -79,10 +75,6 @@ Used for both the status bar and the scoreboard
 void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D)
 {
 	gitem_t *item;
-
-	if (!cg_drawIcons.integer) {
-		return;
-	}
 
 	if (team == TEAM_RED) {
 		item = BG_FindItemForPowerup(PW_REDFLAG);

@@ -582,10 +582,6 @@ static void Hud_Ammo(int hudnumber)
 
 static void Hud_AmmoIcon(int hudnumber)
 {
-	if (!cg_drawIcons.integer) {
-		return;
-	}
-
 	qhandle_t	icon;
 
 	icon = cg_weapons[cg.predictedPlayerState.weapon].ammoIcon;
