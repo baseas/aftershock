@@ -135,7 +135,6 @@ vmCvar_t	cg_tracerChance;
 vmCvar_t	cg_tracerWidth;
 vmCvar_t	cg_tracerLength;
 vmCvar_t	cg_autoswitch;
-vmCvar_t	cg_ignore;
 vmCvar_t	cg_simpleItems;
 vmCvar_t	cg_fov;
 vmCvar_t	cg_zoomFov;
@@ -168,9 +167,6 @@ vmCvar_t	cg_cameraOrbitDelay;
 vmCvar_t	cg_timescaleFadeEnd;
 vmCvar_t	cg_timescaleFadeSpeed;
 vmCvar_t	cg_timescale;
-vmCvar_t	cg_smallFont;
-vmCvar_t	cg_bigFont;
-vmCvar_t	cg_noTaunt;
 vmCvar_t	cg_trueLightning;
 vmCvar_t	cg_crosshairColor;
 vmCvar_t	cg_teamModel;
@@ -236,7 +232,6 @@ vmCvar_t	cg_killbeep;
 vmCvar_t	cg_drawSpawnpoints;
 
 static cvarTable_t cvarTable[] = {
-	{ &cg_ignore, "cg_ignore", "0", 0, RANGE_BOOL },	// used for debugging
 	{ &cg_autoswitch, "cg_autoswitch", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawGun, "cg_drawGun", "1", CVAR_ARCHIVE, RANGE_INT(0, 3) },
 	{ &cg_zoomFov, "cg_zoomFov", "22.5", CVAR_ARCHIVE, RANGE_FLOAT(1, 160) },
@@ -305,9 +300,6 @@ static cvarTable_t cvarTable[] = {
 
 	{ &pmove_fixed, "pmove_fixed", "1", CVAR_SYSTEMINFO, RANGE_BOOL },
 	{ &pmove_msec, "pmove_msec", "8", CVAR_SYSTEMINFO, RANGE_INT(8, 33) },
-	{ &cg_noTaunt, "cg_noTaunt", "0", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_smallFont, "ui_smallFont", "0.25", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
-	{ &cg_bigFont, "ui_bigFont", "0.4", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_trueLightning, "cg_trueLightning", "0.0", CVAR_ARCHIVE, RANGE_FLOAT(0, FLT_MAX) },
 	{ &cg_crosshairColor, "cg_crosshairColor", "7", CVAR_ARCHIVE, RANGE_COLOR },
 
