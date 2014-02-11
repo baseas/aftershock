@@ -837,7 +837,6 @@ typedef struct {
 } cgMedia_t;
 
 enum {
-	HUD_DEFAULT,
 	HUD_AMMOWARNING,
 	HUD_ATTACKERICON,
 	HUD_ATTACKERNAME,
@@ -1207,7 +1206,6 @@ extern vmCvar_t		cg_lightningExplosion;
 extern vmCvar_t		cg_weaponBobbing;
 extern vmCvar_t		cg_switchOnEmpty;
 extern vmCvar_t		cg_switchToEmpty;
-extern vmCvar_t		cg_hud;
 extern vmCvar_t		cg_killbeep;
 extern vmCvar_t		cg_drawSpawnpoints;
 
@@ -1315,8 +1313,8 @@ qhandle_t	CG_StatusHandle(int task);
 void		CG_DrawHud(void);
 void		CG_HudEdit_f( void );
 void		CG_ClearHud( void );
-void		CG_LoadHudFile( const char* hudFile );
-void		CG_WriteHudFile_f( void );
+void		CG_HudInit(void);
+void		CG_Hud_f(void);
 
 //
 // cg_players.c

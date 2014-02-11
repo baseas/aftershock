@@ -175,7 +175,8 @@ static consoleCommand_t	commands[] = {
 	{ "tcmd", CG_TargetCommand_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
-	{ "startOrbit", CG_StartOrbit_f }
+	{ "startOrbit", CG_StartOrbit_f },
+	{ "hud", CG_Hud_f }
 };
 
 /**

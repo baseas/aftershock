@@ -156,7 +156,6 @@ vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
 vmCvar_t	cg_drawFriend;
 vmCvar_t	cg_teamChatsOnly;
-vmCvar_t	cg_hudFiles;
 vmCvar_t	cg_scorePlum;
 vmCvar_t	cg_smoothClients;
 vmCvar_t	pmove_fixed;
@@ -227,7 +226,6 @@ vmCvar_t	cg_lightningExplosion;
 vmCvar_t	cg_weaponBobbing;
 vmCvar_t	cg_switchOnEmpty;
 vmCvar_t	cg_switchToEmpty;
-vmCvar_t	cg_hud;
 vmCvar_t	cg_killbeep;
 vmCvar_t	cg_drawSpawnpoints;
 
@@ -365,7 +363,6 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_weaponBobbing, "cg_weaponBobbing", "1", CVAR_ARCHIVE, RANGE_INT(0, 2) },
 	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_hud, "cg_hud", "hud/default.txt", CVAR_ARCHIVE, RANGE_ALL },
 	{ &cg_killbeep, "cg_killbeep", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE, RANGE_BOOL }
 };
@@ -896,7 +893,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	trap_S_ClearLoopingSounds(qtrue);
 
-	CG_LoadHudFile(cg_hud.string);
+	CG_HudInit();
 
 	cg.showInfoScreen = qfalse;
 }
@@ -945,11 +942,6 @@ void CG_UpdateCvars(void)
 		if (cv->vmCvar == &cg_forceTeamModels) {
 			CG_ForceModelChange();
 			continue;
-		}
-
-		if (cv->vmCvar == &cg_hud) {
-			CG_ClearHud();
-			CG_LoadHudFile(cg_hud.string);
 		}
 
 		if (cv->vmCvar == &cg_flatGrenades) {
