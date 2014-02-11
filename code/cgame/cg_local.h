@@ -945,25 +945,23 @@ enum {
 
 typedef struct {
 	qboolean	inuse;
-	int			xpos;
-	int			ypos;
-	int			width;
-	int			height;
+	float		xpos;
+	float		ypos;
+	float		width;
+	float		height;
 	vec4_t		color;
 	vec4_t		bgcolor;
 	qboolean	fill;
-	int			fontWidth;
-	int			fontHeight;
+	float		fontWidth;
+	float		fontHeight;
 	char		*image;
 	char		*text;
 	int			textAlign;
-	int			textstyle;
+	int			textStyle;
 	int			time;
 	qhandle_t	imageHandle;
 	int			teamColor;
 	int			teamBgColor;
-	char		*cvar;
-	int			cvarValue;
 } hudElement_t;
 
 typedef struct {

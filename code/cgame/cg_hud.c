@@ -30,79 +30,62 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define MAX_LAGOMETER_RANGE	300
 #define ICON_BLEND_TIME		3000
 
+/**
+Set team color and team background color, does not change alpha channel.
+*/
+static void CG_SetElementColors(void)
+{
+	int				i;
+	hudElement_t	*element;
+	team_t			team;
+
+	for (i = 0; i < HUD_MAX; ++i) {
+		element = &cgs.hud[i];
+
+		team = cg.snap->ps.persistant[PERS_TEAM];
+
+		if (element->teamBgColor == 1) {
+			VectorCopy(CG_TeamColor(team), element->bgcolor);
+		}
+
+		if (element->teamColor == 1) {
+			VectorCopy(CG_TeamColor(team), element->color);
+		}
+
+		if (team == TEAM_RED) {
+			team = TEAM_BLUE;
+		} else if (team == TEAM_BLUE) {
+			team = TEAM_RED;
+		}
+
+		if (element->teamBgColor == 2) {
+			VectorCopy(CG_TeamColor(team), element->bgcolor);
+		}
+
+		if (element->teamColor == 2) {
+			VectorCopy(CG_TeamColor(team), element->color);
+		}
+	}
+}
+
 static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 {
 	hudElement_t	*hudelement;
-	vec4_t			color;
 
 	hudelement = &cgs.hud[hudnumber];
-
-	if (!hudelement->inuse)
+	if (!hudelement->inuse) {
 		return;
-
-	if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 1) {
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-			color[0] = 1;
-			color[1] = 0;
-			color[2] = 0;
-		} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			color[0] = 0;
-			color[1] = 0;
-			color[2] = 1;
-		}
-	} else if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 2) {
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			color[0] = 1;
-			color[1] = 0;
-			color[2] = 0;
-		} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-			color[0] = 0;
-			color[1] = 0;
-			color[2] = 1;
-		}
 	}
-	else {
-		color[0] = hudelement->bgcolor[0];
-		color[1] = hudelement->bgcolor[1];
-		color[2] = hudelement->bgcolor[2];
-	}
-	color[3] = hudelement->bgcolor[3];
 
 	if (hudelement->fill) {
-		CG_FillRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, color);
+		CG_FillRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height,
+			hudelement->color);
 	} else {
-		CG_DrawRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height, 1.0f, color);
+		CG_DrawRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height,
+			1.0f, hudelement->color);
 	}
 
-	if (cgs.gametype >= GT_TEAM && hudelement->teamColor == 1) {
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-			color[0] = 1;
-			color[1] = 0;
-			color[2] = 0;
-		} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			color[0] = 0;
-			color[1] = 0;
-			color[2] = 1;
-		}
-	}
-	else if (cgs.gametype >= GT_TEAM && hudelement->teamColor == 2) {
-		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-			color[0] = 1;
-			color[1] = 0;
-			color[2] = 0;
-		} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-			color[0] = 0;
-			color[1] = 0;
-			color[2] = 1;
-		}
-	} else {
-		color[0] = hudelement->color[0];
-		color[1] = hudelement->color[1];
-		color[2] = hudelement->color[2];
-	}
-	color[3] = hudelement->color[3];
-
-	trap_R_SetColor(color);
+	trap_R_SetColor(hudelement->color);
 
 	if (hudelement->imageHandle && override) {
 		CG_DrawAdjustPic(hudelement->xpos, hudelement->ypos, hudelement->width,
@@ -113,10 +96,11 @@ static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 		CG_DrawAdjustPic(hudelement->xpos, hudelement->ypos, hudelement->width,
 			hudelement->height, hShader);
 	}
+
 	trap_R_SetColor(NULL);
 }
 
-static void CG_DrawHudString(int hudnumber, qboolean colorize, const char* text)
+static void CG_DrawHudString(int hudnumber, qboolean colorize, const char *text)
 {
 	hudElement_t	*hudelement;
 	int				w, x;
@@ -124,13 +108,13 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char* text)
 	qboolean		shadow;
 
 	hudelement = &cgs.hud[hudnumber];
-	shadow = (hudelement->textstyle & 1);
+	shadow = (hudelement->textStyle & 1);
 
 	if (!hudelement->inuse) {
 		return;
 	}
 
-	CG_DrawHudIcon(hudnumber, qtrue, hudelement->imageHandle);
+//	CG_DrawHudIcon(hudnumber, qtrue, hudelement->imageHandle);
 
 	w = CG_StringWidth(hudelement->fontWidth, text);
 
@@ -142,36 +126,10 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char* text)
 		x = hudelement->xpos + hudelement->width/2 - w/2;
 
 	if (colorize) {
-		if (cgs.gametype >= GT_TEAM && hudelement->teamColor == 1) {
-			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-				color[0] = 1;
-				color[1] = 0;
-				color[2] = 0;
-			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-				color[0] = 0;
-				color[1] = 0;
-				color[2] = 1;
-			}
-		} else if (cgs.gametype >= GT_TEAM && hudelement->teamColor == 2) {
-			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-				color[0] = 1;
-				color[1] = 0;
-				color[2] = 0;
-			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-				color[0] = 0;
-				color[1] = 0;
-				color[2] = 1;
-			}
-		}
-		else {
-			Vector4Copy(hudelement->color, color);
-		}
+		Vector4Copy(hudelement->color, color);
 	}
 	else {
-		color[0] = 1.0f;
-		color[1] = 1.0f;
-		color[2] = 1.0f;
-		color[3] = 1.0f;
+		Vector4Copy(colorWhite, color);
 	}
 
 	CG_DrawStringExt(x, hudelement->ypos, text, color, qfalse,
@@ -434,34 +392,9 @@ static void CG_DrawHudScores(int hudnumber, int score)
 	}
 
 	hudelement = &cgs.hud[hudnumber];
-	shadow = hudelement->textstyle & 1;
+	shadow = hudelement->textStyle & 1;
 	if (!spec) {
-		if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 1) {
-			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-				color[0] = 1;
-				color[1] = 0;
-				color[2] = 0;
-			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-				color[0] = 0;
-				color[1] = 0;
-				color[2] = 1;
-			}
-		} else if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 2) {
-			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-				color[0] = 1;
-				color[1] = 0;
-				color[2] = 0;
-			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-				color[0] = 0;
-				color[1] = 0;
-				color[2] = 1;
-			}
-		} else {
-			color[0] = hudelement->bgcolor[0];
-			color[1] = hudelement->bgcolor[1];
-			color[2] = hudelement->bgcolor[2];
-		}
-		color[3] = hudelement->bgcolor[3];
+		Vector4Copy(hudelement->bgcolor, color);
 	} else {
 		color[0] = color[1] = color[2] = color[3] = 0.5f;
 	}
@@ -993,32 +926,7 @@ static void Hud_WeaponList(int hudnumber)
 	}
 
 	if (hudelement->bgcolor[3] != 0) {
-		if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 1) {
-			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-				bgcolor[0] = 1;
-				bgcolor[1] = 0;
-				bgcolor[2] = 0;
-			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-				bgcolor[0] = 0;
-				bgcolor[1] = 0;
-				bgcolor[2] = 1;
-			}
-		} else if (cgs.gametype >= GT_TEAM && hudelement->teamBgColor == 2) {
-			if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-				bgcolor[0] = 1;
-				bgcolor[1] = 0;
-				bgcolor[2] = 0;
-			} else if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
-				bgcolor[0] = 0;
-				bgcolor[1] = 0;
-				bgcolor[2] = 1;
-			}
-		} else {
-			bgcolor[0] = hudelement->bgcolor[0];
-			bgcolor[1] = hudelement->bgcolor[1];
-			bgcolor[2] = hudelement->bgcolor[2];
-		}
-		bgcolor[3] = hudelement->bgcolor[3];
+		Vector4Copy(hudelement->bgcolor, bgcolor);
 	} else {
 		bgcolor[0] = 0;
 		bgcolor[1] = 0;
@@ -1163,7 +1071,7 @@ static void Hud_WeaponList(int hudnumber)
 
 			w = CG_DrawStrlen(s);
 			CG_DrawStringExt(x + text_xrel + (3 - w)*text_step, y + text_yrel, s, charColor,
-				qfalse, hudelement->textstyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
+				qfalse, hudelement->textStyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
 		}
 
 		if (horizontal)
@@ -1437,6 +1345,8 @@ void CG_DrawHud()
 		{ HUD_REWARDCOUNT, Hud_RewardCount },
 		{ HUD_MAX, NULL }
 	};
+
+	CG_SetElementColors();
 
 	for (i = 0; hudCallbacks[i].func; ++i) {
 		if (!cgs.hud[hudCallbacks[i].hudnumber].inuse) {
