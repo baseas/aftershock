@@ -1389,3 +1389,38 @@ int Q_IsColorString(const char *str)
 	return 0;
 }
 
+/**
+Print a warning if the section has keys that do not occur in `keys`.
+*/
+void Ini_Validate(iniSection_t *section, const char **keys)
+{
+	int			i;
+	const char	**key;
+	for (i = 0; i < section->numItems; ++i) {
+		for (key = keys; *key; ++key) {
+			if (!strcmp(*key, section->keys[i])) {
+				break;
+			}
+		}
+
+		if (*key == NULL) {
+			Com_Printf("Ini parser: found unknown key '%s'.\n", section->keys[i]);
+		}
+	}
+}
+
+/**
+Find the value of the corresponding key.
+Return NULL is key not found.
+*/
+char *Ini_GetValue(iniSection_t *section, const char *key)
+{
+	int	i;
+	for (i = 0; i < section->numItems; ++i) {
+		if (!strcmp(key, section->keys[i])) {
+			return section->vals[i];
+		}
+	}
+	return NULL;
+}
+

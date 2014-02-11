@@ -983,3 +983,7 @@ int trap_PC_SourceFileAndLine(int handle, char *filename, int *line)
 	return syscall(BOTLIB_PC_SOURCE_FILE_AND_LINE, handle, filename, line);
 }
 
+int trap_Ini_Section(iniSection_t *section, fileHandle_t fp)
+{
+	return syscall(G_INI_SECTION, section, fp);
+}

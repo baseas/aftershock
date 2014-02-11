@@ -608,6 +608,8 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
     return 0;
   case CG_KEY_GETKEY:
 		return Key_GetKey( VMA(1) );
+	case CG_INI_SECTION:
+		return Ini_Section(VMA(1), args[2]);
 
 
 

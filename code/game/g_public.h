@@ -218,6 +218,7 @@ typedef enum {
 
 	// 1.32
 	G_FS_SEEK,
+	G_INI_SECTION,
 
 	BOTLIB_SETUP = 200,				// (void);
 	BOTLIB_SHUTDOWN,				// (void);

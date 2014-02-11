@@ -89,6 +89,7 @@ equ trap_GetEntityToken					-86
 equ trap_R_AddPolysToScene				-87
 equ trap_R_inPVS						-88
 equ trap_FS_Seek						-89
+equ trap_Ini_Section					-90
 
 equ memset						-101
 equ memcpy						-102

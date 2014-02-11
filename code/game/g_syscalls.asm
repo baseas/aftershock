@@ -47,6 +47,7 @@ equ trap_SnapVector					-44
 equ trap_TraceCapsule				-45
 equ trap_EntityContactCapsule		-46
 equ trap_FS_Seek					-47
+equ trap_Ini_Section				-48
 
 equ memset					-101
 equ memcpy					-102

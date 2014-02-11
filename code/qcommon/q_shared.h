@@ -820,6 +820,20 @@ void Info_NextPair( const char **s, char *key, char *value );
 void	QDECL Com_Error( int level, const char *error, ... ) __attribute__ ((noreturn, format(printf, 2, 3)));
 void	QDECL Com_Printf( const char *msg, ... ) __attribute__ ((format (printf, 1, 2)));
 
+#define INI_LABEL_LENGTH		32
+#define INI_MAX_ITEMS			16
+#define INI_KEY_LENGTH			32
+#define INI_VAL_LENGTH			256
+
+typedef struct {
+	char	label[INI_LABEL_LENGTH];
+	char	keys[INI_MAX_ITEMS][INI_KEY_LENGTH];
+	char	vals[INI_MAX_ITEMS][INI_VAL_LENGTH];
+	int		numItems;
+} iniSection_t;
+
+void	Ini_Validate(iniSection_t *section, const char **keys);
+char	*Ini_GetValue(iniSection_t *section, const char *key);
 
 /*
 ==========================================================

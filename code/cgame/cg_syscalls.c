@@ -125,6 +125,11 @@ int trap_FS_Seek(fileHandle_t f, long offset, fsOrigin_t origin)
 	return syscall(CG_FS_SEEK, f, offset, origin);
 }
 
+int trap_Ini_Section(iniSection_t *section, fileHandle_t fp)
+{
+	return syscall(CG_INI_SECTION, section, fp);
+}
+
 void trap_SendConsoleCommand(const char *text)
 {
 	syscall(CG_SENDCONSOLECOMMAND, text);
