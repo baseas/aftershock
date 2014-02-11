@@ -542,6 +542,8 @@ void 	Cvar_WriteVariables( fileHandle_t f );
 
 void	Cvar_Init( void );
 
+void	Cvar_LoadCvarInfo(void);
+
 char	*Cvar_InfoString( int bit );
 char	*Cvar_InfoString_Big( int bit );
 // returns an info string containing all the cvars that have the given bit set

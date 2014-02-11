@@ -1369,6 +1369,7 @@ void Cvar_Init (void)
 
 	Cmd_AddCommand ("print", Cvar_Print_f);
 	Cmd_AddCommand("help", Cvar_Help_f);
+	Cmd_SetCommandCompletionFunc("help", Cvar_CompleteCvarName);
 	Cmd_AddCommand ("toggle", Cvar_Toggle_f);
 	Cmd_SetCommandCompletionFunc( "toggle", Cvar_CompleteCvarName );
 	Cmd_AddCommand ("set", Cvar_Set_f);
@@ -1387,3 +1388,106 @@ void Cvar_Init (void)
 	Cmd_AddCommand ("cvarlist", Cvar_List_f);
 	Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
 }
+
+static int Cvar_ParseFlags(const char *value)
+{
+	int		flags;
+	char	*token;
+
+	flags = 0;
+
+	while (*(token = COM_Parse((char **) &value)) != '\0') {
+		if (!strcmp(token, "archive")) {
+			flags |= CVAR_ARCHIVE;
+		} else if (!strcmp(token, "cheat")) {
+			flags |= CVAR_CHEAT;
+		} else if (!strcmp(token, "userinfo")) {
+			flags |= CVAR_USERINFO;
+		} else if (!strcmp(token, "rom")) {
+			flags |= CVAR_ROM;
+		} else if (!strcmp(token, "serverinfo")) {
+			flags |= CVAR_SERVERINFO;
+		} else if (!strcmp(token, "latch")) {
+			flags |= CVAR_LATCH;
+		} else if (!strcmp(token, "norestart")) {
+			flags |= CVAR_NORESTART;
+		} else if (!strcmp(token, "temp")) {
+			flags |= CVAR_TEMP;
+		} else if (!strcmp(token, "none")) {
+			continue;
+		} else {
+			Com_Printf("Invalid flag '%s'.\n", token);
+		}
+	}
+
+	return flags;
+}
+
+static void Cvar_SetRange(cvar_t *cvar, const char *value)
+{
+	char	*token;
+
+	token = COM_Parse((char **) &value);
+
+	if (!strcmp(token, "bool")) {
+		Cvar_CheckRange(cvar, 0.0f, 1.0f, qtrue);
+	} else if (!strcmp(token, "int")) {
+		float	min, max;
+		min = atof(COM_Parse((char **) &value));
+		max = atof(COM_Parse((char **) &value));
+		Cvar_CheckRange(cvar, min, max, qtrue);
+	} else if (!strcmp(token, "float")) {
+		float	min, max;
+		min = atof(COM_Parse((char **) &value));
+		max = atof(COM_Parse((char **) &value));
+		Cvar_CheckRange(cvar, min, max, qfalse);
+	} else if (strcmp(token, "all")) {
+		Com_Printf("Cvar: Invalid range.\n");
+	}
+}
+
+void Cvar_LoadCvarInfo(void)
+{
+	fileHandle_t	fp;
+	iniSection_t	section;
+	char			*value;
+	cvar_t			*cvar;
+	int				flags;
+
+	FS_FOpenFileRead("cvarlist.ini", &fp, qtrue);
+	if (!fp) {
+		Com_Printf("Cannot find cvarlist.ini.\n");
+		return;
+	}
+
+	while (!Ini_Section(&section, fp)) {
+		value = Ini_GetValue(&section, "flags");
+		if (!value) {
+			continue;
+		}
+		flags = Cvar_ParseFlags(value);
+
+		value = Ini_GetValue(&section, "def");
+		if (!value) {
+			Com_Printf("Cvar '%s' has no default value.\n", section.label);
+			continue;
+		}
+
+		cvar = Cvar_Get(section.label, value, flags);
+
+		value = Ini_GetValue(&section, "doc");
+		if (value) {
+			Cvar_HelpText(cvar, value);
+		}
+
+		value = Ini_GetValue(&section, "range");
+		if (!value) {
+			Com_Printf("No range set for cvar '%s'.\n", section.label);
+		} else {
+			Cvar_SetRange(cvar, value);
+		}
+	}
+
+	FS_FCloseFile(fp);
+}
+

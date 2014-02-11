@@ -787,17 +787,6 @@ static void CG_RegisterClients(void)
 	}
 }
 
-static void CG_ValidateCvar(cvarTable_t *cv)
-{
-	if (cv->rangeType == RANGE_TYPE_COLOR) {
-		vec4_t	color;
-		if (CG_ParseColor(color, cv->vmCvar->string)) {
-			trap_Cvar_Set(cv->cvarName, cv->defaultString);
-			Com_Printf("WARNING: Invalid color string - using default.\n");
-		}
-	}
-}
-
 void CG_RegisterCvars(void)
 {
 	int			i;
@@ -807,9 +796,6 @@ void CG_RegisterCvars(void)
 	for (i = 0, cv = cvarTable; i < cvarTableSize; i++, cv++) {
 		trap_Cvar_Register(cv->vmCvar, cv->cvarName,
 			cv->defaultString, cv->cvarFlags);
-		if (cv->rangeType == RANGE_TYPE_INT || cv->rangeType == RANGE_TYPE_FLOAT) {
-			trap_Cvar_CheckRange(cv->cvarName, cv->min, cv->max, cv->rangeType == RANGE_TYPE_INT);
-		}
 	}
 
 	// see if we are also running the server on this machine
@@ -947,8 +933,6 @@ void CG_UpdateCvars(void)
 		if (modCount == cv->vmCvar->modificationCount) {
 			continue;
 		}
-
-		CG_ValidateCvar(cv);
 
 		if (!CG_LoadCvarModel(cv->cvarName, cv->vmCvar)) {
 			continue;

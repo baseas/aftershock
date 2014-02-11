@@ -2533,6 +2533,8 @@ void Com_Init( char *commandLine ) {
 
 	Com_InitJournaling();
 
+	Cvar_LoadCvarInfo();
+
 	// Add some commands here already so users can use them from config files
 	Cmd_AddCommand ("setenv", Com_Setenv_f);
 	if (com_developer && com_developer->integer)
