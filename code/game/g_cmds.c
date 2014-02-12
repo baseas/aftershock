@@ -1500,6 +1500,74 @@ static void Cmd_Ready_f(gentity_t *ent)
 	ClientUserinfoChanged(ent->client - level.clients);
 }
 
+static void Cmd_Lock_f(gentity_t *ent)
+{
+	if (!g_teamLock.integer) {
+		ClientPrint(ent, "Teamlock not allowed on this server.");
+		return;
+	}
+
+	if (g_gametype.integer < GT_TEAM) {
+		ClientPrint(ent, "Teamlock not available in this gametype.");
+		return;
+	}
+
+	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		ClientPrint(ent, "Teamlock is not available for spectators.");
+		return;
+	}
+
+	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_RED) {
+		if (g_redLocked.integer) {
+			ClientPrint(ent, "Red team is already locked.");
+		} else {
+			ClientPrint(NULL, va("Red team locked by %s.", ent->client->pers.netname));
+			trap_Cvar_Set("g_redLocked", "1");
+		}
+	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+		if (g_blueLocked.integer) {
+			ClientPrint(ent, "Blue team is already locked.");
+		} else {
+			ClientPrint(NULL, va("Blue team locked by %s.", ent->client->pers.netname));
+			trap_Cvar_Set("g_blueLocked", "1");
+		}
+	}
+}
+
+static void Cmd_Unlock_f(gentity_t *ent)
+{
+	if (!g_teamLock.integer) {
+		ClientPrint(ent, "Teamlock not allowed on this server.");
+		return;
+	}
+
+	if (g_gametype.integer < GT_TEAM) {
+		ClientPrint(ent, "Teamlock not available in this gametype.");
+		return;
+	}
+
+	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		ClientPrint(ent, "Teamlock is not available for spectators.");
+		return;
+	}
+
+	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_RED) {
+		if (!g_redLocked.integer) {
+			ClientPrint(ent, "Red team is already unlocked.");
+		} else {
+			ClientPrint(NULL, va("Red team unlocked by %s.", ent->client->pers.netname));
+			trap_Cvar_Set("g_redLocked", "0");
+		}
+	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
+		if (!g_blueLocked.integer) {
+			ClientPrint(ent, "Blue team is already unlocked.");
+		} else {
+			ClientPrint(NULL, va("Blue team unlocked by %s.", ent->client->pers.netname));
+			trap_Cvar_Set("g_blueLocked", "0");
+		}
+	}
+}
+
 void ClientCommand(int clientNum)
 {
 	gentity_t *ent;
@@ -1584,6 +1652,10 @@ void ClientCommand(int clientNum)
 		Cmd_Drop_f(ent);
 	else if (Q_stricmp(cmd, "ready") == 0)
 		Cmd_Ready_f(ent);
+	else if (Q_stricmp(cmd, "lock") == 0)
+		Cmd_Lock_f(ent);
+	else if (Q_stricmp(cmd, "unlock") == 0)
+		Cmd_Unlock_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

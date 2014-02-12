@@ -461,17 +461,24 @@ team_t PickTeam(int ignoreClientNum)
 	counts[TEAM_BLUE] = TeamCount(ignoreClientNum, TEAM_BLUE);
 	counts[TEAM_RED] = TeamCount(ignoreClientNum, TEAM_RED);
 
-	if (counts[TEAM_BLUE] > counts[TEAM_RED]) {
+	if (!g_redLocked.integer && counts[TEAM_BLUE] > counts[TEAM_RED]) {
 		return TEAM_RED;
 	}
-	if (counts[TEAM_RED] > counts[TEAM_BLUE]) {
+
+	if (!g_blueLocked.integer && counts[TEAM_RED] > counts[TEAM_BLUE]) {
 		return TEAM_BLUE;
 	}
+
 	// equal team count, so join the team with the lowest score
-	if (level.teamScores[TEAM_BLUE] > level.teamScores[TEAM_RED]) {
+	if (!g_redLocked.integer && level.teamScores[TEAM_RED] < level.teamScores[TEAM_BLUE]) {
 		return TEAM_RED;
 	}
-	return TEAM_BLUE;
+
+	if (!g_blueLocked.integer && level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
+		return TEAM_BLUE;
+	}
+
+	return TEAM_SPECTATOR;
 }
 
 static void ClientCleanName(const char *in, char *out, int outSize)

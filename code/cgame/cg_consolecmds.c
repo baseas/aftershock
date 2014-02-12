@@ -244,5 +244,7 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("dropflag");
 	trap_AddCommand("drop");
 	trap_AddCommand("ready");
+	trap_AddCommand("lock");
+	trap_AddCommand("unlock");
 }
 

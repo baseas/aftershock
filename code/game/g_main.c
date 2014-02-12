@@ -91,6 +91,9 @@ vmCvar_t	g_startWhenReady;
 vmCvar_t	g_autoReady;
 vmCvar_t	g_roundTimelimit;
 vmCvar_t	g_friendsThroughWalls;
+vmCvar_t	g_teamLock;
+vmCvar_t	g_redLocked;
+vmCvar_t	g_blueLocked;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -159,7 +162,10 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_startWhenReady, "g_startWhenReady", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_autoReady, "g_autoReady", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_roundTimelimit, "g_roundTimelimit", "120", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
-	{ &g_friendsThroughWalls, "g_friendsThroughWalls", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse }
+	{ &g_friendsThroughWalls, "g_friendsThroughWalls", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+	{ &g_teamLock, "g_teamLock", "0", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
+	{ &g_redLocked, "g_redLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
+	{ &g_blueLocked, "g_blueLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -341,6 +347,11 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	G_ProcessIPBans();
 
 	G_InitMemory();
+
+	if (!restart) {
+		trap_Cvar_Set("g_redLocked", "0");
+		trap_Cvar_Set("g_blueLocked", "0");
+	}
 
 	// set some level globals
 	memset(&level, 0, sizeof(level));
@@ -1240,6 +1251,17 @@ void CheckTournament(void)
 {
 	if (g_gametype.integer == GT_DEFRAG) {
 		return;
+	}
+
+	/// unlock empty teams
+	if (level.time - level.startTime > 1000) {
+		if (g_redLocked.integer && TeamCount(-1, TEAM_RED) == 0) {
+			trap_Cvar_Set("g_redLocked", "0");
+		}
+
+		if (g_blueLocked.integer && TeamCount(-1, TEAM_BLUE) == 0) {
+			trap_Cvar_Set("g_blueLocked", "0");
+		}
 	}
 
 	// check because we run 3 game frames before calling Connect and/or ClientBegin

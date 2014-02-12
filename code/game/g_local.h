@@ -235,6 +235,7 @@ typedef struct {
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 	qboolean	teamInfo;			// send team overlay updates?
 	qboolean	ready;
+	int			vote;
 
 	int			lastKiller;
 	int			lastTarget;
@@ -695,6 +696,9 @@ extern vmCvar_t	g_startWhenReady;
 extern vmCvar_t	g_autoReady;
 extern vmCvar_t	g_roundTimelimit;
 extern vmCvar_t	g_friendsThroughWalls;
+extern vmCvar_t	g_teamLock;
+extern vmCvar_t	g_redLocked;
+extern vmCvar_t	g_blueLocked;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));
