@@ -354,11 +354,10 @@ static int CG_HudnumberByTag(const char *tag)
 
 static void CG_HudElementReset(hudElement_t *element)
 {
-	memset(element->color, 0, sizeof *element->color);
-	memset(element->bgcolor, 0, sizeof *element->bgcolor);
 	memset(element, 0, sizeof *element);
-
+	memset(element->bgcolor, 0, sizeof *element->bgcolor);
 	Vector4Copy(colorWhite, element->color);
+
 	element->fontWidth = 8;
 	element->fontHeight = 12;
 }

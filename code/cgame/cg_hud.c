@@ -68,7 +68,7 @@ static void CG_SetElementColors(void)
 	}
 }
 
-static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
+static void CG_DrawHudIcon(int hudnumber, qhandle_t hShader)
 {
 	hudElement_t	*hudelement;
 
@@ -80,18 +80,10 @@ static void CG_DrawHudIcon(int hudnumber, qboolean override, qhandle_t hShader)
 	if (hudelement->fill) {
 		CG_FillRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height,
 			hudelement->color);
-	} else {
-		CG_DrawRect(hudelement->xpos, hudelement->ypos, hudelement->width, hudelement->height,
-			1.0f, hudelement->color);
 	}
 
 	trap_R_SetColor(hudelement->color);
 
-	if (hudelement->imageHandle && override) {
-		CG_DrawAdjustPic(hudelement->xpos, hudelement->ypos, hudelement->width,
-			hudelement->height, hudelement->imageHandle);
-		return;
-	}
 	if (hShader) {
 		CG_DrawAdjustPic(hudelement->xpos, hudelement->ypos, hudelement->width,
 			hudelement->height, hShader);
@@ -113,8 +105,6 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char *text)
 	if (!hudelement->inuse) {
 		return;
 	}
-
-//	CG_DrawHudIcon(hudnumber, qtrue, hudelement->imageHandle);
 
 	w = CG_StringWidth(hudelement->fontWidth, text);
 
@@ -293,7 +283,7 @@ static void CG_DrawHudPowerupIcon(int hudnumber, powerup_t powerup)
 	if (!item) {
 		return;
 	}
-	CG_DrawHudIcon(hudnumber, qfalse, cg_items[ITEM_INDEX(item)].icon);
+	CG_DrawHudIcon(hudnumber, cg_items[ITEM_INDEX(item)].icon);
 }
 
 static void CG_DrawHudChat(int hudnumber, msgItem_t list[CHAT_HEIGHT], int duration, int index)
@@ -452,13 +442,13 @@ static void Hud_HealthIcon(int hudnumber)
 {
 	switch (cg.snap->ps.persistant[PERS_TEAM]) {
 	case TEAM_RED:
-		CG_DrawHudIcon(hudnumber, qtrue, cgs.media.healthRed);
+		CG_DrawHudIcon(hudnumber, cgs.media.healthRed);
 		break;
 	case TEAM_BLUE:
-		CG_DrawHudIcon(hudnumber, qtrue, cgs.media.healthBlue);
+		CG_DrawHudIcon(hudnumber, cgs.media.healthBlue);
 		break;
 	default:
-		CG_DrawHudIcon(hudnumber, qtrue, cgs.media.healthYellow);
+		CG_DrawHudIcon(hudnumber, cgs.media.healthYellow);
 	}
 }
 
@@ -519,7 +509,7 @@ static void Hud_AmmoIcon(int hudnumber)
 
 	icon = cg_weapons[cg.predictedPlayerState.weapon].ammoIcon;
 	if (icon) {
-		CG_DrawHudIcon(hudnumber, qtrue, icon);
+		CG_DrawHudIcon(hudnumber, icon);
 	}
 }
 
@@ -546,13 +536,13 @@ static void Hud_ArmorIcon(int hudnumber)
 {
 	switch (cg.snap->ps.persistant[PERS_TEAM]) {
 	case TEAM_RED:
-		CG_DrawHudIcon(hudnumber, qtrue, cgs.media.armorRed);
+		CG_DrawHudIcon(hudnumber, cgs.media.armorRed);
 		break;
 	case TEAM_BLUE:
-		CG_DrawHudIcon(hudnumber, qtrue, cgs.media.armorBlue);
+		CG_DrawHudIcon(hudnumber, cgs.media.armorBlue);
 		break;
 	default:
-		CG_DrawHudIcon(hudnumber, qtrue, cgs.media.armorYellow);
+		CG_DrawHudIcon(hudnumber, cgs.media.armorYellow);
 	}
 }
 
@@ -653,7 +643,7 @@ static void Hud_ItemPickupIcon(int hudnumber)
 		return;
 	}
 
-	CG_DrawHudIcon(hudnumber, qfalse, cg_items[cg.itemPickup].icon);
+	CG_DrawHudIcon(hudnumber, cg_items[cg.itemPickup].icon);
 }
 
 static void Hud_ItemPickupName(int hudnumber)
@@ -752,7 +742,7 @@ static void Hud_AttackerIcon(int hudnumber)
 		return;
 	}
 
-	CG_DrawHudIcon(hudnumber, qtrue, cgs.clientinfo[clientNum].model->modelIcon);
+	CG_DrawHudIcon(hudnumber, cgs.clientinfo[clientNum].model->modelIcon);
 }
 
 static void Hud_Speed(int hudnumber)
@@ -1047,12 +1037,11 @@ static void Hud_WeaponList(int hudnumber)
 		}
 
 		if ((i == cg.weaponSelect && !(cg.snap->ps.pm_flags & PMF_FOLLOW)) || ((i == cg_entities[cg.snap->ps.clientNum].currentState.weapon) && (cg.snap->ps.pm_flags & PMF_FOLLOW))) {
-			if (hudelement->imageHandle)
-				CG_DrawPic(x, y, boxWidth, boxHeight, hudelement->imageHandle);
-			else if (hudelement->fill)
+			if (hudelement->fill) {
 				CG_FillRect(x, y, boxWidth, boxHeight, hudelement->color);
-			else
+			} else {
 				CG_DrawRect(x, y, boxWidth, boxHeight, 2, hudelement->color);
+			}
 		}
 
 		CG_DrawAdjustPic(x + icon_xrel, y + icon_yrel, iconsize, iconsize, cg_weapons[i].weaponIcon);
@@ -1127,7 +1116,7 @@ static void Hud_Netgraph(int hudnumber)
 	}
 
 	trap_R_SetColor(NULL);
-	CG_DrawHudIcon(hudnumber, qtrue, 0);
+	CG_DrawHudIcon(hudnumber, 0);
 
 	color = -1;
 	range = ah / 3;
@@ -1259,9 +1248,9 @@ static void Hud_FlagStatus(int hudnumber)
 	}
 
 	if (team == TEAM_RED && cgs.redflag >= 0 && cgs.redflag <= 2) {
-		CG_DrawHudIcon(hudnumber, qfalse, cgs.media.redFlagShader[cgs.redflag]);
+		CG_DrawHudIcon(hudnumber, cgs.media.redFlagShader[cgs.redflag]);
 	} else if (team == TEAM_BLUE && cgs.blueflag >= 0 && cgs.blueflag <= 2) {
-		CG_DrawHudIcon(hudnumber, qfalse, cgs.media.blueFlagShader[cgs.blueflag]);
+		CG_DrawHudIcon(hudnumber, cgs.media.blueFlagShader[cgs.blueflag]);
 	}
 }
 
@@ -1288,7 +1277,7 @@ static void Hud_Reward(int hudnumber)
 	if (cg.time - cg.rewardTime > REWARD_TIME) {
 		return;
 	}
-	CG_DrawHudIcon(hudnumber, qtrue, cg.rewardShader[0]);
+	CG_DrawHudIcon(hudnumber, cg.rewardShader[0]);
 }
 
 static void Hud_RewardCount(int hudnumber)

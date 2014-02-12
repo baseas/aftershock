@@ -958,7 +958,6 @@ typedef struct {
 	int			textAlign;
 	int			textStyle;
 	int			time;
-	qhandle_t	imageHandle;
 	int			teamColor;
 	int			teamBgColor;
 } hudElement_t;
