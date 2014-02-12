@@ -47,6 +47,15 @@ static void CG_HudParseColor(const char *arg, int *teamColor, vec4_t color)
 	}
 }
 
+static void Prop_InusePrint(hudElement_t *element, char *buffer, int length)
+{
+	if (element->inuse) {
+		Q_strncpyz(buffer, "true", length);
+	} else {
+		Q_strncpyz(buffer, "false", length);
+	}
+}
+
 static void Prop_RectPrint(hudElement_t *element, char *buffer, int length)
 {
 	Com_sprintf(buffer, length, "%g %g %g %g",
@@ -118,6 +127,17 @@ static void Prop_TextStylePrint(hudElement_t *element, char *buffer, int length)
 	Com_sprintf(buffer, length, "%i", element->textStyle);
 }
 
+static void Prop_Inuse(hudElement_t *element, const char *arg)
+{
+	if (!strcmp(arg, "true")) {
+		element->inuse = qtrue;
+	} else if (!strcmp(arg, "false")) {
+		element->inuse = qfalse;
+	} else {
+		Com_Printf("HUD: Invalid value '%20s' for property 'inuse'.\n", arg);
+	}
+}
+
 static void Prop_Rect(hudElement_t *element, const char *arg)
 {
 	char	*token;
@@ -146,7 +166,7 @@ static void Prop_BackgroundColor(hudElement_t *element, const char *arg)
 
 static void Prop_Color(hudElement_t *element, const char *arg)
 {
-	CG_HudParseColor(arg, &element->teamBgColor, element->bgcolor);
+	CG_HudParseColor(arg, &element->teamColor, element->color);
 }
 
 static void Prop_FontSize(hudElement_t *element, const char *arg)
@@ -171,7 +191,7 @@ static void Prop_Fill(hudElement_t *element, const char *arg)
 	} else if (!strcmp(arg, "false")) {
 		element->fill = qfalse;
 	} else {
-		Com_Printf("HUD: Invalid value '%s' for property 'fill'.\n", arg);
+		Com_Printf("HUD: Invalid value '%20s' for property 'fill'.\n", arg);
 	}
 }
 
@@ -184,7 +204,7 @@ static void Prop_TextAlign(hudElement_t *element, const char *arg)
 	} else if (!strcmp(arg, "R")) {
 		element->textAlign = 2;
 	} else {
-		Com_Printf("HUD: Invalid value '%s' for property 'textalign'.\n", arg);
+		Com_Printf("HUD: Invalid value '%20s' for property 'textalign'.\n", arg);
 	}
 }
 
@@ -203,6 +223,7 @@ struct {
 	void 		(*setFunc)(hudElement_t *element, const char *arg);
 	void 		(*printFunc)(hudElement_t *element, char *buffer, int length);
 } hudProperties[] = {
+	{ "inuse", Prop_Inuse, Prop_InusePrint },
 	{ "rect", Prop_Rect, Prop_RectPrint },
 	{ "bgcolor", Prop_BackgroundColor, Prop_BackgroundColorPrint },
 	{ "color", Prop_Color, Prop_ColorPrint },
@@ -417,17 +438,33 @@ static void CG_PrintProperties(void)
 
 static void CG_HudSaveElement(hudElement_t *a, hudElement_t *b, fileHandle_t fp)
 {
-	int		i;
-	char	prop1[64], prop2[64];
-	char	line[256];
+	int			i, k;
+	int			chardiff, padlen;
+	char		prop1[64], prop2[64];
+	char		line[256];
+	const int	tabstop = 4;
 
 	for (i = 0; hudProperties[i].name; ++i) {
 		hudProperties[i].printFunc(a, prop1, sizeof prop1);
 		hudProperties[i].printFunc(b, prop2, sizeof prop2);
-		if (strcmp(prop1, prop2)) {
-			Com_sprintf(line, sizeof line, "%s:\t\t\t%s\n", hudProperties[i].name, prop1);
-			trap_FS_Write(line, strlen(line), fp);
+
+		if (!strcmp(prop1, prop2)) {
+			continue;
 		}
+
+		Com_sprintf(line, sizeof line, "%s:", hudProperties[i].name);
+
+		chardiff = 3 * tabstop - strlen(hudProperties[i].name) - 1;
+		padlen = chardiff / tabstop + (chardiff % tabstop ? 1 : 0);
+
+		for (k = 0; k < padlen; ++k) {
+			Q_strcat(line, sizeof line, "\t");
+		}
+
+		Q_strcat(line, sizeof line, prop1);
+		Q_strcat(line, sizeof line, "\n");
+
+		trap_FS_Write(line, strlen(line), fp);
 	}
 
 	trap_FS_Write("\n", 1, fp);
@@ -454,6 +491,7 @@ static void CG_HudSave(void)
 	int				i;
 	fileHandle_t	fp;
 	hudElement_t	tmphud[HUD_MAX];
+	qboolean		changed;
 	char			line[64];
 
 	for (i = 0; i < HUD_MAX; ++i) {
@@ -463,16 +501,24 @@ static void CG_HudSave(void)
 
 	trap_FS_FOpenFile("hud.ini", &fp, FS_WRITE);
 
+	changed = qfalse;
 	for (i = 0; i < HUD_MAX; ++i) {
 		if (!CG_HudElementsDiffer(&cgs.hud[i], &tmphud[i])) {
 			continue;
 		}
+		changed = qtrue;
 		Com_sprintf(line, sizeof line, "[%s]\n", hudTags[i]);
 		trap_FS_Write(line, strlen(line), fp);
 		CG_HudSaveElement(&cgs.hud[i], &tmphud[i], fp);
 	}
 
 	trap_FS_FCloseFile(fp);
+
+	if (!changed) {
+		CG_Printf("HUD: No changes to save.\n");
+	} else {
+		CG_Printf("HUD: Changes written to 'hud.ini'.\n");
+	}
 }
 
 void CG_HudInit(void)
