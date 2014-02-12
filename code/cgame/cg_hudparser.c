@@ -321,23 +321,6 @@ static const char *hudTags[] = {
 	"TeamOverlay8",
 	"Reward",
 	"RewardCount",
-	"Console",
-	"PreDecorate1",
-	"PreDecorate2",
-	"PreDecorate3",
-	"PreDecorate4",
-	"PreDecorate5",
-	"PreDecorate6",
-	"PreDecorate7",
-	"PreDecorate8",
-	"PostDecorate1",
-	"PostDecorate2",
-	"PostDecorate3",
-	"PostDecorate4",
-	"PostDecorate5",
-	"PostDecorate6",
-	"PostDecorate7",
-	"PostDecorate8",
 	NULL
 };
 
