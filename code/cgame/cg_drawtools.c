@@ -166,25 +166,6 @@ void CG_FillRect(float x, float y, float width, float height, const float *color
 }
 
 /**
-Coords are virtual 640x480
-*/
-void CG_DrawSides(float x, float y, float w, float h, float size)
-{
-	CG_AdjustFrom640(&x, &y, &w, &h);
-	size *= cgs.screenXScale;
-	trap_R_DrawStretchPic(x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader);
-	trap_R_DrawStretchPic(x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader);
-}
-
-void CG_DrawTopBottom(float x, float y, float w, float h, float size)
-{
-	CG_AdjustFrom640(&x, &y, &w, &h);
-	size *= cgs.screenYScale;
-	trap_R_DrawStretchPic(x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader);
-	trap_R_DrawStretchPic(x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader);
-}
-
-/**
 Coordinates are 640*480 virtual values
 */
 void CG_DrawRect(float x, float y, float width, float height, float size, const float *color)
@@ -195,8 +176,12 @@ void CG_DrawRect(float x, float y, float width, float height, float size, const 
 
 	trap_R_SetColor(color);
 
-	CG_DrawTopBottom(x, y, width, height, size);
-	CG_DrawSides(x, y, width, height, size);
+	CG_AdjustFrom640(&x, &y, &width, &height);
+
+	trap_R_DrawStretchPic(x, y, width, size, 0, 0, 0, 0, cgs.media.whiteShader);
+	trap_R_DrawStretchPic(x, y + height - size, width, size, 0, 0, 0, 0, cgs.media.whiteShader);
+	trap_R_DrawStretchPic(x, y, size, height, 0, 0, 0, 0, cgs.media.whiteShader);
+	trap_R_DrawStretchPic(x + width - size, y, size, height, 0, 0, 0, 0, cgs.media.whiteShader);
 
 	trap_R_SetColor(NULL);
 }
