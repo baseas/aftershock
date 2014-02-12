@@ -652,7 +652,9 @@ static void CG_DrawTeamVote(void)
 
 static void CG_DrawIntermission(void)
 {
-	cg.scoreBoardShowing = CG_DrawScoreboard();
+	if (cg_drawScoreboard.integer) {
+		cg.scoreBoardShowing = CG_DrawScoreboard();
+	}
 }
 
 static void CG_DrawAcc(void)
@@ -675,10 +677,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 {
 	// if we are taking a levelshot for the menu, don't draw anything
 	if (cg.levelShot) {
-		return;
-	}
-
-	if (cg_draw2D.integer == 0) {
 		return;
 	}
 

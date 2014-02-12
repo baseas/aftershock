@@ -1346,6 +1346,10 @@ void CG_DrawHud()
 		{ HUD_MAX, NULL }
 	};
 
+	if (!cg_drawHud.integer) {
+		return;
+	}
+
 	CG_SetElementColors();
 
 	for (i = 0; hudCallbacks[i].func; ++i) {

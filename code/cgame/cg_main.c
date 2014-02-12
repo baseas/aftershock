@@ -114,8 +114,8 @@ vmCvar_t	cg_crosshairSize;
 vmCvar_t	cg_crosshairX;
 vmCvar_t	cg_crosshairY;
 vmCvar_t	cg_crosshairHealth;
-vmCvar_t	cg_draw2D;
-vmCvar_t	cg_drawStatus;
+vmCvar_t	cg_drawHud;
+vmCvar_t	cg_drawScoreboard;
 vmCvar_t	cg_animSpeed;
 vmCvar_t	cg_debugAnim;
 vmCvar_t	cg_debugPosition;
@@ -237,8 +237,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_viewsize, "cg_viewsize", "100", CVAR_ARCHIVE, RANGE_INT(30, 100) },
 	{ &cg_shadows, "cg_shadows", "1", CVAR_ARCHIVE, RANGE_INT(0, 3) },
 	{ &cg_gibs, "cg_gibs", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_draw2D, "cg_draw2D", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawStatus, "cg_drawStatus", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_drawHud, "cg_drawHud", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_drawScoreboard, "cg_drawScoreboard", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSnapshot, "cg_drawSnapshot", "0", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawAmmoWarning, "cg_drawAmmoWarning", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawAttacker, "cg_drawAttacker", "1", CVAR_ARCHIVE, RANGE_BOOL },
