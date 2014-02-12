@@ -106,25 +106,47 @@ static void CG_ConfigStringModified(void)
 	} else if (num == CS_LEVEL_START_TIME) {
 		cgs.levelStartTime = atoi(str);
 	} else if (num == CS_VOTE_TIME) {
-		cgs.voteTime = atoi(str);
-		cgs.voteModified = qtrue;
+		if (!strcmp(str, "failed")) {
+			cgs.voteTime = 0;
+			CG_Printf("Vote failed.\n");
+			CG_AddBufferedSound(cgs.media.voteFailed);
+		} else if (!strcmp(str, "passed")) {
+			cgs.voteTime = 0;
+			CG_Printf("Vote passed.\n");
+			CG_AddBufferedSound(cgs.media.votePassed);
+		} else {
+			cgs.voteTime = atoi(str);
+			CG_Printf("Vote cast.\n");
+			CG_AddBufferedSound(cgs.media.voteNow);
+		}
 	} else if (num == CS_VOTE_YES) {
 		cgs.voteYes = atoi(str);
-		cgs.voteModified = qtrue;
+		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	} else if (num == CS_VOTE_NO) {
 		cgs.voteNo = atoi(str);
-		cgs.voteModified = qtrue;
+		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	} else if (num == CS_VOTE_STRING) {
 		Q_strncpyz(cgs.voteString, str, sizeof(cgs.voteString));
 	} else if (num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
-		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi(str);
-		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
+		if (!strcmp(str, "failed")) {
+			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = 0;
+			CG_Printf("Team vote failed.\n");
+			CG_AddBufferedSound(cgs.media.voteFailed);
+		} else if (!strcmp(str, "passed")) {
+			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = 0;
+			CG_Printf("Team vote passed.\n");
+			CG_AddBufferedSound(cgs.media.votePassed);
+		} else {
+			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = atoi(str);
+			CG_Printf("Team vote cast.\n");
+			CG_AddBufferedSound(cgs.media.voteNow);
+		}
 	} else if (num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1) {
-		cgs.teamVoteYes[num-CS_TEAMVOTE_YES] = atoi(str);
-		cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = qtrue;
+		cgs.teamVoteYes[num - CS_TEAMVOTE_YES] = atoi(str);
+		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	} else if (num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1) {
-		cgs.teamVoteNo[num-CS_TEAMVOTE_NO] = atoi(str);
-		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
+		cgs.teamVoteNo[num - CS_TEAMVOTE_NO] = atoi(str);
+		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	} else if (num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
 		Q_strncpyz(cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof(cgs.teamVoteString));
 	} else if (num == CS_INTERMISSION) {

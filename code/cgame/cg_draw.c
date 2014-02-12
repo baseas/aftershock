@@ -595,30 +595,6 @@ static void CG_DrawSpectator(void)
 	}
 }
 
-static void CG_DrawVote(void)
-{
-	char	*s;
-	int		sec;
-
-	if (!cgs.voteTime) {
-		return;
-	}
-
-	// play a talk beep whenever it is modified
-	if (cgs.voteModified) {
-		cgs.voteModified = qfalse;
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-	}
-
-	sec = (VOTE_TIME - (cg.time - cgs.voteTime)) / 1000;
-	if (sec < 0) {
-		sec = 0;
-	}
-
-	s = va("VOTE(%i):%s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo);
-	CG_DrawSmallString(0, 58, s, 1.0F);
-}
-
 static void CG_DrawTeamVote(void)
 {
 	char	*s;
@@ -633,12 +609,6 @@ static void CG_DrawTeamVote(void)
 
 	if (!cgs.teamVoteTime[cs_offset]) {
 		return;
-	}
-
-	// play a talk beep whenever it is modified
-	if (cgs.teamVoteModified[cs_offset]) {
-		cgs.teamVoteModified[cs_offset] = qfalse;
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	}
 
 	sec = (VOTE_TIME - (cg.time - cgs.teamVoteTime[cs_offset])) / 1000;
@@ -701,7 +671,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		}
 	}
 
-	CG_DrawVote();
 	CG_DrawTeamVote();
 	CG_DrawDisconnect();
 	CG_DrawUpperRight(stereoFrame);

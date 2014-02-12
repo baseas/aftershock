@@ -1119,8 +1119,6 @@ static void Cmd_Vote_f(gentity_t *ent)
 		return;
 	}
 
-	trap_SendServerCommand(ent-g_entities, "print \"Vote cast.\n\"");
-
 	ent->client->ps.eFlags |= EF_VOTED;
 
 	trap_Argv(1, msg, sizeof(msg));
@@ -1285,8 +1283,6 @@ static void Cmd_TeamVote_f(gentity_t *ent)
 		trap_SendServerCommand(ent-g_entities, "print \"Not allowed to vote as spectator.\n\"");
 		return;
 	}
-
-	trap_SendServerCommand(ent-g_entities, "print \"Team vote cast.\n\"");
 
 	ent->client->ps.eFlags |= EF_TEAMVOTED;
 

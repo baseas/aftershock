@@ -789,7 +789,7 @@ typedef struct {
 	sfxHandle_t	youHaveFlagSound;
 	sfxHandle_t	holyShitSound;
 
-	// tournament sounds
+	// voice sounds
 	sfxHandle_t	count3Sound;
 	sfxHandle_t	count2Sound;
 	sfxHandle_t	count1Sound;
@@ -1013,13 +1013,11 @@ typedef struct {
 	int				voteTime;
 	int				voteYes;
 	int				voteNo;
-	qboolean		voteModified;			// beep whenever changed
 	char			voteString[MAX_STRING_TOKENS];
 
 	int				teamVoteTime[2];
 	int				teamVoteYes[2];
 	int				teamVoteNo[2];
-	qboolean		teamVoteModified[2];	// beep whenever changed
 	char			teamVoteString[2][MAX_STRING_TOKENS];
 
 	int				levelStartTime;

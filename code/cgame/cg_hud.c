@@ -1302,6 +1302,24 @@ static void Hud_RewardCount(int hudnumber)
 	CG_DrawHudString(hudnumber, qtrue, va("%i", cg.rewardCount[0]));
 }
 
+static void Hud_Vote(int hudnumber)
+{
+	char	*str;
+	int		sec;
+
+	if (!cgs.voteTime) {
+		return;
+	}
+
+	sec = (VOTE_TIME - (cg.time - cgs.voteTime)) / 1000;
+	if (sec < 0) {
+		sec = 0;
+	}
+
+	str = va("VOTE(%i): %s yes:%i no:%i", sec, cgs.voteString, cgs.voteYes, cgs.voteNo);
+	CG_DrawHudString(hudnumber, qtrue, str);
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1343,6 +1361,7 @@ void CG_DrawHud()
 		{ HUD_SCORELIMIT, Hud_ScoreLimit },
 		{ HUD_REWARD, Hud_Reward },
 		{ HUD_REWARDCOUNT, Hud_RewardCount },
+		{ HUD_VOTEMSG, Hud_Vote },
 		{ HUD_MAX, NULL }
 	};
 

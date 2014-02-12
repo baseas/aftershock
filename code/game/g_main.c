@@ -1354,16 +1354,19 @@ void CheckVote(void)
 	}
 
 	if (level.time - level.voteTime >= VOTE_TIME) {
-		trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
+		trap_SetConfigstring(CS_VOTE_TIME, "failed");
+		G_LogPrintf("Vote failed.\n");
 	} else {
 		// ATVI Q3 1.32 Patch #9, WNF
 		if (level.voteYes > level.numVotingClients/2) {
 			// execute the command, then remove the vote
-			trap_SendServerCommand(-1, "print \"Vote passed.\n\"");
+			trap_SetConfigstring(CS_VOTE_TIME, "passed");
+			G_LogPrintf("Vote passed.\n");
 			level.voteExecuteTime = level.time + 3000;
 		} else if (level.voteNo >= level.numVotingClients/2) {
 			// same behavior as a timeout
-			trap_SendServerCommand(-1, "print \"Vote failed.\n\"");
+			trap_SetConfigstring(CS_VOTE_TIME, "failed");
+			G_LogPrintf("Vote failed.\n");
 		} else {
 			// still waiting for a majority
 			return;
@@ -1371,7 +1374,6 @@ void CheckVote(void)
 	}
 
 	level.voteTime = 0;
-	trap_SetConfigstring(CS_VOTE_TIME, "");
 }
 
 void PrintTeam(int team, char *message)
@@ -1460,12 +1462,14 @@ void CheckTeamVote(int team)
 		return;
 	}
 	if (level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME) {
-		trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
+		trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "failed");
+		G_LogPrintf("Team vote failed.\n");
 	} else {
 		if (level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset]/2) {
 			// execute the command, then remove the vote
-			trap_SendServerCommand(-1, "print \"Team vote passed.\n\"");
-			//
+			trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "passed");
+			G_LogPrintf("Team vote passed.\n");
+
 			if (!Q_strncmp("leader", level.teamVoteString[cs_offset], 6)) {
 				//set the team leader
 				SetLeader(team, atoi(level.teamVoteString[cs_offset] + 7));
@@ -1475,15 +1479,15 @@ void CheckTeamVote(int team)
 			}
 		} else if (level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset]/2) {
 			// same behavior as a timeout
-			trap_SendServerCommand(-1, "print \"Team vote failed.\n\"");
+			trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "failed");
+			G_LogPrintf("Team vote failed.\n");
 		} else {
 			// still waiting for a majority
 			return;
 		}
 	}
-	level.teamVoteTime[cs_offset] = 0;
-	trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "");
 
+	level.teamVoteTime[cs_offset] = 0;
 }
 
 void CheckCvars(void)
