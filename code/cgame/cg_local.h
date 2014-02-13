@@ -660,6 +660,9 @@ typedef struct {
 	qhandle_t	battleWeaponShader;
 	qhandle_t	hastePuffShader;
 
+	qhandle_t	bboxShader;
+	qhandle_t	bboxShaderNocull;
+
 	// weapon effect models
 	qhandle_t	bulletFlashModel;
 	qhandle_t	ringFlashModel;
@@ -1188,6 +1191,7 @@ extern vmCvar_t		cg_switchOnEmpty;
 extern vmCvar_t		cg_switchToEmpty;
 extern vmCvar_t		cg_killbeep;
 extern vmCvar_t		cg_drawSpawnpoints;
+extern vmCvar_t		cg_drawBBox;
 
 //
 // cg_main.c
@@ -1347,6 +1351,7 @@ void	CG_FireWeapon(centity_t *cent);
 void	CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType);
 void	CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum);
 void	CG_ShotgunFire(entityState_t *es);
+void	CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum);
 void	CG_Bullet(vec3_t origin, int sourceEntityNum, vec3_t normal, qboolean flesh, int fleshEntityNum);
 
 void	CG_RailTrail(clientInfo_t *ci, vec3_t start, vec3_t end);
@@ -1438,6 +1443,12 @@ void	CG_ParticleDust (centity_t *cent, vec3_t origin, vec3_t dir);
 void	CG_ParticleMisc (qhandle_t pshader, vec3_t origin, int size, int duration, float alpha);
 void	CG_ParticleExplosion (char *animStr, vec3_t origin, vec3_t vel, int duration, int sizeStart, int sizeEnd);
 int		CG_NewParticleArea (int num);
+
+//
+// cg_unlagged.c
+//
+void CG_AddBoundingBox(centity_t *cent);
+void CG_PredictWeaponEffects(centity_t *cent);
 
 //
 // system traps

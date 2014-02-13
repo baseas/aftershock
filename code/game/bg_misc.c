@@ -1138,3 +1138,22 @@ void BG_PlayerStateToEntityStateExtraPolate(playerState_t *ps, entityState_t *s,
 	s->generic1 = ps->generic1;
 }
 
+/**
+Round a vector to integers for more efficient network
+transmission, but make sure that it rounds towards a given point
+rather than blindly truncating. This prevents it from truncating 
+into a wall.
+*/
+void BG_SnapVectorTowards(vec3_t v, vec3_t to)
+{
+	int		i;
+
+	for (i = 0; i < 3; i++) {
+		if (to[i] <= v[i]) {
+			v[i] = floor(v[i]);
+		} else {
+			v[i] = ceil(v[i]);
+		}
+	}
+}
+

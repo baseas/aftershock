@@ -2143,6 +2143,7 @@ Q3CGOBJ_ = \
   $(B)/$(BASEGAME)/cgame/cg_snapshot.o \
   $(B)/$(BASEGAME)/cgame/cg_view.o \
   $(B)/$(BASEGAME)/cgame/cg_weapons.o \
+  $(B)/$(BASEGAME)/cgame/cg_unlagged.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o
@@ -2192,6 +2193,7 @@ Q3GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_trigger.o \
   $(B)/$(BASEGAME)/game/g_utils.o \
   $(B)/$(BASEGAME)/game/g_weapon.o \
+  $(B)/$(BASEGAME)/game/g_unlagged.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o

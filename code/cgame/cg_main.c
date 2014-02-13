@@ -228,6 +228,7 @@ vmCvar_t	cg_switchOnEmpty;
 vmCvar_t	cg_switchToEmpty;
 vmCvar_t	cg_killbeep;
 vmCvar_t	cg_drawSpawnpoints;
+vmCvar_t	cg_drawBBox;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_autoswitch, "cg_autoswitch", "0", CVAR_ARCHIVE, RANGE_BOOL },
@@ -364,7 +365,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_switchOnEmpty, "cg_switchOnEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_killbeep, "cg_killbeep", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE, RANGE_BOOL }
+	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT, RANGE_BOOL }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
@@ -448,6 +450,9 @@ static void CG_RegisterGraphics(void)
 	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");
 	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
 	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
+
+	cgs.media.bboxShader = trap_R_RegisterShaderNoMip("bbox");
+	cgs.media.bboxShaderNocull = trap_R_RegisterShaderNoMip("bbox_nocull");
 
 	if (cgs.gametype == GT_CTF || cg_buildScript.integer) {
 		cgs.media.redFlagModel = trap_R_RegisterModel("models/flags/r_flag.md3");

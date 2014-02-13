@@ -1326,7 +1326,7 @@ static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum)
 Perform the same traces the server did to locate the
 hit splashes
 */
-static void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
+void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
 {
 	int			i;
 	float		r, u;

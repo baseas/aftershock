@@ -25,10 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
-// DEFAULT_SHOTGUN_SPREAD and DEFAULT_SHOTGUN_COUNT are in bg_public.h, because
-// client predicts same spreads
+// spreads are in bg_public.h, because client predicts them
 #define	DEFAULT_SHOTGUN_DAMAGE	10
-#define MACHINEGUN_SPREAD		200
 #define	MACHINEGUN_DAMAGE		7
 #define	MACHINEGUN_TEAM_DAMAGE	5		// wimpier MG in teamplay
 #define MAX_RAIL_HITS			4
@@ -102,25 +100,6 @@ qboolean CheckGauntletAttack(gentity_t *ent)
 	return qtrue;
 }
 
-/**
-Round a vector to integers for more efficient network
-transmission, but make sure that it rounds towards a given point
-rather than blindly truncating.  This prevents it from truncating
-into a wall.
-*/
-void SnapVectorTowards(vec3_t v, vec3_t to)
-{
-	int		i;
-
-	for (i = 0; i < 3; i++) {
-		if (to[i] <= v[i]) {
-			v[i] = floor(v[i]);
-		} else {
-			v[i] = ceil(v[i]);
-		}
-	}
-}
-
 static void Weapon_Machinegun_Fire(gentity_t *ent)
 {
 	trace_t		tr;
@@ -155,7 +134,7 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 		traceEnt = &g_entities[ tr.entityNum ];
 
 		// snap the endpos to integers, but nudged towards the line
-		SnapVectorTowards(tr.endpos, muzzle);
+		BG_SnapVectorTowards(tr.endpos, muzzle);
 
 		LogAccuracyHit(traceEnt, ent, &teamHit, &enemyHit);
 
@@ -345,7 +324,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 	// the final trace endpos will be the terminal point of the rail trail
 
 	// snap the endpos to integers to save net bandwidth, but nudged towards the line
-	SnapVectorTowards(trace.endpos, muzzle);
+	BG_SnapVectorTowards(trace.endpos, muzzle);
 
 	// send railgun beam effect
 	tent = G_TempEntity(trace.endpos, EV_RAILTRAIL);
@@ -465,7 +444,7 @@ void Weapon_HookThink(gentity_t *ent)
 		v[0] = ent->enemy->r.currentOrigin[0] + (ent->enemy->r.mins[0] + ent->enemy->r.maxs[0]) * 0.5;
 		v[1] = ent->enemy->r.currentOrigin[1] + (ent->enemy->r.mins[1] + ent->enemy->r.maxs[1]) * 0.5;
 		v[2] = ent->enemy->r.currentOrigin[2] + (ent->enemy->r.mins[2] + ent->enemy->r.maxs[2]) * 0.5;
-		SnapVectorTowards(v, oldorigin);	// save net bandwidth
+		BG_SnapVectorTowards(v, oldorigin);	// save net bandwidth
 
 		G_SetOrigin(ent, v);
 	}

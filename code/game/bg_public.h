@@ -35,6 +35,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define RANK_TIED_FLAG		0x4000
 
+#define MACHINEGUN_SPREAD		200
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_SHOTGUN_COUNT	11
 
@@ -645,6 +646,8 @@ void	BG_PlayerStateToEntityStateExtraPolate(playerState_t *ps, entityState_t *s,
 
 qboolean	BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item,
 	int atTime, qboolean newItemHeight);
+
+void	BG_SnapVectorTowards(vec3_t v, vec3_t to);
 
 #define ARENAS_PER_TIER		4
 #define MAX_ARENAS			1024

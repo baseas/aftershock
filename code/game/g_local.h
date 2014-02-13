@@ -33,6 +33,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_WEAPON_RANGE	8192 * 16
 
+#define NUM_CLIENT_HISTORY	17
 #define FRAMETIME			100					// msec
 #define CARNAGE_REWARD_TIME	3000
 #define REWARD_SPRITE_TIME	2000
@@ -244,6 +245,13 @@ typedef struct {
 	vec3_t		lastDeathOrigin;
 } clientPersistant_t;
 
+// everything we need to know to backward reconcile
+typedef struct {
+	vec3_t	mins, maxs;
+	vec3_t	currentOrigin;
+	int		leveltime;
+} clientHistory_t;
+
 // this structure is cleared on each ClientSpawn(),
 // except for 'client->pers' and 'client->sess'
 struct gclient_s {
@@ -299,6 +307,16 @@ struct gclient_s {
 	// like health / armor countdowns and regeneration
 	int			timeResidual;
 	char		*areabits;
+
+	// unlagged
+	int				attackTime;			// the server time the button was pressed
+										// (before pmove_fixed changes serverTime)
+	int				historyHead;		// head of history queue
+	int				frameOffset;		// approximation of the actual server time we received
+										// this command (not in 50ms increments)
+	int				lastUpdateFrame;	// the last frame number we got an update from this client
+	clientHistory_t	history[NUM_CLIENT_HISTORY];
+	clientHistory_t	saved;				// client's saved position, used to restore after time shift
 };
 
 //
@@ -519,7 +537,6 @@ qboolean	LogAccuracyHit(gentity_t *target, gentity_t *attacker,
 	qboolean *teamHit, qboolean *enemyHit);
 void		CalcMuzzlePoint (gentity_t *ent, vec3_t forward, vec3_t right,
 	vec3_t up, vec3_t muzzlePoint);
-void		SnapVectorTowards(vec3_t v, vec3_t to);
 qboolean	CheckGauntletAttack(gentity_t *ent);
 void		Weapon_HookFree (gentity_t *ent);
 void		Weapon_HookThink (gentity_t *ent);

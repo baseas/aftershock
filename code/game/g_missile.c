@@ -144,14 +144,14 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace)
 			v[1] = other->r.currentOrigin[1] + (other->r.mins[1] + other->r.maxs[1]) * 0.5;
 			v[2] = other->r.currentOrigin[2] + (other->r.mins[2] + other->r.maxs[2]) * 0.5;
 
-			SnapVectorTowards(v, ent->s.pos.trBase);	// save net bandwidth
+			BG_SnapVectorTowards(v, ent->s.pos.trBase);	// save net bandwidth
 		} else {
 			VectorCopy(trace->endpos, v);
 			G_AddEvent(nent, EV_MISSILE_MISS, DirToByte(trace->plane.normal));
 			ent->enemy = NULL;
 		}
 
-		SnapVectorTowards(v, ent->s.pos.trBase);	// save net bandwidth
+		BG_SnapVectorTowards(v, ent->s.pos.trBase);	// save net bandwidth
 
 		nent->freeAfterEvent = qtrue;
 		// change over to a normal entity right at the point of impact
@@ -190,7 +190,7 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace)
 	// change over to a normal entity right at the point of impact
 	ent->s.eType = ET_GENERAL;
 
-	SnapVectorTowards(trace->endpos, ent->s.pos.trBase);	// save net bandwidth
+	BG_SnapVectorTowards(trace->endpos, ent->s.pos.trBase);	// save net bandwidth
 
 	G_SetOrigin(ent, trace->endpos);
 
