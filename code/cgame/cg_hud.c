@@ -778,8 +778,6 @@ static void Hud_TargetStatus(int hudnumber)
 		return;
 	}
 
-	CG_ScanForCrosshairEntity();
-
 	if (cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) {
 		return;
 	}
@@ -790,7 +788,13 @@ static void Hud_TargetStatus(int hudnumber)
 		return;
 	}
 
+	CG_ScanForCrosshairEntity();
+
 	if (cg.snap->ps.persistant[PERS_TEAM] != cgs.clientinfo[cg.crosshairClientNum].team) {
+		return;
+	}
+
+	if (cg.time - cg.crosshairClientTime > cgs.hud[hudnumber].time) {
 		return;
 	}
 
