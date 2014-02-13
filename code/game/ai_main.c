@@ -1364,25 +1364,6 @@ int BotAIStartFrame(int time) {
 		BotUpdateInfoConfigStrings();
 	}
 
-	if (bot_pause.integer) {
-		// execute bot user commands every frame
-		for( i = 0; i < MAX_CLIENTS; i++ ) {
-			if( !botstates[i] || !botstates[i]->inuse ) {
-				continue;
-			}
-			if( g_entities[i].client->pers.connected != CON_CONNECTED ) {
-				continue;
-			}
-			botstates[i]->lastucmd.forwardmove = 0;
-			botstates[i]->lastucmd.rightmove = 0;
-			botstates[i]->lastucmd.upmove = 0;
-			botstates[i]->lastucmd.buttons = 0;
-			botstates[i]->lastucmd.serverTime = time;
-			trap_BotUserCommand(botstates[i]->client, &botstates[i]->lastucmd);
-		}
-		return qtrue;
-	}
-
 	if (bot_memorydump.integer) {
 		trap_BotLibVarSet("memorydump", "1");
 		trap_Cvar_Set("bot_memorydump", "0");
@@ -1508,7 +1489,16 @@ int BotAIStartFrame(int time) {
 			continue;
 		}
 
-		BotUpdateInput(botstates[i], time, elapsed_time);
+		if (bot_pause.integer) {
+				botstates[i]->lastucmd.forwardmove = 0;
+				botstates[i]->lastucmd.rightmove = 0;
+				botstates[i]->lastucmd.upmove = 0;
+				botstates[i]->lastucmd.buttons = 0;
+				botstates[i]->lastucmd.serverTime = time;
+		} else {
+			BotUpdateInput(botstates[i], time, elapsed_time);
+		}
+
 		trap_BotUserCommand(botstates[i]->client, &botstates[i]->lastucmd);
 	}
 
