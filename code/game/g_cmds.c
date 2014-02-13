@@ -524,8 +524,8 @@ void Cmd_Team_f(gentity_t *ent)
 	int			oldTeam;
 	char		s[MAX_TOKEN_CHARS];
 
+	oldTeam = ent->client->sess.sessionTeam;
 	if (trap_Argc() != 2) {
-		oldTeam = ent->client->sess.sessionTeam;
 		switch (oldTeam) {
 		case TEAM_BLUE:
 			trap_SendServerCommand(ent-g_entities, "print \"Blue team\n\"");
@@ -558,7 +558,9 @@ void Cmd_Team_f(gentity_t *ent)
 
 	SetTeam(ent, s);
 
-	ent->client->switchTeamTime = level.time + 5000;
+	if (ent->client->sess.sessionTeam != oldTeam) {
+		ent->client->switchTeamTime = level.time + 5000;
+	}
 }
 
 void Cmd_Follow_f(gentity_t *ent)
