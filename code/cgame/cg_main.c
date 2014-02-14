@@ -114,6 +114,11 @@ vmCvar_t	cg_crosshairSize;
 vmCvar_t	cg_crosshairX;
 vmCvar_t	cg_crosshairY;
 vmCvar_t	cg_crosshairHealth;
+vmCvar_t	cg_crosshairHitColor;
+vmCvar_t	cg_crosshairHitColorTime;
+vmCvar_t	cg_crosshairHitColorStyle;
+vmCvar_t	cg_crosshairHitPulse;
+vmCvar_t	cg_crosshairPickupPulse;
 vmCvar_t	cg_drawHud;
 vmCvar_t	cg_drawScoreboard;
 vmCvar_t	cg_animSpeed;
@@ -248,6 +253,11 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_drawRewards, "cg_drawRewards", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_crosshairSize, "cg_crosshairSize", "24", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
 	{ &cg_crosshairHealth, "cg_crosshairHealth", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_crosshairHitColor, "cg_crosshairHitColor", "", CVAR_ARCHIVE, RANGE_ALL },
+	{ &cg_crosshairHitColorTime, "cg_crosshairHitTime", "200", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_crosshairHitColorStyle, "cg_crosshairHitColorStyle", "1", CVAR_ARCHIVE, RANGE_INT(0, INT_MAX) },
+	{ &cg_crosshairHitPulse, "cg_crosshairHitPulse", "1", CVAR_ARCHIVE, RANGE_BOOL },
+	{ &cg_crosshairPickupPulse, "cg_crosshairPickupPulse", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_crosshairX, "cg_crosshairX", "0", CVAR_ARCHIVE, RANGE_INT(INT_MIN, INT_MAX) },
 	{ &cg_crosshairY, "cg_crosshairY", "0", CVAR_ARCHIVE, RANGE_INT(INT_MIN, INT_MAX) },
 	{ &cg_simpleItems, "cg_simpleItems", "0", CVAR_ARCHIVE, RANGE_BOOL },
@@ -753,22 +763,57 @@ static void CG_RegisterModels(void)
 	CG_LoadCvarModel("cg_blueTeamSoundModel", &cg_blueTeamSoundModel);
 }
 
-static void CG_LoadModelColors(void)
+static int CG_UpdateColor(vmCvar_t *cvar)
 {
-	CG_LoadModelColor(&cg_teamHeadColor);
-	CG_LoadModelColor(&cg_teamTorsoColor);
-	CG_LoadModelColor(&cg_teamLegsColor);
-	CG_LoadModelColor(&cg_enemyHeadColor);
-	CG_LoadModelColor(&cg_enemyTorsoColor);
-	CG_LoadModelColor(&cg_enemyLegsColor);
-	CG_LoadModelColor(&cg_redHeadColor);
-	CG_LoadModelColor(&cg_redTorsoColor);
-	CG_LoadModelColor(&cg_redLegsColor);
-	CG_LoadModelColor(&cg_blueHeadColor);
-	CG_LoadModelColor(&cg_blueTorsoColor);
-	CG_LoadModelColor(&cg_blueLegsColor);
-	CG_LoadModelColor(&cg_teamWeaponColor);
-	CG_LoadModelColor(&cg_enemyWeaponColor);
+	if (cvar == &cg_teamHeadColor) {
+		CG_ParseColor(cgs.media.teamModel.headColor, cvar->string);
+	} else if (cvar == &cg_teamTorsoColor) {
+		CG_ParseColor(cgs.media.teamModel.torsoColor, cvar->string);
+	} else if (cvar == &cg_teamLegsColor) {
+		CG_ParseColor(cgs.media.teamModel.legsColor, cvar->string);
+	} else if (cvar == &cg_enemyHeadColor) {
+		CG_ParseColor(cgs.media.enemyModel.headColor, cvar->string);
+	} else if (cvar == &cg_enemyTorsoColor) {
+		CG_ParseColor(cgs.media.enemyModel.torsoColor, cvar->string);
+	} else if (cvar == &cg_enemyLegsColor) {
+		 CG_ParseColor(cgs.media.enemyModel.legsColor, cvar->string);
+	} else if (cvar == &cg_redHeadColor) {
+		CG_ParseColor(cgs.media.redTeamModel.headColor, cvar->string);
+	} else if (cvar == &cg_redTorsoColor) {
+		CG_ParseColor(cgs.media.redTeamModel.torsoColor, cvar->string);
+	} else if (cvar == &cg_redLegsColor) {
+		CG_ParseColor(cgs.media.redTeamModel.legsColor, cvar->string);
+	} else if (cvar == &cg_blueHeadColor) {
+		CG_ParseColor(cgs.media.blueTeamModel.headColor, cvar->string);
+	} else if (cvar == &cg_blueTorsoColor) {
+		CG_ParseColor(cgs.media.blueTeamModel.torsoColor, cvar->string);
+	} else if (cvar == &cg_blueLegsColor) {
+		CG_ParseColor(cgs.media.blueTeamModel.legsColor, cvar->string);
+	} else if (cvar == &cg_deadBodyColor) {
+		CG_ParseColor(cgs.media.deadBodyColor, cvar->string);
+	} else if (cvar == &cg_crosshairColor) {
+		CG_ParseColor(cgs.media.crosshairColor, cvar->string);
+	} else if (cvar == &cg_crosshairHitColor) {
+		CG_ParseColor(cgs.media.crosshairHitColor, cvar->string);
+	} else if (cvar == &cg_teamWeaponColor) {
+		CG_ParseColor(cgs.media.teamModel.weaponColor, cvar->string);
+	} else if (cvar == &cg_enemyWeaponColor) {
+		CG_ParseColor(cgs.media.enemyModel.weaponColor, cvar->string);
+		CG_ParseColor(cgs.media.redTeamModel.weaponColor, cvar->string);
+		CG_ParseColor(cgs.media.blueTeamModel.weaponColor, cvar->string);
+	} else {
+		return 1;
+	}
+
+	return 0;
+}
+
+static void CG_LoadColors(void)
+{
+	int	i;
+	for (i = 0; i < cvarTableSize; ++i) {
+		CG_UpdateColor(cvarTable[i].vmCvar);
+	}
 }
 
 static void CG_RegisterClients(void)
@@ -887,7 +932,7 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_RegisterModels();
 
-	CG_LoadModelColors();
+	CG_LoadColors();
 
 	CG_RegisterClients();
 
@@ -944,7 +989,7 @@ void CG_UpdateCvars(void)
 			continue;
 		}
 
-		if (!CG_LoadModelColor(cv->vmCvar)) {
+		if (!CG_UpdateColor(cv->vmCvar)) {
 			continue;
 		}
 

@@ -551,6 +551,9 @@ typedef struct {
 	vec3_t		spawnAngle[MAX_SPAWNPOINTS];
 	int			spawnTeam[MAX_SPAWNPOINTS];
 	int			numSpawnpoints;
+
+	int			lastHitDamage;
+	int			lastHitTime;
 } cg_t;
 
 #define MAX_LGSTYLES	4
@@ -819,6 +822,8 @@ typedef struct {
 	model_t	blueTeamModel;
 
 	vec4_t	deadBodyColor;
+	vec4_t	crosshairColor;
+	vec4_t	crosshairHitColor;
 
 	// scoreboard
 	qhandle_t	sbBackground;
@@ -1079,6 +1084,11 @@ extern vmCvar_t		cg_crosshairX;
 extern vmCvar_t		cg_crosshairY;
 extern vmCvar_t		cg_crosshairSize;
 extern vmCvar_t		cg_crosshairHealth;
+extern vmCvar_t		cg_crosshairHitColor;
+extern vmCvar_t		cg_crosshairHitColorTime;
+extern vmCvar_t		cg_crosshairHitColorStyle;
+extern vmCvar_t		cg_crosshairHitPulse;
+extern vmCvar_t		cg_crosshairPickupPulse;
 extern vmCvar_t		cg_drawHud;
 extern vmCvar_t		cg_drawScoreboard;
 extern vmCvar_t		cg_animSpeed;
@@ -1242,8 +1252,6 @@ int		CG_DrawStrlen(const char *str);
 float	*CG_FadeColor(int startMsec, int totalMsec);
 float	*CG_TeamColor(int team);
 void	CG_TileClear(void);
-void	CG_ColorForHealth(vec4_t hcolor);
-void	CG_GetColorForHealth(int health, int armor, vec4_t hcolor);
 void	UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t color);
 void	CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
 void	CG_SetRGBA(byte incolor[4], vec4_t color);
@@ -1305,7 +1313,6 @@ void		CG_Player(centity_t *cent);
 void		CG_ResetPlayerEntity(centity_t *cent);
 void		CG_AddRefEntityWithPowerups(refEntity_t *ent, entityState_t *state, int team);
 int			CG_LoadCvarModel(const char *cvarName, vmCvar_t *cvar);
-int			CG_LoadModelColor(vmCvar_t *cvar);
 void		CG_NewClientInfo(int clientNum);
 void		CG_ForceModelChange(void);
 sfxHandle_t	CG_CustomSound(int clientNum, const char *soundName);

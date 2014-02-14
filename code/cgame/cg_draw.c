@@ -104,6 +104,45 @@ static float CG_DrawSnapshot(float y)
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
+static void CG_GetColorForHealth(int health, int armor, vec4_t hcolor)
+{
+	int		count;
+	int		max;
+
+	// calculate the total points of damage that can
+	// be sustained at the current health / armor level
+	if (health <= 0) {
+		VectorClear(hcolor);	// black
+		hcolor[3] = 1;
+		return;
+	}
+	count = armor;
+	max = health * ARMOR_PROTECTION / (1.0 - ARMOR_PROTECTION);
+	if (max < count) {
+		count = max;
+	}
+	health += count;
+
+	// set the color based on health
+	hcolor[0] = 1.0;
+	hcolor[3] = 1.0;
+	if (health >= 100) {
+		hcolor[2] = 1.0;
+	} else if (health < 66) {
+		hcolor[2] = 0;
+	} else {
+		hcolor[2] = (health - 66) / 33.0;
+	}
+
+	if (health > 60) {
+		hcolor[1] = 1.0;
+	} else if (health < 30) {
+		hcolor[1] = 0;
+	} else {
+		hcolor[1] = (health - 30) / 30.0;
+	}
+}
+
 static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 {
 	int x, w, h, xx;
@@ -458,11 +497,62 @@ static void CG_DrawCenterString(void)
 
 /* CROSSHAIR */
 
+static void CG_CrosshairGetColor(float *color)
+{
+	if (cg_crosshairHealth.integer) {
+		CG_GetColorForHealth(cg.snap->ps.stats[STAT_HEALTH], cg.snap->ps.stats[STAT_ARMOR], color);
+	} else {
+		Vector4Copy(cgs.media.crosshairColor, color);
+	}
+
+	if (cg.time - cg.lastHitTime >= cg_crosshairHitColorTime.integer) {
+		return;
+	}
+
+	if (cg_crosshairHitColorStyle.integer == 1) {
+		Vector4Copy(cgs.media.crosshairHitColor, color);
+	} else if (cg_crosshairHitColorStyle.integer == 2) {
+		float	factor;
+		factor = cg.lastHitDamage / 200.0f + 0.5f;
+		color[0] = color[0] + factor * (cgs.media.crosshairHitColor[0] - color[0]);
+		color[1] = color[1] + factor * (cgs.media.crosshairHitColor[1] - color[1]);
+		color[2] = color[2] + factor * (cgs.media.crosshairHitColor[2] - color[2]);
+	}
+}
+
+static void CG_CrosshairGetSize(float *width, float *height)
+{
+	float	scale;
+
+	*height = cg_crosshairSize.value;
+	*width = cg_crosshairSize.value * cgs.screenYScale / cgs.screenXScale;
+
+	if (cg_crosshairHitPulse.integer && cg.lastHitDamage) {
+		scale = cg.time - cg.lastHitTime;
+	} else if (cg_crosshairPickupPulse.integer) {
+		scale = cg.time - cg.itemPickupBlendTime;
+	} else {
+		return;
+	}
+
+	if (scale <= 0 || scale > ITEM_BLOB_TIME) {
+		return;
+	}
+
+	if (cg_crosshairHitPulse.integer && cg.lastHitDamage) {
+		scale = cg.lastHitDamage * (1 - scale) / 50;
+	} else if (cg_crosshairPickupPulse.integer) {
+		scale /= ITEM_BLOB_TIME;
+	}
+
+	*width *= (1 + scale);
+	*height *= (1 + scale);
+}
+
 static void CG_DrawCrosshair(void)
 {
 	float		w, h;
 	qhandle_t	hShader;
-	float		f;
 	float		x, y;
 	int			ca;
 	vec4_t		color;
@@ -479,25 +569,10 @@ static void CG_DrawCrosshair(void)
 		return;
 	}
 
-	// set color based on health
-	if (cg_crosshairHealth.integer) {
-		CG_ColorForHealth(color);
-	} else {
-		CG_ParseColor(color, cg_crosshairColor.string);
-	}
-
+	CG_CrosshairGetColor(color);
 	trap_R_SetColor(color);
 
-	h = cg_crosshairSize.value;
-	w = cg_crosshairSize.value * cgs.screenYScale / cgs.screenXScale;
-
-	// pulse the size of the crosshair when picking up items
-	f = cg.time - cg.itemPickupBlendTime;
-	if (f > 0 && f < ITEM_BLOB_TIME) {
-		f /= ITEM_BLOB_TIME;
-		w *= (1 + f);
-		h *= (1 + f);
-	}
+	CG_CrosshairGetSize(&w, &h);
 
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
@@ -516,9 +591,8 @@ static void CG_DrawCrosshair(void)
 
 static void CG_DrawCrosshair3D(void)
 {
-	float		w;
+	float		w, h;
 	qhandle_t	hShader;
-	float		f;
 	int			ca;
 
 	trace_t trace;
@@ -539,14 +613,7 @@ static void CG_DrawCrosshair3D(void)
 		return;
 	}
 
-	w = cg_crosshairSize.value;
-
-	// pulse the size of the crosshair when picking up items
-	f = cg.time - cg.itemPickupBlendTime;
-	if (f > 0 && f < ITEM_BLOB_TIME) {
-		f /= ITEM_BLOB_TIME;
-		w *= (1 + f);
-	}
+	CG_CrosshairGetSize(&w, &h);
 
 	ca = cg_drawCrosshair.integer;
 	if (ca < 0) {

@@ -279,6 +279,11 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 		return;
 	}
 
+	cg.lastHitDamage = ps->pubStats[PUBSTAT_DAMAGE_DONE] - ops->pubStats[PUBSTAT_DAMAGE_DONE];
+	if (cg.lastHitDamage) {
+		cg.lastHitTime = cg.time;
+	}
+
 	// NOTE: when the player hits both an enemy and a team mate,
 	// there will be no hit sound
 	if (ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS]) {
