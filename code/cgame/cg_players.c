@@ -378,6 +378,7 @@ static int CG_RegisterModel(model_t *model, char *modelString)
 
 	if (CG_RegisterClientModelname(model, modelName)) {
 		Com_Printf("WARNING: Failed to load model %s - using default.\n", modelName);
+		modelName = DEFAULT_MODEL;
 		if (CG_RegisterClientModelname(model, DEFAULT_MODEL)) {
 			Com_Error(ERR_DROP, "Failed to load default model.");
 		}
@@ -390,7 +391,7 @@ static int CG_RegisterModel(model_t *model, char *modelString)
 		useDefault = qtrue;
 	}
 
-	if (useDefault && CG_RegisterSkin(model, DEFAULT_MODEL, DEFAULT_MODEL_SKIN)) {
+	if (useDefault && CG_RegisterSkin(model, modelName, DEFAULT_MODEL_SKIN)) {
 		Com_Error(ERR_DROP, "Failed to load default skin.");
 	}
 
