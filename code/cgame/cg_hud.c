@@ -447,7 +447,7 @@ static void Hud_HealthIcon(int hudnumber)
 	case TEAM_BLUE:
 		CG_DrawHudIcon(hudnumber, cgs.media.healthBlue);
 		break;
-	default:
+	case TEAM_FREE:
 		CG_DrawHudIcon(hudnumber, cgs.media.healthYellow);
 	}
 }
@@ -455,6 +455,11 @@ static void Hud_HealthIcon(int hudnumber)
 static void Hud_Health(int hudnumber)
 {
 	int	value, color;
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return;
+	}
+
 	value = cg.snap->ps.stats[STAT_HEALTH];
 
 	if (value >= 100) {
@@ -476,6 +481,10 @@ static void Hud_Ammo(int hudnumber)
 {
 	int			value, color;
 	centity_t	*cent;
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return;
+	}
 
 	cent = &cg_entities[cg.snap->ps.clientNum];
 	if (!cent->currentState.weapon) {
@@ -516,6 +525,11 @@ static void Hud_AmmoIcon(int hudnumber)
 static void Hud_Armor(int hudnumber)
 {
 	int	value, color;
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return;
+	}
+
 	value = cg.snap->ps.stats[STAT_ARMOR];
 	if (value <= 0) {
 		return;
@@ -541,7 +555,7 @@ static void Hud_ArmorIcon(int hudnumber)
 	case TEAM_BLUE:
 		CG_DrawHudIcon(hudnumber, cgs.media.armorBlue);
 		break;
-	default:
+	case TEAM_FREE:
 		CG_DrawHudIcon(hudnumber, cgs.media.armorYellow);
 	}
 }
@@ -901,6 +915,10 @@ static void Hud_WeaponList(int hudnumber)
 	int			ammoPack;
 	vec4_t		bgcolor;
 	int			count;
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return;
+	}
 
 	hudelement = &cgs.hud[hudnumber];
 	height = hudelement->height;

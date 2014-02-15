@@ -50,6 +50,10 @@ void CG_CheckAmmo(void)
 	int		ammo;
 	int		weapons;
 
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return;
+	}
+
 	// see about how many seconds of ammo we have remaining
 	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
 	total = 0;
