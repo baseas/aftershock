@@ -633,7 +633,7 @@ void CG_NewClientInfo(int clientNum)
 		CG_PrintTeamChange(ci);
 	}
 
-	if (oldValid && cg_forceTeamModels.integer == 2 && clientNum == cg.clientNum && oldTeam != ci->team
+	if (oldValid && clientNum == cg.clientNum && oldTeam != ci->team
 		&& (ci->team == TEAM_SPECTATOR || oldTeam == TEAM_SPECTATOR))
 	{
 		CG_ForceModelChange();
