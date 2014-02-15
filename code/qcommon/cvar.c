@@ -1102,7 +1102,7 @@ void Cvar_Unset_f(void)
 	
 	if(Cmd_Argc() != 2)
 	{
-		Com_Printf("Usage: %s <varname>\n", Cmd_Argv(0));
+		Com_Printf("usage: %s <varname>\n", Cmd_Argv(0));
 		return;
 	}
 	
@@ -1117,7 +1117,51 @@ void Cvar_Unset_f(void)
 		Com_Printf("Error: %s: Variable %s is not user created.\n", Cmd_Argv(0), cv->name);
 }
 
+static void Cvar_AddMulti(qboolean add)
+{
+	cvar_t		*cv;
+	const char	*valstr;
+	const char	*cmd;
+	float		value;
 
+	cmd = (add ? "cvarAdd" : "cvarMulti");
+
+	if (Cmd_Argc() != 3) {
+		Com_Printf("usage: %s <varname> <value>\n", cmd);
+		return;
+	}
+
+	cv = Cvar_FindVar(Cmd_Argv(1));
+	if (!cv) {
+		Com_Printf("%s: cvar '%s' does not exist\n", cmd, Cmd_Argv(1));
+		return;
+	}
+
+	valstr = Cmd_ArgsFrom(2);
+	if (!Q_isanumber(valstr)) {
+		Com_Printf("%s: value '%10s' is not a number\n", cmd, valstr);
+		return;
+	}
+
+	value = atof(valstr);
+	if (add) {
+		value += cv->value;
+	} else {
+		value *= cv->value;
+	}
+
+	Cvar_Set2(cv->name, va("%g", value), qfalse);
+}
+
+void Cvar_Add_f(void)
+{
+	Cvar_AddMulti(qtrue);
+}
+
+void Cvar_Multi_f(void)
+{
+	Cvar_AddMulti(qfalse);
+}
 
 /*
 ============
@@ -1384,6 +1428,10 @@ void Cvar_Init (void)
 	Cmd_SetCommandCompletionFunc( "reset", Cvar_CompleteCvarName );
 	Cmd_AddCommand ("unset", Cvar_Unset_f);
 	Cmd_SetCommandCompletionFunc("unset", Cvar_CompleteCvarName);
+	Cmd_AddCommand ("cvarAdd", Cvar_Add_f);
+	Cmd_SetCommandCompletionFunc("cvarAdd", Cvar_CompleteCvarName);
+	Cmd_AddCommand ("cvarMulti", Cvar_Multi_f);
+	Cmd_SetCommandCompletionFunc("cvarMulti", Cvar_CompleteCvarName);
 
 	Cmd_AddCommand ("cvarlist", Cvar_List_f);
 	Cmd_AddCommand ("cvar_restart", Cvar_Restart_f);
