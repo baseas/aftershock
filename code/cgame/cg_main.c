@@ -674,8 +674,6 @@ static void CG_RegisterSounds(void)
 	cgs.media.hitSound2 = trap_S_RegisterSound("sound/feedback/hit.wav", qfalse);
 	cgs.media.hitSound3 = trap_S_RegisterSound("sound/feedback/hithigh.wav", qfalse);
 	cgs.media.hitSound4 = trap_S_RegisterSound("sound/feedback/hithigher.wav", qfalse);
-	cgs.media.hitSoundHighArmor = trap_S_RegisterSound("sound/feedback/hithi.wav", qfalse);
-	cgs.media.hitSoundLowArmor = trap_S_RegisterSound("sound/feedback/hitlo.wav", qfalse);
 	cgs.media.noAmmoSound = trap_S_RegisterSound("sound/weapons/noammo.wav", qfalse);
 
 	cgs.media.impressiveSound = trap_S_RegisterSound("sound/feedback/impressive.wav", qtrue);

@@ -747,8 +747,6 @@ typedef struct {
 	sfxHandle_t	hitSound2;
 	sfxHandle_t	hitSound3;
 	sfxHandle_t	hitSound4;
-	sfxHandle_t	hitSoundHighArmor;
-	sfxHandle_t	hitSoundLowArmor;
 	sfxHandle_t	hitTeamSound;
 	sfxHandle_t	impressiveSound;
 	sfxHandle_t	excellentSound;
