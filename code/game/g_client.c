@@ -832,6 +832,63 @@ void ClientBegin(int clientNum)
 	ClientSendSpawnpoints(ent);
 }
 
+static void ClientGiveWeapons(gclient_t *client)
+{
+	int	i;
+
+	if (client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		return;
+	}
+
+	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
+	client->ps.ammo[WP_GAUNTLET] = -1;
+
+	if (g_instantgib.integer) {
+		client->ps.stats[STAT_WEAPONS] = (1 << WP_RAILGUN);
+		client->ps.ammo[WP_RAILGUN] = -1;
+	}
+
+	if (g_instantgibGauntlet.integer) {
+		client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
+	}
+
+	if (g_rockets.integer) {
+		client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
+		client->ps.ammo[WP_ROCKET_LAUNCHER] = -1;
+	}
+
+	if (!g_rockets.integer && !g_instantgib.integer) {
+		client->ps.stats[STAT_WEAPONS] = (1 << WP_GAUNTLET);
+		client->ps.stats[STAT_WEAPONS] |= (1 << WP_MACHINEGUN);
+
+		if (level.warmupTime == -1) {
+			for (i = WP_MACHINEGUN; i < WP_BFG; ++i) {
+				client->ps.stats[STAT_WEAPONS] |= (1 << i);
+				client->ps.ammo[i] = -1;
+			}
+		} else if (g_gametype.integer == GT_TEAM) {
+			client->ps.ammo[WP_MACHINEGUN] = 50;
+		} else {
+			client->ps.ammo[WP_MACHINEGUN] = 100;
+		}
+
+		if (g_gametype.integer == GT_ELIMINATION) {
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_SHOTGUN);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE_LAUNCHER);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_LIGHTNING);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
+			client->ps.stats[STAT_WEAPONS] |= (1 << WP_PLASMAGUN);
+			client->ps.ammo[WP_SHOTGUN] = 30;
+			client->ps.ammo[WP_GRENADE_LAUNCHER] = 20;
+			client->ps.ammo[WP_ROCKET_LAUNCHER] = 50;
+			client->ps.ammo[WP_LIGHTNING] = 200;
+			client->ps.ammo[WP_RAILGUN] = 20;
+			client->ps.ammo[WP_PLASMAGUN] = 150;
+		}
+	}
+}
+
 /**
 Called every time a client is placed fresh in the world:
 after the first ClientBegin, and after each respawn
@@ -945,53 +1002,7 @@ void ClientSpawn(gentity_t *ent)
 
 	client->ps.clientNum = index;
 
-	client->ps.ammo[WP_GRAPPLING_HOOK] = -1;
-	client->ps.ammo[WP_GAUNTLET] = -1;
-
-	if (g_instantgib.integer) {
-		client->ps.stats[STAT_WEAPONS] = (1 << WP_RAILGUN);
-		client->ps.ammo[WP_RAILGUN] = -1;
-	}
-
-	if (g_instantgibGauntlet.integer) {
-		client->ps.stats[STAT_WEAPONS] |= (1 << WP_GAUNTLET);
-	}
-
-	if (g_rockets.integer) {
-		client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
-		client->ps.ammo[WP_ROCKET_LAUNCHER] = -1;
-	}
-
-	if (!g_rockets.integer && !g_instantgib.integer) {
-		client->ps.stats[STAT_WEAPONS] = (1 << WP_GAUNTLET);
-		client->ps.stats[STAT_WEAPONS] |= (1 << WP_MACHINEGUN);
-
-		if (level.warmupTime == -1) {
-			for (i = WP_MACHINEGUN; i < WP_BFG; ++i) {
-				client->ps.stats[STAT_WEAPONS] |= (1 << i);
-				client->ps.ammo[i] = -1;
-			}
-		} else if (g_gametype.integer == GT_TEAM) {
-			client->ps.ammo[WP_MACHINEGUN] = 50;
-		} else {
-			client->ps.ammo[WP_MACHINEGUN] = 100;
-		}
-
-		if (g_gametype.integer == GT_ELIMINATION) {
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_SHOTGUN);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_GRENADE_LAUNCHER);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_ROCKET_LAUNCHER);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_LIGHTNING);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_RAILGUN);
-			client->ps.stats[STAT_WEAPONS] |= (1 << WP_PLASMAGUN);
-			client->ps.ammo[WP_SHOTGUN] = 30;
-			client->ps.ammo[WP_GRENADE_LAUNCHER] = 20;
-			client->ps.ammo[WP_ROCKET_LAUNCHER] = 50;
-			client->ps.ammo[WP_LIGHTNING] = 200;
-			client->ps.ammo[WP_RAILGUN] = 20;
-			client->ps.ammo[WP_PLASMAGUN] = 150;
-		}
-	}
+	ClientGiveWeapons(client);
 
 	if (g_gametype.integer == GT_ELIMINATION) {
 		client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] * 2;
@@ -999,7 +1010,6 @@ void ClientSpawn(gentity_t *ent)
 	} else {
 		client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH] + 25;
 	}
-
 	ent->health = client->ps.stats[STAT_HEALTH];
 
 	G_SetOrigin(ent, spawn_origin);
