@@ -531,9 +531,6 @@ static void Hud_Armor(int hudnumber)
 	}
 
 	value = cg.snap->ps.stats[STAT_ARMOR];
-	if (value <= 0) {
-		return;
-	}
 
 	if (value >= 100) {
 		color = 7;
@@ -649,7 +646,7 @@ static void Hud_RealTime(int hudnumber)
 
 static void Hud_ItemPickupIcon(int hudnumber)
 {
-	if (!cg.itemPickup || cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+	if (!cg.itemPickup) {
 		return;
 	}
 
@@ -662,7 +659,7 @@ static void Hud_ItemPickupIcon(int hudnumber)
 
 static void Hud_ItemPickupName(int hudnumber)
 {
-	if (!cg.itemPickup || cg.snap->ps.stats[STAT_HEALTH] <= 0) {
+	if (!cg.itemPickup) {
 		return;
 	}
 
@@ -692,10 +689,6 @@ static void Hud_ItemPickupTime(int hudnumber)
 
 static void Hud_AmmoWarning(int hudnumber)
 {
-	if (cg.snap->ps.stats[STAT_HEALTH] <= 0) {
-		return;
-	}
-
 	if (!cg.lowAmmoWarning) {
 		return;
 	}
@@ -710,10 +703,6 @@ static void Hud_AmmoWarning(int hudnumber)
 static void Hud_AttackerName(int hudnumber)
 {
 	int	clientNum, t;
-
-	if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) {
-		return;
-	}
 
 	if (!cg.attackerTime) {
 		return;
@@ -736,10 +725,6 @@ static void Hud_AttackerName(int hudnumber)
 static void Hud_AttackerIcon(int hudnumber)
 {
 	int	clientNum, t;
-
-	if (cg.predictedPlayerState.stats[STAT_HEALTH] <= 0) {
-		return;
-	}
 
 	if (!cg.attackerTime) {
 		return;
@@ -1337,44 +1322,45 @@ void CG_DrawHud()
 	int	i;
 
 	struct {
-		int hudnumber;
-		void (*func)(int);
+		int			hudnumber;
+		void		(*func)(int);
+		qboolean	drawWhenDead;
 	} hudCallbacks[] = {
-		{ HUD_HEALTHICON, &Hud_HealthIcon },
-		{ HUD_HEALTHCOUNT, &Hud_Health },
-		{ HUD_ARMORICON, &Hud_ArmorIcon },
-		{ HUD_ARMORCOUNT, &Hud_Armor },
-		{ HUD_AMMOICON, &Hud_AmmoIcon },
-		{ HUD_AMMOCOUNT, &Hud_Ammo },
-		{ HUD_FPS, &Hud_FPS },
-		{ HUD_GAMETIME, &Hud_GameTime },
-		{ HUD_ROUNDTIME, &Hud_RoundTime},
-		{ HUD_REALTIME, Hud_RealTime },
-		{ HUD_ITEMPICKUPICON, &Hud_ItemPickupIcon },
-		{ HUD_ITEMPICKUPNAME, &Hud_ItemPickupName },
-		{ HUD_ITEMPICKUPTIME, &Hud_ItemPickupTime },
-		{ HUD_AMMOWARNING, &Hud_AmmoWarning },
-		{ HUD_ATTACKERICON, &Hud_AttackerIcon },
-		{ HUD_ATTACKERNAME, &Hud_AttackerName },
-		{ HUD_SPEED, &Hud_Speed },
-		{ HUD_TARGETNAME, &Hud_TargetName },
-		{ HUD_TARGETSTATUS, &Hud_TargetStatus },
-		{ HUD_WARMUP, Hud_Warmup },
-		{ HUD_GAMETYPE, Hud_Gametype },
-		{ HUD_COUNTDOWN, Hud_Countdown },
-		{ HUD_WEAPONLIST, Hud_WeaponList },
-		{ HUD_FOLLOW, Hud_Follow },
-		{ HUD_NETGRAPHPING, Hud_NetgraphPing },
-		{ HUD_NETGRAPH, Hud_Netgraph },
-		{ HUD_SCOREOWN, Hud_ScoreOwn },
-		{ HUD_SCORENME, Hud_ScoreNme },
-		{ HUD_FS_OWN, Hud_FlagStatus },
-		{ HUD_FS_NME, Hud_FlagStatus },
-		{ HUD_SCORELIMIT, Hud_ScoreLimit },
-		{ HUD_REWARD, Hud_Reward },
-		{ HUD_REWARDCOUNT, Hud_RewardCount },
-		{ HUD_VOTEMSG, Hud_Vote },
-		{ HUD_MAX, NULL }
+		{ HUD_HEALTHICON, &Hud_HealthIcon, qfalse },
+		{ HUD_HEALTHCOUNT, &Hud_Health, qfalse },
+		{ HUD_ARMORICON, &Hud_ArmorIcon, qfalse },
+		{ HUD_ARMORCOUNT, &Hud_Armor, qfalse },
+		{ HUD_AMMOICON, &Hud_AmmoIcon, qfalse },
+		{ HUD_AMMOCOUNT, &Hud_Ammo, qfalse },
+		{ HUD_FPS, &Hud_FPS, qtrue },
+		{ HUD_GAMETIME, &Hud_GameTime, qtrue },
+		{ HUD_ROUNDTIME, &Hud_RoundTime, qtrue },
+		{ HUD_REALTIME, Hud_RealTime, qtrue },
+		{ HUD_ITEMPICKUPICON, &Hud_ItemPickupIcon, qfalse },
+		{ HUD_ITEMPICKUPNAME, &Hud_ItemPickupName, qfalse },
+		{ HUD_ITEMPICKUPTIME, &Hud_ItemPickupTime, qfalse },
+		{ HUD_AMMOWARNING, &Hud_AmmoWarning, qfalse },
+		{ HUD_ATTACKERICON, &Hud_AttackerIcon, qtrue },
+		{ HUD_ATTACKERNAME, &Hud_AttackerName, qtrue },
+		{ HUD_SPEED, &Hud_Speed, qfalse },
+		{ HUD_TARGETNAME, &Hud_TargetName, qfalse },
+		{ HUD_TARGETSTATUS, &Hud_TargetStatus, qfalse },
+		{ HUD_WARMUP, Hud_Warmup, qtrue },
+		{ HUD_GAMETYPE, Hud_Gametype, qtrue },
+		{ HUD_COUNTDOWN, Hud_Countdown, qtrue },
+		{ HUD_WEAPONLIST, Hud_WeaponList, qfalse },
+		{ HUD_FOLLOW, Hud_Follow, qtrue },
+		{ HUD_NETGRAPHPING, Hud_NetgraphPing, qtrue },
+		{ HUD_NETGRAPH, Hud_Netgraph, qtrue },
+		{ HUD_SCOREOWN, Hud_ScoreOwn, qtrue },
+		{ HUD_SCORENME, Hud_ScoreNme, qtrue },
+		{ HUD_FS_OWN, Hud_FlagStatus, qtrue },
+		{ HUD_FS_NME, Hud_FlagStatus, qtrue },
+		{ HUD_SCORELIMIT, Hud_ScoreLimit, qtrue },
+		{ HUD_REWARD, Hud_Reward, qtrue },
+		{ HUD_REWARDCOUNT, Hud_RewardCount, qtrue },
+		{ HUD_VOTEMSG, Hud_Vote, qtrue },
+		{ HUD_MAX, NULL, qfalse }
 	};
 
 	if (cg.scoreBoardShowing || !cg_drawHud.integer) {
@@ -1385,6 +1371,8 @@ void CG_DrawHud()
 
 	for (i = 0; hudCallbacks[i].func; ++i) {
 		if (!cgs.hud[hudCallbacks[i].hudnumber].inuse) {
+			continue;
+		} else if (!hudCallbacks[i].drawWhenDead && cg.snap->ps.stats[STAT_HEALTH] <= 0) {
 			continue;
 		}
 		hudCallbacks[i].func(hudCallbacks[i].hudnumber);
