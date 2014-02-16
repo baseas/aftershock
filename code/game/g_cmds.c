@@ -741,10 +741,8 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 		}
 		break;
 	case 'D':
-		if (ent->s.pubStats[PUBSTAT_DEATHS]) {
-			intval = ent->client->ps.persistant[PERS_ATTACKER];
-			Q_strncpyz(text, g_entities[intval].client->pers.netname, length);
-		}
+		intval = ent->client->ps.persistant[PERS_ATTACKER];
+		Q_strncpyz(text, g_entities[intval].client->pers.netname, length);
 		break;
 	case 'd':
 		if (ent->client->pers.lastDrop) {

@@ -270,8 +270,7 @@ void AddScore(gentity_t *ent, vec3_t origin, int score)
 	ScorePlum(ent, origin, score);
 	//
 	ent->client->ps.persistant[PERS_SCORE] += score;
-	ent->s.pubStats[PUBSTAT_SCORE] += score;
-	ent->s.pubStats[PUBSTAT_SCORE] = 333;
+
 	if (g_gametype.integer == GT_TEAM) {
 		level.teamScores[ent->client->ps.persistant[PERS_TEAM]] += score;
 	}
@@ -393,7 +392,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	self->enemy = attacker;
 
-	self->s.pubStats[PUBSTAT_DEATHS]++;
+	self->client->pers.deathCount++;
 	VectorCopy(self->r.currentOrigin, self->client->pers.lastDeathOrigin);
 
 	if (attacker && attacker->client) {
@@ -405,7 +404,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 			if (meansOfDeath == MOD_GAUNTLET) {
 
 				// play humiliation on player
-				attacker->s.privStats.rewards[REWARD_HUMILIATION]++;
+				attacker->client->pers.stats.rewards[REWARD_HUMILIATION]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
@@ -420,7 +419,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 			// if this is close enough to the last kill, give a reward sound
 			if (level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME) {
 				// play excellent on player
-				attacker->s.privStats.rewards[REWARD_EXCELLENT]++;
+				attacker->client->pers.stats.rewards[REWARD_EXCELLENT]++;
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
@@ -450,6 +449,8 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	}
 
 	TossClientItems(self);
+
+	G_SendScoreboard(self);
 
 	self->takedamage = qtrue;	// can still be gibbed
 
@@ -626,9 +627,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			&& VectorLength(distance) > 200)
 		{
 			if (mod == MOD_ROCKET) {
-				attacker->s.privStats.rewards[REWARD_AIRROCKET]++;
+				attacker->client->pers.stats.rewards[REWARD_AIRROCKET]++;
 			} else if (mod == MOD_GRENADE) {
-				attacker->s.privStats.rewards[REWARD_AIRGRENADE]++;
+				attacker->client->pers.stats.rewards[REWARD_AIRGRENADE]++;
 			}
 		}
 
@@ -636,7 +637,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			&& client->lastSentFlying == attacker->s.number
 			&& (client->lasthurt_mod == MOD_ROCKET || client->lasthurt_mod == MOD_ROCKET_SPLASH))
 		{
-			attacker->s.privStats.rewards[REWARD_RLRG]++;
+			attacker->client->pers.stats.rewards[REWARD_RLRG]++;
 		}
 	}
 
@@ -679,8 +680,8 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 
 			attacker->client->pers.lastTarget = targ->s.number;
 			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
-			attacker->s.pubStats[PUBSTAT_DAMAGE_DONE] += dmg;
-			targ->s.pubStats[PUBSTAT_DAMAGE_TAKEN] += dmg;
+			attacker->client->ps.persistant[PERS_DAMAGE_DONE] += dmg;
+			targ->client->ps.persistant[PERS_DAMAGE_TAKEN] += dmg;
 		}
 	}
 

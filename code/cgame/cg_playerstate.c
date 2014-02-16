@@ -283,7 +283,7 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 		return;
 	}
 
-	cg.lastHitDamage = ps->pubStats[PUBSTAT_DAMAGE_DONE] - ops->pubStats[PUBSTAT_DAMAGE_DONE];
+	cg.lastHitDamage = ps->persistant[PERS_DAMAGE_DONE] - ops->persistant[PERS_DAMAGE_DONE];
 	if (cg.lastHitDamage) {
 		cg.lastHitTime = cg.time;
 	}
@@ -312,6 +312,7 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 	reward = qfalse;
 
 	for (i = 0; i < MAX_REWARDS; ++i) {
+#if 0
 		int	rewardCount;
 		rewardCount = cg_entities[ps->clientNum].currentState.privStats.rewards[i];
 		if (rewardCount == cg_entities[ps->clientNum].currentState.privStats.rewards[i]) {
@@ -360,6 +361,7 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 		}
 
 		reward = qtrue;
+#endif
 	}
 
 	// sounds that both client and attacker receive

@@ -314,9 +314,22 @@ typedef struct {
 	int				teamTask;		// task in teamplay (offence/defence)
 	qboolean		teamLeader;		// true when this is a team leader
 
-	int				powerups;		// so can display quad/flag status
 	int				medkitUsageTime;
 	model_t			*model;
+
+	playerStats_t	stats;
+
+	// scoreboard
+	int			score;
+	int			powerups;
+	int			damageDone;
+	int			damageTaken;
+
+	// team overlay
+	int			location;
+	int			health;
+	int			armor;
+	int			weapon;
 } clientInfo_t;
 
 // each WP_* weapon enum has an associated weaponInfo_t
@@ -554,6 +567,8 @@ typedef struct {
 
 	int			lastHitDamage;
 	int			lastHitTime;
+
+	int			sortedClients[MAX_CLIENTS];
 } cg_t;
 
 #define MAX_LGSTYLES	4

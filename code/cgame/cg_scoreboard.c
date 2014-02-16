@@ -86,8 +86,7 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	es = &cg_entities[clientNum].currentState;
 
 	// don't draw the client while he's connecting
-	// FIXME need other check
-	if (ci->ping == -1) {
+	if (!ci->botSkill && ci->ping == -1) {
 		return;
 	}
 
@@ -98,11 +97,21 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	CG_DrawStringExt(x, y - SB_MEDCHAR_HEIGHT/2, ci->name, colorWhite, qfalse, qfalse,
 		SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 31);
 
-	Com_sprintf(string, sizeof string, "%d", es->pubStats[PUBSTAT_SCORE]);
+	if (cg.warmup == 0) {
+		Com_sprintf(string, sizeof string, "%d", ci->score);
+	} else {
+		Q_strncpyz(string, "-", sizeof string);
+	}
+
 	CG_DrawStringExt(x + w*0.7, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
 		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 
-	Com_sprintf(string, sizeof string, "%i", ci->ping);
+	if (ci->ping == -1) {
+		Com_sprintf(string, sizeof string, "-");
+	} else {
+		Com_sprintf(string, sizeof string, "%i", ci->ping);
+	}
+
 	CG_DrawStringExt(x + w*0.8, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
 		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 3);
 
@@ -113,13 +122,13 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 
 	if (cgs.gametype == GT_ELIMINATION) {
 		if (h >= SB_CHAR_HEIGHT*2) {
-			Com_sprintf(string, sizeof string, "%i", es->pubStats[PUBSTAT_DAMAGE_DONE] / 100);
+			Com_sprintf(string, sizeof string, "%i", ci->damageDone / 100);
 			CG_DrawStringExt(x + w*0.96, y - SB_CHAR_HEIGHT, string, colorGreen, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
-			Com_sprintf(string, sizeof string, "%i", es->pubStats[PUBSTAT_DAMAGE_TAKEN] / 100);
+			Com_sprintf(string, sizeof string, "%i", ci->damageTaken / 100);
 			CG_DrawStringExt(x + w*0.96, y, string, colorRed, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
 		} else {
-			Com_sprintf(string, sizeof string, "^2%i^7/^1%i", es->pubStats[PUBSTAT_DAMAGE_DONE] / 100,
-				es->pubStats[PUBSTAT_DAMAGE_TAKEN]);
+			Com_sprintf(string, sizeof string, "^2%i^7/^1%i",
+				ci->damageDone / 100, ci->damageTaken / 100);
 			CG_DrawStringExt(x + w*0.96, y - SB_CHAR_HEIGHT/2, string, colorWhite,
 				qfalse, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
 		}
@@ -146,14 +155,12 @@ static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float 
 	}
 }
 
-static int CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *color, int maxClients)
+static void CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *color, int maxClients)
 {
 	int				i;
 	clientInfo_t	*ci;
 	int				count;
 	float			transparent[4];
-	int				sortedClients[MAX_CLIENTS];
-	int				sortedCount;
 
 	transparent[0] = 0;
 	transparent[1] = 0;
@@ -171,22 +178,12 @@ static int CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *col
 
 	y += 20;
 
-	// sort client numbers
-	sortedCount = 0;
-	for (i = 0; i < MAX_CLIENTS; ++i) {
-		int	k;
-		for (k = 0; k < MAX_CLIENTS; ++k) {
-			if (!cgs.clientinfo[k].infoValid) {
-				continue;
-			}
-			if (cg_entities[k].currentState.pubStats[PUBSTAT_RANK] == i) {
-				sortedClients[sortedCount++] = k;
-			}
-		}
-	}
+	for (i = 0, count = 0; i < MAX_CLIENTS; ++i) {
+		ci = &cgs.clientinfo[cg.sortedClients[i]];
 
-	for (i = 0, count = 0; i < sortedCount; ++i) {
-		ci = &cgs.clientinfo[sortedClients[i]];
+		if (!ci->infoValid) {
+			continue;
+		}
 
 		if (ci->team != team) {
 			continue;
@@ -197,9 +194,9 @@ static int CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *col
 		}
 
 		if (count % 2) {
-			CG_DrawClientScore(x, y, w, h, sortedClients[i], transparent);
+			CG_DrawClientScore(x, y, w, h, cg.sortedClients[i], transparent);
 		} else {
-			CG_DrawClientScore(x, y, w, h, sortedClients[i], color);
+			CG_DrawClientScore(x, y, w, h, cg.sortedClients[i], color);
 		}
 
 		y += h + 1;
@@ -207,7 +204,7 @@ static int CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *col
 	}
 
 	if (count < maxClients) {
-		return count;
+		return;
 	}
 
 	CG_DrawStringExt(x, y, "...", colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
@@ -218,8 +215,6 @@ static int CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *col
 	} else {
 		CG_DrawClientScore(x, y, w, h, cg.clientNum, color);
 	}
-
-	return maxClients;
 }
 
 static void CG_DrawSpecs(void)
@@ -347,7 +342,9 @@ qboolean CG_DrawScoreboard(void)
 		return qfalse;
 	}
 
-	if (!cg.showScores && cg.predictedPlayerState.pm_type != PM_DEAD) {
+	if (!cg.showScores && cg.predictedPlayerState.pm_type != PM_DEAD
+		&& cg.predictedPlayerState.pm_type != PM_INTERMISSION)
+	{
 		return qfalse;
 	}
 

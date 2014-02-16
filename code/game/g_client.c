@@ -649,14 +649,6 @@ void ClientUserinfoChanged(int clientNum)
 		team = client->sess.sessionTeam;
 	}
 
-	// teamInfo
-	s = Info_ValueForKey(userinfo, "teamoverlay");
-	if (! *s || atoi(s) != 0) {
-		client->pers.teamInfo = qtrue;
-	} else {
-		client->pers.teamInfo = qfalse;
-	}
-
 	// team task (0 = none, 1 = offence, 2 = defence)
 	teamTask = atoi(Info_ValueForKey(userinfo, "teamtask"));
 	// team Leader (1 = leader, 0 is normal player)
@@ -830,6 +822,9 @@ void ClientBegin(int clientNum)
 	ent->client->pers.lastKiller = -1;
 
 	ClientSendSpawnpoints(ent);
+
+	CheckPings(qtrue);
+	G_SendScoreboard(ent);
 }
 
 static void ClientGiveWeapons(gclient_t *client)
@@ -902,8 +897,6 @@ void ClientSpawn(gentity_t *ent)
 	int		i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
-	int				pubStats[MAX_PUBSTAT];
-	privStats_t		privStats;
 	int				persistant[MAX_PERSISTANT];
 	gentity_t		*spawnPoint;
 	gentity_t		*tent;
@@ -956,8 +949,6 @@ void ClientSpawn(gentity_t *ent)
 	saved = client->pers;
 	savedSess = client->sess;
 	eventSequence = client->ps.eventSequence;
-	Com_Memcpy(pubStats, ent->s.pubStats, sizeof pubStats);
-	Com_Memcpy(&privStats, &ent->s.privStats, sizeof privStats);
 	Com_Memcpy(persistant, client->ps.persistant, sizeof persistant);
 
 	Com_Memset(client, 0, sizeof(*client));
@@ -965,8 +956,6 @@ void ClientSpawn(gentity_t *ent)
 	client->pers = saved;
 	client->sess = savedSess;
 	client->ps.eventSequence = eventSequence;
-	Com_Memcpy(ent->s.pubStats, pubStats, sizeof pubStats);
-	Com_Memcpy(&ent->s.privStats, &privStats, sizeof privStats);
 	Com_Memcpy(client->ps.persistant, persistant, sizeof client->ps.persistant);
 
 	// increment the spawncount so the client will detect the respawn

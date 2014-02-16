@@ -78,7 +78,7 @@ void G_ExplodeMissile(gentity_t *ent)
 	if (ent->splashDamage && G_RadiusDamage(ent->r.currentOrigin, ent->parent,
 		ent->splashDamage, ent->splashRadius, ent, ent->splashMethodOfDeath))
 	{
-		g_entities[ent->r.ownerNum].s.privStats.enemyHits[ent->s.weapon]++;
+		g_entities[ent->r.ownerNum].client->pers.stats.enemyHits[ent->s.weapon]++;
 	}
 
 	trap_LinkEntity(ent);
@@ -107,10 +107,10 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace)
 
 			LogAccuracyHit(other, &g_entities[ent->r.ownerNum], &teamHit, &enemyHit);
 			if (teamHit) {
-				g_entities[ent->r.ownerNum].s.privStats.teamHits[ent->s.weapon]++;
+				g_entities[ent->r.ownerNum].client->pers.stats.teamHits[ent->s.weapon]++;
 				hitClient = qtrue;
 			} else if (enemyHit) {
-				g_entities[ent->r.ownerNum].s.privStats.enemyHits[ent->s.weapon]++;
+				g_entities[ent->r.ownerNum].client->pers.stats.enemyHits[ent->s.weapon]++;
 				g_entities[ent->r.ownerNum].client->ps.persistant[PERS_HITS]++;
 				hitClient = qtrue;
 			}
@@ -199,7 +199,7 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace)
 		if (G_RadiusDamage(trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius,
 			other, ent->splashMethodOfDeath)) {
 			if (!hitClient) {
-				g_entities[ent->r.ownerNum].s.privStats.enemyHits[ent->s.weapon]++;
+				g_entities[ent->r.ownerNum].client->pers.stats.enemyHits[ent->s.weapon]++;
 			}
 		}
 	}

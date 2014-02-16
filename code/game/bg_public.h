@@ -210,28 +210,16 @@ typedef enum {
 // cleared on respawn
 // NOTE: may not have more than 16
 typedef enum {
-	PERS_SCORE,						// TODO remove
-	PERS_HITS,
+	PERS_SCORE,						// must not change, server and game both refer
+	PERS_HITS,						// for damage hit sounds
 	PERS_RANK,						// player rank or team rank
 	PERS_TEAM,						// player team
 	PERS_SPAWN_COUNT,				// incremented every respawn
 	PERS_PLAYEREVENTS,				// 16 bits that can be flipped for events
-	PERS_ATTACKER					// clientnum of last damage inflicter
+	PERS_ATTACKER,					// clientnum of last damage inflicter
+	PERS_DAMAGE_DONE,
+	PERS_DAMAGE_TAKEN
 } persEnum_t;
-
-typedef enum {
-	PUBSTAT_SCORE,
-	PUBSTAT_RANK,
-	PUBSTAT_PING,
-	PUBSTAT_KILLS,
-	PUBSTAT_DEATHS,
-	PUBSTAT_SPAWN_COUNT,
-	PUBSTAT_DAMAGE_DONE,
-	PUBSTAT_DAMAGE_TAKEN,
-	PUBSTAT_HEALTH,
-	PUBSTAT_ARMOR,
-	PUBSTAT_LOCATION,
-} pubStatsEnum_t;
 
 typedef enum {
 	REWARD_IMPRESSIVE,			// two railgun hits in a row
@@ -247,6 +235,17 @@ typedef enum {
 	REWARD_RLRG,
 	REWARD_ITEMDENIED
 } rewardEnum_t;
+
+typedef struct {
+	int	rewards[MAX_REWARDS];
+	int	shots[MAX_WEAPONS];
+	int	teamHits[MAX_WEAPONS];
+	int	enemyHits[MAX_WEAPONS];
+	int	damage[MAX_WEAPONS];
+	int	kills[MAX_WEAPONS];
+	int	deaths[MAX_WEAPONS];
+	int	weaponPickups[MAX_WEAPONS];
+} playerStats_t;
 
 // entityState_t->eFlags
 #define EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD

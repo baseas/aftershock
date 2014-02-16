@@ -234,7 +234,6 @@ typedef struct {
 	playerTeamState_t teamState;	// status in teamplay games
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
-	qboolean	teamInfo;			// send team overlay updates?
 	qboolean	ready;
 	int			vote;
 
@@ -243,6 +242,11 @@ typedef struct {
 	gitem_t		*lastPickup;
 	gitem_t		*lastDrop;
 	vec3_t		lastDeathOrigin;
+	char		scoreboardLine[32];
+
+	int			deathCount;
+
+	playerStats_t	stats;
 } clientPersistant_t;
 
 // everything we need to know to backward reconcile
@@ -347,6 +351,7 @@ typedef struct {
 	int			timeComplete;			// time when teams were complete
 
 	int			lastPingTime;			// last time of ping update
+	int			lastScoreboardTime;
 	int			teamScores[TEAM_NUM_TEAMS];
 	int			lastTeamLocationTime;		// last time of client team location update
 
@@ -576,9 +581,10 @@ void	MoveClientToIntermission(gentity_t *ent);
 void	FindIntermissionPoint(void);
 void	SetLeader(int team, int client);
 void	CheckTeamLeader(int team);
+void	CheckPings(qboolean forceSend);
 void	G_RunThink (gentity_t *ent);
 void	AddTournamentQueue(gclient_t *client);
-void	SendScoreboardMessageToAllClients(void);
+void	G_SendScoreboard(gentity_t *ent);
 void	QDECL	G_LogPrintf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void	QDECL	G_Printf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void	QDECL	G_Error(const char *fmt, ...) __attribute__ ((noreturn, format (printf, 1, 2)));

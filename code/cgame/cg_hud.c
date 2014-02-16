@@ -785,7 +785,7 @@ static void Hud_TargetName(int hudnumber)
 static void Hud_TargetStatus(int hudnumber)
 {
 	char			statusBuf[16];
-	int				*stats;
+	clientInfo_t	*ci;
 	int				healthColor, armorColor;
 
 	if (cg.renderingThirdPerson || !cg_drawCrosshair.integer || !cg_drawCrosshairNames.integer) {
@@ -812,25 +812,26 @@ static void Hud_TargetStatus(int hudnumber)
 		return;
 	}
 
-	stats = cg_entities[cg.crosshairClientNum].currentState.pubStats;
-	if (stats[PUBSTAT_HEALTH] >= 100) {
+	ci = &cgs.clientinfo[cg.crosshairClientNum];
+
+	if (ci->health >= 100) {
 		healthColor = 2;
-	} else if (stats[PUBSTAT_ARMOR] >= 50) {
+	} else if (ci->health >= 50) {
 		healthColor = 3;
 	} else {
 		healthColor = 1;
 	}
 
-	if (stats[PUBSTAT_ARMOR] >= 100) {
+	if (ci->armor >= 100) {
 		armorColor = 2;
-	} else if (stats[PUBSTAT_ARMOR] >= 50) {
+	} else if (ci->armor >= 50) {
 		armorColor = 3;
 	} else {
 		armorColor = 1;
 	}
 
 	Com_sprintf(statusBuf, sizeof statusBuf, "(^%i%i^7|^%i%i^7)",
-		healthColor, stats[PUBSTAT_HEALTH], armorColor, stats[PUBSTAT_ARMOR]);
+		healthColor, ci->health, armorColor, ci->health);
 	CG_DrawHudString(hudnumber, qfalse, statusBuf);
 }
 

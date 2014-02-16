@@ -26,6 +26,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+static void CG_ParseTeamInfo(void)
+{
+	int				i, argc;
+	int				clientNum;
+	clientInfo_t	*ci;
+
+	argc = trap_Argc() - 1;
+
+	i = 1;
+	while (i < argc) {
+		clientNum = atoi(CG_Argv(i++));
+		if (clientNum < 0 || clientNum > MAX_CLIENTS - 1) {
+			CG_Printf(S_COLOR_YELLOW "Invalid clientNum in tinfo.\n");
+			continue;
+		}
+		ci = &cgs.clientinfo[clientNum];
+		ci->location = atoi(CG_Argv(i++));
+		ci->health = atoi(CG_Argv(i++));
+		ci->armor = atoi(CG_Argv(i++));
+		ci->weapon = atoi(CG_Argv(i++));
+	}
+}
+
 static void CG_ParsePings(void)
 {
 	int	i, k;
@@ -46,6 +69,82 @@ static void CG_ParsePings(void)
 		}
 		cgs.clientinfo[k++].ping = atoi(CG_Argv(i + 1));
 	}
+}
+
+static int CG_ComparePlayerNums(const void *num1, const void *num2)
+{
+	clientInfo_t	*a, *b;
+
+	a = &cgs.clientinfo[*((const int *) num1)];
+	b = &cgs.clientinfo[*((const int *) num2)];
+
+	if (!a->infoValid) {
+		return -1;
+	} else if (!b->infoValid) {
+		return 1;
+	}
+
+	switch (cgs.gametype) {
+	case GT_FFA:
+	case GT_TOURNAMENT:
+	case GT_DEFRAG:
+	case GT_TEAM:
+	case GT_CTF:
+		return b->score - a->score;
+	case GT_ELIMINATION:
+		return (b->damageDone - b->damageTaken) - (a->damageDone - a->damageTaken);
+	default:
+		return 0;
+	}
+}
+
+static void CG_ParseScores(void)
+{
+	int				i, argc;
+	int				clientNum;
+	clientInfo_t	*ci;
+
+	argc = trap_Argc() - 1;
+
+	i = 1;
+	while (i < argc) {
+		clientNum = atoi(CG_Argv(i++));
+		if (clientNum < 0 || clientNum > MAX_CLIENTS - 1) {
+			CG_Printf(S_COLOR_YELLOW "Invalid score table.\n");
+			continue;
+		}
+		ci = &cgs.clientinfo[clientNum];
+
+		switch (cgs.gametype) {
+		case GT_FFA:
+			ci->score = atoi(CG_Argv(i++));
+			ci->powerups = atoi(CG_Argv(i++));
+			break;
+		case GT_TOURNAMENT:
+			ci->score = atoi(CG_Argv(i++));
+			break;
+		case GT_DEFRAG:
+			ci->score = atoi(CG_Argv(i++));
+			break;
+		case GT_TEAM:
+			ci->score = atoi(CG_Argv(i++));
+			ci->powerups = atoi(CG_Argv(i++));
+			break;
+		case GT_CTF:
+			ci->score = atoi(CG_Argv(i++));
+			ci->powerups = atoi(CG_Argv(i++));
+			break;
+		case GT_ELIMINATION:
+			ci->score = atoi(CG_Argv(i++));
+			ci->damageDone = atoi(CG_Argv(i++));
+			ci->damageTaken = atoi(CG_Argv(i++));
+			break;
+		default:
+			return;
+		}
+	}
+
+	qsort(cg.sortedClients, MAX_CLIENTS, sizeof cg.sortedClients[0], CG_ComparePlayerNums);
 }
 
 static void CG_ParseWarmup(void)
@@ -279,12 +378,21 @@ static void CG_ServerCommand(void)
 		return;
 	}
 
+	if (!strcmp(cmd, "tinfo")) {
+		CG_ParseTeamInfo();
+	}
+
 	if (!strcmp(cmd, "spawnpoints")) {
 		CG_ParseSpawnpoints();
 	}
 
 	if (!strcmp(cmd, "print")) {
 		CG_Printf("%s", CG_Argv(1));
+		return;
+	}
+
+	if (!strcmp(cmd, "s")) {
+		CG_ParseScores();
 		return;
 	}
 

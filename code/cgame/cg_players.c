@@ -587,6 +587,7 @@ void CG_NewClientInfo(int clientNum)
 	configstring = CG_ConfigString(clientNum + CS_PLAYERS);
 	if (!configstring[0]) {
 		memset(ci, 0, sizeof(*ci));
+		ci->ping = -1;
 		return;		// player just left
 	}
 

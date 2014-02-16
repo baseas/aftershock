@@ -1081,22 +1081,10 @@ typedef struct {
 #define	MAX_REWARDS				16
 #define	MAX_POWERUPS			16
 #define	MAX_WEAPONS				16
-#define	MAX_PUBSTAT				16
 
 #define	MAX_PS_EVENTS			2
 
 #define PS_PMOVEFRAMECOUNTBITS	6
-
-typedef struct {
-	int	rewards[MAX_REWARDS];
-	int	shots[MAX_WEAPONS];
-	int	teamHits[MAX_WEAPONS];
-	int	enemyHits[MAX_WEAPONS];
-	int	damage[MAX_WEAPONS];
-	int	kills[MAX_WEAPONS];
-	int	deaths[MAX_WEAPONS];
-	int	weaponPickups[MAX_WEAPONS];
-} privStats_t;
 
 // playerState_t is the information needed by both the client and server
 // to predict player motion and actions
@@ -1109,9 +1097,6 @@ typedef struct {
 // so if a playerState_t is transmitted, the entityState_t can be fully derived
 // from it.
 typedef struct playerState_s {
-	int			pubStats[MAX_PUBSTAT];
-	privStats_t	privStats;
-
 	int			commandTime;	// cmd->serverTime of last executed command
 	int			pm_type;
 	int			bobCycle;		// for view bobbing and footstep generation
@@ -1290,9 +1275,6 @@ typedef struct entityState_s {
 	int		torsoAnim;		// mask off ANIM_TOGGLEBIT
 
 	int		generic1;
-
-	int			pubStats[MAX_PUBSTAT];
-	privStats_t	privStats;
 } entityState_t;
 
 typedef enum {

@@ -827,6 +827,8 @@ static void CG_RegisterClients(void)
 			continue;
 		}
 
+		cgs.clientinfo[i].ping = -1;
+
 		clientInfo = CG_ConfigString(CS_PLAYERS+i);
 		if (!clientInfo[0]) {
 			continue;
@@ -867,6 +869,7 @@ Will perform callbacks to make the loading info screen update.
 */
 void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 {
+	int	i;
 	const char	*s;
 
 	// clear everything
@@ -875,6 +878,10 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	memset(cg_entities, 0, sizeof(cg_entities));
 	memset(cg_weapons, 0, sizeof(cg_weapons));
 	memset(cg_items, 0, sizeof(cg_items));
+
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		cg.sortedClients[i] = i;
+	}
 
 	cg.clientNum = clientNum;
 	cg.showInfoScreen = qtrue;

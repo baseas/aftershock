@@ -153,7 +153,6 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	int plyrs;
 	char st[16];
 	clientInfo_t	*ci;
-	entityState_t	*es;
 	gitem_t	*item;
 	int ret_y, count;
 
@@ -230,7 +229,6 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 
 	for (i = 0; i < count; i++) {
 		ci = &cgs.clientinfo[sortedTeamPlayers[i]];
-		es = &cg_entities[sortedTeamPlayers[i]].currentState;
 		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
@@ -242,7 +240,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH);
 
 			if (lwidth) {
-				p = CG_ConfigString(CS_LOCATIONS + es->pubStats[PUBSTAT_LOCATION]);
+				p = CG_ConfigString(CS_LOCATIONS + ci->location);
 				if (!p || !*p)
 					p = "unknown";
 //				len = CG_DrawStrlen(p);
@@ -257,10 +255,9 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 					TEAM_OVERLAY_MAXLOCATION_WIDTH);
 			}
 
-			CG_GetColorForHealth(es->pubStats[PUBSTAT_HEALTH], es->pubStats[PUBSTAT_ARMOR], hcolor);
+			CG_GetColorForHealth(ci->health, ci->armor, hcolor);
 
-			Com_sprintf(st, sizeof(st), "%3i %3i", es->pubStats[PUBSTAT_HEALTH],
-				es->pubStats[PUBSTAT_ARMOR]);
+			Com_sprintf(st, sizeof(st), "%3i %3i", ci->health, ci->armor);
 
 			xx = x + TINYCHAR_WIDTH * 3 +
 				TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
@@ -272,9 +269,9 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 			// draw weapon icon
 			xx += TINYCHAR_WIDTH * 3;
 
-			if (cg_weapons[es->weapon].weaponIcon) {
+			if (cg_weapons[ci->weapon].weaponIcon) {
 				CG_DrawAdjustPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-					cg_weapons[es->weapon].weaponIcon);
+					cg_weapons[ci->weapon].weaponIcon);
 			} else {
 				CG_DrawAdjustPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
 					cgs.media.deferShader);

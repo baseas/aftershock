@@ -225,7 +225,7 @@ static void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *e
 	}
 
 	if (hits == DEFAULT_SHOTGUN_COUNT) {
-		ent->s.privStats.rewards[REWARD_FULLSG]++;
+		ent->client->pers.stats.rewards[REWARD_FULLSG]++;
 	}
 }
 
@@ -354,7 +354,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 		ent->client->accurateCount += hits;
 		if (ent->client->accurateCount >= 2) {
 			ent->client->accurateCount -= 2;
-			ent->s.privStats.rewards[REWARD_IMPRESSIVE]++;
+			ent->client->pers.stats.rewards[REWARD_IMPRESSIVE]++;
 			// add the sprite over the player's head
 			ent->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
 			ent->client->ps.eFlags |= EF_AWARD_IMPRESSIVE;
@@ -416,7 +416,7 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 			}
 
 			if (ent->client->lightningHits >= 20) {
-				ent->s.privStats.rewards[REWARD_LGACCURACY]++;
+				ent->client->pers.stats.rewards[REWARD_LGACCURACY]++;
 				ent->client->lightningHits = 0;
 			}
 		} else if (!(tr.surfaceFlags & SURF_NOIMPACT)) {
@@ -519,7 +519,7 @@ void FireWeapon(gentity_t *ent)
 		s_quadFactor = 1;
 	}
 
-	ent->s.privStats.shots[ent->s.weapon]++;
+	ent->client->pers.stats.shots[ent->s.weapon]++;
 
 	// set aiming directions
 	AngleVectors(ent->client->ps.viewangles, forward, right, up);
@@ -562,11 +562,11 @@ void FireWeapon(gentity_t *ent)
 	}
 
 	if (teamHit) {
-		ent->s.privStats.teamHits[ent->s.weapon]++;
+		ent->client->pers.stats.teamHits[ent->s.weapon]++;
 	}
 
 	if (enemyHit) {
-		ent->s.privStats.enemyHits[ent->s.weapon]++;
+		ent->client->pers.stats.enemyHits[ent->s.weapon]++;
 		ent->client->ps.persistant[PERS_HITS]++;
 	}
 
