@@ -318,6 +318,7 @@ static const char *hudTags[] = {
 	"TeamOverlay8",
 	"Reward",
 	"RewardCount",
+	"Holdable",
 	NULL
 };
 

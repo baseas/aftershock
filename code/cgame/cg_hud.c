@@ -1,4 +1,3 @@
-
 /*
 ===========================================================================
 Copyright (C) 1999-2005 Id Software, Inc.
@@ -1317,6 +1316,18 @@ static void Hud_Vote(int hudnumber)
 	CG_DrawHudString(hudnumber, qtrue, str);
 }
 
+static void Hud_Holdable(int hudnumber)
+{
+	int	index;
+
+	index = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
+	if (index <= 0 || index >= MAX_ITEMS) {
+		return;
+	}
+
+	CG_DrawHudIcon(hudnumber, cg_items[index].icon);
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1360,6 +1371,7 @@ void CG_DrawHud()
 		{ HUD_REWARD, Hud_Reward, qtrue },
 		{ HUD_REWARDCOUNT, Hud_RewardCount, qtrue },
 		{ HUD_VOTEMSG, Hud_Vote, qtrue },
+		{ HUD_HOLDABLE, Hud_Holdable, qtrue },
 		{ HUD_MAX, NULL, qfalse }
 	};
 

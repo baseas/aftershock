@@ -346,17 +346,6 @@ static void CG_DrawLowerLeft(void)
 	}
 }
 
-static void CG_DrawHoldableItem(void)
-{
-	int		value;
-
-	value = cg.snap->ps.stats[STAT_HOLDABLE_ITEM];
-	if (value) {
-		CG_RegisterItem(value);
-		CG_DrawAdjustPic(640-ICON_SIZE, (SCREEN_HEIGHT-ICON_SIZE)/2, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon);
-	}
-}
-
 /* LAGOMETER */
 
 /**
@@ -730,8 +719,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 			if (stereoFrame == STEREO_CENTER) {
 				CG_DrawCrosshair();
 			}
-
-			CG_DrawHoldableItem();
 		}
 	}
 
