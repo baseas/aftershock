@@ -1213,6 +1213,7 @@ extern vmCvar_t		cg_switchToEmpty;
 extern vmCvar_t		cg_killbeep;
 extern vmCvar_t		cg_drawSpawnpoints;
 extern vmCvar_t		cg_drawBBox;
+extern vmCvar_t		cg_itemFX;
 
 //
 // cg_main.c

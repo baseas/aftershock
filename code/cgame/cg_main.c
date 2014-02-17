@@ -234,6 +234,7 @@ vmCvar_t	cg_switchToEmpty;
 vmCvar_t	cg_killbeep;
 vmCvar_t	cg_drawSpawnpoints;
 vmCvar_t	cg_drawBBox;
+vmCvar_t	cg_itemFX;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_autoswitch, "cg_autoswitch", "0", CVAR_ARCHIVE, RANGE_BOOL },
@@ -376,7 +377,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_switchToEmpty, "cg_switchToEmpty", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_killbeep, "cg_killbeep", "1", CVAR_ARCHIVE, RANGE_BOOL },
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE, RANGE_BOOL },
-	{ &cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT, RANGE_BOOL }
+	{ &cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT, RANGE_BOOL },
+	{ &cg_itemFX, "cg_itemFX", "7", CVAR_ARCHIVE, RANGE_INT(0, 7) }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);
