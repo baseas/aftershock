@@ -1426,7 +1426,6 @@ void BotGoForPowerups(bot_state_t *bs) {
 	BotDontAvoid(bs, "Battle Suit");
 	BotDontAvoid(bs, "Speed");
 	BotDontAvoid(bs, "Invisibility");
-	//BotDontAvoid(bs, "Flight");
 	//reset the long term goal time so the bot will go for the powerup
 	//NOTE: the long term goal type doesn't change
 	bs->ltg_time = 0;

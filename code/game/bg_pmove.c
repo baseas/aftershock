@@ -478,9 +478,6 @@ static void PM_WaterMove(void)
 	PM_SlideMove(qfalse);
 }
 
-/**
-Only with the flight powerup
-*/
 static void PM_FlyMove(void)
 {
 	int		i;

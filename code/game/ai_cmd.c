@@ -1423,7 +1423,6 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match) {
 		"Battle Suit",
 		"Speed",
 		"Invisibility",
-		"Flight",
 		"Armor",
 		"Heavy Armor",
 		"Red Flag",
