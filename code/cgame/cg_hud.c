@@ -776,10 +776,6 @@ static void Hud_TargetStatus(int hudnumber)
 		return;
 	}
 
-	if (cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) {
-		return;
-	}
-
 	if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_RED
 		&& cg.snap->ps.persistant[PERS_TEAM] != TEAM_BLUE)
 	{
