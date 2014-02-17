@@ -1080,11 +1080,17 @@ static void Hud_WeaponList(int hudnumber)
 static void Hud_Follow(int hudnumber)
 {
 	const char	*name;
-	if (!(cg.snap->ps.pm_flags & PMF_FOLLOW)) {
+
+	if (cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR) {
 		return;
 	}
-	name = cgs.clientinfo[cg.snap->ps.clientNum].name;
-	CG_DrawHudString(hudnumber, qtrue, va("following %s", name));
+
+	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		name = cgs.clientinfo[cg.snap->ps.clientNum].name;
+		CG_DrawHudString(hudnumber, qtrue, va("following %s", name));
+	} else {
+		CG_DrawHudString(hudnumber, qtrue, "SPECTATOR");
+	}
 }
 
 static void Hud_NetgraphPing(int hudnumber)
@@ -1328,6 +1334,19 @@ static void Hud_Holdable(int hudnumber)
 	CG_DrawHudIcon(hudnumber, cg_items[index].icon);
 }
 
+static void Hud_Help(int hudnumber)
+{
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
+		CG_DrawHudString(hudnumber, qtrue, "Press ESCAPE and use the JOIN menu to play");
+		return;
+	}
+
+	if (cgs.startWhenReady && cg.warmup < 0) {
+		CG_DrawHudString(hudnumber, qtrue, "Press F3 to get ready");
+		return;
+	}
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1372,6 +1391,7 @@ void CG_DrawHud()
 		{ HUD_REWARDCOUNT, Hud_RewardCount, qtrue },
 		{ HUD_VOTEMSG, Hud_Vote, qtrue },
 		{ HUD_HOLDABLE, Hud_Holdable, qtrue },
+		{ HUD_HELP, Hud_Help, qtrue },
 		{ HUD_MAX, NULL, qfalse }
 	};
 

@@ -637,17 +637,6 @@ static void CG_DrawCrosshair3D(void)
 	trap_R_AddRefEntityToScene(&ent);
 }
 
-static void CG_DrawSpectator(void)
-{
-	CG_DrawBigString(320 - 9 * 8, 440, "SPECTATOR", 1.0F);
-	if (cgs.gametype == GT_TOURNAMENT) {
-		CG_DrawBigString(320 - 15 * 8, 460, "waiting to play", 1.0F);
-	}
-	else if (cgs.gametype >= GT_TEAM) {
-		CG_DrawBigString(320 - 39 * 8, 460, "press ESC and use the JOIN menu to play", 1.0F);
-	}
-}
-
 static void CG_DrawTeamVote(void)
 {
 	char	*s;
@@ -709,8 +698,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	}
 
 	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
-		CG_DrawSpectator();
-
 		if (stereoFrame == STEREO_CENTER)
 			CG_DrawCrosshair();
 	} else {
