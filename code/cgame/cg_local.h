@@ -481,6 +481,7 @@ typedef struct {
 
 	// scoreboard
 	qboolean	showScores;
+	qboolean	showInfo;
 	qboolean	showAcc;
 	qboolean	scoreBoardShowing;
 	char		killerName[MAX_NAME_LENGTH];

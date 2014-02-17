@@ -73,11 +73,22 @@ static void CG_Viewpos_f(void)
 static void CG_ScoresDown_f(void)
 {
 	cg.showScores = qtrue;
+	cg.showInfo = qfalse;
 }
 
 static void CG_ScoresUp_f(void)
 {
 	cg.showScores = qfalse;
+}
+
+static void CG_InfoDown_f(void)
+{
+	cg.showInfo = qtrue;
+}
+
+static void CG_InfoUp_f(void)
+{
+	cg.showInfo = qfalse;
 }
 
 static void CG_AccDown_f(void)
@@ -161,6 +172,8 @@ static consoleCommand_t	commands[] = {
 	{ "viewpos", CG_Viewpos_f },
 	{ "+scores", CG_ScoresDown_f },
 	{ "-scores", CG_ScoresUp_f },
+	{ "+info", CG_InfoDown_f },
+	{ "-info", CG_InfoUp_f },
 	{ "+acc", CG_AccDown_f },
 	{ "-acc", CG_AccUp_f },
 	{ "+zoom", CG_ZoomDown_f },

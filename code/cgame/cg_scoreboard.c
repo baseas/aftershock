@@ -337,6 +337,10 @@ qboolean CG_DrawScoreboard(void)
 		return qfalse;
 	}
 
+	if (cg.showInfo) {
+		return qfalse;
+	}
+
 	// don't draw scoreboard during death while warmup up
 	if (!cg.showScores && (cg.warmup || !cg_drawScoreboard.integer)) {
 		return qfalse;

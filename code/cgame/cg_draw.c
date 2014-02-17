@@ -543,7 +543,7 @@ static void CG_DrawCrosshair(void)
 	int			ca;
 	vec4_t		color;
 
-	if (!cg_drawCrosshair.integer) {
+	if (!cg_drawCrosshair.integer || cg.showInfo) {
 		return;
 	}
 
@@ -671,7 +671,10 @@ static void CG_DrawIntermission(void)
 
 static void CG_DrawAcc(void)
 {
-	int	x, y;
+	int			i;
+	int			x, y, yy;
+	char		*str;
+	const int	iconsize = 15;
 
 	if (!cg.showAcc) {
 		return;
@@ -682,7 +685,17 @@ static void CG_DrawAcc(void)
 
 	CG_DrawPic(x, y, 175, 250, cgs.media.accBackground);
 
-	// TODO
+	x += 15;
+
+	for (i = WP_MACHINEGUN; i < WP_NUM_WEAPONS; ++i) {
+		if (!cg_weapons[i].registered) {
+			continue;
+		}
+		yy = y + (i - 1) * (iconsize + 5);
+		CG_DrawAdjustPic(x, yy, iconsize, iconsize, cg_weapons[i].weaponIcon);
+		str = va("-");
+		CG_DrawSmallString(x + iconsize, yy, str, 1.0f);
+	}
 }
 
 static void CG_Draw2D(stereoFrame_t stereoFrame)
@@ -716,11 +729,13 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 	CG_DrawLowerRight();
 	CG_DrawLowerLeft();
 
+	CG_DrawInformation();
+
 	CG_DrawAcc();
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();
-	if (!cg.scoreBoardShowing) {
+	if (!cg.scoreBoardShowing && !cg.showInfo) {
 		CG_DrawCenterString();
 	}
 }

@@ -1391,7 +1391,7 @@ void CG_DrawHud()
 		{ HUD_MAX, NULL, qfalse }
 	};
 
-	if (cg.scoreBoardShowing || !cg_drawHud.integer) {
+	if (cg.showInfo || cg.scoreBoardShowing || !cg_drawHud.integer) {
 		return;
 	}
 

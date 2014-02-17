@@ -70,21 +70,27 @@ void CG_DrawInformation(void)
 	qhandle_t	background;
 	char		buf[1024];
 
+	if (!cg.showInfo && !cg.showInfoScreen) {
+		return;
+	}
+
 	info = CG_ConfigString(CS_SERVERINFO);
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
 
-	background = trap_R_RegisterShaderNoMip("menuback_aftershock");
-	CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, background);
+	if (!cg.showInfo) {
+		background = trap_R_RegisterShaderNoMip("menuback_aftershock");
+		CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, background);
 
-	// draw the icons of things as they are loaded
-	CG_DrawLoadingIcons();
+		// draw the icons of things as they are loaded
+		CG_DrawLoadingIcons();
+	}
 
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
 	if (cg.showInfoScreen) {
 		UI_DrawProportionalString(320, 128-32, "Loading... ",
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
-	} else {
+	} else if (!cg.showInfo) {
 		UI_DrawProportionalString(320, 128-32, "Awaiting snapshot...",
 			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
 	}
