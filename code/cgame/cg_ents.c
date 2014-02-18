@@ -149,6 +149,9 @@ static void CG_Item(centity_t *cent)
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 255;
 		ent.shaderRGBA[3] = 255;
+		if (cg_wallhack.integer) {
+			ent.renderfx |= RF_DEPTHHACK;
+		}
 		trap_R_AddRefEntityToScene(&ent);
 		return;
 	}
@@ -232,6 +235,10 @@ static void CG_Item(centity_t *cent)
 		VectorScale(ent.axis[1], 1.5, ent.axis[1]);
 		VectorScale(ent.axis[2], 1.5, ent.axis[2]);
 		ent.nonNormalizedAxes = qtrue;
+	}
+
+	if (cg_wallhack.integer) {
+		ent.renderfx |= RF_DEPTHHACK;
 	}
 
 	// add to refresh list

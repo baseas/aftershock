@@ -1324,6 +1324,10 @@ void CG_AddRefEntityWithPowerups(refEntity_t *ent, entityState_t *state, int tea
 		return;
 	}
 
+	if (cg_wallhack.integer && state->clientNum != cg.snap->ps.clientNum) {
+		ent->renderfx = RF_DEPTHHACK;
+	}
+
 	trap_R_AddRefEntityToScene(ent);
 
 	if (state->powerups & (1 << PW_QUAD))

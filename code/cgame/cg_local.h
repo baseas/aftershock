@@ -1215,6 +1215,7 @@ extern vmCvar_t		cg_killbeep;
 extern vmCvar_t		cg_drawSpawnpoints;
 extern vmCvar_t		cg_drawBBox;
 extern vmCvar_t		cg_itemFX;
+extern vmCvar_t		cg_wallhack;
 
 //
 // cg_main.c
