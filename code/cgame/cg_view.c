@@ -374,16 +374,14 @@ static int CG_CalcFov(void)
 	int		contents;
 	float	fov_x, fov_y;
 	int		inwater;
+	float	aspect;
 
 	if (cg.predictedPlayerState.pm_type == PM_INTERMISSION) {
 		fov_x = 90;
 	} else {
-		float	zoomFov, normalFov;
 		float	f;
 
-		normalFov = cg_fov.value;
-		fov_x = normalFov;
-		zoomFov = cg_zoomFov.value;
+		fov_x = cg_fov.value;
 
 		if (cg_zoomScaling.value > 0.0f) {
 			f = (cg.time - cg.zoomTime) / (cg_zoomScaling.value * ZOOM_TIME);
@@ -393,21 +391,26 @@ static int CG_CalcFov(void)
 		}
 
 		if (cg.zoomed) {
-			fov_x = (f < 1.0f ? fov_x + f * (zoomFov - fov_x) : zoomFov);
+			fov_x = (f < 1.0f ? fov_x + f * (cg_zoomFov.value - fov_x) : cg_zoomFov.value);
 		} else if (f < 1.0f) {
-			fov_x = zoomFov + f * (fov_x - zoomFov);
+			fov_x = cg_zoomFov.value + f * (fov_x - cg_zoomFov.value);
 		}
+	}
 
-		if (cg_zoomSensitivity.value != 0.0f && fov_x != normalFov) {
-			float	aspect, fovarg1, fovarg2;
-			aspect = (float) cg.refdef.height / (float) cg.refdef.width;
-			fovarg1 = fov_x / 720.0f * M_PI;
-			fovarg2 = normalFov / 720.0f * M_PI;
-			cg.zoomSensitivity = atan(aspect * tan(fovarg1)) / atan(aspect * tan(fovarg2));
-			cg.zoomSensitivity *= cg_zoomSensitivity.value;
-		} else {
-			cg.zoomSensitivity = 1.0f;
-		}
+	aspect = (float) cg.refdef.height / (float) cg.refdef.width;
+
+	// Based on LordHavoc's code for Darkplaces
+	// http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
+	fov_x = atan(tan(fov_x * M_PI / 360.0f) * 0.75f / aspect) * 360.0f / M_PI;
+
+	if (cg_zoomSensitivity.value != 0.0f && fov_x != cg_fov.value) {
+		float	fovarg1, fovarg2;
+		fovarg1 = fov_x / 720.0f * M_PI;
+		fovarg2 = cg_fov.value / 720.0f * M_PI;
+		cg.zoomSensitivity = atan(aspect * tan(fovarg1)) / atan(aspect * tan(fovarg2));
+		cg.zoomSensitivity *= cg_zoomSensitivity.value;
+	} else {
+		cg.zoomSensitivity = 1.0f;
 	}
 
 	x = cg.refdef.width / tan(fov_x / 360.0f * M_PI);
