@@ -76,7 +76,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define GIANT_WIDTH			32
 #define GIANT_HEIGHT		48
 
-#define NUM_CROSSHAIRS		10
+#define NUM_CROSSHAIRS		19
 
 #define MAX_SPAWNPOINTS		32
 
@@ -648,7 +648,6 @@ typedef struct {
 	qhandle_t	balloonShaderVisible;
 	qhandle_t	connectionShader;
 
-	qhandle_t	selectShader;
 	qhandle_t	viewBloodShader;
 	qhandle_t	tracerShader;
 	qhandle_t	crosshairShader[NUM_CROSSHAIRS];
@@ -679,7 +678,6 @@ typedef struct {
 
 	// powerup shaders
 	qhandle_t	quadShader;
-	qhandle_t	redQuadShader;
 	qhandle_t	quadWeaponShader;
 	qhandle_t	regenShader;
 	qhandle_t	battleSuitShader;
@@ -707,12 +705,6 @@ typedef struct {
 	// special effects models
 	qhandle_t	teleportEffectModel;
 	qhandle_t	teleportEffectShader;
-
-	// scoreboard headers
-	qhandle_t	scoreboardName;
-	qhandle_t	scoreboardPing;
-	qhandle_t	scoreboardScore;
-	qhandle_t	scoreboardTime;
 
 	// medals shown during gameplay
 	qhandle_t	medalImpressive;

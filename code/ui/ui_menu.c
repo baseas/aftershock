@@ -113,12 +113,12 @@ static void Main_MenuDraw(void)
 		Menu_Draw(&s_main.menu);
 	}
 
-	UI_DrawNamedPic(32, 26, 220, 30, "banner_aftershock");
-	UI_DrawNamedPic(291, 127, 298, 253, "logo_aftershock");
+	UI_DrawNamedPic(32, 26, 220, 30, "banner");
+	UI_DrawNamedPic(291, 127, 298, 253, "logo");
 	for (i = 0; i < 5; ++i) {
 		int	y;
 		y = MAIN_MENU_TOP_Y + (i + 0.5f) * MAIN_MENU_VERTICAL_SPACING - 13;
-		UI_DrawNamedPic(65, y, 10, 15, "white_arrow_small_aftershock");
+		UI_DrawNamedPic(65, y, 10, 15, "white_arrow_small");
 	}
 
 	UI_DrawString(320, 450, "aftershock-fps.com", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, color);

@@ -383,17 +383,17 @@ static void CG_RegisterGraphics(void)
 {
 	int			i;
 	static char	*sb_nums[11] = {
-		"gfx/2d/numbers/zero_32b",
-		"gfx/2d/numbers/one_32b",
-		"gfx/2d/numbers/two_32b",
-		"gfx/2d/numbers/three_32b",
-		"gfx/2d/numbers/four_32b",
-		"gfx/2d/numbers/five_32b",
-		"gfx/2d/numbers/six_32b",
-		"gfx/2d/numbers/seven_32b",
-		"gfx/2d/numbers/eight_32b",
-		"gfx/2d/numbers/nine_32b",
-		"gfx/2d/numbers/minus_32b",
+		"gfx/font/numbers/zero_32b",
+		"gfx/font/numbers/one_32b",
+		"gfx/font/numbers/two_32b",
+		"gfx/font/numbers/three_32b",
+		"gfx/font/numbers/four_32b",
+		"gfx/font/numbers/five_32b",
+		"gfx/font/numbers/six_32b",
+		"gfx/font/numbers/seven_32b",
+		"gfx/font/numbers/eight_32b",
+		"gfx/font/numbers/nine_32b",
+		"gfx/font/numbers/minus_32b",
 	};
 
 	// clear any references to old media
@@ -418,11 +418,6 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.deferShader = trap_R_RegisterShader("gfx/2d/defer.tga");
 
-	cgs.media.scoreboardName = trap_R_RegisterShaderNoMip("menu/tab/name.tga");
-	cgs.media.scoreboardPing = trap_R_RegisterShaderNoMip("menu/tab/ping.tga");
-	cgs.media.scoreboardScore = trap_R_RegisterShaderNoMip("menu/tab/score.tga");
-	cgs.media.scoreboardTime = trap_R_RegisterShaderNoMip("menu/tab/time.tga");
-
 	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShader("smokePuffRagePro");
 	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1Color");
@@ -433,7 +428,6 @@ static void CG_RegisterGraphics(void)
 	cgs.media.waterBubbleShader = trap_R_RegisterShader("waterBubble");
 
 	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
-	cgs.media.selectShader = trap_R_RegisterShader("gfx/2d/select");
 
 	if (cg_flatGrenades.integer) {
 		cgs.media.grenadeShader = trap_R_RegisterShader("models/players/flat");
@@ -442,7 +436,7 @@ static void CG_RegisterGraphics(void)
 	}
 
 	for (i = 0; i < NUM_CROSSHAIRS; i++) {
-		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/2d/crosshair%c", 'a'+i));
+		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/crosshair/crosshair%i", i));
 	}
 
 	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
@@ -473,7 +467,6 @@ static void CG_RegisterGraphics(void)
 	if (cgs.gametype >= GT_TEAM || cg_buildScript.integer) {
 		cgs.media.friendShader = trap_R_RegisterShader("sprites/foe");
 		cgs.media.friendShaderVisible = trap_R_RegisterShader("sprites/foe2");
-		cgs.media.redQuadShader = trap_R_RegisterShader("powerups/blueflag");
 	}
 
 	cgs.media.armorRed = trap_R_RegisterShaderNoMip("icons/armorRed");
@@ -544,7 +537,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
 	cgs.media.bloodMarkShader = trap_R_RegisterShader("bloodMark");
 
-	cgs.media.spawnpoint = trap_R_RegisterModel("models/mapobjects/spawnpoint.md3");
+	cgs.media.spawnpoint = trap_R_RegisterModel("models/misc/spawnpoint.md3");
 	cgs.media.spawnpointShader = trap_R_RegisterShader("spawnpoint");
 
 	// register the inline models
@@ -884,15 +877,15 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	cgs.serverCommandSequence = serverCommandSequence;
 
 	// load a few needed things before we do any screen updates
-	cgs.media.charsetShader = trap_R_RegisterShaderNoMip("gfx/2d/bigchars");
-	cgs.media.charsetShader32 = trap_R_RegisterShaderNoMip("gfx/2d/bigchars32");
-	cgs.media.charsetShader64 = trap_R_RegisterShaderNoMip("gfx/2d/bigchars64");
-	cgs.media.charsetShader128 = trap_R_RegisterShaderNoMip("gfx/2d/bigchars128");
+	cgs.media.charsetShader = trap_R_RegisterShaderNoMip("gfx/font/bigchars");
+	cgs.media.charsetShader32 = trap_R_RegisterShaderNoMip("gfx/font/bigchars32");
+	cgs.media.charsetShader64 = trap_R_RegisterShaderNoMip("gfx/font/bigchars64");
+	cgs.media.charsetShader128 = trap_R_RegisterShaderNoMip("gfx/font/bigchars128");
 
 	cgs.media.whiteShader		= trap_R_RegisterShader("white");
-	cgs.media.charsetProp		= trap_R_RegisterShaderNoMip("menu/art/font1_prop.tga");
-	cgs.media.charsetPropGlow	= trap_R_RegisterShaderNoMip("menu/art/font1_prop_glo.tga");
-	cgs.media.charsetPropB		= trap_R_RegisterShaderNoMip("menu/art/font2_prop.tga");
+	cgs.media.charsetProp		= trap_R_RegisterShaderNoMip("gfx/font/font1_prop.tga");
+	cgs.media.charsetPropGlow	= trap_R_RegisterShaderNoMip("gfx/font/font1_prop_glo.tga");
+	cgs.media.charsetPropB		= trap_R_RegisterShaderNoMip("gfx/font/font2_prop.tga");
 
 	CG_RegisterCvars();
 

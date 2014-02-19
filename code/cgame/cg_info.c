@@ -78,7 +78,7 @@ void CG_DrawInformation(void)
 	sysInfo = CG_ConfigString(CS_SYSTEMINFO);
 
 	if (!cg.showInfo) {
-		background = trap_R_RegisterShaderNoMip("menuback_aftershock");
+		background = trap_R_RegisterShaderNoMip("menuback");
 		CG_DrawPic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, background);
 
 		// draw the icons of things as they are loaded

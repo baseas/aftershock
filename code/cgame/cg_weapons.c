@@ -330,7 +330,7 @@ static void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->flashSound[1] = trap_S_RegisterSound("sound/weapons/machinegun/machgf2b.wav", qfalse);
 		weaponInfo->flashSound[2] = trap_S_RegisterSound("sound/weapons/machinegun/machgf3b.wav", qfalse);
 		weaponInfo->flashSound[3] = trap_S_RegisterSound("sound/weapons/machinegun/machgf4b.wav", qfalse);
-		cgs.media.bulletExplosionShader = trap_R_RegisterShader("aftershock_bulletExplosion_nomip");
+		cgs.media.bulletExplosionShader = trap_R_RegisterShader("bulletExplosion_nomip");
 		break;
 
 	case WP_SHOTGUN:
@@ -349,7 +349,7 @@ static void CG_RegisterWeapon(int weaponNum)
 		MAKERGB(weaponInfo->flashDlightColor, 1, 0.75f, 0);
 
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/rocket/rocklf1a.wav", qfalse);
-		cgs.media.rocketExplosionShader = trap_R_RegisterShader("aftershock_rocketExplosion_nomip");
+		cgs.media.rocketExplosionShader = trap_R_RegisterShader("rocketExplosion_nomip");
 		break;
 
 	case WP_GRENADE_LAUNCHER:
@@ -357,14 +357,14 @@ static void CG_RegisterWeapon(int weaponNum)
 		weaponInfo->missileTrailFunc = CG_ProjectileTrail;
 		MAKERGB(weaponInfo->flashDlightColor, 1, 0.70f, 0);
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/grenade/grenlf1a.wav", qfalse);
-		cgs.media.grenadeExplosionShader = trap_R_RegisterShader("aftershock_grenadeExplosion2_nomip");
+		cgs.media.grenadeExplosionShader = trap_R_RegisterShader("grenadeExplosion2_nomip");
 		break;
 
 	case WP_PLASMAGUN:
 		weaponInfo->missileSound = trap_S_RegisterSound("sound/weapons/plasma/lasfly.wav", qfalse);
 		MAKERGB(weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f);
 		weaponInfo->flashSound[0] = trap_S_RegisterSound("sound/weapons/plasma/hyprbf1a.wav", qfalse);
-		cgs.media.plasmaExplosionShader = trap_R_RegisterShader("aftershock_plasmaExplosion_nomip");
+		cgs.media.plasmaExplosionShader = trap_R_RegisterShader("plasmaExplosion_nomip");
 		break;
 
 	case WP_RAILGUN:

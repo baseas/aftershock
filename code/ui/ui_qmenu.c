@@ -1701,20 +1701,20 @@ Menu_Cache
 */
 void Menu_Cache( void )
 {
-	uis.charsetShader = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars" );
-	uis.charsetShader32 = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars32" );
-	uis.charsetShader64 = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars64" );
-	uis.charsetShader128 = trap_R_RegisterShaderNoMip( "gfx/2d/bigchars128" );
-	uis.charsetProp = trap_R_RegisterShaderNoMip( "menu/art/font1_prop.tga" );
-	uis.charsetPropGlow = trap_R_RegisterShaderNoMip( "menu/art/font1_prop_glo.tga" );
-	uis.charsetPropB = trap_R_RegisterShaderNoMip( "menu/art/font2_prop.tga" );
-	uis.cursor = trap_R_RegisterShaderNoMip( "menu/art/3_cursor2" );
-	uis.rb_on = trap_R_RegisterShaderNoMip( "menu/art/switch_on" );
-	uis.rb_off = trap_R_RegisterShaderNoMip( "menu/art/switch_off" );
+	uis.charsetShader = trap_R_RegisterShaderNoMip( "gfx/font/bigchars" );
+	uis.charsetShader32 = trap_R_RegisterShaderNoMip( "gfx/font/bigchars32" );
+	uis.charsetShader64 = trap_R_RegisterShaderNoMip( "gfx/font/bigchars64" );
+	uis.charsetShader128 = trap_R_RegisterShaderNoMip( "gfx/font/bigchars128" );
+	uis.charsetProp = trap_R_RegisterShaderNoMip( "gfx/font/font1_prop.tga" );
+	uis.charsetPropGlow = trap_R_RegisterShaderNoMip( "gfx/font/font1_prop_glo.tga" );
+	uis.charsetPropB = trap_R_RegisterShaderNoMip( "gfx/font/font2_prop.tga" );
+	uis.cursor = trap_R_RegisterShaderNoMip( "gfx/menu/3_cursor2" );
+	uis.rb_on = trap_R_RegisterShaderNoMip( "gfx/menu/switch_on" );
+	uis.rb_off = trap_R_RegisterShaderNoMip( "gfx/menu/switch_off" );
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip( "white" );
-	uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback_aftershock" );
-	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback_aftershock" );
+	uis.menuBackShader	= trap_R_RegisterShaderNoMip( "menuback" );
+	uis.menuBackNoLogoShader = trap_R_RegisterShaderNoMip( "menuback" );
 
 	menu_in_sound	= trap_S_RegisterSound( "sound/misc/menu1.wav", qfalse );
 	menu_move_sound	= trap_S_RegisterSound( "sound/misc/menu2.wav", qfalse );
