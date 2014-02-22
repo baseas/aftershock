@@ -488,16 +488,16 @@ static void CG_PrintTeamChange(clientInfo_t *cl)
 
 	switch (cl->team) {
 	case TEAM_FREE:
-		str = va("%s joined the battle", cl->name);
+		str = va("%s" S_COLOR_WHITE " joined the battle", cl->name);
 		break;
 	case TEAM_RED:
-		str = va("%s joined the red team", cl->name);
+		str = va("%s" S_COLOR_WHITE " joined the red team", cl->name);
 		break;
 	case TEAM_BLUE:
-		str = va("%s joined the blue team", cl->name);
+		str = va("%s" S_COLOR_WHITE " joined the blue team", cl->name);
 		break;
 	case TEAM_SPECTATOR:
-		str = va("%s joined the spectators", cl->name);
+		str = va("%s" S_COLOR_WHITE " joined the spectators", cl->name);
 		break;
 	default:
 		return;
