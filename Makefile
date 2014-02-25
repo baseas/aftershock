@@ -2194,6 +2194,7 @@ Q3GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_utils.o \
   $(B)/$(BASEGAME)/game/g_weapon.o \
   $(B)/$(BASEGAME)/game/g_unlagged.o \
+  $(B)/$(BASEGAME)/game/g_stats.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o

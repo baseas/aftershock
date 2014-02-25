@@ -332,7 +332,8 @@ struct gclient_s {
 #define MAX_SPAWN_VARS_CHARS	4096
 
 typedef struct {
-	struct gclient_s	*clients;		// [maxclients]
+	gclient_t	clients[MAX_CLIENTS];
+	gclient_t	disconnectedClients[MAX_CLIENTS];
 
 	struct gentity_s	*gentities;
 	int			gentitySize;
@@ -364,6 +365,7 @@ typedef struct {
 	qboolean	restarted;				// waiting for a map_restart to fire
 
 	int			numConnectedClients;
+	int			numDisconnectedClients;
 	int			numNonSpectatorClients;	// includes connecting clients
 	int			numPlayingClients;		// connected, non-spectators
 	int			sortedClients[MAX_CLIENTS];		// sorted by score
@@ -650,6 +652,11 @@ void		Svcmd_AddBot_f(void);
 void		Svcmd_BotList_f(void);
 void		BotInterbreedEndMatch(void);
 
+//
+// g_stats.c
+//
+void	G_StatsWrite(void);
+
 // ai_main.c
 #define MAX_FILEPATH	144
 
@@ -726,6 +733,7 @@ extern vmCvar_t	g_friendsThroughWalls;
 extern vmCvar_t	g_teamLock;
 extern vmCvar_t	g_redLocked;
 extern vmCvar_t	g_blueLocked;
+extern vmCvar_t	g_writeStats;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

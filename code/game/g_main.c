@@ -38,8 +38,6 @@ typedef struct {
 	qboolean 	teamShader;			// track and if changed, update shader state
 } cvarTable_t;
 
-static	gclient_t		g_clients[MAX_CLIENTS];
-
 level_locals_t	level;
 gentity_t		g_entities[MAX_GENTITIES];
 
@@ -96,6 +94,7 @@ vmCvar_t	g_friendsThroughWalls;
 vmCvar_t	g_teamLock;
 vmCvar_t	g_redLocked;
 vmCvar_t	g_blueLocked;
+vmCvar_t	g_writeStats;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -167,7 +166,8 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_friendsThroughWalls, "g_friendsThroughWalls", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_teamLock, "g_teamLock", "0", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_redLocked, "g_redLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
-	{ &g_blueLocked, "g_blueLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse }
+	{ &g_blueLocked, "g_blueLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
+	{ &g_writeStats, "g_writeStats", "1", CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -391,8 +391,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	// initialize all clients for this game
 	level.maxclients = g_maxclients.integer;
-	memset(g_clients, 0, MAX_CLIENTS * sizeof(g_clients[0]));
-	level.clients = g_clients;
+	memset(level.clients, 0, sizeof level.clients);
+	memset(level.disconnectedClients, 0, sizeof level.clients);
 
 	// set client fields on player ents
 	for (i = 0; i<level.maxclients; i++) {
@@ -844,6 +844,8 @@ void BeginIntermission(void)
 	if (g_gametype.integer == GT_TOURNAMENT) {
 		AdjustTournamentScores();
 	}
+
+	G_StatsWrite();
 
 	level.intermissiontime = level.time;
 	// move all clients to the intermission point

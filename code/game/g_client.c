@@ -1088,6 +1088,15 @@ void ClientDisconnect(int clientNum)
 		return;
 	}
 
+	if (ent->client->pers.connected == CON_CONNECTED && !level.warmupTime) {
+		gclient_t	*disco;
+		disco = &level.disconnectedClients[level.numDisconnectedClients];
+		*disco = *ent->client;
+		disco->pers.enterTime = level.time - disco->pers.enterTime;
+		level.numDisconnectedClients++;
+	}
+
+
 	// stop any following clients
 	for (i = 0; i < level.maxclients; i++) {
 		if (level.clients[i].sess.sessionTeam == TEAM_SPECTATOR
