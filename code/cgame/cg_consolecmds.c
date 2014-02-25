@@ -45,22 +45,6 @@ static void CG_TargetCommand_f(void)
 }
 
 /**
-Keybinding command
-*/
-static void CG_SizeUp_f(void)
-{
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer+10)));
-}
-
-/**
-Keybinding command
-*/
-static void CG_SizeDown_f(void)
-{
-	trap_Cvar_Set("cg_viewsize", va("%i",(int)(cg_viewsize.integer-10)));
-}
-
-/**
 Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
@@ -180,8 +164,6 @@ static consoleCommand_t	commands[] = {
 	{ "-zoom", CG_ZoomUp_f },
 	{ "+chat", CG_ChatUp_f },
 	{ "-chat", CG_ChatDown_f },
-	{ "sizeup", CG_SizeUp_f },
-	{ "sizedown", CG_SizeDown_f },
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
 	{ "weapon", CG_Weapon_f },
