@@ -1498,7 +1498,6 @@ void	trap_Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defau
 void	trap_Cvar_Update(vmCvar_t *vmCvar);
 void	trap_Cvar_Set(const char *var_name, const char *value);
 void	trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
-void	trap_Cvar_CheckRange(const char *var_name, float min, float max, qboolean integral);
 
 // ServerCommand and ConsoleCommand parameter access
 int			trap_Argc(void);

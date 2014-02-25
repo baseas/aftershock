@@ -80,11 +80,6 @@ void trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufs
 	syscall(CG_CVAR_VARIABLESTRINGBUFFER, var_name, buffer, bufsize);
 }
 
-void trap_Cvar_CheckRange(const char *var_name, float min, float max, qboolean integral)
-{
-	syscall(CG_CVAR_CHECK_RANGE, var_name, PASSFLOAT(min), PASSFLOAT(max), integral);
-}
-
 int trap_Argc(void)
 {
 	return syscall(CG_ARGC);
