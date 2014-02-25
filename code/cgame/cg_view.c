@@ -693,6 +693,11 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	cg.time = serverTime;
 	cg.demoPlayback = demoPlayback;
 
+	// get the rendering configuration from the client system
+	trap_GetGlconfig(&cgs.glconfig);
+	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
+	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
+
 	// update cvars
 	CG_UpdateCvars();
 

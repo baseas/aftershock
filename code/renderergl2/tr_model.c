@@ -1128,14 +1128,17 @@ static qboolean R_LoadMDR( model_t *mod, void *buffer, int filesize, const char 
 
 //=============================================================================
 
+void RE_GetGlconfig(glconfig_t *glconfigOut)
+{
+	*glconfigOut = glConfig;
+}
+
 /*
 ** RE_BeginRegistration
 */
-void RE_BeginRegistration( glconfig_t *glconfigOut ) {
+void RE_BeginRegistration(void) {
 
 	R_Init();
-
-	*glconfigOut = glConfig;
 
 	R_IssuePendingRenderCommands();
 

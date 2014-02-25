@@ -1008,22 +1008,6 @@ void UI_Init( void ) {
 
 	UI_InitGameinfo();
 
-	// cache redundant calulations
-	trap_GetGlconfig( &uis.glconfig );
-
-	// for 640x480 virtualized screen
-	uis.xscale = uis.glconfig.vidWidth * (1.0/640.0);
-	uis.yscale = uis.glconfig.vidHeight * (1.0/480.0);
-	if ( uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640 ) {
-		// wide screen
-		uis.bias = 0.5 * ( uis.glconfig.vidWidth - ( uis.glconfig.vidHeight * (640.0/480.0) ) );
-		uis.xscale = uis.yscale;
-	}
-	else {
-		// no wide screen
-		uis.bias = 0;
-	}
-
 	// initialize the menu system
 	Menu_Cache();
 
@@ -1133,6 +1117,21 @@ void UI_Refresh( int realtime )
 {
 	uis.frametime = realtime - uis.realtime;
 	uis.realtime  = realtime;
+
+	trap_GetGlconfig( &uis.glconfig );
+
+	// for 640x480 virtualized screen
+	uis.xscale = uis.glconfig.vidWidth * (1.0/640.0);
+	uis.yscale = uis.glconfig.vidHeight * (1.0/480.0);
+	if ( uis.glconfig.vidWidth * 480 > uis.glconfig.vidHeight * 640 ) {
+		// wide screen
+		uis.bias = 0.5 * ( uis.glconfig.vidWidth - ( uis.glconfig.vidHeight * (640.0/480.0) ) );
+		uis.xscale = uis.yscale;
+	}
+	else {
+		// no wide screen
+		uis.bias = 0;
+	}
 
 	if ( !( trap_Key_GetCatcher() & KEYCATCH_UI ) ) {
 		return;

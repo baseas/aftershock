@@ -677,6 +677,35 @@ static void GLimp_InitExtensions( void )
 
 #define R_MODE_FALLBACK 3 // 640 * 480
 
+static int GLimp_LoadGL(void)
+{
+	ri.Sys_GLimpInit( );
+
+	// Create the window and set up the context
+	if (GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer)) {
+		return 0;
+	}
+
+	// Try again, this time in a platform specific "safe mode"
+	ri.Sys_GLimpSafeInit( );
+
+	if (GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse)) {
+		return 0;
+	}
+
+	// Finally, try the default screen resolution
+	if (r_mode->integer != R_MODE_FALLBACK) {
+		ri.Printf( PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d\n",
+			r_mode->integer, R_MODE_FALLBACK );
+
+		if (GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, qfalse, qfalse)) {
+			return 0;
+		}
+	}
+
+	return 1;
+}
+
 /*
 ===============
 GLimp_Init
@@ -702,32 +731,12 @@ void GLimp_Init( void )
 
 	ri.Sys_SetEnv( "SDL_VIDEO_CENTERED", r_centerWindow->integer ? "1" : "" );
 
-	ri.Sys_GLimpInit( );
-
-	// Create the window and set up the context
-	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, r_noborder->integer))
-		goto success;
-
-	// Try again, this time in a platform specific "safe mode"
-	ri.Sys_GLimpSafeInit( );
-
-	if(GLimp_StartDriverAndSetMode(r_mode->integer, r_fullscreen->integer, qfalse))
-		goto success;
-
-	// Finally, try the default screen resolution
-	if( r_mode->integer != R_MODE_FALLBACK )
-	{
-		ri.Printf( PRINT_ALL, "Setting r_mode %d failed, falling back on r_mode %d\n",
-				r_mode->integer, R_MODE_FALLBACK );
-
-		if(GLimp_StartDriverAndSetMode(R_MODE_FALLBACK, qfalse, qfalse))
-			goto success;
+	if (GLimp_LoadGL()) {
+		// Nothing worked, give up
+		ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
+		return;
 	}
 
-	// Nothing worked, give up
-	ri.Error( ERR_FATAL, "GLimp_Init() - could not load OpenGL subsystem" );
-
-success:
 	// This values force the UI to disable driver selection
 	glConfig.driverType = GLDRV_ICD;
 	glConfig.hardwareType = GLHW_GENERIC;
@@ -814,5 +823,10 @@ void GLimp_EndFrame( void )
 		}
 
 		r_fullscreen->modified = qfalse;
+	}
+
+	if (r_mode->modified) {
+		GLimp_LoadGL();
+		r_mode->modified = qfalse;
 	}
 }

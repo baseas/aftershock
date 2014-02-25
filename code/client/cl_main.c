@@ -2701,6 +2701,8 @@ void CL_Frame ( int msec, int realMsec ) {
 		return;
 	}
 
+	re.GetGlconfig(&cls.glconfig);
+
 #ifdef USE_CURL
 	if(clc.downloadCURLM) {
 		CL_cURL_PerformDownload();
@@ -2889,7 +2891,8 @@ CL_InitRenderer
 */
 void CL_InitRenderer( void ) {
 	// this sets up the renderer and calls R_Init
-	re.BeginRegistration( &cls.glconfig );
+	re.BeginRegistration();
+	re.GetGlconfig(&cls.glconfig);
 
 	// load character sets
 	cls.charSetShader = re.RegisterShader( "gfx/2d/bigchars" );

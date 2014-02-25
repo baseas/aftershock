@@ -909,12 +909,6 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	cgs.redflag = cgs.blueflag = -1; // For compatibily, default to unset for
 	cgs.flagStatus = -1;
-	// old servers
-
-	// get the rendering configuration from the client system
-	trap_GetGlconfig(&cgs.glconfig);
-	cgs.screenXScale = cgs.glconfig.vidWidth / 640.0;
-	cgs.screenYScale = cgs.glconfig.vidHeight / 480.0;
 
 	// get the gamestate from the client system
 	trap_GetGameState(&cgs.gameState);
