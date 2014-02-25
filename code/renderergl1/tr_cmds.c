@@ -21,6 +21,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 #include "tr_local.h"
 
+/**
+Reset the gamma value to 1 when window is unfocused.
+*/
+static void R_GammaUnfocused(void)
+{
+	if (!com_unfocused->modified || !glConfig.deviceSupportsGamma) {
+		return;
+	}
+
+	if (com_unfocused->integer && r_gammaUnfocused->integer) {
+		return;
+	}
+
+	R_IssuePendingRenderCommands();
+
+	if (com_unfocused->integer) {
+		float	oldgamma;
+		oldgamma = r_gamma->value;
+		ri.Cvar_SetValue("r_gamma", 1.0f);
+		R_SetColorMappings();
+		ri.Cvar_SetValue("r_gamma", oldgamma);
+		r_gamma->modified = qfalse;
+	} else {
+		R_SetColorMappings();
+	}
+
+	com_unfocused->modified = qfalse;
+}
+
 /*
 =====================
 R_PerformanceCounters
@@ -339,9 +368,15 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( r_gamma->modified ) {
 		r_gamma->modified = qfalse;
 
+		if (r_ignorehwgamma->integer) {
+			ri.Printf(PRINT_ALL, "Need vid_restart when using r_ignorehwgamma 1.\n");
+		}
+
 		R_IssuePendingRenderCommands();
 		R_SetColorMappings();
 	}
+
+	R_GammaUnfocused();
 
 	// check for errors
 	if ( !r_ignoreGLErrors->integer )
@@ -501,3 +536,4 @@ void RE_TakeVideoFrame( int width, int height,
 	cmd->encodeBuffer = encodeBuffer;
 	cmd->motionJpeg = motionJpeg;
 }
+
