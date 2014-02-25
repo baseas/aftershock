@@ -380,10 +380,8 @@ UI_InitGameinfo
 ===============
 */
 void UI_InitGameinfo( void ) {
-
 	UI_InitMemory();
 	UI_LoadArenas();
 	UI_LoadBots();
-
-	uis.demoversion = qfalse;
 }
+
