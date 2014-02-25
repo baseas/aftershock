@@ -419,11 +419,8 @@ static void CG_PrintProperties(void)
 
 static void CG_HudSaveElement(hudElement_t *a, hudElement_t *b, fileHandle_t fp)
 {
-	int			i, k;
-	int			chardiff, padlen;
+	int			i;
 	char		prop1[64], prop2[64];
-	char		line[256];
-	const int	tabstop = 4;
 
 	for (i = 0; hudProperties[i].name; ++i) {
 		hudProperties[i].printFunc(a, prop1, sizeof prop1);
@@ -433,19 +430,7 @@ static void CG_HudSaveElement(hudElement_t *a, hudElement_t *b, fileHandle_t fp)
 			continue;
 		}
 
-		Com_sprintf(line, sizeof line, "%s:", hudProperties[i].name);
-
-		chardiff = 3 * tabstop - strlen(hudProperties[i].name) - 1;
-		padlen = chardiff / tabstop + (chardiff % tabstop ? 1 : 0);
-
-		for (k = 0; k < padlen; ++k) {
-			Q_strcat(line, sizeof line, "\t");
-		}
-
-		Q_strcat(line, sizeof line, prop1);
-		Q_strcat(line, sizeof line, "\n");
-
-		trap_FS_Write(line, strlen(line), fp);
+		Ini_WriteString(hudProperties[i].name, prop1, 12, fp);
 	}
 
 	trap_FS_Write("\n", 1, fp);
@@ -473,7 +458,6 @@ static void CG_HudSave(void)
 	fileHandle_t	fp;
 	hudElement_t	tmphud[HUD_MAX];
 	qboolean		changed;
-	char			line[64];
 
 	for (i = 0; i < HUD_MAX; ++i) {
 		CG_HudElementReset(&tmphud[i]);
@@ -488,8 +472,7 @@ static void CG_HudSave(void)
 			continue;
 		}
 		changed = qtrue;
-		Com_sprintf(line, sizeof line, "[%s]\n", hudTags[i]);
-		trap_FS_Write(line, strlen(line), fp);
+		Ini_WriteLabel(hudTags[i], (i == 0), fp);
 		CG_HudSaveElement(&cgs.hud[i], &tmphud[i], fp);
 	}
 

@@ -663,6 +663,9 @@ qboolean	BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item,
 
 void	BG_SnapVectorTowards(vec3_t v, vec3_t to);
 int		*BG_StatsData(playerStats_t *stats, int index);
+void	Ini_WriteLabel(const char *label, qboolean first, fileHandle_t fp);
+void	Ini_WriteString(const char *key, const char *value, int pad, fileHandle_t fp);
+void	Ini_WriteNumber(const char *key, float value, int pad, fileHandle_t fp);
 
 #define ARENAS_PER_TIER		4
 #define MAX_ARENAS			1024

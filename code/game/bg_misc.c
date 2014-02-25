@@ -1191,3 +1191,53 @@ int *BG_StatsData(playerStats_t *stats, int index)
 	return NULL;
 }
 
+void	trap_FS_Write(const void *buffer, int len, fileHandle_t f);
+
+void Ini_WriteLabel(const char *label, qboolean first, fileHandle_t fp)
+{
+	char	str[INI_LABEL_LENGTH + 3];
+	int		len;
+
+	if (!first) {
+		trap_FS_Write("\n", 1, fp);
+	}
+
+	len = Com_sprintf(str, sizeof str, "[%s]\n", label);
+	trap_FS_Write(str, len, fp);
+}
+
+void Ini_WriteString(const char *key, const char *value, int pad, fileHandle_t fp)
+{
+	char	str[INI_KEY_LENGTH + INI_VAL_LENGTH + 16];
+	int		i, spaces;
+
+	Q_strncpyz(str, key, sizeof str);
+	Q_strcat(str, sizeof str, ":");
+
+	spaces = pad - strlen(key) - 1;
+	for (i = 0; i < spaces; ++i) {
+		Q_strcat(str, sizeof str, " ");
+	}
+
+	Q_strcat(str, sizeof str, value);
+	Q_strcat(str, sizeof str, "\n");
+	trap_FS_Write(str, strlen(str), fp);
+}
+
+void Ini_WriteNumber(const char *key, float value, int pad, fileHandle_t fp)
+{
+	char	str[INI_KEY_LENGTH + 64];
+	int		i, spaces;
+
+	Q_strncpyz(str, key, sizeof str);
+	Q_strcat(str, sizeof str, ":");
+
+	spaces = pad - strlen(key) - 1;
+	for (i = 0; i < spaces; ++i) {
+		Q_strcat(str, sizeof str, " ");
+	}
+
+	Q_strcat(str, sizeof str, va("%g\n", value));
+	trap_FS_Write(str, strlen(str), fp);
+}
+
