@@ -207,6 +207,17 @@ static void G_Knockback(gentity_t *targ, vec3_t dir, int damage)
 	}
 }
 
+void G_RewardMessage(gentity_t *ent, reward_t reward)
+{
+	gentity_t *msg;
+
+	msg = G_TempEntity(ent->r.currentOrigin, EV_REWARD);
+	msg->r.svFlags |= SVF_SINGLECLIENT;
+	msg->r.singleClient = ent->s.number;
+	msg->s.otherEntityNum = ent->s.number;
+	msg->s.time = ++ent->client->pers.stats.rewards[reward];
+}
+
 void G_RadiusKnockback(vec3_t origin, gentity_t *attacker, int damage, float radius)
 {
 	int			dist;
@@ -404,7 +415,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 			if (meansOfDeath == MOD_GAUNTLET) {
 
 				// play humiliation on player
-				attacker->client->pers.stats.rewards[REWARD_HUMILIATION]++;
+				G_RewardMessage(attacker, REWARD_HUMILIATION);
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
@@ -419,7 +430,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 			// if this is close enough to the last kill, give a reward sound
 			if (level.time - attacker->client->lastKillTime < CARNAGE_REWARD_TIME) {
 				// play excellent on player
-				attacker->client->pers.stats.rewards[REWARD_EXCELLENT]++;
+				G_RewardMessage(attacker, REWARD_EXCELLENT);
 
 				// add the sprite over the player's head
 				attacker->client->ps.eFlags &= ~(EF_AWARD_IMPRESSIVE | EF_AWARD_EXCELLENT | EF_AWARD_GAUNTLET | EF_AWARD_ASSIST | EF_AWARD_DEFEND | EF_AWARD_CAP);
@@ -627,9 +638,9 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			&& VectorLength(distance) > 200)
 		{
 			if (mod == MOD_ROCKET) {
-				attacker->client->pers.stats.rewards[REWARD_AIRROCKET]++;
+				G_RewardMessage(attacker, REWARD_AIRROCKET);
 			} else if (mod == MOD_GRENADE) {
-				attacker->client->pers.stats.rewards[REWARD_AIRGRENADE]++;
+				G_RewardMessage(attacker, REWARD_AIRGRENADE);
 			}
 		}
 
@@ -637,7 +648,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			&& client->lastSentFlying == attacker->s.number
 			&& (client->lasthurt_mod == MOD_ROCKET || client->lasthurt_mod == MOD_ROCKET_SPLASH))
 		{
-			attacker->client->pers.stats.rewards[REWARD_RLRG]++;
+			G_RewardMessage(attacker, REWARD_RLRG);
 		}
 	}
 

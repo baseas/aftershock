@@ -26,6 +26,72 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define DEBUGNAME(x)	if (cg_debugEvents.integer) { CG_Printf(x"\n"); }
 
+static void CG_PushReward(reward_t reward, int rewardCount)
+{
+	sfxHandle_t sfx;
+	qhandle_t shader;
+
+	switch (reward) {
+	case REWARD_AIRGRENADE:
+		sfx = cgs.media.airgrenadeSound;
+		shader = cgs.media.medalAirgrenade;
+		break;
+	case REWARD_AIRROCKET:
+		sfx = cgs.media.airrocketSound;
+		shader = cgs.media.medalAirrocket;
+		break;
+	case REWARD_ITEMDENIED:
+		sfx = cgs.media.deniedSound;
+		shader = cgs.media.medalItemdenied;
+		break;
+	case REWARD_RLRG:
+		sfx = cgs.media.impressiveSound;
+		shader = cgs.media.medalRocketrail;
+		break;
+	case REWARD_FULLSG:
+		sfx = cgs.media.airrocketSound;
+		shader = cgs.media.medalFullSg;
+		break;
+	case REWARD_LGACCURACY:
+		sfx = cgs.media.lgAccuracySound;
+		shader = cgs.media.medalLgAccuracy;
+		break;
+	case REWARD_IMPRESSIVE:
+		sfx = cgs.media.impressiveSound;
+		shader = cgs.media.medalImpressive;
+		break;
+	case REWARD_EXCELLENT:
+		sfx = cgs.media.excellentSound;
+		shader = cgs.media.medalExcellent;
+		break;
+	case REWARD_DEFEND:
+		sfx = cgs.media.defendSound;
+		shader = cgs.media.medalDefend;
+		break;
+	case REWARD_HUMILIATION:
+		sfx = cgs.media.humiliationSound;
+		shader = cgs.media.medalGauntlet;
+		break;
+	case REWARD_ASSIST:
+		sfx = cgs.media.assistSound;
+		shader = cgs.media.medalAssist;
+		break;
+	case REWARD_CAPTURE:
+		sfx = cgs.media.captureAwardSound;
+		shader = cgs.media.medalCapture;
+		break;
+	default:
+		return;
+	}
+
+	if (cg.rewardStack < MAX_REWARDSTACK - 1) {
+		cg.rewardStack++;
+		cg.rewardSound[cg.rewardStack] = sfx;
+		cg.rewardShader[cg.rewardStack] = shader;
+		cg.rewardCount[cg.rewardStack] = rewardCount;
+	}
+}
+
 /**
 Also called by scoreboard drawing
 */
@@ -796,6 +862,11 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 	//
 	// other events
 	//
+	case EV_REWARD:
+		DEBUGNAME("EV_REWARD");
+		CG_PushReward(es->eventParm, es->time);
+		break;
+
 	case EV_PLAYER_TELEPORT_IN:
 		DEBUGNAME("EV_PLAYER_TELEPORT_IN");
 		trap_S_StartSound (NULL, es->number, CHAN_AUTO, cgs.media.teleInSound);

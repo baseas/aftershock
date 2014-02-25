@@ -29,16 +29,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 extern char *eventnames[];
 
-static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount)
-{
-	if (cg.rewardStack < MAX_REWARDSTACK - 1) {
-		cg.rewardStack++;
-		cg.rewardSound[cg.rewardStack] = sfx;
-		cg.rewardShader[cg.rewardStack] = shader;
-		cg.rewardCount[cg.rewardStack] = rewardCount;
-	}
-}
-
 /**
 If the ammo has gone low enough to generate the warning, play a sound
 */
@@ -276,7 +266,6 @@ void CG_CheckChangedPredictableEvents(playerState_t *ps)
 void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 {
 	int			highScore, reward;
-	int			i;
 
 	// don't play the sounds if the player just changed teams
 	if (ps->persistant[PERS_TEAM] != ops->persistant[PERS_TEAM]) {
@@ -306,62 +295,6 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 	// if we are going into the intermission, don't start any voices
 	if (cg.intermissionStarted) {
 		return;
-	}
-
-	// reward sounds
-	reward = qfalse;
-
-	for (i = 0; i < MAX_REWARDS; ++i) {
-#if 0
-		int	rewardCount;
-		rewardCount = cg_entities[ps->clientNum].currentState.privStats.rewards[i];
-		if (rewardCount == cg_entities[ps->clientNum].currentState.privStats.rewards[i]) {
-			continue;
-		}
-
-		switch (i) {
-		case REWARD_AIRGRENADE:
-			pushReward(cgs.media.airgrenadeSound, cgs.media.medalAirgrenade, rewardCount);
-			break;
-		case REWARD_AIRROCKET:
-			pushReward(cgs.media.airrocketSound, cgs.media.medalAirrocket, rewardCount);
-			break;
-		case REWARD_ITEMDENIED:
-			pushReward(cgs.media.deniedSound, cgs.media.medalItemdenied, rewardCount);
-			break;
-		case REWARD_RLRG:
-			pushReward(cgs.media.impressiveSound, cgs.media.medalRocketrail, rewardCount);
-			break;
-		case REWARD_FULLSG:
-			pushReward(cgs.media.airrocketSound, cgs.media.medalFullSg, rewardCount);
-			break;
-		case REWARD_LGACCURACY:
-			pushReward(cgs.media.lgAccuracySound, cgs.media.medalLgAccuracy, rewardCount);
-			break;
-		case REWARD_IMPRESSIVE:
-			pushReward(cgs.media.impressiveSound, cgs.media.medalImpressive, rewardCount);
-			break;
-		case REWARD_EXCELLENT:
-			pushReward(cgs.media.excellentSound, cgs.media.medalExcellent, rewardCount);
-			break;
-		case REWARD_DEFEND:
-			pushReward(cgs.media.defendSound, cgs.media.medalDefend, rewardCount);
-			break;
-		case REWARD_HUMILIATION:
-			pushReward(cgs.media.humiliationSound, cgs.media.medalGauntlet, rewardCount);
-			break;
-		case REWARD_ASSIST:
-			pushReward(cgs.media.assistSound, cgs.media.medalAssist, rewardCount);
-			break;
-		case REWARD_CAPTURE:
-			pushReward(cgs.media.captureAwardSound, cgs.media.medalCapture, rewardCount);
-			break;
-		default:
-			continue;
-		}
-
-		reward = qtrue;
-#endif
 	}
 
 	// sounds that both client and attacker receive
