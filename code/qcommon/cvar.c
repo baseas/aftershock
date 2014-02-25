@@ -665,12 +665,7 @@ Cvar_SetValue
 */
 void Cvar_SetValue( const char *var_name, float value) {
 	char	val[32];
-
-	if ( value == (int)value ) {
-		Com_sprintf (val, sizeof(val), "%i",(int)value);
-	} else {
-		Com_sprintf (val, sizeof(val), "%f",value);
-	}
+	Com_sprintf(val, sizeof val, "%g", value);
 	Cvar_Set (var_name, val);
 }
 
