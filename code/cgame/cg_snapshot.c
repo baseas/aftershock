@@ -93,6 +93,7 @@ static void CG_TransitionSnapshot(void)
 	cg.snap = cg.nextSnap;
 
 	if (cg.snap->ps.clientNum != oldFrame->ps.clientNum) {
+		memset(&cg.statsFollow, 0, sizeof cg.statsFollow);
 		CG_ForceModelChange();
 	}
 

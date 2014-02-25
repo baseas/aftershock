@@ -483,6 +483,7 @@ void SetTeam(gentity_t *ent, char *s)
 	client->sess.sessionTeam = team;
 	client->sess.spectatorState = specState;
 	client->sess.spectatorClient = specClient;
+	client->sess.fullStatsSent = qfalse;
 
 	client->sess.teamLeader = qfalse;
 	if (team == TEAM_RED || team == TEAM_BLUE) {
@@ -604,6 +605,7 @@ void Cmd_Follow_f(gentity_t *ent)
 
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
 	ent->client->sess.spectatorClient = i;
+	ent->client->sess.fullStatsSent = qfalse;
 }
 
 void Cmd_FollowCycle_f(gentity_t *ent, int dir)
@@ -632,6 +634,7 @@ void Cmd_FollowCycle_f(gentity_t *ent, int dir)
 		} else if (ent->client->sess.spectatorClient == -2) {
 			ent->client->sess.spectatorClient = -1;
 		}
+		ent->client->sess.fullStatsSent = qfalse;
 		return;
 	}
 
@@ -659,6 +662,7 @@ void Cmd_FollowCycle_f(gentity_t *ent, int dir)
 		// this is good, we can use it
 		ent->client->sess.spectatorClient = clientnum;
 		ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
+		ent->client->sess.fullStatsSent = qfalse;
 		return;
 	} while (clientnum != original);
 

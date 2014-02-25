@@ -97,7 +97,7 @@ gitem_t	bg_itemlist[] = {
         { "models/powerups/armor/armor_yel.md3",
 		NULL, NULL, NULL},
 /* icon */		"icons/iconr_yellow",
-/* pickup */	"Armor",
+/* pickup */	"Yellow Armor",
 		50,
 		IT_ARMOR,
 		0
@@ -111,7 +111,7 @@ gitem_t	bg_itemlist[] = {
         { "models/powerups/armor/armor_red.md3",
 		NULL, NULL, NULL},
 /* icon */		"icons/iconr_red",
-/* pickup */	"Heavy Armor",
+/* pickup */	"Red Armor",
 		100,
 		IT_ARMOR,
 		0
@@ -1155,5 +1155,39 @@ void BG_SnapVectorTowards(vec3_t v, vec3_t to)
 			v[i] = ceil(v[i]);
 		}
 	}
+}
+
+int *BG_StatsData(playerStats_t *stats, int index)
+{
+	int	i;
+	struct {
+		int	*data;
+		int	size;
+	} fields[] = {
+		{ stats->rewards, ARRAY_LEN(stats->rewards) },
+		{ stats->shots, ARRAY_LEN(stats->shots) },
+		{ stats->teamHits, ARRAY_LEN(stats->teamHits) },
+		{ stats->enemyHits, ARRAY_LEN(stats->enemyHits) },
+		{ stats->damage, ARRAY_LEN(stats->damage) },
+		{ stats->kills, ARRAY_LEN(stats->kills) },
+		{ stats->deaths, ARRAY_LEN(stats->deaths) },
+		{ stats->weaponPickups, ARRAY_LEN(stats->weaponPickups) },
+		{ stats->miscStats, ARRAY_LEN(stats->miscStats) },
+		{ NULL, 0 }
+	};
+
+	if (index < 0) {
+		return NULL;
+	}
+
+	for (i = 0; fields[i].data; ++i) {
+		if (index > fields[i].size) {
+			index -= fields[i].size;
+		} else {
+			return &fields[i].data[index];
+		}
+	}
+
+	return NULL;
 }
 

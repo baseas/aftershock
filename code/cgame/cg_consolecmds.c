@@ -91,14 +91,14 @@ static void CG_InfoUp_f(void)
 	cg.showInfo = qfalse;
 }
 
-static void CG_AccDown_f(void)
+static void CG_StatsDown_f(void)
 {
-	cg.showAcc = qtrue;
+	cg.showStats = qtrue;
 }
 
-static void CG_AccUp_f(void)
+static void CG_StatsUp_f(void)
 {
-	cg.showAcc = qfalse;
+	cg.showStats = qfalse;
 }
 
 static void CG_ChatUp_f(void)
@@ -174,8 +174,8 @@ static consoleCommand_t	commands[] = {
 	{ "-scores", CG_ScoresUp_f },
 	{ "+info", CG_InfoDown_f },
 	{ "-info", CG_InfoUp_f },
-	{ "+acc", CG_AccDown_f },
-	{ "-acc", CG_AccUp_f },
+	{ "+stats", CG_StatsDown_f },
+	{ "-stats", CG_StatsUp_f },
 	{ "+zoom", CG_ZoomDown_f },
 	{ "-zoom", CG_ZoomUp_f },
 	{ "+chat", CG_ChatUp_f },

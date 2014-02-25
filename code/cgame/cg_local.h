@@ -324,6 +324,9 @@ typedef struct {
 	int			powerups;
 	int			damageDone;
 	int			damageTaken;
+	int			yellowArmor;
+	int			redArmor;
+	int			megaHealth;
 
 	// team overlay
 	int			location;
@@ -482,7 +485,7 @@ typedef struct {
 	// scoreboard
 	qboolean	showScores;
 	qboolean	showInfo;
-	qboolean	showAcc;
+	qboolean	showStats;
 	qboolean	scoreBoardShowing;
 	char		killerName[MAX_NAME_LENGTH];
 
@@ -570,6 +573,10 @@ typedef struct {
 	int			lastHitTime;
 
 	int			sortedClients[MAX_CLIENTS];
+
+	playerStats_t	statsOwn;
+	playerStats_t	statsFollow;
+	playerStats_t	statsEnemy;		// for tourney enemy
 } cg_t;
 
 #define MAX_LGSTYLES	4

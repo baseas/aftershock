@@ -122,6 +122,9 @@ static void CG_ParseScores(void)
 			break;
 		case GT_TOURNAMENT:
 			ci->score = atoi(CG_Argv(i++));
+			ci->yellowArmor = atoi(CG_Argv(i++));
+			ci->redArmor = atoi(CG_Argv(i++));
+			ci->megaHealth = atoi(CG_Argv(i++));
 			break;
 		case GT_DEFRAG:
 			ci->score = atoi(CG_Argv(i++));
@@ -145,6 +148,35 @@ static void CG_ParseScores(void)
 	}
 
 	qsort(cg.sortedClients, MAX_CLIENTS, sizeof cg.sortedClients[0], CG_ComparePlayerNums);
+}
+
+static void CG_ParseStats(void)
+{
+	int				i, argc;
+	int				*data;
+	int				clientNum;
+	playerStats_t	*stats;
+
+	argc = trap_Argc() - 1;
+
+	clientNum = atoi(CG_Argv(1));
+	if (clientNum == cg.clientNum) {
+		stats = &cg.statsOwn;
+	} else if (clientNum == cg.snap->ps.clientNum) {
+		stats = &cg.statsFollow;
+	} else {
+		stats = &cg.statsEnemy;
+	}
+
+	i = 1;
+	while (i < argc) {
+		data = BG_StatsData(stats, atoi(CG_Argv(++i)));
+		if (!data) {
+			CG_Printf("Invalid statstics table.\n");
+			continue;
+		}
+		*data = atoi(CG_Argv(++i));
+	}
 }
 
 static void CG_ParseWarmup(void)
@@ -317,6 +349,10 @@ static void CG_MapRestart(void)
 	cg.intermissionStarted = qfalse;
 	cg.levelShot = qfalse;
 
+	memset(&cg.statsOwn, 0, sizeof cg.statsOwn);
+	memset(&cg.statsFollow, 0, sizeof cg.statsFollow);
+	memset(&cg.statsEnemy, 0, sizeof cg.statsEnemy);
+
 	cgs.voteTime = 0;
 
 	cg.mapRestart = qtrue;
@@ -393,6 +429,11 @@ static void CG_ServerCommand(void)
 
 	if (!strcmp(cmd, "s")) {
 		CG_ParseScores();
+		return;
+	}
+
+	if (!strcmp(cmd, "stats")) {
+		CG_ParseStats();
 		return;
 	}
 

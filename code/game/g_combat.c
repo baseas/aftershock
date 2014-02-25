@@ -461,7 +461,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	TossClientItems(self);
 
-	G_SendScoreboard(self);
+	G_SendScoreboard(self->client);
 
 	self->takedamage = qtrue;	// can still be gibbed
 

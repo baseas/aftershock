@@ -824,7 +824,7 @@ void ClientBegin(int clientNum)
 	ClientSendSpawnpoints(ent);
 
 	CheckPings(qtrue);
-	G_SendScoreboard(ent);
+	G_SendScoreboard(client);
 }
 
 static void ClientGiveWeapons(gclient_t *client)

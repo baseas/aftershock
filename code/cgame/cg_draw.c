@@ -662,22 +662,22 @@ static void CG_DrawTeamVote(void)
 	CG_DrawSmallString(0, 90, s, 1.0F);
 }
 
-static void CG_DrawIntermission(void)
-{
-	if (cg_drawScoreboard.integer) {
-		cg.scoreBoardShowing = CG_DrawScoreboard();
-	}
-}
-
-static void CG_DrawAcc(void)
+static void CG_DrawStats(void)
 {
 	int			i;
 	int			x, y, yy;
 	char		*str;
 	const int	iconsize = 15;
+	playerStats_t	*stats;
 
-	if (!cg.showAcc) {
+	if (!cg.showStats) {
 		return;
+	}
+
+	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
+		stats = &cg.statsFollow;
+	} else {
+		stats = &cg.statsOwn;
 	}
 
 	x = SCREEN_WIDTH - 175 - 50;
@@ -687,15 +687,31 @@ static void CG_DrawAcc(void)
 
 	x += 15;
 
+	CG_DrawStringExt(x, y + 15, cgs.clientinfo[cg.snap->ps.clientNum].name,
+		colorWhite, qfalse, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+
 	for (i = WP_MACHINEGUN; i < WP_NUM_WEAPONS; ++i) {
 		if (!cg_weapons[i].registered) {
 			continue;
 		}
-		yy = y + (i - 1) * (iconsize + 5);
+		yy = y + i * (iconsize + 5);
 		CG_DrawAdjustPic(x, yy, iconsize, iconsize, cg_weapons[i].weaponIcon);
-		str = va("-");
+		if (stats->shots[i]) {
+			int accuracy = (int) ((float) stats->enemyHits[i] / (float) stats->shots[i] * 100.0f);
+			str = va("%i %% (%i/%i)", accuracy, stats->enemyHits[i], stats->shots[i]);
+		} else {
+			str = va("-");
+		}
 		CG_DrawSmallString(x + iconsize, yy, str, 1.0f);
 	}
+}
+
+static void CG_DrawIntermission(void)
+{
+	if (cg_drawScoreboard.integer) {
+		cg.scoreBoardShowing = CG_DrawScoreboard();
+	}
+	CG_DrawStats();
 }
 
 static void CG_Draw2D(stereoFrame_t stereoFrame)
@@ -731,7 +747,7 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 
 	CG_DrawInformation();
 
-	CG_DrawAcc();
+	CG_DrawStats();
 
 	// don't draw center string if scoreboard is up
 	cg.scoreBoardShowing = CG_DrawScoreboard();

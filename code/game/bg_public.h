@@ -233,19 +233,9 @@ typedef enum {
 	REWARD_AIRGRENADE,
 	REWARD_LGACCURACY,
 	REWARD_RLRG,
-	REWARD_ITEMDENIED
-} rewardEnum_t;
-
-typedef struct {
-	int	rewards[MAX_REWARDS];
-	int	shots[MAX_WEAPONS];
-	int	teamHits[MAX_WEAPONS];
-	int	enemyHits[MAX_WEAPONS];
-	int	damage[MAX_WEAPONS];
-	int	kills[MAX_WEAPONS];
-	int	deaths[MAX_WEAPONS];
-	int	weaponPickups[MAX_WEAPONS];
-} playerStats_t;
+	REWARD_ITEMDENIED,
+	REWARD_MAX
+} reward_t;
 
 // entityState_t->eFlags
 #define EF_DEAD				0x00000001		// don't draw a foe marker over players with EF_DEAD
@@ -309,6 +299,30 @@ typedef enum {
 	WP_GRAPPLING_HOOK,
 	WP_NUM_WEAPONS
 } weapon_t;
+
+typedef enum {
+	MSTAT_HEALTH,
+	MSTAT_ARMOR,
+	MSTAT_YA,
+	MSTAT_RA,
+	MSTAT_MH,
+	MSTAT_QUAD,
+	MSTAT_QUADKILLS,
+	MSTAT_QUADSTREAK,
+	MSTAT_MAX
+} miscStat_t;
+
+typedef struct {
+	int	rewards[REWARD_MAX];
+	int	shots[WP_NUM_WEAPONS];
+	int	teamHits[WP_NUM_WEAPONS];
+	int	enemyHits[WP_NUM_WEAPONS];
+	int	damage[WP_NUM_WEAPONS];
+	int	kills[WP_NUM_WEAPONS];
+	int	deaths[WP_NUM_WEAPONS];
+	int	weaponPickups[WP_NUM_WEAPONS];
+	int	miscStats[MSTAT_MAX];
+} playerStats_t;
 
 // reward sounds (stored in ps->persistant[PERS_PLAYEREVENTS])
 #define PLAYEREVENT_DENIEDREWARD		0x0001
@@ -383,6 +397,7 @@ typedef enum {
 
 	EV_ITEM_RESPAWN,
 	EV_ITEM_POP,
+	EV_REWARD,
 	EV_PLAYER_TELEPORT_IN,
 	EV_PLAYER_TELEPORT_OUT,
 
@@ -647,6 +662,7 @@ qboolean	BG_PlayerTouchesItem(playerState_t *ps, entityState_t *item,
 	int atTime, qboolean newItemHeight);
 
 void	BG_SnapVectorTowards(vec3_t v, vec3_t to);
+int		*BG_StatsData(playerStats_t *stats, int index);
 
 #define ARENAS_PER_TIER		4
 #define MAX_ARENAS			1024

@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define PING_UPDATE_INTERVAL	2000
 #define SCOREBOARD_INTERVAL		2000
+#define STATS_INTERVAL			2000
 
 typedef struct {
 	vmCvar_t	*vmCvar;
@@ -759,8 +760,12 @@ void CalculateRanks(void)
 			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE]));
 			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
 		} else {
-			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE]));
-			trap_SetConfigstring(CS_SCORES2, va("%i", level.clients[ level.sortedClients[1] ].ps.persistant[PERS_SCORE]));
+			// in tourney: SCORES1 corresponds to the client with the lower clientNum
+			int	min, max;
+			min = MIN(level.sortedClients[0], level.sortedClients[1]);
+			max = MAX(level.sortedClients[0], level.sortedClients[1]);
+			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[min].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring(CS_SCORES2, va("%i", level.clients[max].ps.persistant[PERS_SCORE]));
 		}
 	}
 
@@ -1223,6 +1228,79 @@ static void CheckScoreboard(void)
 	}
 }
 
+static void G_SendStats(gclient_t *client)
+{
+	int			i;
+	int			*data;
+	char		diffmsg[512];
+	char		fullmsg[512];
+	qboolean	diffempty, fullempty;
+	playerStats_t	*oldstats, *newstats;
+
+	diffmsg[0] = '\0';
+	fullmsg[0] = '\0';
+	oldstats = &client->pers.oldstats;
+	newstats = &client->pers.stats;
+
+	diffempty = qtrue;
+	fullempty = qtrue;
+
+	i = 0;
+	while ((data = BG_StatsData(newstats, i))) {
+		Q_strcat(fullmsg, sizeof fullmsg, va(" %i %i", i, *data));
+		fullempty = qfalse;
+
+		if (*data != *BG_StatsData(oldstats, i)) {
+			Q_strcat(diffmsg, sizeof diffmsg, va(" %i %i", i, *data));
+			diffempty = qfalse;
+		}
+		++i;
+	}
+
+	*oldstats = *newstats;
+
+	for (i = 0; i < level.maxclients; ++i) {
+		gclient_t	*cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			continue;
+		}
+
+		if (cl == client
+			|| (g_gametype.integer == GT_TOURNAMENT && cl->sess.sessionTeam == TEAM_SPECTATOR)
+			|| (cl->sess.spectatorState == SPECTATOR_FOLLOW
+			&& cl->sess.spectatorClient == client - level.clients))
+		{
+			if (!cl->sess.fullStatsSent && !fullempty) {
+				trap_SendServerCommand(i, va("stats %ld %s", client - level.clients, fullmsg));
+				cl->sess.fullStatsSent = qtrue;
+			} else if (!diffempty) {
+				trap_SendServerCommand(i, va("stats %ld %s", client - level.clients, diffmsg));
+			}
+		}
+	}
+}
+
+static void CheckStats(void)
+{
+	int	i;
+	if (level.time - level.lastStatsTime < STATS_INTERVAL) {
+		return;
+	}
+
+	for (i = 0; i < level.maxclients; ++i) {
+		gclient_t	*cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+		G_SendStats(cl);
+	}
+	level.lastStatsTime = level.time;
+}
+
 static qboolean EnoughReady(void)
 {
 	int	i, clientsReady, humanPlayers;
@@ -1255,7 +1333,7 @@ static qboolean EnoughReady(void)
 		}
 	}
 
-	if (g_startWhenReady.integer == 1 && clientsReady < humanPlayers / 2 + 1) {
+	if (g_startWhenReady.integer == 1 && clientsReady < ceil(humanPlayers / 2.0f)) {
 		return qfalse;
 	}
 
@@ -1686,6 +1764,8 @@ void G_RunFrame(int levelTime)
 
 	CheckScoreboard();
 
+	CheckStats();
+
 	if (g_listEntity.integer) {
 		for (i = 0; i < MAX_GENTITIES; i++) {
 			G_Printf("%4i: %s\n", i, g_entities[i].classname);
@@ -1707,7 +1787,9 @@ static void G_ScoreboardLine(char *buffer, int length, gclient_t *cl, qboolean c
 		Com_sprintf(buffer, length, " %i %i %i", clientNum, score, powerups);
 		break;
 	case GT_TOURNAMENT:
-		Com_sprintf(buffer, length, " %i %i", clientNum, score);
+		Com_sprintf(buffer, length, " %i %i %i %i %i", clientNum, score,
+			cl->pers.stats.miscStats[MSTAT_YA], cl->pers.stats.miscStats[MSTAT_RA],
+			cl->pers.stats.miscStats[MSTAT_MH]);
 		break;
 	case GT_DEFRAG:
 		Com_sprintf(buffer, length, " %i %i", clientNum, score);
@@ -1739,26 +1821,26 @@ static void G_ScoreboardLine(char *buffer, int length, gclient_t *cl, qboolean c
 
 /**
 Send the difference to the last sent scoreboard to the clients.
-If ent is NULL, send scores to all clients and write to cache.
+If client is NULL, send scores to all clients and write to cache.
 Otherwise, send to specified client and to its followers and do not cache the scoreboard update.
 */
-void G_SendScoreboard(gentity_t *ent)
+void G_SendScoreboard(gclient_t *client)
 {
 	int			i;
 	qboolean	empty;
-	char		line[sizeof ent->client->pers.scoreboardLine];
+	char		line[sizeof client->pers.scoreboardLine];
 	char		msg[2 + MAX_CLIENTS * sizeof line];
-	gclient_t	*client;
+	gclient_t	*cl;
 
 	empty = qtrue;
 	strcpy(msg, "s");
 	for (i = 0; i < level.maxclients; i++) {
-		client = &level.clients[i];
-		if (client->pers.connected != CON_CONNECTED || client->sess.sessionTeam == TEAM_SPECTATOR) {
+		cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED || cl->sess.sessionTeam == TEAM_SPECTATOR) {
 			continue;
 		}
 
-		G_ScoreboardLine(line, sizeof line, client, !ent);
+		G_ScoreboardLine(line, sizeof line, cl, !client);
 		Q_strcat(msg, sizeof msg, line);
 		if (*line) {
 			empty = qfalse;
@@ -1769,20 +1851,22 @@ void G_SendScoreboard(gentity_t *ent)
 		return;
 	}
 
-	if (!ent) {
+	if (!client) {
 		trap_SendServerCommand(-1, msg);
 		return;
 	}
 
-	trap_SendServerCommand(ent - g_entities, msg);
+	trap_SendServerCommand(client - level.clients, msg);
 
+	// send to spectators following client
 	for (i = 0; i < level.maxclients; ++i) {
-		client = &level.clients[i];
-		if (client->pers.connected != CON_CONNECTED || client->sess.sessionTeam == TEAM_SPECTATOR) {
+		cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED) {
 			continue;
 		}
-
-		if (client->sess.spectatorClient == ent ->s.number) {
+		if (cl->sess.spectatorState == SPECTATOR_FOLLOW
+			&& cl->sess.spectatorClient == client - level.clients)
+		{
 			trap_SendServerCommand(i, msg);
 		}
 	}

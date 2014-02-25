@@ -214,6 +214,7 @@ typedef struct {
 	int			spectatorClient;	// for chasecam and follow mode
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
+	qboolean	fullStatsSent;
 } clientSession_t;
 
 #define MAX_NETNAME			36
@@ -246,6 +247,7 @@ typedef struct {
 
 	int			deathCount;
 
+	playerStats_t	oldstats;
 	playerStats_t	stats;
 } clientPersistant_t;
 
@@ -352,6 +354,7 @@ typedef struct {
 
 	int			lastPingTime;			// last time of ping update
 	int			lastScoreboardTime;
+	int			lastStatsTime;
 	int			teamScores[TEAM_NUM_TEAMS];
 	int			lastTeamLocationTime;		// last time of client team location update
 
@@ -585,7 +588,7 @@ void	CheckTeamLeader(int team);
 void	CheckPings(qboolean forceSend);
 void	G_RunThink (gentity_t *ent);
 void	AddTournamentQueue(gclient_t *client);
-void	G_SendScoreboard(gentity_t *ent);
+void	G_SendScoreboard(gclient_t *client);
 void	QDECL	G_LogPrintf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void	QDECL	G_Printf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
 void	QDECL	G_Error(const char *fmt, ...) __attribute__ ((noreturn, format (printf, 1, 2)));

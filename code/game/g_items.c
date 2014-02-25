@@ -199,6 +199,10 @@ int Pickup_Health (gentity_t *ent, gentity_t *other)
 	int			max;
 	int			quantity;
 
+	if (ent->item->quantity == 100) {
+		other->client->pers.stats.miscStats[MSTAT_MH]++;
+	}
+
 	// small and mega healths will go over the max
 	if (ent->item->quantity != 5 && ent->item->quantity != 100) {
 		max = other->client->ps.stats[STAT_MAX_HEALTH];
@@ -228,6 +232,12 @@ int Pickup_Health (gentity_t *ent, gentity_t *other)
 
 int Pickup_Armor(gentity_t *ent, gentity_t *other)
 {
+	if (ent->item->quantity == 50) {
+		other->client->pers.stats.miscStats[MSTAT_YA]++;
+	} else if (ent->item->quantity == 100) {
+		other->client->pers.stats.miscStats[MSTAT_RA]++;
+	}
+
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
 	if (other->client->ps.stats[STAT_ARMOR] > other->client->ps.stats[STAT_MAX_HEALTH] * 2) {
 		other->client->ps.stats[STAT_ARMOR] = other->client->ps.stats[STAT_MAX_HEALTH] * 2;
