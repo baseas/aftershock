@@ -603,6 +603,7 @@ void	ClientPrint(gentity_t *ent, char *str);
 void	ClientUserinfoChanged(int clientNum);
 void	ClientDisconnect(int clientNum);
 void	ClientBegin(int clientNum);
+gclient_t	*ClientFromString(const char *str);
 
 //
 // g_cmds.c

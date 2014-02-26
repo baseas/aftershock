@@ -203,44 +203,6 @@ static void AddIP(const char *str)
 	UpdateIPBans();
 }
 
-gclient_t *ClientForString(const char *s)
-{
-	gclient_t	*cl;
-	int			i;
-	int			idnum;
-
-	// numeric values are just slot numbers
-	if (s[0] >= '0' && s[0] <= '9') {
-		idnum = atoi(s);
-		if (idnum < 0 || idnum >= level.maxclients) {
-			Com_Printf("Bad client slot: %i\n", idnum);
-			return NULL;
-		}
-
-		cl = &level.clients[idnum];
-		if (cl->pers.connected == CON_DISCONNECTED) {
-			G_Printf("Client %i is not connected\n", idnum);
-			return NULL;
-		}
-		return cl;
-	}
-
-	// check for a name match
-	for (i = 0; i < level.maxclients; i++) {
-		cl = &level.clients[i];
-		if (cl->pers.connected == CON_DISCONNECTED) {
-			continue;
-		}
-		if (!Q_stricmp(cl->pers.netname, s)) {
-			return cl;
-		}
-	}
-
-	G_Printf("User %s is not on the server\n", s);
-
-	return NULL;
-}
-
 void G_ProcessIPBans(void)
 {
 	char *s, *t;
@@ -366,8 +328,9 @@ void Svcmd_Kick_f(void)
 		return;
 	}
 
-	cl = ClientForString(BG_Argv(1));
+	cl = ClientFromString(BG_Argv(1));
 	if (!cl) {
+		G_Printf("Player not found.\n");
 		return;
 	}
 
@@ -419,8 +382,9 @@ void Svcmd_ForceTeam_f(void)
 	}
 
 	// find the player
-	cl = ClientForString(BG_Argv(1));
+	cl = ClientFromString(BG_Argv(1));
 	if (!cl) {
+		G_Printf("Player not found.\n");
 		return;
 	}
 

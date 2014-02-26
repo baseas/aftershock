@@ -107,63 +107,6 @@ char *ConcatArgs(int start)
 	return line;
 }
 
-qboolean StringIsInteger(const char * s)
-{
-	int			i;
-	int			len;
-	qboolean	foundDigit;
-
-	len = strlen(s);
-	foundDigit = qfalse;
-
-	for (i = 0; i < len; i++) {
-		if (!isdigit(s[i])) {
-			return qfalse;
-		}
-
-		foundDigit = qtrue;
-	}
-
-	return foundDigit;
-}
-
-/**
-Returns a player number for either a number or name string
-Returns -1 if invalid
-*/
-int ClientNumberFromString(gentity_t *to, const char *s)
-{
-	gclient_t	*cl;
-	int			idnum;
-	char		cleanName[MAX_STRING_CHARS];
-
-	// numeric values could be slot numbers
-	if (StringIsInteger(s)) {
-		idnum = atoi(s);
-		if (idnum >= 0 && idnum < level.maxclients) {
-			cl = &level.clients[idnum];
-			if (cl->pers.connected == CON_CONNECTED) {
-				return idnum;
-			}
-		}
-	}
-
-	// check for a name match
-	for (idnum=0,cl=level.clients; idnum < level.maxclients; idnum++,cl++) {
-		if (cl->pers.connected != CON_CONNECTED) {
-			continue;
-		}
-		Q_strncpyz(cleanName, cl->pers.netname, sizeof(cleanName));
-		Q_CleanStr(cleanName);
-		if (!Q_stricmp(cleanName, s)) {
-			return idnum;
-		}
-	}
-
-	trap_SendServerCommand(to-g_entities, va("print \"User %s is not on the server\n\"", s));
-	return -1;
-}
-
 /**
 Give items to a client
 */
@@ -561,7 +504,7 @@ void Cmd_Team_f(gentity_t *ent)
 
 void Cmd_Follow_f(gentity_t *ent)
 {
-	int		i;
+	gclient_t	*cl;
 
 	if (trap_Argc() != 2) {
 		if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
@@ -570,18 +513,19 @@ void Cmd_Follow_f(gentity_t *ent)
 		return;
 	}
 
-	i = ClientNumberFromString(ent, BG_Argv(1));
-	if (i == -1) {
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
 		return;
 	}
 
 	// can't follow self
-	if (&level.clients[ i ] == ent->client) {
+	if (cl == ent->client) {
 		return;
 	}
 
 	// can't follow another spectator
-	if (level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR) {
+	if (cl->sess.sessionTeam == TEAM_SPECTATOR) {
 		return;
 	}
 
@@ -597,7 +541,7 @@ void Cmd_Follow_f(gentity_t *ent)
 	}
 
 	ent->client->sess.spectatorState = SPECTATOR_FOLLOW;
-	ent->client->sess.spectatorClient = i;
+	ent->client->sess.spectatorClient = cl - level.clients;
 	ent->client->sess.fullStatsSent = qfalse;
 }
 
@@ -883,7 +827,7 @@ static void Cmd_Say_f(gentity_t *ent, int mode, qboolean arg0)
 
 static void Cmd_Tell_f(gentity_t *ent)
 {
-	int			targetNum;
+	gclient_t	*cl;
 	gentity_t	*target;
 	char		*p;
 
@@ -892,12 +836,13 @@ static void Cmd_Tell_f(gentity_t *ent)
 		return;
 	}
 
-	targetNum = ClientNumberFromString(ent, BG_Argv(1));
-	if (targetNum == -1) {
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
 		return;
 	}
 
-	target = &g_entities[targetNum];
+	target = &g_entities[cl - level.clients];
 	if (!target->inuse || !target->client) {
 		return;
 	}
@@ -927,7 +872,7 @@ static const int numgc_orders = ARRAY_LEN(gc_orders);
 
 void Cmd_GameCommand_f(gentity_t *ent)
 {
-	int			targetNum;
+	gclient_t	*cl;
 	gentity_t	*target;
 	int			order;
 
@@ -943,12 +888,13 @@ void Cmd_GameCommand_f(gentity_t *ent)
 		return;
 	}
 
-	targetNum = ClientNumberFromString(ent, BG_Argv(1));
-	if (targetNum == -1) {
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
 		return;
 	}
 
-	target = &g_entities[targetNum];
+	target = &g_entities[cl - level.clients];
 	if (!target->inuse || !target->client) {
 		return;
 	}

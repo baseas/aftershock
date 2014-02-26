@@ -1158,3 +1158,35 @@ void ClientDisconnect(int clientNum)
 	}
 }
 
+gclient_t *ClientFromString(const char *str)
+{
+	gclient_t	*cl;
+	int			idnum;
+	char		cleanName[MAX_STRING_CHARS];
+
+	// numeric values could be slot numbers
+	if (Q_isanumber(str) && Q_isintegral(atof(str))) {
+		idnum = atoi(str);
+		if (idnum >= 0 && idnum < level.maxclients) {
+			cl = &level.clients[idnum];
+			if (cl->pers.connected == CON_CONNECTED) {
+				return cl;
+			}
+		}
+	}
+
+	// check for a name match
+	for (idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++) {
+		if (cl->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		Q_strncpyz(cleanName, cl->pers.netname, sizeof cleanName);
+		Q_CleanStr(cleanName);
+		if (!Q_stricmp(cleanName, str)) {
+			return cl;
+		}
+	}
+
+	return NULL;
+}
+
