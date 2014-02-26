@@ -33,15 +33,13 @@ typedef struct {
 static void CG_TargetCommand_f(void)
 {
 	int		targetNum;
-	char	test[4];
 
 	targetNum = CG_CrosshairPlayer();
 	if (targetNum == -1) {
 		return;
 	}
 
-	trap_Argv(1, test, 4);
-	trap_SendClientCommand(va("gc %i %i", targetNum, atoi(test)));
+	trap_SendClientCommand(va("gc %i %i", targetNum, atoi(BG_Argv(1))));
 }
 
 /**
@@ -182,7 +180,7 @@ qboolean CG_ConsoleCommand(void)
 	const char	*cmd;
 	int			i;
 
-	cmd = CG_Argv(0);
+	cmd = BG_Argv(0);
 
 	for (i = 0; i < ARRAY_LEN(commands); i++) {
 		if (!Q_stricmp(cmd, commands[i].cmd)) {

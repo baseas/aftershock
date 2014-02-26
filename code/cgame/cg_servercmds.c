@@ -36,16 +36,16 @@ static void CG_ParseTeamInfo(void)
 
 	i = 1;
 	while (i < argc) {
-		clientNum = atoi(CG_Argv(i++));
+		clientNum = atoi(BG_Argv(i++));
 		if (clientNum < 0 || clientNum > MAX_CLIENTS - 1) {
 			CG_Printf(S_COLOR_YELLOW "Invalid clientNum in tinfo.\n");
 			continue;
 		}
 		ci = &cgs.clientinfo[clientNum];
-		ci->location = atoi(CG_Argv(i++));
-		ci->health = atoi(CG_Argv(i++));
-		ci->armor = atoi(CG_Argv(i++));
-		ci->weapon = atoi(CG_Argv(i++));
+		ci->location = atoi(BG_Argv(i++));
+		ci->health = atoi(BG_Argv(i++));
+		ci->armor = atoi(BG_Argv(i++));
+		ci->weapon = atoi(BG_Argv(i++));
 	}
 }
 
@@ -67,7 +67,7 @@ static void CG_ParsePings(void)
 			cgs.clientinfo[k].ping = 0;
 			continue;
 		}
-		cgs.clientinfo[k++].ping = atoi(CG_Argv(i + 1));
+		cgs.clientinfo[k++].ping = atoi(BG_Argv(i + 1));
 	}
 }
 
@@ -108,7 +108,7 @@ static void CG_ParseScores(void)
 
 	i = 1;
 	while (i < argc) {
-		clientNum = atoi(CG_Argv(i++));
+		clientNum = atoi(BG_Argv(i++));
 		if (clientNum < 0 || clientNum > MAX_CLIENTS - 1) {
 			CG_Printf(S_COLOR_YELLOW "Invalid score table.\n");
 			continue;
@@ -117,30 +117,30 @@ static void CG_ParseScores(void)
 
 		switch (cgs.gametype) {
 		case GT_FFA:
-			ci->score = atoi(CG_Argv(i++));
-			ci->powerups = atoi(CG_Argv(i++));
+			ci->score = atoi(BG_Argv(i++));
+			ci->powerups = atoi(BG_Argv(i++));
 			break;
 		case GT_TOURNAMENT:
-			ci->score = atoi(CG_Argv(i++));
-			ci->yellowArmor = atoi(CG_Argv(i++));
-			ci->redArmor = atoi(CG_Argv(i++));
-			ci->megaHealth = atoi(CG_Argv(i++));
+			ci->score = atoi(BG_Argv(i++));
+			ci->yellowArmor = atoi(BG_Argv(i++));
+			ci->redArmor = atoi(BG_Argv(i++));
+			ci->megaHealth = atoi(BG_Argv(i++));
 			break;
 		case GT_DEFRAG:
-			ci->score = atoi(CG_Argv(i++));
+			ci->score = atoi(BG_Argv(i++));
 			break;
 		case GT_TEAM:
-			ci->score = atoi(CG_Argv(i++));
-			ci->powerups = atoi(CG_Argv(i++));
+			ci->score = atoi(BG_Argv(i++));
+			ci->powerups = atoi(BG_Argv(i++));
 			break;
 		case GT_CTF:
-			ci->score = atoi(CG_Argv(i++));
-			ci->powerups = atoi(CG_Argv(i++));
+			ci->score = atoi(BG_Argv(i++));
+			ci->powerups = atoi(BG_Argv(i++));
 			break;
 		case GT_ELIMINATION:
-			ci->score = atoi(CG_Argv(i++));
-			ci->damageDone = atoi(CG_Argv(i++));
-			ci->damageTaken = atoi(CG_Argv(i++));
+			ci->score = atoi(BG_Argv(i++));
+			ci->damageDone = atoi(BG_Argv(i++));
+			ci->damageTaken = atoi(BG_Argv(i++));
 			break;
 		default:
 			return;
@@ -159,7 +159,7 @@ static void CG_ParseStats(void)
 
 	argc = trap_Argc() - 1;
 
-	clientNum = atoi(CG_Argv(1));
+	clientNum = atoi(BG_Argv(1));
 	if (clientNum == cg.clientNum) {
 		stats = &cg.statsOwn;
 	} else if (clientNum == cg.snap->ps.clientNum) {
@@ -170,12 +170,12 @@ static void CG_ParseStats(void)
 
 	i = 1;
 	while (i < argc) {
-		data = BG_StatsData(stats, atoi(CG_Argv(++i)));
+		data = BG_StatsData(stats, atoi(BG_Argv(++i)));
 		if (!data) {
 			CG_Printf("Invalid statstics table.\n");
 			continue;
 		}
-		*data = atoi(CG_Argv(++i));
+		*data = atoi(BG_Argv(++i));
 	}
 }
 
@@ -199,15 +199,15 @@ static void CG_ParseSpawnpoints(void)
 	team_t	team;
 
 	cg.numSpawnpoints = (trap_Argc() - 2) / 6;
-	team = atoi(CG_Argv(1));
+	team = atoi(BG_Argv(1));
 	for (i = 0; i < cg.numSpawnpoints; ++i) {
 		cg.spawnTeam[i] = team;
-		cg.spawnOrigin[i][0] = atof(CG_Argv(i * 6 + 2));
-		cg.spawnOrigin[i][1] = atof(CG_Argv(i * 6 + 3));
-		cg.spawnOrigin[i][2] = atof(CG_Argv(i * 6 + 4));
-		cg.spawnAngle[i][0] = atof(CG_Argv(i * 6 + 5));
-		cg.spawnAngle[i][1] = atof(CG_Argv(i * 6 + 6));
-		cg.spawnAngle[i][2] = atof(CG_Argv(i * 6 + 7));
+		cg.spawnOrigin[i][0] = atof(BG_Argv(i * 6 + 2));
+		cg.spawnOrigin[i][1] = atof(BG_Argv(i * 6 + 3));
+		cg.spawnOrigin[i][2] = atof(BG_Argv(i * 6 + 4));
+		cg.spawnAngle[i][0] = atof(BG_Argv(i * 6 + 5));
+		cg.spawnAngle[i][1] = atof(BG_Argv(i * 6 + 6));
+		cg.spawnAngle[i][2] = atof(BG_Argv(i * 6 + 7));
 	}
 }
 
@@ -216,7 +216,7 @@ static void CG_ConfigStringModified(void)
 	const char	*str;
 	int		num;
 
-	num = atoi(CG_Argv(1));
+	num = atoi(BG_Argv(1));
 
 	// get the gamestate from the client system, which will have the
 	// new configstring already integrated
@@ -392,7 +392,7 @@ static void CG_ServerCommand(void)
 	const char	*cmd;
 	char		text[MAX_SAY_TEXT];
 
-	cmd = CG_Argv(0);
+	cmd = BG_Argv(0);
 
 	if (!cmd[0]) {
 		// server claimed the command
@@ -400,7 +400,7 @@ static void CG_ServerCommand(void)
 	}
 
 	if (!strcmp(cmd, "cp")) {
-		CG_CenterPrint(CG_Argv(1));
+		CG_CenterPrint(BG_Argv(1));
 		return;
 	}
 
@@ -423,7 +423,7 @@ static void CG_ServerCommand(void)
 	}
 
 	if (!strcmp(cmd, "print")) {
-		CG_Printf("%s", CG_Argv(1));
+		CG_Printf("%s", BG_Argv(1));
 		return;
 	}
 
@@ -442,7 +442,7 @@ static void CG_ServerCommand(void)
 			return;
 		}
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-		Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+		Q_strncpyz(text, BG_Argv(1), MAX_SAY_TEXT);
 		CG_RemoveChatEscapeChar(text);
 		CG_AddChatMessage(cgs.chatMessages, text);
 		CG_Printf("%s\n", text);
@@ -451,7 +451,7 @@ static void CG_ServerCommand(void)
 
 	if (!strcmp(cmd, "tchat")) {
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-		Q_strncpyz(text, CG_Argv(1), MAX_SAY_TEXT);
+		Q_strncpyz(text, BG_Argv(1), MAX_SAY_TEXT);
 		CG_RemoveChatEscapeChar(text);
 		CG_AddChatMessage(cgs.teamChatMessages, text);
 		CG_Printf("%s\n", text);
@@ -469,9 +469,9 @@ static void CG_ServerCommand(void)
 			char shader2[MAX_QPATH];
 			char shader3[MAX_QPATH];
 
-			Q_strncpyz(shader1, CG_Argv(1), sizeof(shader1));
-			Q_strncpyz(shader2, CG_Argv(2), sizeof(shader2));
-			Q_strncpyz(shader3, CG_Argv(3), sizeof(shader3));
+			Q_strncpyz(shader1, BG_Argv(1), sizeof(shader1));
+			Q_strncpyz(shader2, BG_Argv(2), sizeof(shader2));
+			Q_strncpyz(shader3, BG_Argv(3), sizeof(shader3));
 
 			trap_R_RemapShader(shader1, shader2, shader3);
 		}

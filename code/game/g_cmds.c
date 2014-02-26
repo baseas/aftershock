@@ -81,15 +81,15 @@ qboolean CheatsOk(gentity_t *ent)
 
 char *ConcatArgs(int start)
 {
-	int		i, c, tlen;
+	int			i, c, tlen;
 	static char	line[MAX_STRING_CHARS];
-	int		len;
-	char	arg[MAX_STRING_CHARS];
+	int			len;
+	const char	*arg;
 
 	len = 0;
 	c = trap_Argc();
 	for (i = start; i < c; i++) {
-		trap_Argv(i, arg, sizeof(arg));
+		arg = BG_Argv(i);
 		tlen = strlen(arg);
 		if (len + tlen >= MAX_STRING_CHARS - 1) {
 			break;
@@ -131,7 +131,7 @@ qboolean StringIsInteger(const char * s)
 Returns a player number for either a number or name string
 Returns -1 if invalid
 */
-int ClientNumberFromString(gentity_t *to, char *s)
+int ClientNumberFromString(gentity_t *to, const char *s)
 {
 	gclient_t	*cl;
 	int			idnum;
@@ -329,15 +329,13 @@ void Cmd_LevelShot_f(gentity_t *ent)
 void Cmd_TeamTask_f(gentity_t *ent)
 {
 	char userinfo[MAX_INFO_STRING];
-	char		arg[MAX_TOKEN_CHARS];
 	int task;
 	int client = ent->client - level.clients;
 
 	if (trap_Argc() != 2) {
 		return;
 	}
-	trap_Argv(1, arg, sizeof(arg));
-	task = atoi(arg);
+	task = atoi(BG_Argv(1));
 
 	trap_GetUserinfo(client, userinfo, sizeof(userinfo));
 	Info_SetValueForKey(userinfo, "teamtask", va("%d", task));
@@ -371,7 +369,7 @@ void LogTeamChange(gclient_t *client, int oldTeam)
 	}
 }
 
-void SetTeam(gentity_t *ent, char *s)
+void SetTeam(gentity_t *ent, const char *s)
 {
 	int					team, oldTeam;
 	gclient_t			*client;
@@ -523,7 +521,6 @@ void StopFollowing(gentity_t *ent)
 void Cmd_Team_f(gentity_t *ent)
 {
 	int			oldTeam;
-	char		s[MAX_TOKEN_CHARS];
 
 	oldTeam = ent->client->sess.sessionTeam;
 	if (trap_Argc() != 2) {
@@ -555,9 +552,7 @@ void Cmd_Team_f(gentity_t *ent)
 		ent->client->sess.losses++;
 	}
 
-	trap_Argv(1, s, sizeof(s));
-
-	SetTeam(ent, s);
+	SetTeam(ent, BG_Argv(1));
 
 	if (ent->client->sess.sessionTeam != oldTeam) {
 		ent->client->switchTeamTime = level.time + 5000;
@@ -567,7 +562,6 @@ void Cmd_Team_f(gentity_t *ent)
 void Cmd_Follow_f(gentity_t *ent)
 {
 	int		i;
-	char	arg[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() != 2) {
 		if (ent->client->sess.spectatorState == SPECTATOR_FOLLOW) {
@@ -576,8 +570,7 @@ void Cmd_Follow_f(gentity_t *ent)
 		return;
 	}
 
-	trap_Argv(1, arg, sizeof(arg));
-	i = ClientNumberFromString(ent, arg);
+	i = ClientNumberFromString(ent, BG_Argv(1));
 	if (i == -1) {
 		return;
 	}
@@ -893,15 +886,13 @@ static void Cmd_Tell_f(gentity_t *ent)
 	int			targetNum;
 	gentity_t	*target;
 	char		*p;
-	char		arg[MAX_TOKEN_CHARS];
 
 	if (trap_Argc () < 3) {
 		trap_SendServerCommand(ent-g_entities, "print \"Usage: tell <player id> <message>\n\"");
 		return;
 	}
 
-	trap_Argv(1, arg, sizeof(arg));
-	targetNum = ClientNumberFromString(ent, arg);
+	targetNum = ClientNumberFromString(ent, BG_Argv(1));
 	if (targetNum == -1) {
 		return;
 	}
@@ -939,23 +930,20 @@ void Cmd_GameCommand_f(gentity_t *ent)
 	int			targetNum;
 	gentity_t	*target;
 	int			order;
-	char		arg[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() != 3) {
 		trap_SendServerCommand(ent-g_entities, va("print \"Usage: gc <player id> <order 0-%d>\n\"", numgc_orders - 1));
 		return;
 	}
 
-	trap_Argv(2, arg, sizeof(arg));
-	order = atoi(arg);
+	order = atoi(BG_Argv(2));
 
 	if (order < 0 || order >= numgc_orders) {
 		trap_SendServerCommand(ent-g_entities, va("print \"Bad order: %i\n\"", order));
 		return;
 	}
 
-	trap_Argv(1, arg, sizeof(arg));
-	targetNum = ClientNumberFromString(ent, arg);
+	targetNum = ClientNumberFromString(ent, BG_Argv(1));
 	if (targetNum == -1) {
 		return;
 	}
@@ -1108,7 +1096,7 @@ static void Cmd_CallVote_f(gentity_t *ent)
 
 static void Cmd_Vote_f(gentity_t *ent)
 {
-	char		msg[64];
+	char		msg[1];
 
 	if (!level.voteTime) {
 		trap_SendServerCommand(ent-g_entities, "print \"No vote in progress.\n\"");
@@ -1125,7 +1113,7 @@ static void Cmd_Vote_f(gentity_t *ent)
 
 	ent->client->ps.eFlags |= EF_VOTED;
 
-	trap_Argv(1, msg, sizeof(msg));
+	trap_Argv(1, msg, sizeof msg);
 
 	if (tolower(msg[0]) == 'y' || msg[0] == '1') {
 		level.voteYes++;
@@ -1265,7 +1253,7 @@ static void Cmd_CallTeamVote_f(gentity_t *ent)
 static void Cmd_TeamVote_f(gentity_t *ent)
 {
 	int			team, cs_offset;
-	char		msg[64];
+	char		msg[1];
 
 	team = ent->client->sess.sessionTeam;
 	if (team == TEAM_RED)
@@ -1290,7 +1278,7 @@ static void Cmd_TeamVote_f(gentity_t *ent)
 
 	ent->client->ps.eFlags |= EF_TEAMVOTED;
 
-	trap_Argv(1, msg, sizeof(msg));
+	trap_Argv(1, msg, sizeof msg);
 
 	if (tolower(msg[0]) == 'y' || msg[0] == '1') {
 		level.teamVoteYes[cs_offset]++;
@@ -1307,7 +1295,6 @@ static void Cmd_TeamVote_f(gentity_t *ent)
 static void Cmd_SetViewpos_f(gentity_t *ent)
 {
 	vec3_t		origin, angles;
-	char		buffer[MAX_TOKEN_CHARS];
 	int			i;
 
 	if (!g_cheats.integer) {
@@ -1321,12 +1308,10 @@ static void Cmd_SetViewpos_f(gentity_t *ent)
 
 	VectorClear(angles);
 	for (i = 0; i < 3; i++) {
-		trap_Argv(i + 1, buffer, sizeof(buffer));
-		origin[i] = atof(buffer);
+		origin[i] = atof(BG_Argv(i + 1));
 	}
 
-	trap_Argv(4, buffer, sizeof(buffer));
-	angles[YAW] = atof(buffer);
+	angles[YAW] = atof(BG_Argv(4));
 
 	TeleportPlayer(ent, origin, angles);
 }
@@ -1336,7 +1321,6 @@ static void Cmd_Stats_f(gentity_t *ent) { }
 static void Cmd_DropArmor_f(gentity_t *ent)
 {
 	gitem_t	*item;
-	char	arg1[128];
 	int		amount;
 
 	if (!(g_itemDrop.integer & 16) || g_instantgib.integer) {
@@ -1348,8 +1332,7 @@ static void Cmd_DropArmor_f(gentity_t *ent)
 	}
 
 	if (trap_Argc() > 1) {
-		trap_Argv(1, arg1, sizeof(arg1));
-		amount = atoi(arg1);
+		amount = atoi(BG_Argv(1));
     } else {
 		amount = 50;
 	}
@@ -1371,7 +1354,6 @@ static void Cmd_DropArmor_f(gentity_t *ent)
 static void Cmd_DropHealth_f(gentity_t *ent)
 {
 	gitem_t	*item;
-	char	arg1[128];
 	int		amount;
 
 	if (!(g_itemDrop.integer & 8) || g_instantgib.integer) {
@@ -1383,8 +1365,7 @@ static void Cmd_DropHealth_f(gentity_t *ent)
 	}
 
 	if (trap_Argc() > 1) {
-		trap_Argv(1, arg1, sizeof(arg1));
-		amount = atoi(arg1);
+		amount = atoi(BG_Argv(1));
 	} else {
 		amount = 25;
 	}
@@ -1407,7 +1388,6 @@ static void Cmd_DropAmmo_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	int		weapon;
-	char	arg1[128];
 
 	if (!(g_itemDrop.integer & 4) || g_instantgib.integer || g_rockets.integer) {
 		return;
@@ -1418,8 +1398,7 @@ static void Cmd_DropAmmo_f(gentity_t *ent)
 	}
 
 	if (trap_Argc() > 1) {
-		trap_Argv(1, arg1, sizeof(arg1));
-		weapon = atoi(arg1);
+		weapon = atoi(BG_Argv(1));
 	} else {
 		weapon = ent->s.weapon;
 	}
@@ -1438,7 +1417,6 @@ static void Cmd_DropWeapon_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	int		weapon;
-	char	arg1[128];
 
 	if (!(g_itemDrop.integer & 2) || g_instantgib.integer || g_rockets.integer) {
 		return;
@@ -1449,8 +1427,7 @@ static void Cmd_DropWeapon_f(gentity_t *ent)
 	}
 
 	if (trap_Argc() > 1) {
-		trap_Argv(1, arg1, sizeof(arg1));
-		weapon = atoi(arg1);
+		weapon = atoi(BG_Argv(1));
 	} else {
 		weapon = ent->s.weapon;
 	}
@@ -1574,16 +1551,15 @@ static void Cmd_Unlock_f(gentity_t *ent)
 
 void ClientCommand(int clientNum)
 {
-	gentity_t *ent;
-	char	cmd[MAX_TOKEN_CHARS];
+	gentity_t	*ent;
+	const char	*cmd;
 
 	ent = g_entities + clientNum;
 	if (!ent->client || ent->client->pers.connected != CON_CONNECTED) {
 		return;		// not fully in game yet
 	}
 
-
-	trap_Argv(0, cmd, sizeof(cmd));
+	cmd = BG_Argv(0);
 
 	if (Q_stricmp(cmd, "say") == 0) {
 		Cmd_Say_f(ent, SAY_ALL, qfalse);

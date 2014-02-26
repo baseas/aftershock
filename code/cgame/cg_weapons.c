@@ -1017,7 +1017,7 @@ void CG_Weapon_f(void)
 		return;
 	}
 
-	num = atoi(CG_Argv(1));
+	num = atoi(BG_Argv(1));
 
 	if (num < 1 || num > MAX_WEAPONS-1) {
 		return;

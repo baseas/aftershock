@@ -501,7 +501,7 @@ static void CG_HudLoad(void)
 		CG_Printf("usage: hud load <file>\n");
 		return;
 	}
-	CG_HudLoadFile(CG_Argv(2), cgs.hud);
+	CG_HudLoadFile(BG_Argv(2), cgs.hud);
 }
 
 static void CG_HudPrintProperty(hudElement_t *element, const char *prop)
@@ -510,7 +510,7 @@ static void CG_HudPrintProperty(hudElement_t *element, const char *prop)
 	char	buffer[64];
 
 	for (i = 0; hudProperties[i].name; ++i) {
-		if (!strcmp(CG_Argv(3), hudProperties[i].name)) {
+		if (!strcmp(BG_Argv(3), hudProperties[i].name)) {
 			hudProperties[i].printFunc(element, buffer, sizeof buffer);
 			CG_Printf("%s: %s\n", hudProperties[i].name, buffer);
 		}
@@ -529,9 +529,9 @@ static void CG_HudEdit(void)
 		return;
 	}
 
-	hudnumber = CG_HudnumberByTag(CG_Argv(2));
+	hudnumber = CG_HudnumberByTag(BG_Argv(2));
 	if (hudnumber == HUD_MAX) {
-		CG_Printf("Wrong hud element '%s'.\n", CG_Argv(2));
+		CG_Printf("Wrong hud element '%s'.\n", BG_Argv(2));
 		CG_PrintElements();
 		return;
 	}
@@ -540,7 +540,7 @@ static void CG_HudEdit(void)
 		CG_PrintProperties();
 		return;
 	} else if (argc == 4) {
-		CG_HudPrintProperty(&cgs.hud[hudnumber], CG_Argv(3));
+		CG_HudPrintProperty(&cgs.hud[hudnumber], BG_Argv(3));
 		return;
 	} else {
 		int		i;
@@ -548,13 +548,13 @@ static void CG_HudEdit(void)
 
 		value[0] = '\0';
 		for (i = 0; i < argc - 4; ++i) {
-			Q_strcat(value, sizeof value, CG_Argv(i + 4));
+			Q_strcat(value, sizeof value, BG_Argv(i + 4));
 			if (i < argc - 5) {
 				Q_strcat(value, sizeof value, " ");
 			}
 		}
 
-		CG_SetProperty(&cgs.hud[hudnumber], CG_Argv(3), value);
+		CG_SetProperty(&cgs.hud[hudnumber], BG_Argv(3), value);
 		return;
 	}
 }
@@ -570,7 +570,7 @@ void CG_Hud_f(void)
 		return;
 	}
 
-	cmd = CG_Argv(1);
+	cmd = BG_Argv(1);
 	if (!strcmp(cmd, "edit")) {
 		CG_HudEdit();
 	} else if (!strcmp(cmd, "reset")) {

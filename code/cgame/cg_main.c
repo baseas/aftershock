@@ -1067,10 +1067,3 @@ void QDECL Com_Printf(const char *msg, ...)
 	trap_Print(text);
 }
 
-const char *CG_Argv(int arg)
-{
-	static char	buffer[MAX_STRING_CHARS];
-	trap_Argv(arg, buffer, sizeof(buffer));
-	return buffer;
-}
-

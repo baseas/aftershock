@@ -1241,3 +1241,12 @@ void Ini_WriteNumber(const char *key, float value, int pad, fileHandle_t fp)
 	trap_FS_Write(str, strlen(str), fp);
 }
 
+void	trap_Argv(int n, char *buffer, int bufferLength);
+
+const char *BG_Argv(int arg)
+{
+	static char	buffer[MAX_STRING_CHARS];
+	trap_Argv(arg, buffer, sizeof buffer);
+	return buffer;
+}
+

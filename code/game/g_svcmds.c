@@ -62,7 +62,7 @@ typedef struct ipFilter_s
 static ipFilter_t	ipFilters[MAX_IPFILTERS];
 static int			numIPFilters;
 
-static qboolean StringToFilter(char *s, ipFilter_t *f)
+static qboolean StringToFilter(const char *s, ipFilter_t *f)
 {
 	char	num[128];
 	int		i, j;
@@ -180,7 +180,7 @@ qboolean G_FilterPacket(char *from)
 	return g_filterBan.integer == 0;
 }
 
-static void AddIP(char *str)
+static void AddIP(const char *str)
 {
 	int		i;
 
@@ -262,33 +262,25 @@ void G_ProcessIPBans(void)
 
 void Svcmd_AddIP_f(void)
 {
-	char		str[MAX_TOKEN_CHARS];
-
 	if (trap_Argc() < 2) {
 		G_Printf("Usage: addip <ip-mask>\n");
 		return;
 	}
 
-	trap_Argv(1, str, sizeof(str));
-
-	AddIP(str);
-
+	AddIP(BG_Argv(1));
 }
 
 void Svcmd_RemoveIP_f(void)
 {
 	ipFilter_t	f;
 	int			i;
-	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() < 2) {
 		G_Printf("Usage: removeip <ip-mask>\n");
 		return;
 	}
 
-	trap_Argv(1, str, sizeof(str));
-
-	if (!StringToFilter (str, &f))
+	if (!StringToFilter(BG_Argv(1), &f))
 		return;
 
 	for (i = 0; i<numIPFilters; i++) {
@@ -302,7 +294,7 @@ void Svcmd_RemoveIP_f(void)
 		}
 	}
 
-	G_Printf ("Didn't find %s.\n", str);
+	G_Printf ("Didn't find %s.\n", BG_Argv(1));
 }
 
 void Svcmd_EntityList_f(void)
@@ -368,16 +360,13 @@ void Svcmd_EntityList_f(void)
 void Svcmd_Kick_f(void)
 {
 	gclient_t	*cl;
-	char		str[MAX_STRING_CHARS];
 
 	if (trap_Argc() != 2) {
 		G_Printf("Usage: kick <player name>\n");
 		return;
 	}
 
-	trap_Argv(1, str, sizeof str);
-
-	cl = ClientForString(str);
+	cl = ClientForString(BG_Argv(1));
 	if (!cl) {
 		return;
 	}
@@ -423,7 +412,6 @@ forceteam <player> <team>
 void Svcmd_ForceTeam_f(void)
 {
 	gclient_t	*cl;
-	char		str[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() < 3) {
 		G_Printf("Usage: forceteam <player> <team>\n");
@@ -431,24 +419,22 @@ void Svcmd_ForceTeam_f(void)
 	}
 
 	// find the player
-	trap_Argv(1, str, sizeof(str));
-	cl = ClientForString(str);
+	cl = ClientForString(BG_Argv(1));
 	if (!cl) {
 		return;
 	}
 
 	// set the team
-	trap_Argv(2, str, sizeof(str));
-	SetTeam(&g_entities[cl - level.clients], str);
+	SetTeam(&g_entities[cl - level.clients], BG_Argv(2));
 }
 
 char	*ConcatArgs(int start);
 
 qboolean ConsoleCommand(void)
 {
-	char	cmd[MAX_TOKEN_CHARS];
+	const char	*cmd;
 
-	trap_Argv(0, cmd, sizeof(cmd));
+	cmd = BG_Argv(0);
 
 	if (Q_stricmp (cmd, "entitylist") == 0) {
 		Svcmd_EntityList_f();
