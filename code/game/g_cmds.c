@@ -811,6 +811,11 @@ static void Cmd_Say_f(gentity_t *ent, int mode, qboolean arg0)
 {
 	char		*p;
 
+	if (ent->client->pers.muted) {
+		ClientPrint(ent, "You are muted.");
+		return;
+	}
+
 	if (trap_Argc () < 2 && !arg0) {
 		return;
 	}

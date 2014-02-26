@@ -249,6 +249,8 @@ typedef struct {
 
 	playerStats_t	oldstats;
 	playerStats_t	stats;
+
+	qboolean	muted;
 } clientPersistant_t;
 
 // everything we need to know to backward reconcile

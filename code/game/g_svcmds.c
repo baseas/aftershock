@@ -392,6 +392,54 @@ void Svcmd_ForceTeam_f(void)
 	SetTeam(&g_entities[cl - level.clients], BG_Argv(2));
 }
 
+void Svcmd_Mute_f(void)
+{
+	gclient_t	*cl;
+
+	if (trap_Argc() != 2) {
+		G_Printf("Usage: mute <player name>\n");
+		return;
+	}
+
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		G_Printf("Player not found.\n");
+		return;
+	}
+
+	if (cl->pers.muted) {
+		G_Printf("%s is already muted.\n", cl->pers.netname);
+		return;
+	}
+
+	cl->pers.muted = qtrue;
+	ClientPrint(NULL, va("%s has been muted.", cl->pers.netname));
+}
+
+void Svcmd_Unmute_f(void)
+{
+	gclient_t	*cl;
+
+	if (trap_Argc() != 2) {
+		G_Printf("Usage: mute <player name>\n");
+		return;
+	}
+
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		G_Printf("Player not found.\n");
+		return;
+	}
+
+	if (!cl->pers.muted) {
+		G_Printf("%s is already unmuted.\n", cl->pers.netname);
+		return;
+	}
+
+	cl->pers.muted = qfalse;
+	ClientPrint(NULL, va("%s has been unmuted.", cl->pers.netname));
+}
+
 char	*ConcatArgs(int start);
 
 qboolean ConsoleCommand(void)
@@ -452,6 +500,16 @@ qboolean ConsoleCommand(void)
 
 	if (Q_stricmp(cmd, "kickbots") == 0) {
 		Svcmd_KickBots_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "mute") == 0) {
+		Svcmd_Mute_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "unmute") == 0) {
+		Svcmd_Unmute_f();
 		return qtrue;
 	}
 
