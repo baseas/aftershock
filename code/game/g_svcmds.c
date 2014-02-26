@@ -203,6 +203,44 @@ static void AddIP(char *str)
 	UpdateIPBans();
 }
 
+gclient_t *ClientForString(const char *s)
+{
+	gclient_t	*cl;
+	int			i;
+	int			idnum;
+
+	// numeric values are just slot numbers
+	if (s[0] >= '0' && s[0] <= '9') {
+		idnum = atoi(s);
+		if (idnum < 0 || idnum >= level.maxclients) {
+			Com_Printf("Bad client slot: %i\n", idnum);
+			return NULL;
+		}
+
+		cl = &level.clients[idnum];
+		if (cl->pers.connected == CON_DISCONNECTED) {
+			G_Printf("Client %i is not connected\n", idnum);
+			return NULL;
+		}
+		return cl;
+	}
+
+	// check for a name match
+	for (i = 0; i < level.maxclients; i++) {
+		cl = &level.clients[i];
+		if (cl->pers.connected == CON_DISCONNECTED) {
+			continue;
+		}
+		if (!Q_stricmp(cl->pers.netname, s)) {
+			return cl;
+		}
+	}
+
+	G_Printf("User %s is not on the server\n", s);
+
+	return NULL;
+}
+
 void G_ProcessIPBans(void)
 {
 	char *s, *t;
@@ -327,42 +365,56 @@ void Svcmd_EntityList_f(void)
 	}
 }
 
-gclient_t *ClientForString(const char *s)
+void Svcmd_Kick_f(void)
 {
 	gclient_t	*cl;
-	int			i;
-	int			idnum;
+	char		str[MAX_STRING_CHARS];
 
-	// numeric values are just slot numbers
-	if (s[0] >= '0' && s[0] <= '9') {
-		idnum = atoi(s);
-		if (idnum < 0 || idnum >= level.maxclients) {
-			Com_Printf("Bad client slot: %i\n", idnum);
-			return NULL;
-		}
-
-		cl = &level.clients[idnum];
-		if (cl->pers.connected == CON_DISCONNECTED) {
-			G_Printf("Client %i is not connected\n", idnum);
-			return NULL;
-		}
-		return cl;
+	if (trap_Argc() != 2) {
+		G_Printf("Usage: kick <player name>\n");
+		return;
 	}
 
-	// check for a name match
-	for (i = 0; i < level.maxclients; i++) {
-		cl = &level.clients[i];
-		if (cl->pers.connected == CON_DISCONNECTED) {
+	trap_Argv(1, str, sizeof str);
+
+	cl = ClientForString(str);
+	if (!cl) {
+		return;
+	}
+
+	if (cl->pers.localClient) {
+		G_Printf("Cannot kick host player.\n");
+		return;
+	}
+
+	trap_DropClient(cl - level.clients, "was kicked");
+}
+
+void Svcmd_KickAll_f(void)
+{
+	int	i;
+	for (i = 0; i < level.maxclients; ++i) {
+		if (level.clients[i].pers.connected != CON_CONNECTED) {
 			continue;
 		}
-		if (!Q_stricmp(cl->pers.netname, s)) {
-			return cl;
+		if (level.clients[i].pers.localClient) {
+			continue;
+		}
+		trap_DropClient(i, "was kicked");
+	}
+}
+
+void Svcmd_KickBots_f(void)
+{
+	int	i;
+	for (i = 0; i < level.maxclients; ++i) {
+		if (level.clients[i].pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			trap_DropClient(i, "was kicked");
 		}
 	}
-
-	G_Printf("User %s is not on the server\n", s);
-
-	return NULL;
 }
 
 /**
@@ -435,6 +487,21 @@ qboolean ConsoleCommand(void)
 
 	if (Q_stricmp (cmd, "listip") == 0) {
 		trap_SendConsoleCommand(EXEC_NOW, "g_banIPs\n");
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "kick") == 0) {
+		Svcmd_Kick_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "kickall") == 0) {
+		Svcmd_KickAll_f();
+		return qtrue;
+	}
+
+	if (Q_stricmp(cmd, "kickbots") == 0) {
+		Svcmd_KickBots_f();
 		return qtrue;
 	}
 
