@@ -402,11 +402,11 @@ static void CG_RegisterGraphics(void)
 
 	trap_R_LoadWorldMap(cgs.mapname);
 
-	for (i = 0; i<11; i++) {
-		cgs.media.numberShaders[i] = trap_R_RegisterShader(sb_nums[i]);
+	for (i = 0; i < 11; i++) {
+		cgs.media.numberShaders[i] = trap_R_RegisterShaderNoMip(sb_nums[i]);
 	}
 
-	cgs.media.netgraph = trap_R_RegisterShader("gfx/2d/net.tga");
+	cgs.media.netgraph = trap_R_RegisterShaderNoMip("gfx/2d/net.tga");
 
 	cgs.media.botSkillShaders[0] = trap_R_RegisterShader("menu/art/skill1.tga");
 	cgs.media.botSkillShaders[1] = trap_R_RegisterShader("menu/art/skill2.tga");
@@ -416,39 +416,39 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
 
-	cgs.media.deferShader = trap_R_RegisterShader("gfx/2d/defer.tga");
+	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
 
-	cgs.media.smokePuffShader = trap_R_RegisterShader("smokePuff");
-	cgs.media.smokePuffRageProShader = trap_R_RegisterShader("smokePuffRagePro");
-	cgs.media.plasmaBallShader = trap_R_RegisterShader("sprites/plasma1Color");
+	cgs.media.smokePuffShader = trap_R_RegisterShaderNoMip("smokePuff");
+	cgs.media.smokePuffRageProShader = trap_R_RegisterShaderNoMip("smokePuffRagePro");
+	cgs.media.plasmaBallShader = trap_R_RegisterShaderNoMip("sprites/plasma1Color");
 	cgs.media.bloodTrailShader = trap_R_RegisterShader("bloodTrail");
-	cgs.media.lagometerShader = trap_R_RegisterShader("lagometer");
-	cgs.media.connectionShader = trap_R_RegisterShader("disconnected");
+	cgs.media.lagometerShader = trap_R_RegisterShaderNoMip("lagometer");
+	cgs.media.connectionShader = trap_R_RegisterShaderNoMip("disconnected");
 
 	cgs.media.waterBubbleShader = trap_R_RegisterShader("waterBubble");
 
 	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
 
 	if (cg_flatGrenades.integer) {
-		cgs.media.grenadeShader = trap_R_RegisterShader("models/players/flat");
+		cgs.media.grenadeShader = trap_R_RegisterShaderNoMip("models/players/flat");
 	} else {
-		cgs.media.grenadeShader = trap_R_RegisterShader("models/ammo/grenadeColor");
+		cgs.media.grenadeShader = trap_R_RegisterShaderNoMip("models/ammo/grenadeColor");
 	}
 
 	for (i = 0; i < NUM_CROSSHAIRS; i++) {
-		cgs.media.crosshairShader[i] = trap_R_RegisterShader(va("gfx/crosshair/crosshair%i", i));
+		cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("gfx/crosshair/crosshair%i", i));
 	}
 
-	cgs.media.backTileShader = trap_R_RegisterShader("gfx/2d/backtile");
-	cgs.media.noammoShader = trap_R_RegisterShader("icons/noammo");
+	cgs.media.backTileShader = trap_R_RegisterShaderNoMip("gfx/2d/backtile");
+	cgs.media.noammoShader = trap_R_RegisterShaderNoMip("icons/noammo");
 
 	// powerup shaders
-	cgs.media.quadShader = trap_R_RegisterShader("powerups/quad");
-	cgs.media.quadWeaponShader = trap_R_RegisterShader("powerups/quadWeapon");
-	cgs.media.battleSuitShader = trap_R_RegisterShader("powerups/battleSuit");
-	cgs.media.battleWeaponShader = trap_R_RegisterShader("powerups/battleWeapon");
-	cgs.media.regenShader = trap_R_RegisterShader("powerups/regen");
-	cgs.media.hastePuffShader = trap_R_RegisterShader("hasteSmokePuff");
+	cgs.media.quadShader = trap_R_RegisterShaderNoMip("powerups/quad");
+	cgs.media.quadWeaponShader = trap_R_RegisterShaderNoMip("powerups/quadWeapon");
+	cgs.media.battleSuitShader = trap_R_RegisterShaderNoMip("powerups/battleSuit");
+	cgs.media.battleWeaponShader = trap_R_RegisterShaderNoMip("powerups/battleWeapon");
+	cgs.media.regenShader = trap_R_RegisterShaderNoMip("powerups/regen");
+	cgs.media.hastePuffShader = trap_R_RegisterShaderNoMip("hasteSmokePuff");
 
 	cgs.media.bboxShader = trap_R_RegisterShaderNoMip("bbox");
 	cgs.media.bboxShaderNocull = trap_R_RegisterShaderNoMip("bbox_nocull");
@@ -465,8 +465,8 @@ static void CG_RegisterGraphics(void)
 	}
 
 	if (cgs.gametype >= GT_TEAM || cg_buildScript.integer) {
-		cgs.media.friendShader = trap_R_RegisterShader("sprites/foe");
-		cgs.media.friendShaderVisible = trap_R_RegisterShader("sprites/foe2");
+		cgs.media.friendShader = trap_R_RegisterShaderNoMip("sprites/foe");
+		cgs.media.friendShaderVisible = trap_R_RegisterShaderNoMip("sprites/foe2");
 	}
 
 	cgs.media.armorRed = trap_R_RegisterShaderNoMip("icons/armorRed");
@@ -499,7 +499,7 @@ static void CG_RegisterGraphics(void)
 	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
 	cgs.media.dishFlashModel = trap_R_RegisterModel("models/weaphits/boom01.md3");
 	cgs.media.teleportEffectModel = trap_R_RegisterModel("models/misc/telep.md3");
-	cgs.media.teleportEffectShader = trap_R_RegisterShader("teleportEffect");
+	cgs.media.teleportEffectShader = trap_R_RegisterShaderNoMip("teleportEffect");
 	cgs.media.medalImpressive = trap_R_RegisterShaderNoMip("medal_impressive");
 	cgs.media.medalExcellent = trap_R_RegisterShaderNoMip("medal_excellent");
 	cgs.media.medalGauntlet = trap_R_RegisterShaderNoMip("medal_gauntlet");
@@ -529,16 +529,16 @@ static void CG_RegisterGraphics(void)
 	cgs.media.directHit = trap_R_RegisterShaderNoMip("icons/direct_hit");
 
 	// wall marks
-	cgs.media.bulletMarkShader = trap_R_RegisterShader("gfx/damage/bullet_mrk");
-	cgs.media.burnMarkShader = trap_R_RegisterShader("gfx/damage/burn_med_mrk");
-	cgs.media.holeMarkShader = trap_R_RegisterShader("gfx/damage/hole_lg_mrk");
-	cgs.media.energyMarkShader = trap_R_RegisterShader("gfx/damage/plasma_mrk");
-	cgs.media.shadowMarkShader = trap_R_RegisterShader("markShadow");
-	cgs.media.wakeMarkShader = trap_R_RegisterShader("wake");
-	cgs.media.bloodMarkShader = trap_R_RegisterShader("bloodMark");
+	cgs.media.bulletMarkShader = trap_R_RegisterShaderNoMip("gfx/damage/bullet_mrk");
+	cgs.media.burnMarkShader = trap_R_RegisterShaderNoMip("gfx/damage/burn_med_mrk");
+	cgs.media.holeMarkShader = trap_R_RegisterShaderNoMip("gfx/damage/hole_lg_mrk");
+	cgs.media.energyMarkShader = trap_R_RegisterShaderNoMip("gfx/damage/plasma_mrk");
+	cgs.media.shadowMarkShader = trap_R_RegisterShaderNoMip("markShadow");
+	cgs.media.wakeMarkShader = trap_R_RegisterShaderNoMip("wake");
+	cgs.media.bloodMarkShader = trap_R_RegisterShaderNoMip("bloodMark");
 
 	cgs.media.spawnpoint = trap_R_RegisterModel("models/misc/spawnpoint.md3");
-	cgs.media.spawnpointShader = trap_R_RegisterShader("spawnpoint");
+	cgs.media.spawnpointShader = trap_R_RegisterShaderNoMip("spawnpoint");
 
 	// register the inline models
 	cgs.numInlineModels = trap_CM_NumInlineModels();
