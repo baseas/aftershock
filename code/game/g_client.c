@@ -539,8 +539,12 @@ static void ClientSendTeamSpawnpoints(gentity_t *ent, const char *label, int tea
 
 	spot = NULL;
 	while ((spot = G_Find(spot, FOFS(classname), label)) != NULL) {
+		trace_t	tr;
+		vec3_t	dest;
+		VectorSet(dest, spot->s.origin[0], spot->s.origin[1], spot->s.origin[2] - 4096);
+		trap_Trace(&tr, spot->s.origin, NULL, NULL, dest, spot->s.number, MASK_SOLID);
 		Com_sprintf(entry, sizeof entry, " %i %i %i %i %i %i",
-			(int) spot->s.origin[0], (int) spot->s.origin[1], (int) spot->s.origin[2],
+			(int) spot->s.origin[0], (int) spot->s.origin[1], (int) tr.endpos[2],
 			(int) spot->s.angles[0], (int) spot->s.angles[1], (int) spot->s.angles[2]);
 		Q_strcat(buffer, sizeof buffer, entry);
 	}
