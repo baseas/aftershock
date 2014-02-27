@@ -775,7 +775,7 @@ void SpectatorClientEndFrame(gentity_t *ent)
 		if (clientNum >= 0) {
 			cl = &level.clients[ clientNum ];
 			if (cl->pers.connected == CON_CONNECTED && cl->sess.sessionTeam != TEAM_SPECTATOR) {
-				flags = (cl->ps.eFlags & ~(EF_VOTED | EF_TEAMVOTED)) | (ent->client->ps.eFlags & (EF_VOTED | EF_TEAMVOTED));
+				flags = (cl->ps.eFlags & EF_TEAMVOTED) | (ent->client->ps.eFlags & EF_TEAMVOTED);
 				ent->client->ps = cl->ps;
 				ent->client->ps.pm_flags |= PMF_FOLLOW;
 				ent->client->ps.eFlags = flags;

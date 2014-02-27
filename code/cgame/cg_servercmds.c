@@ -245,7 +245,7 @@ static void CG_ConfigStringModified(void)
 			cgs.voteTime = 0;
 			CG_Printf("Vote passed.\n");
 			CG_AddBufferedSound(cgs.media.votePassed);
-		} else {
+		} else if (*str) {
 			cgs.voteTime = atoi(str);
 			CG_Printf("Vote cast.\n");
 			CG_AddBufferedSound(cgs.media.voteNow);
@@ -267,7 +267,7 @@ static void CG_ConfigStringModified(void)
 			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = 0;
 			CG_Printf("Team vote passed.\n");
 			CG_AddBufferedSound(cgs.media.votePassed);
-		} else {
+		} else if (*str) {
 			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = atoi(str);
 			CG_Printf("Team vote cast.\n");
 			CG_AddBufferedSound(cgs.media.voteNow);

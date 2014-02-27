@@ -252,12 +252,11 @@ typedef enum {
 #define EF_AWARD_CAP		0x00000800		// draw the capture sprite
 #define EF_TALK				0x00001000		// draw a talk balloon
 #define EF_CONNECTION		0x00002000		// draw a connection trouble sprite
-#define EF_VOTED			0x00004000		// already cast a vote
-#define EF_AWARD_IMPRESSIVE	0x00008000		// draw an impressive sprite
-#define EF_AWARD_DEFEND		0x00010000		// draw a defend sprite
-#define EF_AWARD_ASSIST		0x00020000		// draw a assist sprite
-#define EF_AWARD_DENIED		0x00040000		// denied
-#define EF_TEAMVOTED		0x00080000		// already cast a team vote
+#define EF_AWARD_IMPRESSIVE	0x00004000		// draw an impressive sprite
+#define EF_AWARD_DEFEND		0x00008000		// draw a defend sprite
+#define EF_AWARD_ASSIST		0x00010000		// draw a assist sprite
+#define EF_AWARD_DENIED		0x00020000		// denied
+#define EF_TEAMVOTED		0x00040000		// already cast a team vote
 
 // NOTE: may not have more than 16
 typedef enum {

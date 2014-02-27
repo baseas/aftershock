@@ -233,10 +233,11 @@ typedef struct {
 	int			maxHealth;			// for handicapping
 	int			enterTime;			// level.time the client entered the game
 	playerTeamState_t teamState;	// status in teamplay games
+	qboolean	ready;
+	int			vote;				// -1: no, 0: not voted, 1: yes
+	int			voteTime;			// time of last vote
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
-	qboolean	ready;
-	int			vote;
 
 	int			lastKiller;
 	int			lastTarget;
@@ -379,7 +380,7 @@ typedef struct {
 
 	// voting state
 	char		voteString[MAX_STRING_CHARS];
-	char		voteDisplayString[MAX_STRING_CHARS];
+	char		voteDisplay[MAX_STRING_CHARS];
 	int			voteTime;				// level.time vote was called
 	int			voteExecuteTime;		// time the vote is executed
 	int			voteYes;
@@ -659,6 +660,14 @@ void		BotInterbreedEndMatch(void);
 // g_stats.c
 //
 void	G_StatsWrite(void);
+
+//
+// g_vote.c
+//
+void	G_Vote_ReadCustom(void);
+int		G_Vote_Call(gentity_t *ent);
+void	G_Vote_Check(void);
+void	G_Vote_UpdateCount(void);
 
 // ai_main.c
 #define MAX_FILEPATH	144

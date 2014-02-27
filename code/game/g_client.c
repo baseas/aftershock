@@ -945,7 +945,7 @@ void ClientSpawn(gentity_t *ent)
 
 	// toggle the teleport bit so the client knows to not lerp
 	// and never clear the voted flag
-	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_VOTED | EF_TEAMVOTED);
+	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_TEAMVOTED);
 	flags ^= EF_TELEPORT_BIT;
 
 	// clear everything but the persistant data
@@ -1152,6 +1152,8 @@ void ClientDisconnect(int clientNum)
 	trap_SetConfigstring(CS_PLAYERS + clientNum, "");
 
 	CalculateRanks();
+
+	G_Vote_UpdateCount();
 
 	if (ent->r.svFlags & SVF_BOT) {
 		BotAIShutdownClient(clientNum, qfalse);

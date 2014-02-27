@@ -430,6 +430,8 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	SaveRegisteredItems();
 
+	G_Vote_ReadCustom();
+
 	if (trap_Cvar_VariableIntegerValue("bot_enable")) {
 		BotAISetup(restart);
 		BotAILoadMap(restart);
@@ -1466,40 +1468,6 @@ void CheckTournament(void)
 	}
 }
 
-void CheckVote(void)
-{
-	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
-		level.voteExecuteTime = 0;
-		trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
-	}
-
-	if (!level.voteTime) {
-		return;
-	}
-
-	if (level.time - level.voteTime >= VOTE_TIME) {
-		trap_SetConfigstring(CS_VOTE_TIME, "failed");
-		G_LogPrintf("Vote failed.\n");
-	} else {
-		// ATVI Q3 1.32 Patch #9, WNF
-		if (level.voteYes > level.numVotingClients/2) {
-			// execute the command, then remove the vote
-			trap_SetConfigstring(CS_VOTE_TIME, "passed");
-			G_LogPrintf("Vote passed.\n");
-			level.voteExecuteTime = level.time + 3000;
-		} else if (level.voteNo >= level.numVotingClients/2) {
-			// same behavior as a timeout
-			trap_SetConfigstring(CS_VOTE_TIME, "failed");
-			G_LogPrintf("Vote failed.\n");
-		} else {
-			// still waiting for a majority
-			return;
-		}
-	}
-
-	level.voteTime = 0;
-}
-
 void PrintTeam(int team, char *message)
 {
 	int i;
@@ -1753,7 +1721,7 @@ void G_RunFrame(int levelTime)
 	CheckTeamStatus();
 
 	// cancel vote if timed out
-	CheckVote();
+	G_Vote_Check();
 
 	// check team votes
 	CheckTeamVote(TEAM_RED);
