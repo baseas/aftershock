@@ -618,6 +618,9 @@ void CG_NewClientInfo(int clientNum)
 	v = Info_ValueForKey(configstring, "tl");
 	ci->teamLeader = atoi(v);
 
+	v = Info_ValueForKey(configstring, "s");
+	ci->specOnly = atoi(v);
+
 	v = Info_ValueForKey(configstring, "r");
 	ci->ready = !!atoi(v);
 	if (cgs.startWhenReady && cg.warmup < 0 && oldValid && ci->ready != oldReady) {

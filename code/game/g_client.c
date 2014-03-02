@@ -667,8 +667,9 @@ void ClientUserinfoChanged(int clientNum)
 			Info_ValueForKey(userinfo, "skill"), teamTask, teamLeader);
 	}
 	else {
-		s = va("n\\%s\\t\\%i\\r\\%i\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
-			client->pers.netname, team, client->pers.ready, client->pers.maxHealth,
+		s = va("n\\%s\\t\\%i\\s\\%d\\r\\%i\\hc\\%i\\w\\%i\\l\\%i\\tt\\%d\\tl\\%d",
+			client->pers.netname, team, client->sess.specOnly,
+			client->pers.ready, client->pers.maxHealth,
 			client->sess.wins, client->sess.losses, teamTask, teamLeader);
 	}
 

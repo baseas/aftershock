@@ -840,7 +840,7 @@ static void Hud_Gametype(int hudnumber)
 	ci1 = NULL;
 	ci2 = NULL;
 	for (i = 0; i < cgs.maxclients; i++) {
-		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team != TEAM_FREE) {
+		if (!cgs.clientinfo[i].infoValid || cgs.clientinfo[i].team != TEAM_FREE) {
 			continue;
 		}
 

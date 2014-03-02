@@ -79,23 +79,59 @@ static int CG_ComparePlayerNums(const void *num1, const void *num2)
 	b = &cgs.clientinfo[*((const int *) num2)];
 
 	if (!a->infoValid) {
-		return -1;
+		return 1;
 	} else if (!b->infoValid) {
+		return -1;
+	}
+
+	if (!a->botSkill && a->ping == -1) {
+		return -1;
+	}
+	if (!b->botSkill && b->ping == -1) {
 		return 1;
 	}
 
-	switch (cgs.gametype) {
-	case GT_FFA:
-	case GT_TOURNAMENT:
-	case GT_DEFRAG:
-	case GT_TEAM:
-	case GT_CTF:
-		return b->score - a->score;
-	case GT_ELIMINATION:
-		return (b->damageDone - b->damageTaken) - (a->damageDone - a->damageTaken);
-	default:
+	if (a->team == TEAM_SPECTATOR && b->team == TEAM_SPECTATOR) {
+		if (a->specOnly == b->specOnly) {
+			if (a->enterTime > b->enterTime) {
+				return -1;
+			}
+			if (a->enterTime < b->enterTime) {
+				return 1;
+			}
+
+			// compare clientNum for correct queue number
+			if (a > b) {
+				return -1;
+			} else if (b < a) {
+				return 1;
+			}
+		}
+		if (a->specOnly) {
+			return 1;
+		}
+		if (b->specOnly) {
+			return -1;
+		}
 		return 0;
 	}
+
+	if (cgs.gametype == GT_ELIMINATION) {
+		if (a->damageDone > b->damageDone) {
+			return -1;
+		}
+		if (a->damageDone < b->damageDone) {
+			return 1;
+		}
+	}
+
+	if (a->score > b->score) {
+		return -1;
+	}
+	if (a->score < b->score) {
+		return 1;
+	}
+	return 0;
 }
 
 static void CG_ParseScores(void)
@@ -125,6 +161,7 @@ static void CG_ParseScores(void)
 			ci->yellowArmor = atoi(BG_Argv(i++));
 			ci->redArmor = atoi(BG_Argv(i++));
 			ci->megaHealth = atoi(BG_Argv(i++));
+			ci->damageDone = atoi(BG_Argv(i++));
 			break;
 		case GT_DEFRAG:
 			ci->score = atoi(BG_Argv(i++));

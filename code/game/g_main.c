@@ -516,9 +516,12 @@ void AddTournamentPlayer(void)
 			client->sess.spectatorClient < 0) {
 			continue;
 		}
-
-		if (!nextInLine || client->sess.spectatorNum > nextInLine->sess.spectatorNum)
+		if (client->sess.specOnly) {
+			continue;
+		}
+		if (!nextInLine || client->sess.spectatorNum > nextInLine->sess.spectatorNum) {
 			nextInLine = client;
+		}
 	}
 
 	if (!nextInLine) {
@@ -635,10 +638,26 @@ int QDECL SortRanks(const void *a, const void *b)
 
 	// then spectators
 	if (ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR) {
-		if (ca->sess.spectatorNum > cb->sess.spectatorNum) {
+		if (!ca->sess.specOnly && !cb->sess.specOnly) {
+			if (ca->sess.spectatorNum > cb->sess.spectatorNum) {
+				return -1;
+			}
+			if (ca->sess.spectatorNum < cb->sess.spectatorNum) {
+				return 1;
+			}
+		}
+		if (ca->sess.specOnly && ca->sess.specOnly) {
+			if (ca->pers.enterTime > cb->pers.enterTime) {
+				return 1;
+			}
+			if (ca->pers.enterTime < cb->pers.enterTime) {
+				return -1;
+			}
+		}
+		if (ca->sess.specOnly) {
 			return -1;
 		}
-		if (ca->sess.spectatorNum < cb->sess.spectatorNum) {
+		if (cb->sess.specOnly) {
 			return 1;
 		}
 		return 0;
@@ -648,6 +667,15 @@ int QDECL SortRanks(const void *a, const void *b)
 	}
 	if (cb->sess.sessionTeam == TEAM_SPECTATOR) {
 		return -1;
+	}
+
+	if (g_gametype.integer == GT_ELIMINATION) {
+		if (ca->ps.persistant[PERS_DAMAGE_DONE] > cb->ps.persistant[PERS_DAMAGE_DONE]) {
+			return -1;
+		}
+		if (ca->ps.persistant[PERS_DAMAGE_DONE] < cb->ps.persistant[PERS_DAMAGE_DONE]) {
+			return 1;
+		}
 	}
 
 	// then sort by score
@@ -833,10 +861,67 @@ void FindIntermissionPoint(void)
 	}
 }
 
+static void G_SendStats(gclient_t *client)
+{
+	int			i;
+	int			*data;
+	char		diffmsg[512];
+	char		fullmsg[512];
+	qboolean	diffempty, fullempty;
+	playerStats_t	*oldstats, *newstats;
+
+	diffmsg[0] = '\0';
+	fullmsg[0] = '\0';
+	oldstats = &client->pers.oldstats;
+	newstats = &client->pers.stats;
+
+	diffempty = qtrue;
+	fullempty = qtrue;
+
+	i = 0;
+	while ((data = BG_StatsData(newstats, i))) {
+		Q_strcat(fullmsg, sizeof fullmsg, va(" %i %i", i, *data));
+		fullempty = qfalse;
+
+		if (*data != *BG_StatsData(oldstats, i)) {
+			Q_strcat(diffmsg, sizeof diffmsg, va(" %i %i", i, *data));
+			diffempty = qfalse;
+		}
+		++i;
+	}
+
+	*oldstats = *newstats;
+
+	for (i = 0; i < level.maxclients; ++i) {
+		gclient_t	*cl = &level.clients[i];
+		if (cl->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			continue;
+		}
+
+		if (cl == client
+			|| (g_gametype.integer == GT_TOURNAMENT && cl->sess.sessionTeam == TEAM_SPECTATOR)
+			|| (g_gametype.integer == GT_TOURNAMENT && level.intermissiontime)
+			|| (cl->sess.spectatorState == SPECTATOR_FOLLOW
+			&& cl->sess.spectatorClient == client - level.clients))
+		{
+			if (!cl->sess.fullStatsSent && !fullempty) {
+				trap_SendServerCommand(i, va("stats %ld %s", client - level.clients, fullmsg));
+				cl->sess.fullStatsSent = qtrue;
+			} else if (!diffempty) {
+				trap_SendServerCommand(i, va("stats %ld %s", client - level.clients, diffmsg));
+			}
+		}
+	}
+}
+
 void BeginIntermission(void)
 {
 	int			i;
-	gentity_t	*client;
+	gentity_t	*ent;
 
 	if (level.intermissiontime) {
 		return;		// already active
@@ -852,14 +937,15 @@ void BeginIntermission(void)
 	level.intermissiontime = level.time;
 	// move all clients to the intermission point
 	for (i = 0; i< level.maxclients; i++) {
-		client = g_entities + i;
-		if (!client->inuse)
+		ent = &g_entities[i];
+		if (!ent->inuse)
 			continue;
 		// respawn if dead
-		if (client->health <= 0) {
-			ClientRespawn(client);
+		if (ent->health <= 0) {
+			ClientRespawn(ent);
 		}
-		MoveClientToIntermission(client);
+		MoveClientToIntermission(ent);
+		G_SendStats(ent->client);
 	}
 
 	G_SendScoreboard(NULL);
@@ -1229,62 +1315,6 @@ static void CheckScoreboard(void)
 	if (level.time - level.lastScoreboardTime > SCOREBOARD_INTERVAL) {
 		G_SendScoreboard(NULL);
 		level.lastScoreboardTime = level.time;
-	}
-}
-
-static void G_SendStats(gclient_t *client)
-{
-	int			i;
-	int			*data;
-	char		diffmsg[512];
-	char		fullmsg[512];
-	qboolean	diffempty, fullempty;
-	playerStats_t	*oldstats, *newstats;
-
-	diffmsg[0] = '\0';
-	fullmsg[0] = '\0';
-	oldstats = &client->pers.oldstats;
-	newstats = &client->pers.stats;
-
-	diffempty = qtrue;
-	fullempty = qtrue;
-
-	i = 0;
-	while ((data = BG_StatsData(newstats, i))) {
-		Q_strcat(fullmsg, sizeof fullmsg, va(" %i %i", i, *data));
-		fullempty = qfalse;
-
-		if (*data != *BG_StatsData(oldstats, i)) {
-			Q_strcat(diffmsg, sizeof diffmsg, va(" %i %i", i, *data));
-			diffempty = qfalse;
-		}
-		++i;
-	}
-
-	*oldstats = *newstats;
-
-	for (i = 0; i < level.maxclients; ++i) {
-		gclient_t	*cl = &level.clients[i];
-		if (cl->pers.connected != CON_CONNECTED) {
-			continue;
-		}
-
-		if (g_entities[i].r.svFlags & SVF_BOT) {
-			continue;
-		}
-
-		if (cl == client
-			|| (g_gametype.integer == GT_TOURNAMENT && cl->sess.sessionTeam == TEAM_SPECTATOR)
-			|| (cl->sess.spectatorState == SPECTATOR_FOLLOW
-			&& cl->sess.spectatorClient == client - level.clients))
-		{
-			if (!cl->sess.fullStatsSent && !fullempty) {
-				trap_SendServerCommand(i, va("stats %ld %s", client - level.clients, fullmsg));
-				cl->sess.fullStatsSent = qtrue;
-			} else if (!diffempty) {
-				trap_SendServerCommand(i, va("stats %ld %s", client - level.clients, diffmsg));
-			}
-		}
 	}
 }
 
@@ -1757,9 +1787,9 @@ static void G_ScoreboardLine(char *buffer, int length, gclient_t *cl, qboolean c
 		Com_sprintf(buffer, length, " %i %i %i", clientNum, score, powerups);
 		break;
 	case GT_TOURNAMENT:
-		Com_sprintf(buffer, length, " %i %i %i %i %i", clientNum, score,
+		Com_sprintf(buffer, length, " %i %i %i %i %i %i", clientNum, score,
 			cl->pers.stats.miscStats[MSTAT_YA], cl->pers.stats.miscStats[MSTAT_RA],
-			cl->pers.stats.miscStats[MSTAT_MH]);
+			cl->pers.stats.miscStats[MSTAT_MH], cl->ps.persistant[PERS_DAMAGE_DONE]);
 		break;
 	case GT_DEFRAG:
 		Com_sprintf(buffer, length, " %i %i", clientNum, score);

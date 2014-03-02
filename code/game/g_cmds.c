@@ -329,9 +329,14 @@ void SetTeam(gentity_t *ent, const char *s)
 	clientNum = client - level.clients;
 	specClient = 0;
 	specState = SPECTATOR_NOT;
-	if (!Q_stricmp(s, "scoreboard") || !Q_stricmp(s, "score")) {
+	if (!Q_stricmp(s, "speconly") || !Q_stricmp(s, "so")) {
+		team = TEAM_SPECTATOR;
+		specState = SPECTATOR_FREE;
+		client->sess.specOnly = (g_gametype.integer == GT_TOURNAMENT);
+	} else if (!Q_stricmp(s, "scoreboard") || !Q_stricmp(s, "score")) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_SCOREBOARD;
+		client->sess.specOnly = qtrue;
 	} else if (!Q_stricmp(s, "follow1")) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FOLLOW;
@@ -343,9 +348,11 @@ void SetTeam(gentity_t *ent, const char *s)
 	} else if (!Q_stricmp(s, "spectator") || !Q_stricmp(s, "s")) {
 		team = TEAM_SPECTATOR;
 		specState = SPECTATOR_FREE;
+		client->sess.specOnly = qfalse;
 	} else if (g_gametype.integer >= GT_TEAM) {
 		// if running a team game, assign player to one of the teams
 		specState = SPECTATOR_NOT;
+		client->sess.specOnly = qfalse;
 		if (!Q_stricmp(s, "red") || !Q_stricmp(s, "r")) {
 			team = TEAM_RED;
 		} else if (!Q_stricmp(s, "blue") || !Q_stricmp(s, "b")) {
@@ -379,6 +386,7 @@ void SetTeam(gentity_t *ent, const char *s)
 	} else {
 		// force them to spectators if there aren't any spots free
 		team = TEAM_FREE;
+		client->sess.specOnly = qfalse;
 	}
 
 	// override decision if limiting the players
@@ -469,16 +477,20 @@ void Cmd_Team_f(gentity_t *ent)
 	if (trap_Argc() != 2) {
 		switch (oldTeam) {
 		case TEAM_BLUE:
-			trap_SendServerCommand(ent-g_entities, "print \"Blue team\n\"");
+			ClientPrint(ent, "Blue team");
 			break;
 		case TEAM_RED:
-			trap_SendServerCommand(ent-g_entities, "print \"Red team\n\"");
+			ClientPrint(ent, "Red team");
 			break;
 		case TEAM_FREE:
-			trap_SendServerCommand(ent-g_entities, "print \"Free team\n\"");
+			ClientPrint(ent, "Free team");
 			break;
 		case TEAM_SPECTATOR:
-			trap_SendServerCommand(ent-g_entities, "print \"Spectator team\n\"");
+			if (ent->client->sess.specOnly) {
+				ClientPrint(ent, "Speconly team");
+			} else {
+				ClientPrint(ent, "Spectator team");
+			}
 			break;
 		}
 		return;

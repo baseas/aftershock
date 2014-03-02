@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
-#define SB_MAXDISPLAY   		7
+#define SB_MAXDISPLAY			11
 #define SB_INFOICON_SIZE		8
 
 #define SB_CHAR_WIDTH			5
@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_YPOS					((SCREEN_HEIGHT - SB_HEIGHT)/2)
 
 #define SB_TEAM_WIDTH			(SB_WIDTH/2 - 40)
-#define SB_TEAM_HEIGHT			20
+#define SB_TEAM_HEIGHT			17
 #define SB_TEAM_RED_X			(SCREEN_WIDTH/2 - SB_TEAM_WIDTH - 20)
 #define SB_TEAM_BLUE_X			(SCREEN_WIDTH/2 + 20)
 #define SB_TEAM_Y				60
@@ -50,9 +50,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_INFO_MAXNUM			13
 
 #define SB_FFA_WIDTH			(SB_WIDTH - 190)
-#define SB_FFA_HEIGHT			20
+#define SB_FFA_HEIGHT			17
 #define SB_FFA_X				(SCREEN_WIDTH/2 - SB_FFA_WIDTH/2)
-#define SB_FFA_Y				75
+#define SB_FFA_Y				65
 
 #define SB_SPEC_WIDTH			(SB_WIDTH - 340)
 #define SB_SPEC_X				(SCREEN_WIDTH/2 - SB_SPEC_WIDTH/2)
@@ -74,25 +74,29 @@ typedef struct {
 	qboolean	percent;
 } picBar_t;
 
-static void CG_DrawClientScore(int x, int y, int w, int h, int clientNum, float *color)
+static void CG_DrawClientScore(int x, int y, int w, int h, clientInfo_t *ci, float *color)
 {
-	clientInfo_t	*ci;
 	entityState_t	*es;
 	char			string[128];
 	int				picSize;
 	int				time;
 
-	ci = &cgs.clientinfo[clientNum];
-	es = &cg_entities[clientNum].currentState;
+	y += h/2;
+
+	if (!ci) {
+		CG_DrawStringExt(x, y - SB_MEDCHAR_HEIGHT / 2, "...", colorWhite, qfalse, qfalse,
+			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 31);
+		return;
+	}
 
 	// don't draw the client while he's connecting
 	if (!ci->botSkill && ci->ping == -1) {
 		return;
 	}
 
-	CG_FillRect(x, y, w, h, color);
+	es = &cg_entities[ci - cgs.clientinfo].currentState;
 
-	y += h/2;
+	CG_FillRect(x, y - h / 2, w, h, color);
 
 	CG_DrawStringExt(x, y - SB_MEDCHAR_HEIGHT/2, ci->name, colorWhite, qfalse, qfalse,
 		SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 31);
@@ -160,6 +164,7 @@ static void CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *co
 	int				i;
 	clientInfo_t	*ci;
 	int				count;
+	qboolean		localDrawn;
 	float			transparent[4];
 
 	transparent[0] = 0;
@@ -178,6 +183,8 @@ static void CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *co
 
 	y += 20;
 
+	localDrawn = qfalse;
+
 	for (i = 0, count = 0; i < MAX_CLIENTS; ++i) {
 		ci = &cgs.clientinfo[cg.sortedClients[i]];
 
@@ -193,11 +200,11 @@ static void CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *co
 			break;
 		}
 
-		if (count % 2) {
-			CG_DrawClientScore(x, y, w, h, cg.sortedClients[i], transparent);
-		} else {
-			CG_DrawClientScore(x, y, w, h, cg.sortedClients[i], color);
+		if (ci == &cgs.clientinfo[cg.clientNum]) {
+			localDrawn = qtrue;
 		}
+
+		CG_DrawClientScore(x, y, w, h, ci, (count % 2 ? transparent : color));
 
 		y += h + 1;
 		++count;
@@ -207,23 +214,22 @@ static void CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *co
 		return;
 	}
 
-	CG_DrawStringExt(x, y, "...", colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+	CG_DrawClientScore(x, y, w, h, NULL, (count % 2 ? transparent : color));
 
-	y += h - 5;
-	if (count % 2) {
-		CG_DrawClientScore(x, y, w, h, cg.clientNum, transparent);
-	} else {
-		CG_DrawClientScore(x, y, w, h, cg.clientNum, color);
+	if (!localDrawn) {
+		y += h + 1;
+		++count;
+		CG_DrawClientScore(x, y, w, h, &cgs.clientinfo[cg.clientNum], transparent);
 	}
 }
 
 static void CG_DrawSpecs(void)
 {
 	int				numLine;
-	char			string[128];
+	char			string[3 * SB_SPEC_MAXCHAR + 32];
 	int				y;
 	int				i;
-	int				queueNumber = 1;
+	qboolean		localDrawn;
 	clientInfo_t	*ci;
 
 	strcpy(string, "Spectators");
@@ -233,51 +239,58 @@ static void CG_DrawSpecs(void)
 	y = SB_SPEC_Y + 20;
 	string[0] = '\0';
 	numLine = 0;
+	localDrawn = (cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR);
 
 	for (i = 0; i < MAX_CLIENTS; ++i) {
-		if (!cgs.clientinfo[i].infoValid) {
+		ci = &cgs.clientinfo[cg.sortedClients[i]];
+
+		if (!ci->infoValid) {
 			continue;
 		}
-
-		ci = &cgs.clientinfo[i];
 
 		if (ci->team != TEAM_SPECTATOR) {
 			continue;
 		}
 
-		if (CG_DrawStrlen(string) + CG_DrawStrlen(ci->name) + 3 > SB_SPEC_MAXCHAR) {
-			CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
-		} else if (*string) {
-			strcat(string, "   ");
+		if (ci == &cgs.clientinfo[cg.clientNum]) {
+			localDrawn = qtrue;
 		}
 
 		if (cgs.gametype == GT_TOURNAMENT) {
 			if (ci->specOnly) {
-				Com_sprintf(string, sizeof string, "^7(^2%i^7/^1%i^7)%s^7(^1s^7)^7",
-					ci->wins, ci->losses, ci->name);
+				Q_strcat(string, sizeof string, va("^7(^2%i^7/^1%i^7)%s^7(^1s^7)^7",
+					ci->wins, ci->losses, ci->name));
 			} else {
-				Com_sprintf(string, sizeof string, "^7(^2%i^7/^1%i^7)%s^7(^2%i^7)^7",
-					ci->wins, ci->losses, ci->name, queueNumber);
-				queueNumber++;
+				Q_strcat(string, sizeof string, va("^7(^2%i^7/^1%i^7)%s^7",
+					ci->wins, ci->losses, ci->name));
 			}
 		} else {
-			Q_strncpyz(string, ci->name, sizeof string);
+			Q_strcat(string, sizeof string, ci->name);
 		}
 
-		y += SB_MEDCHAR_HEIGHT;
-		numLine++;
-		if (numLine >= 2) {
-			break;
+		if (CG_DrawStrlen(string) + CG_DrawStrlen(ci->name) + 3 > SB_SPEC_MAXCHAR) {
+			CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
+				SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+			string[0] = '\0';
+			y += SB_MEDCHAR_HEIGHT;
+			numLine++;
+			if (numLine >= 3) {
+				break;
+			}
+			continue;
+		}
+
+		if (*string) {
+			Q_strcat(string, sizeof string, "^7   ");
 		}
 	}
 
 	// draw the local client if he hasn't been drawn yet
-	if (numLine >= 2) {
+	if (numLine >= 3) {
 		strcpy(string, "... ");
-		strcat(string, cgs.clientinfo[cg.clientNum].name);
-		CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
-			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
-	} else if (*string) {
+		if (!localDrawn) {
+			Q_strcat(string, sizeof string, cgs.clientinfo[cg.clientNum].name);
+		}
 		CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
 			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 	}
@@ -658,7 +671,7 @@ static void CG_DrawSingleScoreboard(void)
 	color[1] = 0.7;
 	color[2] = 0.7;
 	color[3] = 0.25;
-	CG_TeamScoreboard(SB_FFA_X, SB_FFA_Y + 50, SB_FFA_WIDTH, SB_FFA_HEIGHT, TEAM_FREE,
+	CG_TeamScoreboard(SB_FFA_X, SB_FFA_Y + 40, SB_FFA_WIDTH, SB_FFA_HEIGHT, TEAM_FREE,
 		color, SB_MAXDISPLAY);
 }
 

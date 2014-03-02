@@ -215,6 +215,7 @@ typedef struct {
 	int			wins, losses;		// tournament stats
 	qboolean	teamLeader;			// true when this client is a team leader
 	qboolean	fullStatsSent;
+	qboolean	specOnly;
 } clientSession_t;
 
 #define MAX_NETNAME			36

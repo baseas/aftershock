@@ -209,91 +209,8 @@ void Team_SetFlagStatus(int team, flagStatus_t status)
 	}
 }
 
-static int SortPlayers(const void *a, const void *b)
-{
-	gclient_t	*ca, *cb;
-
-	ca = &level.clients[*(int *)a];
-	cb = &level.clients[*(int *)b];
-
-	// sort special clients last
-	if (ca->sess.spectatorState == SPECTATOR_SCOREBOARD || ca->sess.spectatorClient < 0) {
-		return 1;
-	}
-
-	if (cb->sess.spectatorState == SPECTATOR_SCOREBOARD || cb->sess.spectatorClient < 0) {
-		return -1;
-	}
-
-	// then connecting clients
-	if (ca->pers.connected == CON_CONNECTING) {
-		return 1;
-	}
-
-	if (cb->pers.connected == CON_CONNECTING) {
-		return -1;
-	}
-
-	// then spectators
-	if (ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR) {
-#if 0
-	if ((ca->sess.specOnly && cb->sess.specOnly) || (!ca->sess.specOnly && !cb->sess.specOnly)) {
-			if (ca->sess.spectatorTime < cb->sess.spectatorTime) {
-				return -1;
-			}
-
-			if (ca->sess.spectatorTime > cb->sess.spectatorTime) {
-				return 1;
-			}
-			return 0;
-		}
-
-		if (ca->sess.specOnly) {
-			return 1;
-		}
-
-		if (cb->sess.specOnly) {
-			return -1;
-		}
-#endif
-	}
-
-#if 0
-	if (ca->sess.sessionTeam == TEAM_SPECTATOR) {
-		return 1;
-	}
-
-	if (cb->sess.sessionTeam == TEAM_SPECTATOR) {
-		return -1;
-	}
-
-	if (ca->dmgtaken == 0 && cb->dmgtaken != 0) {
-		return 1;
-	}
-
-	if (ca->dmgtaken != 0 && cb->dmgtaken == 0) {
-		return -1;
-	}
-
-	if (ca->dmgtaken == 0 && cb->dmgtaken == 0) {
-		return 0;
-	}
-
-	if (ca->dmgdone/ca->dmgtaken > cb->dmgdone/cb->dmgtaken) {
-		return -1;
-	}
-
-	if (ca->dmgdone/ca->dmgtaken < cb->dmgdone/cb->dmgtaken) {
-		return 1;
-	}
-#endif
-
-	return 0;
-}
-
 void Team_Shuffle(void)
 {
-	int		sortPlayers[MAX_CLIENTS];
 	int		i;
 	int		nextTeam = TEAM_RED;
 	int		count = 0;
@@ -303,20 +220,15 @@ void Team_Shuffle(void)
 	}
 
 	for (i = 0; i < level.numConnectedClients; i++) {
-		sortPlayers[i] = level.sortedClients[i];
-	}
+		gclient_t	*cl;
+		cl = &level.clients[level.sortedClients[i]];
 
-	qsort(sortPlayers, level.numConnectedClients, sizeof sortPlayers[0], SortPlayers);
-
-	for (i = 0; i < level.numConnectedClients; i++) {
-		if (g_entities[&level.clients[level.sortedClients[i]] - level.clients].r.svFlags & SVF_BOT) {
+		if (g_entities[cl - level.clients].r.svFlags & SVF_BOT) {
 			continue;
 		}
 
-		if (level.clients[sortPlayers[i]].sess.sessionTeam == TEAM_RED
-			|| level.clients[sortPlayers[i]].sess.sessionTeam == TEAM_BLUE)
-		{
-			level.clients[sortPlayers[i]].sess.sessionTeam = nextTeam;
+		if (cl->sess.sessionTeam == TEAM_RED || cl->sess.sessionTeam == TEAM_BLUE) {
+			cl->sess.sessionTeam = nextTeam;
 			count++;
 			G_Printf("%i\n", nextTeam);
 			if (nextTeam == TEAM_RED) {
@@ -325,8 +237,8 @@ void Team_Shuffle(void)
 				nextTeam = TEAM_RED;
 			}
 
-			ClientUserinfoChanged(sortPlayers[i]);
-			ClientBegin(sortPlayers[i]);
+			ClientUserinfoChanged(cl - level.clients);
+			ClientBegin(cl - level.clients);
 		}
 	}
 
