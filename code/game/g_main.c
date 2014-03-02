@@ -338,6 +338,65 @@ void G_UpdateCvars(void)
 	}
 }
 
+static void G_TeamSpawnpoints(char *buffer, int size, team_t team)
+{
+	gentity_t	*spot;
+	char		*label;
+
+	if (size < 1) {
+		return;
+	}
+
+	switch (team) {
+	case TEAM_RED:
+		label = "team_CTF_redspawn";
+		break;
+	case TEAM_BLUE:
+		label = "team_CTF_bluespawn";
+		break;
+	case TEAM_FREE:
+		label = "info_player_deathmatch";
+		break;
+	default:
+		return;
+	}
+
+	spot = NULL;
+	buffer[0] = '\0';
+
+	while ((spot = G_Find(spot, FOFS(classname), label)) != NULL) {
+		trace_t	tr;
+		vec3_t	dest;
+		char	entry[64];
+
+		VectorSet(dest, spot->s.origin[0], spot->s.origin[1], spot->s.origin[2] - 4096);
+		trap_Trace(&tr, spot->s.origin, NULL, NULL, dest, spot->s.number, MASK_SOLID);
+
+		Com_sprintf(entry, sizeof entry, "%i %i %i %i %i %i",
+			(int) spot->s.origin[0], (int) spot->s.origin[1], (int) (tr.endpos[2] + 1),
+			(int) spot->s.angles[0], (int) spot->s.angles[1], (int) spot->s.angles[2]);
+
+		if (*buffer) {
+			Q_strcat(buffer, size, " ");
+		}
+		Q_strcat(buffer, size, entry);
+	}
+}
+
+static void G_SetSpawnpoints(void)
+{
+	if (g_gametype.integer == GT_CTF) {
+		char	red[2048], blue[2048];
+		G_TeamSpawnpoints(red, sizeof red, TEAM_RED);
+		G_TeamSpawnpoints(blue, sizeof blue, TEAM_BLUE);
+		trap_SetConfigstring(CS_SPAWNPOINTS, va("red %s blue %s", red, blue));
+	} else {
+		char	free[2048];
+		G_TeamSpawnpoints(free, sizeof free, TEAM_FREE);
+		trap_SetConfigstring(CS_SPAWNPOINTS, free);
+	}
+}
+
 void G_InitGame(int levelTime, int randomSeed, int restart)
 {
 	int					i;
@@ -419,6 +478,9 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString();
+
+	// send spawnpoint positions to clients
+	G_SetSpawnpoints();
 
 	// general initialization
 	G_FindTeams();

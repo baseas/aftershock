@@ -571,6 +571,46 @@ static void CG_RegisterGraphics(void)
 	CG_ClearParticles ();
 }
 
+static void CG_RegisterSpawnpoints(void)
+{
+	team_t		team;
+	char		*token;
+	const char	*data;
+
+	data = CG_ConfigString(CS_SPAWNPOINTS);
+	team = TEAM_NUM_TEAMS;
+	cg.numSpawnpoints = 0;
+
+	do {
+		token = COM_Parse((char **) &data);
+		if (!*token) {
+			return;
+		}
+
+		if (!strcmp(token, "red")) {
+			team = TEAM_RED;
+			cg.spawnOrigin[cg.numSpawnpoints][0] = atof(COM_Parse((char **) &data));
+		} else if (!strcmp(token, "blue")) {
+			team = TEAM_BLUE;
+			cg.spawnOrigin[cg.numSpawnpoints][0] = atof(COM_Parse((char **) &data));
+		} else {
+			if (team == TEAM_NUM_TEAMS) {
+				team = TEAM_FREE;
+			}
+			cg.spawnOrigin[cg.numSpawnpoints][0] = atof(token);
+		}
+
+		cg.spawnOrigin[cg.numSpawnpoints][1] = atof(COM_Parse((char **) &data));
+		cg.spawnOrigin[cg.numSpawnpoints][2] = atof(COM_Parse((char **) &data));
+		cg.spawnAngle[cg.numSpawnpoints][0] = atof(COM_Parse((char **) &data));
+		cg.spawnAngle[cg.numSpawnpoints][1] = atof(COM_Parse((char **) &data));
+		cg.spawnAngle[cg.numSpawnpoints][2] = atof(COM_Parse((char **) &data));
+
+		cg.spawnTeam[cg.numSpawnpoints] = team;
+		++cg.numSpawnpoints;
+	} while (1);
+}
+
 static void CG_RegisterItems(void)
 {
 	char	items[MAX_ITEMS + 1];
@@ -917,6 +957,8 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	CG_RegisterGraphics();
 
 	CG_RegisterItems();
+
+	CG_RegisterSpawnpoints();
 
 	CG_RegisterModels();
 

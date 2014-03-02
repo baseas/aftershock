@@ -653,6 +653,7 @@ static void CG_AddSpawnpoints(void)
 {
 	refEntity_t	re;
 	int			i;
+	vec3_t		mins, maxs;
 
 	if (!cg_drawSpawnpoints.integer) {
 		return;
@@ -662,9 +663,14 @@ static void CG_AddSpawnpoints(void)
 	re.hModel = cgs.media.spawnpoint;
 	re.customShader = cgs.media.spawnpointShader;
 
+	// move spawnpoint to the ground
+	trap_R_ModelBounds(cgs.media.spawnpoint, mins, maxs);
+
 	for (i = 0; i < cg.numSpawnpoints; i++) {
 		VectorCopy(cg.spawnOrigin[i], re.origin);
 		AnglesToAxis(cg.spawnAngle[i], re.axis);
+
+		re.origin[2] += maxs[2] - mins[2];
 
 		switch (cg.spawnTeam[i]) {
 		case TEAM_FREE:

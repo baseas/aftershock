@@ -230,24 +230,6 @@ static void CG_ParseWarmup(void)
 	cg.warmup = warmup;
 }
 
-static void CG_ParseSpawnpoints(void)
-{
-	int		i;
-	team_t	team;
-
-	cg.numSpawnpoints = (trap_Argc() - 2) / 6;
-	team = atoi(BG_Argv(1));
-	for (i = 0; i < cg.numSpawnpoints; ++i) {
-		cg.spawnTeam[i] = team;
-		cg.spawnOrigin[i][0] = atof(BG_Argv(i * 6 + 2));
-		cg.spawnOrigin[i][1] = atof(BG_Argv(i * 6 + 3));
-		cg.spawnOrigin[i][2] = atof(BG_Argv(i * 6 + 4));
-		cg.spawnAngle[i][0] = atof(BG_Argv(i * 6 + 5));
-		cg.spawnAngle[i][1] = atof(BG_Argv(i * 6 + 6));
-		cg.spawnAngle[i][2] = atof(BG_Argv(i * 6 + 7));
-	}
-}
-
 static void CG_ConfigStringModified(void)
 {
 	const char	*str;
@@ -453,10 +435,6 @@ static void CG_ServerCommand(void)
 
 	if (!strcmp(cmd, "tinfo")) {
 		CG_ParseTeamInfo();
-	}
-
-	if (!strcmp(cmd, "spawnpoints")) {
-		CG_ParseSpawnpoints();
 	}
 
 	if (!strcmp(cmd, "print")) {
