@@ -1426,6 +1426,32 @@ static void Cmd_Unlock_f(gentity_t *ent)
 	}
 }
 
+static void Cmd_Forfeit_f(gentity_t *ent)
+{
+	if (g_gametype.integer != GT_TOURNAMENT) {
+		ClientPrint(ent, "Forfeit is only available in tournament.");
+		return;
+	}
+
+	if (ent->client->sess.sessionTeam != TEAM_FREE) {
+		ClientPrint(ent, "You are not playing.");
+		return;
+	}
+
+	if (level.warmupTime < 0) {
+		ClientPrint(ent, "Forfeit is not available during warmup.");
+		return;
+	}
+
+	if (ent->client->ps.clientNum != level.sortedClients[1]) {
+		ClientPrint(ent, "Forfeit is only available for the losing player.");
+		return;
+	}
+
+	level.intermissionQueued = level.time;
+	ClientPrint(NULL, "Match has been forfeited.");
+}
+
 void ClientCommand(int clientNum)
 {
 	gentity_t	*ent;
@@ -1513,6 +1539,8 @@ void ClientCommand(int clientNum)
 		Cmd_Lock_f(ent);
 	else if (Q_stricmp(cmd, "unlock") == 0)
 		Cmd_Unlock_f(ent);
+	else if (Q_stricmp(cmd, "forfeit") == 0)
+		Cmd_Forfeit_f(ent);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }
