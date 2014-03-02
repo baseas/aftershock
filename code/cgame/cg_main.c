@@ -227,6 +227,7 @@ vmCvar_t	cg_drawSpawnpoints;
 vmCvar_t	cg_drawBBox;
 vmCvar_t	cg_itemFX;
 vmCvar_t	cg_wallhack;
+vmCvar_t	cg_hitBeep;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_autoswitch, "cg_autoswitch", "0", CVAR_ARCHIVE },
@@ -371,7 +372,8 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_drawSpawnpoints, "cg_drawSpawnpoints", "1", CVAR_ARCHIVE },
 	{ &cg_drawBBox, "cg_drawBBox", "0", CVAR_CHEAT },
 	{ &cg_itemFX, "cg_itemFX", "7", CVAR_ARCHIVE },
-	{ &cg_wallhack, "cg_wallhack", "0", CVAR_CHEAT }
+	{ &cg_wallhack, "cg_wallhack", "0", CVAR_CHEAT },
+	{ &cg_hitBeep, "cg_hitBeep", "2", CVAR_ARCHIVE }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);

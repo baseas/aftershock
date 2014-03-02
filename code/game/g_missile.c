@@ -107,16 +107,12 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace)
 
 			LogAccuracyHit(other, &g_entities[ent->r.ownerNum], &teamHit, &enemyHit);
 			if (teamHit) {
+				g_entities[ent->r.ownerNum].client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_TEAMHIT;
 				g_entities[ent->r.ownerNum].client->pers.stats.teamHits[ent->s.weapon]++;
 				hitClient = qtrue;
 			} else if (enemyHit) {
 				g_entities[ent->r.ownerNum].client->pers.stats.enemyHits[ent->s.weapon]++;
-				g_entities[ent->r.ownerNum].client->ps.persistant[PERS_HITS]++;
 				hitClient = qtrue;
-			}
-
-			if (teamHit && !enemyHit) {
-				g_entities[ent->r.ownerNum].client->ps.persistant[PERS_HITS]--;
 			}
 
 			BG_EvaluateTrajectoryDelta(&ent->s.pos, level.time, velocity);

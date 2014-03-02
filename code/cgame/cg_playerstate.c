@@ -277,12 +277,38 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 		cg.lastHitTime = cg.time;
 	}
 
-	// NOTE: when the player hits both an enemy and a team mate,
-	// there will be no hit sound
-	if (ps->persistant[PERS_HITS] > ops->persistant[PERS_HITS]) {
-		trap_S_StartLocalSound(cgs.media.hitSound2, CHAN_LOCAL_SOUND);
-	} else if (ps->persistant[PERS_HITS] < ops->persistant[PERS_HITS]) {
-		trap_S_StartLocalSound(cgs.media.hitTeamSound, CHAN_LOCAL_SOUND);
+	switch (cg_hitBeep.integer) {
+	case 1:
+		if (cg.lastHitDamage) {
+			trap_S_StartLocalSound(cgs.media.hitSound2, CHAN_LOCAL_SOUND);
+		}
+		break;
+	case 2:
+		if (cg.lastHitDamage > 80) {
+			trap_S_StartLocalSound(cgs.media.hitSound0, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage > 60) {
+			trap_S_StartLocalSound(cgs.media.hitSound1, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage > 40) {
+			trap_S_StartLocalSound(cgs.media.hitSound2, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage > 20) {
+			trap_S_StartLocalSound(cgs.media.hitSound3, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage) {
+			trap_S_StartLocalSound(cgs.media.hitSound4, CHAN_LOCAL_SOUND);
+		}
+		break;
+	case 3:
+		if (cg.lastHitDamage > 80) {
+			trap_S_StartLocalSound(cgs.media.hitSound4, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage > 60) {
+			trap_S_StartLocalSound(cgs.media.hitSound3, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage > 40) {
+			trap_S_StartLocalSound(cgs.media.hitSound2, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage > 20) {
+			trap_S_StartLocalSound(cgs.media.hitSound1, CHAN_LOCAL_SOUND);
+		} else if (cg.lastHitDamage) {
+			trap_S_StartLocalSound(cgs.media.hitSound0, CHAN_LOCAL_SOUND);
+		}
+		break;
 	}
 
 	// health changes of more than -1 should make pain sounds
@@ -299,6 +325,12 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 
 	// sounds that both client and attacker receive
 	if (ps->persistant[PERS_PLAYEREVENTS] != ops->persistant[PERS_PLAYEREVENTS]) {
+		if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_TEAMHIT) !=
+			(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_TEAMHIT))
+		{
+			trap_S_StartLocalSound(cgs.media.hitTeamSound, CHAN_LOCAL_SOUND);
+		}
+
 		if ((ps->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_DENIEDREWARD) !=
 			(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_DENIEDREWARD))
 		{

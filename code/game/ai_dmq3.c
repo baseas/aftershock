@@ -3799,7 +3799,7 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 		trap_BotSetChatName(bs->cs, name, bs->client);
 		//
 		bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
-		bs->lasthitcount = bs->cur_ps.persistant[PERS_HITS];
+		bs->lastDamageDone = bs->cur_ps.persistant[PERS_DAMAGE_DONE];
 		//
 		bs->setupcount = 0;
 		//
@@ -3855,7 +3855,7 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime) {
 	}
 	//
 	bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
-	bs->lasthitcount = bs->cur_ps.persistant[PERS_HITS];
+	bs->lastDamageDone = bs->cur_ps.persistant[PERS_DAMAGE_DONE];
 }
 
 /*

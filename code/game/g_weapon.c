@@ -563,15 +563,11 @@ void FireWeapon(gentity_t *ent)
 
 	if (teamHit) {
 		ent->client->pers.stats.teamHits[ent->s.weapon]++;
+		ent->client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_TEAMHIT;
 	}
 
 	if (enemyHit) {
 		ent->client->pers.stats.enemyHits[ent->s.weapon]++;
-		ent->client->ps.persistant[PERS_HITS]++;
-	}
-
-	if (teamHit && !enemyHit) {
-		ent->client->ps.persistant[PERS_HITS]--;
 	}
 }
 

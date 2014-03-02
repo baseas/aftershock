@@ -156,7 +156,7 @@ typedef struct bot_state_s
 	int revenge_enemy;								//the revenge enemy
 	int revenge_kills;								//number of kills the enemy made
 	int lastframe_health;							//health value the last frame
-	int lasthitcount;								//number of hits last frame
+	int lastDamageDone;								//damage done until last frame
 	int chatto;										//chat to all or team
 	float walker;									//walker charactertic
 	float ltime;									//local bot time

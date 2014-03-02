@@ -211,7 +211,6 @@ typedef enum {
 // NOTE: may not have more than 16
 typedef enum {
 	PERS_SCORE,						// must not change, server and game both refer
-	PERS_HITS,						// for damage hit sounds
 	PERS_RANK,						// player rank or team rank
 	PERS_TEAM,						// player team
 	PERS_SPAWN_COUNT,				// incremented every respawn
@@ -327,6 +326,7 @@ typedef struct {
 #define PLAYEREVENT_DENIEDREWARD		0x0001
 #define PLAYEREVENT_GAUNTLETREWARD		0x0002
 #define PLAYEREVENT_HOLYSHIT			0x0004
+#define PLAYEREVENT_TEAMHIT				0x0008
 
 // entityState_t->event values
 // entity events are for effects that take place relative
