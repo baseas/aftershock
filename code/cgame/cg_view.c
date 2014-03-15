@@ -555,7 +555,7 @@ static void CG_WarmupSounds(void)
 {
 	int	sec;
 
-	if (cg.warmup == 0 && cgs.gametype == GT_ELIMINATION && cg.time <= cgs.roundStartTime) {
+	if (cgs.gametype == GT_ELIMINATION && cg.time < cgs.roundStartTime) {
 		sec = (cgs.roundStartTime - cg.time) / 1000;
 	} else if (cg.warmup > 0) {
 		sec = (cg.warmup - cg.time) / 1000;
@@ -656,6 +656,10 @@ static void CG_AddSpawnpoints(void)
 	vec3_t		mins, maxs;
 
 	if (!cg_drawSpawnpoints.integer) {
+		return;
+	}
+
+	if (!cg.warmup) {
 		return;
 	}
 

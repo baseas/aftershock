@@ -567,6 +567,38 @@ void CG_ForceModelChange(void)
 }
 
 /**
+Update number of team players for gametype elimination when in warmup.
+During the round and at round end, the server send the the living count instead.
+*/
+static void CG_UpdateLivingCount(void)
+{
+	int	i;
+
+	if (cgs.gametype != GT_ELIMINATION) {
+		return;
+	}
+
+	if (!cg.warmup && cg.time >= cgs.roundStartTime) {
+		return;
+	}
+
+	cgs.redLivingCount = 0;
+	cgs.blueLivingCount = 0;
+
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		if (!cgs.clientinfo[i].infoValid) {
+			continue;
+		}
+
+		if (cgs.clientinfo[i].team == TEAM_RED) {
+			cgs.redLivingCount++;
+		} else if (cgs.clientinfo[i].team == TEAM_BLUE) {
+			cgs.blueLivingCount++;
+		}
+	}
+}
+
+/**
 Parse the player info received from server and set the client info.
 If clientNum is the local client number and he switches to/from
 spectator, adjust models of all players if needed.
@@ -586,6 +618,13 @@ void CG_NewClientInfo(int clientNum)
 
 	configstring = CG_ConfigString(clientNum + CS_PLAYERS);
 	if (!configstring[0]) {
+		if (cgs.gametype == GT_ELIMINATION && (cg.warmup || cg.time < cgs.roundStartTime)) {
+			if (ci->team == TEAM_RED) {
+				cgs.redLivingCount--;
+			} else if (ci->team == TEAM_BLUE) {
+				cgs.blueLivingCount--;
+			}
+		}
 		memset(ci, 0, sizeof(*ci));
 		ci->ping = -1;
 		return;		// player just left
@@ -634,13 +673,13 @@ void CG_NewClientInfo(int clientNum)
 	v = Info_ValueForKey(configstring, "t");
 	ci->team = atoi(v);
 
+	CG_UpdateLivingCount();
+
 	if ((!oldValid && ci->team != TEAM_SPECTATOR) || (oldValid && oldTeam != ci->team)) {
 		CG_PrintTeamChange(ci);
 	}
 
-	if (oldValid && clientNum == cg.clientNum && oldTeam != ci->team
-		&& (ci->team == TEAM_SPECTATOR || oldTeam == TEAM_SPECTATOR))
-	{
+	if (clientNum == cg.clientNum && oldTeam != ci->team) {
 		CG_ForceModelChange();
 	} else {
 		CG_SetPlayerModel(clientNum);

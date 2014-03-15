@@ -90,12 +90,14 @@ vmCvar_t	g_selfDamage;
 vmCvar_t	g_itemDrop;
 vmCvar_t	g_startWhenReady;
 vmCvar_t	g_autoReady;
-vmCvar_t	g_roundTimelimit;
+vmCvar_t	g_overtime;
 vmCvar_t	g_friendsThroughWalls;
 vmCvar_t	g_teamLock;
 vmCvar_t	g_redLocked;
 vmCvar_t	g_blueLocked;
 vmCvar_t	g_writeStats;
+vmCvar_t	g_roundWarmup;
+vmCvar_t	g_roundTimelimit;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -107,7 +109,7 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_restarted, "g_restarted", "0", CVAR_ROM, 0, qfalse  },
 
 	// latched vars
-	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
+	{ &g_gametype, "g_gametype", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_USERINFO | CVAR_LATCH, 0, qfalse  },
 	{ &g_maxclients, "sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 	{ &g_maxGameClients, "g_maxGameClients", "0", CVAR_SERVERINFO | CVAR_LATCH | CVAR_ARCHIVE, 0, qfalse  },
 
@@ -163,12 +165,14 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_itemDrop, "g_itemDrop", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_startWhenReady, "g_startWhenReady", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_autoReady, "g_autoReady", "0", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_roundTimelimit, "g_roundTimelimit", "120", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+	{ &g_overtime, "g_overtime", "120", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_friendsThroughWalls, "g_friendsThroughWalls", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_teamLock, "g_teamLock", "0", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_redLocked, "g_redLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_blueLocked, "g_blueLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
-	{ &g_writeStats, "g_writeStats", "1", CVAR_ARCHIVE, 0, qfalse }
+	{ &g_writeStats, "g_writeStats", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_roundWarmup, "g_roundWarmup", "7", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_roundTimelimit, "g_roundTimelimit", "300", CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -942,8 +946,10 @@ static void G_SendStats(gclient_t *client)
 
 	i = 0;
 	while ((data = BG_StatsData(newstats, i))) {
-		Q_strcat(fullmsg, sizeof fullmsg, va(" %i %i", i, *data));
-		fullempty = qfalse;
+		if (*data != 0) {
+			Q_strcat(fullmsg, sizeof fullmsg, va(" %i %i", i, *data));
+			fullempty = qfalse;
+		}
 
 		if (*data != *BG_StatsData(oldstats, i)) {
 			Q_strcat(diffmsg, sizeof diffmsg, va(" %i %i", i, *data));
@@ -1115,7 +1121,7 @@ Append information about this game to the log file
 */
 void LogExit(const char *string)
 {
-	int				i, numSorted;
+	int				i;
 	gclient_t		*cl;
 	G_LogPrintf("Exit: %s\n", string);
 
@@ -1125,18 +1131,12 @@ void LogExit(const char *string)
 	// that will get cut off when the queued intermission starts
 	trap_SetConfigstring(CS_INTERMISSION, "1");
 
-	// don't send more than 32 scores (FIXME?)
-	numSorted = level.numConnectedClients;
-	if (numSorted > 32) {
-		numSorted = 32;
-	}
-
 	if (g_gametype.integer >= GT_TEAM) {
 		G_LogPrintf("red:%i  blue:%i\n",
 			level.teamScores[TEAM_RED], level.teamScores[TEAM_BLUE]);
 	}
 
-	for (i = 0; i < numSorted; i++) {
+	for (i = 0; i < level.numConnectedClients; i++) {
 		int		ping;
 
 		cl = &level.clients[level.sortedClients[i]];
@@ -1235,10 +1235,54 @@ qboolean ScoreIsTied(void)
 		return level.teamScores[TEAM_RED] == level.teamScores[TEAM_BLUE];
 	}
 
-	a = level.clients[level.sortedClients[0]].ps.persistant[PERS_SCORE];
-	b = level.clients[level.sortedClients[1]].ps.persistant[PERS_SCORE];
+	a = level.clients[level.sortedClients[0]].pers.score;
+	b = level.clients[level.sortedClients[1]].pers.score;
 
 	return a == b;
+}
+
+static void G_RoundStats(void)
+{
+	int			i;
+	gclient_t	*cl, *maxDmgClient, *minDmgClient, *maxKillsClient;
+
+	maxDmgClient = NULL;
+	minDmgClient = NULL;
+	maxKillsClient = NULL;
+
+	for (i = 0; i < level.maxclients; ++i) {
+		cl = &level.clients[level.sortedClients[i]];
+
+		if (cl->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+
+		if (cl->sess.sessionTeam == TEAM_SPECTATOR) {
+			continue;
+		}
+
+		if (!maxDmgClient || cl->roundDamageDone > maxDmgClient->roundDamageDone) {
+			maxDmgClient = cl;
+		}
+
+		if (!minDmgClient || cl->roundDamageTaken < minDmgClient->roundDamageTaken) {
+			minDmgClient = cl;
+		}
+
+		if (!maxKillsClient || cl->roundKills > maxKillsClient->roundKills
+			|| (cl->roundKills == maxKillsClient->roundKills
+			&& cl->roundDamageDone > maxKillsClient->roundDamageDone))
+		{
+			maxKillsClient = cl;
+		}
+	}
+
+	ClientPrint(NULL, va("Max damage done: %s ^2%i",
+		maxDmgClient->pers.netname, maxDmgClient->roundDamageDone));
+	ClientPrint(NULL, va("Min damage taken: %s ^2%i",
+		minDmgClient->pers.netname, minDmgClient->roundDamageTaken));
+	ClientPrint(NULL, va("Max kills: %s ^2%i",
+		maxKillsClient->pers.netname, maxKillsClient->roundKills));
 }
 
 /**
@@ -1269,6 +1313,18 @@ void CheckExitRules(void)
 		}
 
 		return;
+	}
+
+	if (g_gametype.integer == GT_ELIMINATION) {
+		if (level.teamScores[TEAM_RED] == g_capturelimit.integer) {
+			ClientPrint(NULL, "Red wins.");
+			LogExit("Red wins.");
+			return;
+		} else if (level.teamScores[TEAM_BLUE] == g_capturelimit.integer) {
+			ClientPrint(NULL, "Blue wins.");
+			LogExit("Blue wins.");
+			return;
+		}
 	}
 
 	// check for sudden death
@@ -1440,6 +1496,104 @@ static qboolean EnoughReady(void)
 	return qtrue;
 }
 
+void CheckElimination(void)
+{
+	int	i;
+	int	livingRed, livingBlue;
+	static qboolean	roundRespawned = qfalse;
+
+	if (g_gametype.integer != GT_ELIMINATION) {
+		return;
+	}
+
+	if (level.numConnectedClients == 0 || level.warmupTime != 0) {
+		return;
+	}
+
+	livingRed = TeamLivingCount(TEAM_RED);
+	livingBlue = TeamLivingCount(TEAM_BLUE);
+
+	if (level.roundStarted && livingRed == 0) {
+		ClientPrint(NULL, "Red team eliminated.");
+		AddTeamScore(level.intermission_origin, TEAM_BLUE, 1);
+		Team_ForceGesture(TEAM_RED);
+	} else if (level.roundStarted && livingBlue == 0) {
+		ClientPrint(NULL, "Blue team eliminated.");
+		AddTeamScore(level.intermission_origin, TEAM_RED, 1);
+		Team_ForceGesture(TEAM_BLUE);
+	}
+
+	// round ends
+	if (level.roundStarted && (livingRed == 0 || livingBlue == 0)) {
+		CalculateRanks();
+		G_RoundStats();
+
+		roundRespawned = qfalse;
+		level.roundStarted = qfalse;
+
+		// set roundStartTime to round end time to calculate a two seconds delay to respawn
+		level.roundStartTime = level.time;
+		return;
+	} else if (level.time > level.roundStartTime + 1000 * g_roundTimelimit.integer) {
+		ClientPrint(NULL, "Round draw.");
+
+		roundRespawned = qfalse;
+		level.roundStarted = qfalse;
+
+		level.roundStartTime = level.time;
+		return;
+	}
+
+	// respawn clients for next round
+	if (!roundRespawned && level.time > level.roundStartTime + 1700) {
+		gclient_t	*cl;
+		roundRespawned = qtrue;
+		for (i = 0, cl = level.clients; i < level.maxclients; ++i, ++cl) {
+			if (cl->pers.connected != CON_CONNECTED) {
+				continue;
+			}
+			if (cl->sess.sessionTeam == TEAM_SPECTATOR) {
+				continue;
+			}
+
+			// respawn if this is not the first round
+			if (level.roundStartTime) {
+				ClientSpawn(&g_entities[i]);
+			}
+
+			cl->ps.pm_flags |= PMF_ELIM_WARMUP;
+		}
+		level.roundStartTime = level.time + 1000 * g_roundWarmup.integer;
+		trap_SetConfigstring(CS_LIVING_COUNT, va("%d %d", TeamLivingCount(TEAM_RED),
+			TeamLivingCount(TEAM_BLUE)));
+		trap_SetConfigstring(CS_ROUND_START, va("%d", level.roundStartTime));
+		return;
+	}
+
+	// start the round
+	if (roundRespawned && !level.roundStarted && level.time > level.roundStartTime) {
+		gclient_t	*cl;
+		for (i = 0, cl = level.clients; i < level.maxclients; ++i, ++cl) {
+			if (cl->pers.connected != CON_CONNECTED) {
+				continue;
+			}
+			if (cl->sess.sessionTeam == TEAM_SPECTATOR) {
+				continue;
+			}
+
+			if (g_entities[i].client->eliminated) {
+				ClientSpawn(&g_entities[i]);
+			}
+
+			cl->roundDamageDone = 0;
+			cl->roundDamageTaken = 0;
+			cl->roundKills = 0;
+			cl->ps.pm_flags &= ~PMF_ELIM_WARMUP;
+		}
+		level.roundStarted = qtrue;
+	}
+}
+
 /**
 Once a frame, check for changes in tournement player state
 */
@@ -1466,8 +1620,17 @@ void CheckWarmup(void)
 		return;
 	}
 
-	if (g_gametype.integer == GT_TOURNAMENT) {
+	if (level.warmupTime == 0) {
+		return;
+	}
 
+	// if the warmup is changed at the console, restart it
+	if (g_warmupTime.modificationCount != level.warmupModificationCount) {
+		level.warmupModificationCount = g_warmupTime.modificationCount;
+		level.warmupTime = -1;
+	}
+
+	if (g_gametype.integer == GT_TOURNAMENT) {
 		// pull in a spectator if needed
 		if (level.numPlayingClients < 2) {
 			level.timeComplete = level.time;
@@ -1484,10 +1647,6 @@ void CheckWarmup(void)
 			return;
 		}
 
-		if (level.warmupTime == 0) {
-			return;
-		}
-
 		// if the warmup is changed at the console, restart it
 		if (g_warmupTime.modificationCount != level.warmupModificationCount) {
 			level.warmupModificationCount = g_warmupTime.modificationCount;
@@ -1495,26 +1654,7 @@ void CheckWarmup(void)
 		}
 
 		// if all players have arrived, start the countdown
-		if (level.warmupTime < 0) {
-			if (EnoughReady()) {
-				// fudge by -1 to account for extra delays
-				if (g_warmupTime.integer > 1) {
-					level.warmupTime = level.time + (g_warmupTime.integer - 1) * 1000;
-				} else {
-					level.warmupTime = 0;
-				}
-
-				trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
-			}
-			return;
-		}
-
-		// if the warmup time has counted down, restart
-		if (level.time > level.warmupTime) {
-			level.warmupTime += 10000;
-			trap_Cvar_Set("g_restarted", "1");
-			trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
-			level.restarted = qtrue;
+		if (level.warmupTime < 0 && !EnoughReady()) {
 			return;
 		}
 	} else if (level.warmupTime != 0) {
@@ -1526,37 +1666,26 @@ void CheckWarmup(void)
 			}
 			return; // still waiting for team members
 		}
+	}
 
-		if (level.warmupTime == 0) {
-			return;
+	// if all players have arrived, start the countdown
+	if (level.warmupTime < 0) {
+		if (g_warmupTime.integer < 3) {
+			g_warmupTime.integer = 3;
 		}
 
-		// if the warmup is changed at the console, restart it
-		if (g_warmupTime.modificationCount != level.warmupModificationCount) {
-			level.warmupModificationCount = g_warmupTime.modificationCount;
-			level.warmupTime = -1;
-		}
+		level.warmupTime = level.time + (g_warmupTime.integer - 1) * 1000;
+		trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
+		return;
+	}
 
-		// if all players have arrived, start the countdown
-		if (level.warmupTime < 0) {
-			// fudge by -1 to account for extra delays
-			if (g_warmupTime.integer < 3) {
-				g_warmupTime.integer = 3;
-			}
-
-			level.warmupTime = level.time + (g_warmupTime.integer - 1) * 1000;
-			trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
-			return;
-		}
-
-		// if the warmup time has counted down, restart
-		if (level.time > level.warmupTime) {
-			level.warmupTime += 10000;
-			trap_Cvar_Set("g_restarted", "1");
-			trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
-			level.restarted = qtrue;
-			return;
-		}
+	// if the warmup time has counted down, restart
+	if (level.time > level.warmupTime) {
+		level.warmupTime += 10000;
+		trap_Cvar_Set("g_restarted", "1");
+		trap_SendConsoleCommand(EXEC_APPEND, "map_restart\n");
+		level.restarted = qtrue;
+		return;
 	}
 }
 
@@ -1813,6 +1942,8 @@ void G_RunFrame(int levelTime)
 
 	CheckWarmup();
 
+	CheckElimination();
+
 	// see if it is time to end the level
 	CheckExitRules();
 
@@ -1851,33 +1982,33 @@ void G_RunFrame(int levelTime)
 
 static void G_ScoreboardLine(char *buffer, int length, gclient_t *cl, qboolean cache)
 {
-	int	clientNum, score, powerups;
+	int	clientNum, powerups;
 
 	clientNum = cl - level.clients;
-	score = cl->ps.persistant[PERS_SCORE];
 	powerups = g_entities[cl - level.clients].s.powerups;
 
 	switch (g_gametype.integer) {
 	case GT_FFA:
-		Com_sprintf(buffer, length, " %i %i %i", clientNum, score, powerups);
+		Com_sprintf(buffer, length, " %i %i %i", clientNum, cl->pers.score, powerups);
 		break;
 	case GT_TOURNAMENT:
-		Com_sprintf(buffer, length, " %i %i %i %i %i %i", clientNum, score,
+		Com_sprintf(buffer, length, " %i %i %i %i %i %i", clientNum, cl->pers.score,
 			cl->pers.stats.miscStats[MSTAT_YA], cl->pers.stats.miscStats[MSTAT_RA],
-			cl->pers.stats.miscStats[MSTAT_MH], cl->ps.persistant[PERS_DAMAGE_DONE]);
+			cl->pers.stats.miscStats[MSTAT_MH], cl->pers.stats.miscStats[MSTAT_DAMAGE_DONE]);
 		break;
 	case GT_DEFRAG:
-		Com_sprintf(buffer, length, " %i %i", clientNum, score);
+		Com_sprintf(buffer, length, " %i %i", clientNum, cl->pers.score);
 		break;
 	case GT_TEAM:
-		Com_sprintf(buffer, length, " %i %i %i", clientNum, score, powerups);
+		Com_sprintf(buffer, length, " %i %i %i", clientNum, cl->pers.score, powerups);
 		break;
 	case GT_CTF:
-		Com_sprintf(buffer, length, " %i %i %i", clientNum, score, powerups);
+		Com_sprintf(buffer, length, " %i %i %i", clientNum, cl->pers.score, powerups);
 		break;
 	case GT_ELIMINATION:
-		Com_sprintf(buffer, length, " %i %i %i %i", clientNum, score, cl->ps.persistant[PERS_DAMAGE_DONE],
-			cl->ps.persistant[PERS_DAMAGE_TAKEN]);
+		Com_sprintf(buffer, length, " %i %i %i %i %i", clientNum, cl->eliminated,
+			cl->pers.score, cl->pers.stats.miscStats[MSTAT_DAMAGE_DONE],
+			cl->pers.stats.miscStats[MSTAT_DAMAGE_TAKEN]);
 		break;
 	default:
 		return;

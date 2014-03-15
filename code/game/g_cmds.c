@@ -291,6 +291,14 @@ void Cmd_Kill_f(gentity_t *ent)
 	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
 		return;
 	}
+
+	// avoid kill by accident just after round start
+	if (g_gametype.integer == GT_ELIMINATION
+		&& level.roundStarted && level.time < level.roundStartTime + 1000)
+	{
+		return;
+	}
+
 	if (ent->health <= 0) {
 		return;
 	}
@@ -351,15 +359,19 @@ void SetTeam(gentity_t *ent, const char *s)
 		client->sess.specOnly = qfalse;
 	} else if (g_gametype.integer >= GT_TEAM) {
 		// if running a team game, assign player to one of the teams
-		specState = SPECTATOR_NOT;
 		client->sess.specOnly = qfalse;
 		if (!Q_stricmp(s, "red") || !Q_stricmp(s, "r")) {
 			team = TEAM_RED;
 		} else if (!Q_stricmp(s, "blue") || !Q_stricmp(s, "b")) {
 			team = TEAM_BLUE;
-		} else {
+		} else if (!Q_stricmp(s, "free") || !Q_stricmp(s, "f")) {
 			// pick the team with the least number of players
 			team = PickTeam(clientNum);
+			if (team == TEAM_SPECTATOR) {
+				return;
+			}
+		} else {
+			return;
 		}
 
 		if (g_teamForceBalance.integer) {
@@ -383,10 +395,11 @@ void SetTeam(gentity_t *ent, const char *s)
 			// It's ok, the team we are switching to has less or same number of players
 		}
 
-	} else {
-		// force them to spectators if there aren't any spots free
+	} else if (!Q_stricmp(s, "free") || !Q_stricmp(s, "f")) {
 		team = TEAM_FREE;
 		client->sess.specOnly = qfalse;
+	} else {
+		return;
 	}
 
 	// override decision if limiting the players
@@ -461,8 +474,6 @@ to free floating spectator mode
 */
 void StopFollowing(gentity_t *ent)
 {
-	ent->client->ps.persistant[PERS_TEAM] = TEAM_SPECTATOR;
-	ent->client->sess.sessionTeam = TEAM_SPECTATOR;
 	ent->client->sess.spectatorState = SPECTATOR_FREE;
 	ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 	ent->r.svFlags &= ~SVF_BOT;
@@ -541,6 +552,11 @@ void Cmd_Follow_f(gentity_t *ent)
 		return;
 	}
 
+	// can't follow eliminated player
+	if (level.roundStarted && cl->eliminated) {
+		return;
+	}
+
 	// if they are playing a tournement game, count as a loss
 	if ((g_gametype.integer == GT_TOURNAMENT)
 		&& ent->client->sess.sessionTeam == TEAM_FREE) {
@@ -548,7 +564,7 @@ void Cmd_Follow_f(gentity_t *ent)
 	}
 
 	// first set them to spectator
-	if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+	if (ent->client->sess.spectatorState == SPECTATOR_NOT) {
 		SetTeam(ent, "spectator");
 	}
 
@@ -604,7 +620,14 @@ void Cmd_FollowCycle_f(gentity_t *ent, int dir)
 		}
 
 		// can't follow another spectator
-		if (level.clients[ clientnum ].sess.sessionTeam == TEAM_SPECTATOR) {
+		if (level.clients[ clientnum ].sess.spectatorState != SPECTATOR_NOT) {
+			continue;
+		}
+
+		// stop players from spectating players on the enemy team in elimination
+		if (g_gametype.integer == GT_ELIMINATION && ent->client->sess.sessionTeam != TEAM_SPECTATOR
+			&& ent->client->sess.sessionTeam != level.clients[clientnum].sess.sessionTeam)
+		{
 			continue;
 		}
 

@@ -616,7 +616,7 @@ static void Hud_RoundTime(int hudnumber)
 	int			mins, seconds, tens;
 	int			msec;
 
-	if (cgs.gametype != GT_ELIMINATION || cg.time < cgs.roundStartTime) {
+	if (cgs.gametype != GT_ELIMINATION || cg.warmup || cg.time < cgs.roundStartTime) {
 		return;
 	}
 
@@ -1077,14 +1077,10 @@ static void Hud_Follow(int hudnumber)
 {
 	const char	*name;
 
-	if (cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR) {
-		return;
-	}
-
 	if (cg.snap->ps.pm_flags & PMF_FOLLOW) {
 		name = cgs.clientinfo[cg.snap->ps.clientNum].name;
 		CG_DrawHudString(hudnumber, qtrue, va("following %s", name));
-	} else {
+	} else if (cgs.clientinfo[cg.clientNum].team == TEAM_SPECTATOR) {
 		CG_DrawHudString(hudnumber, qtrue, "SPECTATOR");
 	}
 }
@@ -1343,6 +1339,32 @@ static void Hud_Help(int hudnumber)
 	}
 }
 
+static void Hud_TeamCountOwn(int hudnumber)
+{
+	if (cgs.gametype != GT_ELIMINATION) {
+		return;
+	}
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+		CG_DrawHudScores(hudnumber, cgs.redLivingCount);
+	} else {
+		CG_DrawHudScores(hudnumber, cgs.blueLivingCount);
+	}
+}
+
+static void Hud_TeamCountNme(int hudnumber)
+{
+	if (cgs.gametype != GT_ELIMINATION) {
+		return;
+	}
+
+	if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
+		CG_DrawHudScores(hudnumber, cgs.blueLivingCount);
+	} else {
+		CG_DrawHudScores(hudnumber, cgs.redLivingCount);
+	}
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1388,6 +1410,8 @@ void CG_DrawHud()
 		{ HUD_VOTEMSG, Hud_Vote, qtrue },
 		{ HUD_HOLDABLE, Hud_Holdable, qtrue },
 		{ HUD_HELP, Hud_Help, qtrue },
+		{ HUD_TC_OWN, Hud_TeamCountOwn, qtrue },
+		{ HUD_TC_NME, Hud_TeamCountNme, qtrue },
 		{ HUD_MAX, NULL, qfalse }
 	};
 

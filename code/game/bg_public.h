@@ -85,7 +85,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_ITEMS				27		// string of 0's and 1's that tell which items are present
 
 #define CS_SPAWNPOINTS			33
-#define CS_MODELS				34
+#define CS_ROUND_START			34
+#define CS_LIVING_COUNT			35
+#define CS_MODELS				36
 
 #define CS_SOUNDS				(CS_MODELS+MAX_MODELS)
 #define CS_PLAYERS				(CS_SOUNDS+MAX_SOUNDS)
@@ -144,6 +146,7 @@ typedef enum {
 // pmove->pm_flags
 #define PMF_DUCKED			1
 #define PMF_JUMP_HELD		2
+#define PMF_ELIM_WARMUP		4
 #define PMF_BACKWARDS_JUMP	8		// go into backwards land
 #define PMF_BACKWARDS_RUN	16		// coast down to backwards run
 #define PMF_TIME_LAND		32		// pm_time is time before rejump
@@ -218,8 +221,7 @@ typedef enum {
 	PERS_SPAWN_COUNT,				// incremented every respawn
 	PERS_PLAYEREVENTS,				// 16 bits that can be flipped for events
 	PERS_ATTACKER,					// clientnum of last damage inflicter
-	PERS_DAMAGE_DONE,
-	PERS_DAMAGE_TAKEN
+	PERS_DAMAGE_DONE,				// for hit sounds
 } persEnum_t;
 
 typedef enum {
@@ -309,6 +311,8 @@ typedef enum {
 	MSTAT_QUAD,
 	MSTAT_QUADKILLS,
 	MSTAT_QUADSTREAK,
+	MSTAT_DAMAGE_DONE,
+	MSTAT_DAMAGE_TAKEN,
 	MSTAT_MAX
 } miscStat_t;
 

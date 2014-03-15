@@ -320,6 +320,7 @@ typedef struct {
 	playerStats_t	stats;
 
 	// scoreboard
+	qboolean	eliminated;
 	int			score;
 	int			powerups;
 	int			damageDone;
@@ -907,8 +908,6 @@ enum {
 	HUD_TARGETSTATUS,
 	HUD_TC_NME,
 	HUD_TC_OWN,
-	HUD_TI_NME,
-	HUD_TI_OWN,
 	HUD_TEAMCHAT1,
 	HUD_TEAMCHAT2,
 	HUD_TEAMCHAT3,
@@ -1071,6 +1070,10 @@ typedef struct {
 	// media
 	cgMedia_t		media;
 	hudElement_t	hud[HUD_MAX];
+
+	// for elimination
+	int			redLivingCount;
+	int			blueLivingCount;
 } cgs_t;
 
 extern cgs_t			cgs;

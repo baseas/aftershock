@@ -131,7 +131,12 @@ void G_InitSessionData(gclient_t *client, char *userinfo)
 		}
 	}
 
-	sess->spectatorState = SPECTATOR_FREE;
+	if (sess->sessionTeam == TEAM_SPECTATOR) {
+		sess->spectatorState = SPECTATOR_FREE;
+	} else {
+		sess->spectatorState = SPECTATOR_NOT;
+	}
+
 	AddTournamentQueue(client);
 
 	G_WriteClientSessionData(client);

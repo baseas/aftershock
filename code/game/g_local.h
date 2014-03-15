@@ -334,6 +334,12 @@ struct gclient_s {
 	int				lastUpdateFrame;	// the last frame number we got an update from this client
 	clientHistory_t	history[NUM_CLIENT_HISTORY];
 	clientHistory_t	saved;				// client's saved position, used to restore after time shift
+
+	// elimination
+	int			roundDamageDone;
+	int			roundDamageTaken;
+	int			roundKills;
+	qboolean	eliminated;
 };
 
 //
@@ -426,6 +432,10 @@ typedef struct {
 	gentity_t	*locationHead;			// head of the location list
 	int			bodyQueIndex;			// dead bodies
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
+
+	// elimination
+	int			roundStartTime;			// time the current round was started
+	qboolean	roundStarted;
 
 	// unlagged
 	int			frameStartTime;			// actual time this server frame started
@@ -570,6 +580,7 @@ void		Weapon_HookThink (gentity_t *ent);
 //
 // g_client.c
 //
+int			TeamLivingCount(team_t team);
 int			TeamCount(int ignoreClientNum, team_t team);
 int			TeamLeader(int team);
 team_t		PickTeam(int ignoreClientNum);
@@ -638,6 +649,7 @@ void	G_RunClient(gentity_t *ent);
 qboolean	OnSameTeam(gentity_t *ent1, gentity_t *ent2);
 void		Team_Shuffle(void);
 void		Team_CheckDroppedItem(gentity_t *dropped);
+void		Team_ForceGesture(int team);
 
 //
 // g_mem.c
@@ -753,12 +765,14 @@ extern vmCvar_t	g_selfDamage;
 extern vmCvar_t	g_itemDrop;
 extern vmCvar_t	g_startWhenReady;
 extern vmCvar_t	g_autoReady;
-extern vmCvar_t	g_roundTimelimit;
+extern vmCvar_t	g_overtime;
 extern vmCvar_t	g_friendsThroughWalls;
 extern vmCvar_t	g_teamLock;
 extern vmCvar_t	g_redLocked;
 extern vmCvar_t	g_blueLocked;
 extern vmCvar_t	g_writeStats;
+extern vmCvar_t	g_eliminationWarmup;
+extern vmCvar_t	g_eliminationRoundTime;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_YPOS					((SCREEN_HEIGHT - SB_HEIGHT)/2)
 
 #define SB_TEAM_WIDTH			(SB_WIDTH/2 - 40)
-#define SB_TEAM_HEIGHT			17
+#define SB_TEAM_HEIGHT			20
 #define SB_TEAM_RED_X			(SCREEN_WIDTH/2 - SB_TEAM_WIDTH - 20)
 #define SB_TEAM_BLUE_X			(SCREEN_WIDTH/2 + 20)
 #define SB_TEAM_Y				60
@@ -147,10 +147,12 @@ static void CG_DrawClientScore(int x, int y, int w, int h, clientInfo_t *ci, flo
 	if (cgs.startWhenReady && (cg.warmup < 0 || cg.intermissionStarted)) {
 		if (ci->ready) {
 			CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
-		} else {
+		} else if (!cg.intermissionStarted) {
 			CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbNotReady);
 		}
-	} else if (es->eFlags & EF_DEAD) {
+	} else if ((cgs.gametype == GT_ELIMINATION && ci->eliminated)
+		|| ((cgs.gametype != GT_ELIMINATION && es->eFlags & EF_DEAD)))
+	{
 		CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbSkull);
 	} else if (ci->powerups & (1 << PW_REDFLAG)) {
 		CG_DrawFlagModel(x - picSize, y - picSize / 2, picSize, picSize, TEAM_RED, qfalse);

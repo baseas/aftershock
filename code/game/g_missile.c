@@ -105,9 +105,15 @@ void G_MissileImpact(gentity_t *ent, trace_t *trace)
 		if (ent->damage) {
 			vec3_t	velocity;
 
+			teamHit = qfalse;
+			enemyHit = qfalse;
 			LogAccuracyHit(other, &g_entities[ent->r.ownerNum], &teamHit, &enemyHit);
+
 			if (teamHit) {
-				g_entities[ent->r.ownerNum].client->ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_TEAMHIT;
+				if (g_friendlyFire.integer) {
+					g_entities[ent->r.ownerNum].client->ps.persistant[PERS_PLAYEREVENTS] ^=
+						PLAYEREVENT_TEAMHIT;
+				}
 				g_entities[ent->r.ownerNum].client->pers.stats.teamHits[ent->s.weapon]++;
 				hitClient = qtrue;
 			} else if (enemyHit) {

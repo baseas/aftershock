@@ -407,8 +407,26 @@ void SetClientViewAngle(gentity_t *ent, vec3_t angle)
 
 void ClientRespawn(gentity_t *ent)
 {
-	CopyToBodyQue (ent);
+	CopyToBodyQue(ent);
 	ClientSpawn(ent);
+}
+
+int TeamLivingCount(team_t team)
+{
+	int			i;
+	int			count;
+	gclient_t	*cl;
+
+	for (i = 0, count = 0, cl = level.clients; i < level.maxclients; ++i, ++cl) {
+		if (cl->pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (cl->sess.sessionTeam == team && !cl->eliminated) {
+			count++;
+		}
+	}
+
+	return count;
 }
 
 /**
@@ -476,6 +494,11 @@ team_t PickTeam(int ignoreClientNum)
 
 	if (!g_blueLocked.integer && level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE]) {
 		return TEAM_BLUE;
+	}
+
+	// equal score, join random team
+	if (!g_redLocked.integer && !g_blueLocked.integer) {
+		return (rand() % 2 ? TEAM_RED : TEAM_BLUE);
 	}
 
 	return TEAM_SPECTATOR;
@@ -819,16 +842,18 @@ static void ClientGiveWeapons(gclient_t *client)
 		client->ps.ammo[WP_ROCKET_LAUNCHER] = -1;
 	}
 
-	if (!g_rockets.integer && !g_instantgib.integer) {
+	if (g_gametype.integer == GT_ELIMINATION && level.warmupTime == -1
+		&& !g_rockets.integer && !g_instantgib.integer)
+	{
+		for (i = WP_MACHINEGUN; i < WP_BFG; ++i) {
+			client->ps.stats[STAT_WEAPONS] |= (1 << i);
+			client->ps.ammo[i] = -1;
+		}
+	} else if (!g_rockets.integer && !g_instantgib.integer) {
 		client->ps.stats[STAT_WEAPONS] = (1 << WP_GAUNTLET);
 		client->ps.stats[STAT_WEAPONS] |= (1 << WP_MACHINEGUN);
 
-		if (level.warmupTime == -1) {
-			for (i = WP_MACHINEGUN; i < WP_BFG; ++i) {
-				client->ps.stats[STAT_WEAPONS] |= (1 << i);
-				client->ps.ammo[i] = -1;
-			}
-		} else if (g_gametype.integer == GT_TEAM) {
+		if (g_gametype.integer == GT_TEAM) {
 			client->ps.ammo[WP_MACHINEGUN] = 50;
 		} else {
 			client->ps.ammo[WP_MACHINEGUN] = 100;
@@ -849,6 +874,23 @@ static void ClientGiveWeapons(gclient_t *client)
 			client->ps.ammo[WP_PLASMAGUN] = 150;
 		}
 	}
+
+	if (g_gametype.integer == GT_ELIMINATION) {
+		client->ps.weapon = WP_ROCKET_LAUNCHER;
+		return;
+	}
+
+	// force the base weapon up
+	client->ps.weapon = WP_MACHINEGUN;
+	client->ps.weaponstate = WEAPON_READY;
+
+	// select the highest weapon number available, after any spawn given items have fired
+	for (i = WP_NUM_WEAPONS - 1; i > 0; i--) {
+		if (client->ps.stats[STAT_WEAPONS] & (1 << i)) {
+			client->ps.weapon = i;
+			break;
+		}
+	}
 }
 
 /**
@@ -861,7 +903,6 @@ void ClientSpawn(gentity_t *ent)
 	int		index;
 	vec3_t	spawn_origin, spawn_angles;
 	gclient_t	*client;
-	int		i;
 	clientPersistant_t	saved;
 	clientSession_t		savedSess;
 	int				persistant[MAX_PERSISTANT];
@@ -873,6 +914,20 @@ void ClientSpawn(gentity_t *ent)
 
 	index = ent - g_entities;
 	client = ent->client;
+
+	// follow other players when eliminated
+	if (!level.warmupTime && g_gametype.integer == GT_ELIMINATION
+		&& client->sess.sessionTeam != TEAM_SPECTATOR)
+	{
+		if (level.roundStarted) {
+			client->sess.spectatorState = SPECTATOR_FREE;
+			client->eliminated = qtrue;
+			return;
+		} else {
+			client->sess.spectatorState = SPECTATOR_NOT;
+			client->eliminated = qfalse;
+		}
+	}
 
 	VectorClear(spawn_origin);
 
@@ -988,35 +1043,24 @@ void ClientSpawn(gentity_t *ent)
 	client->ps.torsoAnim = TORSO_STAND;
 	client->ps.legsAnim = LEGS_IDLE;
 
-	if (!level.intermissiontime) {
-		if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
-			G_KillBox(ent);
-			// force the base weapon up
-			client->ps.weapon = WP_MACHINEGUN;
-			client->ps.weaponstate = WEAPON_READY;
-			// fire the targets of the spawn point
-			G_UseTargets(spawnPoint, ent);
-			// select the highest weapon number available, after any spawn given items have fired
-			client->ps.weapon = 1;
-
-			for (i = WP_NUM_WEAPONS - 1; i > 0; i--) {
-				if (client->ps.stats[STAT_WEAPONS] & (1 << i)) {
-					client->ps.weapon = i;
-					break;
-				}
-			}
-			// positively link the client, even if the command times are weird
-			VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
-
-			tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
-			tent->s.clientNum = ent->s.clientNum;
-
-			trap_LinkEntity (ent);
-		}
-	} else {
+	if (level.intermissiontime) {
 		// move players to intermission
 		MoveClientToIntermission(ent);
+	} else if (ent->client->sess.sessionTeam != TEAM_SPECTATOR) {
+		G_KillBox(ent);
+
+		// fire the targets of the spawn point
+		G_UseTargets(spawnPoint, ent);
+
+		// positively link the client, even if the command times are weird
+		VectorCopy(ent->client->ps.origin, ent->r.currentOrigin);
+
+		tent = G_TempEntity(ent->client->ps.origin, EV_PLAYER_TELEPORT_IN);
+		tent->s.clientNum = ent->s.clientNum;
+
+		trap_LinkEntity (ent);
 	}
+
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
 	client->ps.commandTime = level.time - 100;
@@ -1062,7 +1106,6 @@ void ClientDisconnect(int clientNum)
 		disco->pers.enterTime = level.time - disco->pers.enterTime;
 		level.numDisconnectedClients++;
 	}
-
 
 	// stop any following clients
 	for (i = 0; i < level.maxclients; i++) {
@@ -1110,6 +1153,7 @@ void ClientDisconnect(int clientNum)
 	ent->classname = "disconnected";
 	ent->client->pers.connected = CON_DISCONNECTED;
 	ent->client->ps.persistant[PERS_TEAM] = TEAM_FREE;
+	ent->client->sess.spectatorState = SPECTATOR_NOT;
 	ent->client->sess.sessionTeam = TEAM_FREE;
 
 	trap_SetConfigstring(CS_PLAYERS + clientNum, "");

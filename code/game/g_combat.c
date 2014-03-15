@@ -277,13 +277,18 @@ void AddScore(gentity_t *ent, vec3_t origin, int score)
 	if (level.warmupTime) {
 		return;
 	}
+
+	if (g_gametype.integer == GT_ELIMINATION && !level.roundStarted) {
+		return;
+	}
+
 	// show score plum
 	ScorePlum(ent, origin, score);
 	//
-	ent->client->ps.persistant[PERS_SCORE] += score;
+	ent->client->pers.score += score;
 
 	if (g_gametype.integer == GT_TEAM) {
-		level.teamScores[ent->client->ps.persistant[PERS_TEAM]] += score;
+		level.teamScores[ent->client->sess.sessionTeam] += score;
 	}
 	CalculateRanks();
 }
@@ -404,6 +409,8 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	self->enemy = attacker;
 
 	self->client->pers.deathCount++;
+	attacker->client->roundKills++;
+
 	VectorCopy(self->r.currentOrigin, self->client->pers.lastDeathOrigin);
 
 	if (attacker && attacker->client) {
@@ -531,6 +538,11 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 	trap_LinkEntity (self);
 
+	if (g_gametype.integer == GT_ELIMINATION && level.roundStarted) {
+		self->client->eliminated = qtrue;
+		trap_SetConfigstring(CS_LIVING_COUNT, va("%d %d", TeamLivingCount(TEAM_RED),
+			TeamLivingCount(TEAM_BLUE)));
+	}
 }
 
 /**
@@ -691,8 +703,10 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 
 			attacker->client->pers.lastTarget = targ->s.number;
 			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
-			attacker->client->ps.persistant[PERS_DAMAGE_DONE] += dmg;
-			targ->client->ps.persistant[PERS_DAMAGE_TAKEN] += dmg;
+			attacker->client->pers.stats.miscStats[MSTAT_DAMAGE_DONE] += dmg;
+			attacker->client->roundDamageDone += dmg;
+			targ->client->pers.stats.miscStats[MSTAT_DAMAGE_TAKEN] += dmg;
+			targ->client->roundDamageTaken += dmg;
 		}
 	}
 

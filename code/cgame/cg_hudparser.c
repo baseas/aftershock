@@ -286,8 +286,6 @@ static const char *hudTags[] = {
 	"TargetStatus",
 	"TeamCount_NME",
 	"TeamCount_OWN",
-	"TeamIcon_NME",
-	"TeamIcon_OWN",
 	"Team1",
 	"Team2",
 	"Team3",

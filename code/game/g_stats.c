@@ -65,9 +65,9 @@ static void G_StatsPlayer(gclient_t *cl, qboolean disconnected, fileHandle_t fp)
 		}
 	}
 
-	Ini_WriteNumber("score", cl->ps.persistant[PERS_SCORE], pad, fp);
-	Ini_WriteNumber("damageDone", cl->ps.persistant[PERS_DAMAGE_DONE], pad, fp);
-	Ini_WriteNumber("damageTaken", cl->ps.persistant[PERS_DAMAGE_TAKEN], pad, fp);
+	Ini_WriteNumber("score", cl->pers.score, pad, fp);
+	Ini_WriteNumber("damageDone", cl->pers.stats.miscStats[MSTAT_DAMAGE_DONE], pad, fp);
+	Ini_WriteNumber("damageTaken", cl->pers.stats.miscStats[MSTAT_DAMAGE_TAKEN], pad, fp);
 	if (g_entities[cl->ps.clientNum].r.svFlags & SVF_BOT) {
 		Ini_WriteString("isBot", "true", pad, fp);
 	} else {

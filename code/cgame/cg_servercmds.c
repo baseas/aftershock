@@ -175,6 +175,7 @@ static void CG_ParseScores(void)
 			ci->powerups = atoi(BG_Argv(i++));
 			break;
 		case GT_ELIMINATION:
+			ci->eliminated = atoi(BG_Argv(i++));
 			ci->score = atoi(BG_Argv(i++));
 			ci->damageDone = atoi(BG_Argv(i++));
 			ci->damageTaken = atoi(BG_Argv(i++));
@@ -216,11 +217,8 @@ static void CG_ParseStats(void)
 	}
 }
 
-static void CG_ParseWarmup(void)
+static void CG_SetWarmup(int warmup)
 {
-	int			warmup;
-
-	warmup = atoi(CG_ConfigString(CS_WARMUP));
 	cg.warmupCount = -1;
 
 	if (warmup > 0 && cg.warmup <= 0) {
@@ -248,7 +246,7 @@ static void CG_ConfigStringModified(void)
 	if (num == CS_SERVERINFO) {
 		CG_ParseServerinfo();
 	} else if (num == CS_WARMUP) {
-		CG_ParseWarmup();
+		CG_SetWarmup(atoi(str));
 	} else if (num == CS_SCORES1) {
 		cgs.scores1 = atoi(str);
 	} else if (num == CS_SCORES2) {
@@ -329,6 +327,27 @@ static void CG_ConfigStringModified(void)
 		}
 	} else if (num == CS_SHADERSTATE) {
 		CG_ShaderStateChanged();
+	} else if (num == CS_ROUND_START) {
+		cg.warmupCount = -1;
+		cgs.roundStartTime = atoi(str);
+	} else if (num == CS_LIVING_COUNT) {
+		int		newRed, newBlue;
+
+		newRed = atoi(COM_Parse((char **) &str));
+		newBlue = atoi(COM_Parse((char **) &str));
+
+		if (!cg.warmup && cg.time >= cgs.roundStartTime) {
+			team_t	team;
+			team = cg.snap->ps.persistant[PERS_TEAM];
+			if ((newRed == 1 && cgs.redLivingCount != 1 && team == TEAM_RED)
+				|| (newBlue == 1 && cgs.blueLivingCount != 1 && team == TEAM_BLUE))
+			{
+				CG_CenterPrint("You are the last in your team");
+			}
+		}
+
+		cgs.redLivingCount = newRed;
+		cgs.blueLivingCount = newBlue;
 	}
 }
 

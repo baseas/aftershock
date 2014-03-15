@@ -230,7 +230,7 @@ void G_TouchTriggers(gentity_t *ent)
 		}
 
 		// ignore most entities if a spectator
-		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		if (ent->client->sess.spectatorState != SPECTATOR_NOT) {
 			if (hit->s.eType != ET_TELEPORT_TRIGGER &&
 				// this is ugly but adding a new ET_? type will
 				// most likely cause network incompatibilities
@@ -275,6 +275,15 @@ void SpectatorThink(gentity_t *ent, usercmd_t *ucmd)
 	gclient_t	*client;
 
 	client = ent->client;
+
+	// if playing and in freespec, follow the next player
+	if (g_gametype.integer == GT_ELIMINATION && client->sess.sessionTeam != TEAM_SPECTATOR) {
+		if (client->sess.spectatorState != SPECTATOR_FOLLOW || (client->sess.spectatorClient >= 0
+			&& level.clients[client->sess.spectatorClient].sess.spectatorState != SPECTATOR_NOT))
+		{
+			Cmd_FollowCycle_f(ent, 1);
+		}
+	}
 
 	if (client->sess.spectatorState != SPECTATOR_FOLLOW) {
 		client->ps.pm_type = PM_SPECTATOR;
@@ -596,7 +605,7 @@ void ClientThink_real(gentity_t *ent)
 	}
 
 	// spectators don't do much
-	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
+	if (client->sess.spectatorState != SPECTATOR_NOT) {
 		if (client->sess.spectatorState == SPECTATOR_SCOREBOARD) {
 			return;
 		}
@@ -733,7 +742,15 @@ void ClientThink_real(gentity_t *ent)
 	// check for respawning
 	if (client->ps.stats[STAT_HEALTH] <= 0) {
 		// wait for the attack button to be pressed
-		if (g_gametype.integer != GT_ELIMINATION && level.time > client->respawnTime) {
+		if (level.time > client->respawnTime) {
+			// respawn immediately in elimination
+			if (g_gametype.integer == GT_ELIMINATION && !level.warmupTime
+				&& ent->client->sess.spectatorState == SPECTATOR_NOT)
+			{
+				ClientRespawn(ent);
+				return;
+			}
+
 			// forcerespawn is to prevent users from waiting out powerups
 			if (g_forcerespawn.integer > 0 &&
 				(level.time - client->respawnTime) > g_forcerespawn.integer * 1000) {
@@ -838,7 +855,7 @@ void ClientEndFrame(gentity_t *ent)
 {
 	int			i;
 
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+	if (ent->client->sess.spectatorState != SPECTATOR_NOT) {
 		SpectatorClientEndFrame(ent);
 		return;
 	}

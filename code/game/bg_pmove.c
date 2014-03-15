@@ -1402,6 +1402,10 @@ static void PM_Weapon(void)
 		return;
 	}
 
+	if (pm->ps->pm_flags & PMF_ELIM_WARMUP) {
+		return;
+	}
+
 	// check for fire
 	if (! (pm->cmd.buttons & BUTTON_ATTACK)) {
 		pm->ps->weaponTime = 0;
@@ -1587,8 +1591,10 @@ void PmoveSingle(pmove_t *pmove)
 	}
 
 	// set the firing flag for continuous beam weapons
-	if (!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION && pm->ps->pm_type != PM_NOCLIP
-		&& (pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->ammo[ pm->ps->weapon ]) {
+	if (!(pm->ps->pm_flags & PMF_RESPAWNED) && pm->ps->pm_type != PM_INTERMISSION
+		&& pm->ps->pm_type != PM_NOCLIP && !(pm->ps->pm_flags & PMF_ELIM_WARMUP)
+		&& (pm->cmd.buttons & BUTTON_ATTACK) && pm->ps->ammo[pm->ps->weapon])
+	{
 		pm->ps->eFlags |= EF_FIRING;
 	} else {
 		pm->ps->eFlags &= ~EF_FIRING;
