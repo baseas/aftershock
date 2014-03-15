@@ -332,9 +332,8 @@ SV_Status_f
 static void SV_Status_f( void ) {
 	int			i, j, l;
 	client_t	*cl;
-	playerState_t	*ps;
-	const char		*s;
-	int			ping;
+	const char	*s;
+	char		cleanName[MAX_STRING_CHARS];
 
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -344,37 +343,49 @@ static void SV_Status_f( void ) {
 
 	Com_Printf ("map: %s\n", sv_mapname->string );
 
-	Com_Printf ("num score ping name            lastmsg address               qport rate\n");
-	Com_Printf ("--- ----- ---- --------------- ------- --------------------- ----- -----\n");
+	Com_Printf ("num score ping team name            lastmsg address               qport rate\n");
+	Com_Printf ("--- ----- ---- ---- --------------- ------- --------------------- ----- -----\n");
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++)
 	{
 		if (!cl->state)
 			continue;
 		Com_Printf ("%3i ", i);
-		ps = SV_GameClientNum( i );
-		Com_Printf ("%5i ", ps->persistant[PERS_SCORE]);
+		Com_Printf("%5i ", sv.gameClients[i].score);
 
 		if (cl->state == CS_CONNECTED)
 			Com_Printf ("CNCT ");
 		else if (cl->state == CS_ZOMBIE)
 			Com_Printf ("ZMBI ");
-		else
-		{
-			ping = cl->ping < 9999 ? cl->ping : 9999;
-			Com_Printf ("%4i ", ping);
+		else {
+			Com_Printf ("%4i ", sv.gameClients[i].ping);
 		}
 
-		Com_Printf ("%s", cl->name);
-		
-		// TTimo adding a ^7 to reset the color
-		// NOTE: colored names in status breaks the padding (WONTFIX)
-		Com_Printf ("^7");
-		l = 14 - strlen(cl->name);
+		switch (sv.gameClients[i].team) {
+			case TEAM_FREE:
+				Com_Printf("free ");
+				break;
+			case TEAM_RED:
+				Com_Printf(" red ");
+				break;
+			case TEAM_BLUE:
+				Com_Printf("blue ");
+				break;
+			case TEAM_SPECTATOR:
+				Com_Printf("spec ");
+				break;
+			default:
+				Com_Printf("     ");
+		}
+
+		Q_strncpyz(cleanName, cl->name, sizeof cleanName);
+		Q_CleanStr(cleanName);
+		Com_Printf("%s", cleanName);
+
+		l = 16 - strlen(cl->name);
 		j = 0;
-		
-		do
-		{
-			Com_Printf (" ");
+
+		do {
+			Com_Printf(" ");
 			j++;
 		} while(j < l);
 
@@ -397,7 +408,6 @@ static void SV_Status_f( void ) {
 
 		Com_Printf ("\n");
 	}
-	Com_Printf ("\n");
 }
 
 /*

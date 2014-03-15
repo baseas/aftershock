@@ -525,7 +525,6 @@ static void SVC_Status( netadr_t from ) {
 	char	status[MAX_MSGLEN];
 	int		i;
 	client_t	*cl;
-	playerState_t	*ps;
 	int		statusLength;
 	int		playerLength;
 	char	infostring[MAX_INFO_STRING];
@@ -560,9 +559,8 @@ static void SVC_Status( netadr_t from ) {
 	for (i=0 ; i < sv_maxclients->integer ; i++) {
 		cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED ) {
-			ps = SV_GameClientNum( i );
-			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n", 
-				ps->persistant[PERS_SCORE], cl->ping, cl->name);
+			Com_sprintf(player, sizeof(player), "%i %i \"%s\" %i\n",
+				sv.gameClients[i].score, sv.gameClients[i].ping, cl->name, sv.gameClients[i].team);
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= sizeof(status) ) {
 				break;		// can't hold any more
@@ -854,60 +852,6 @@ void SV_PacketEvent( netadr_t from, msg_t *msg ) {
 	}
 }
 
-
-/*
-===================
-SV_CalcPings
-
-Updates the cl->ping variables
-===================
-*/
-static void SV_CalcPings( void ) {
-	int				i, j;
-	client_t		*cl;
-	int				total, count;
-	int				delta;
-	playerState_t	*ps;
-
-	for (i=0 ; i < sv_maxclients->integer ; i++) {
-		cl = &svs.clients[i];
-		if ( cl->state != CS_ACTIVE ) {
-			cl->ping = 999;
-			continue;
-		}
-		if ( !cl->gentity ) {
-			cl->ping = 999;
-			continue;
-		}
-		if ( cl->gentity->r.svFlags & SVF_BOT ) {
-			cl->ping = 0;
-			continue;
-		}
-
-		total = 0;
-		count = 0;
-		for ( j = 0 ; j < PACKET_BACKUP ; j++ ) {
-			if ( cl->frames[j].messageAcked <= 0 ) {
-				continue;
-			}
-			delta = cl->frames[j].messageAcked - cl->frames[j].messageSent;
-			count++;
-			total += delta;
-		}
-		if (!count) {
-			cl->ping = 999;
-		} else {
-			cl->ping = total/count;
-			if ( cl->ping > 999 ) {
-				cl->ping = 999;
-			}
-		}
-	}
-
-	ps = SV_GameClientNum(i);
-	ps->ping = cl->ping;
-}
-
 /*
 ==================
 SV_CheckTimeouts
@@ -1103,9 +1047,6 @@ void SV_Frame( int msec ) {
 	} else {
 		startTime = 0;	// quite a compiler warning
 	}
-
-	// update ping based on the all received frames
-	SV_CalcPings();
 
 	if (com_dedicated->integer) SV_BotFrame (sv.time);
 

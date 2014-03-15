@@ -3693,7 +3693,9 @@ CL_ServerStatusResponse
 void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 	char	*s;
 	char	info[MAX_INFO_STRING];
-	int		i, l, score, ping;
+	char	name[MAX_STRING_CHARS];
+	int		i, l;
+	char	*token;
 	int		len;
 	serverStatus_t *serverStatus;
 
@@ -3747,7 +3749,8 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 
 	if (serverStatus->print) {
 		Com_Printf("\nPlayers:\n");
-		Com_Printf("num: score: ping: name:\n");
+		Com_Printf("num score ping team name\n");
+		Com_Printf("--- ----- ---- ---- ------------------\n");
 	}
 	for (i = 0, s = MSG_ReadStringLine( msg ); *s; s = MSG_ReadStringLine( msg ), i++) {
 
@@ -3755,16 +3758,36 @@ void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 		Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\%s", s);
 
 		if (serverStatus->print) {
-			score = ping = 0;
-			sscanf(s, "%d %d", &score, &ping);
-			s = strchr(s, ' ');
-			if (s)
-				s = strchr(s+1, ' ');
-			if (s)
-				s++;
-			else
-				s = "unknown";
-			Com_Printf("%-2d   %-3d    %-3d   %s\n", i, score, ping, s );
+			Com_Printf("%3d ", i);
+
+			token = COM_Parse(&s);
+			Com_Printf("%5d ", atoi(token));
+
+			token = COM_Parse(&s);
+			Com_Printf("%4d ", atoi(token));
+
+			Q_strncpyz(name, COM_Parse(&s), sizeof name);
+
+			token = COM_Parse(&s);
+			switch (atoi(token)) {
+			case TEAM_FREE:
+				Com_Printf("free ");
+				break;
+			case TEAM_RED:
+				Com_Printf(" red ");
+				break;
+			case TEAM_BLUE:
+				Com_Printf("blue ");
+				break;
+			case TEAM_SPECTATOR:
+				Com_Printf("spec ");
+				break;
+			default:
+				Com_Printf("     ");
+				break;
+			}
+
+			Com_Printf("%s\n", name);
 		}
 	}
 	len = strlen(serverStatus->string);

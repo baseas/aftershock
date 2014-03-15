@@ -498,6 +498,36 @@ void SendPendingPredictableEvents(playerState_t *ps)
 	}
 }
 
+static void ClientCalcPing(gclient_t *client)
+{
+	int	i, sum;
+
+	// unlagged - backward reconciliation #4
+	// frameOffset should be about the number of milliseconds into a frame
+	// this command packet was received, depending on how fast the server
+	// does a G_RunFrame()
+	client->frameOffset = trap_Milliseconds() - level.frameStartTime;
+
+	client->pers.pingSamples[client->pers.pingSampleHead] =
+		level.previousTime + client->frameOffset - client->pers.cmd.serverTime;
+	client->pers.pingSampleHead++;
+
+	if (client->pers.pingSampleHead >= NUM_PING_SAMPLES) {
+		client->pers.pingSampleHead -= NUM_PING_SAMPLES;
+	}
+
+	// get an average of the samples we saved up
+	sum = 0;
+	for (i = 0; i < NUM_PING_SAMPLES; i++) {
+		sum += client->pers.pingSamples[i];
+	}
+
+	client->pers.ping = sum / NUM_PING_SAMPLES;
+	if (client->pers.ping > 999) {
+		client->pers.ping = 999;
+	}
+}
+
 /**
 This will be called once for each client frame, which will
 usually be a couple times for each server frame on fast clients.
@@ -531,6 +561,8 @@ void ClientThink_real(gentity_t *ent)
 		ucmd->serverTime = level.time - 1000;
 //		G_Printf("serverTime >>>>>\n");
 	}
+
+	ClientCalcPing(client);
 
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
@@ -817,6 +849,8 @@ void ClientEndFrame(gentity_t *ent)
 			ent->client->ps.powerups[ i ] = 0;
 		}
 	}
+
+	ent->client->ps.persistant[PERS_SCORE] = ent->client->pers.score;
 
 	// save network bandwidth
 #if 0

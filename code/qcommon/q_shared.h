@@ -1160,12 +1160,17 @@ typedef struct playerState_s {
 	int			jumppad_ent;	// jumppad entity hit this frame
 
 	// not communicated over the net at all
-	int			ping;
 	int			pmove_framecount;
 	int			jumppad_frame;
 	int			entityEventSequence;
 } playerState_t;
 
+typedef struct {
+	int				score;
+	int				ping;
+	int				team;
+	playerState_t	*ps;
+} svPlayerState_t;
 
 //====================================================================
 

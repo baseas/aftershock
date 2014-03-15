@@ -221,6 +221,8 @@ typedef struct {
 #define MAX_NETNAME			36
 #define MAX_VOTE_COUNT		3
 
+#define NUM_PING_SAMPLES	64
+
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct {
@@ -253,6 +255,11 @@ typedef struct {
 	playerStats_t	stats;
 
 	qboolean	muted;
+
+	int			score;
+	int			ping;
+	int			pingSamples[NUM_PING_SAMPLES];
+	int			pingSampleHead;
 } clientPersistant_t;
 
 // everything we need to know to backward reconcile
@@ -419,6 +426,10 @@ typedef struct {
 	gentity_t	*locationHead;			// head of the location list
 	int			bodyQueIndex;			// dead bodies
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
+
+	// unlagged
+	int			frameStartTime;			// actual time this server frame started
+
 } level_locals_t;
 
 //
@@ -690,6 +701,7 @@ int		BotAIShutdownClient(int client, qboolean restart);
 int		BotAIStartFrame(int time);
 void	BotTestAAS(vec3_t origin);
 
+extern svPlayerState_t	svps[MAX_CLIENTS];
 extern level_locals_t	level;
 extern gentity_t		g_entities[MAX_GENTITIES];
 
@@ -769,7 +781,7 @@ void	trap_Cvar_Set(const char *var_name, const char *value);
 int		trap_Cvar_VariableIntegerValue(const char *var_name);
 float	trap_Cvar_VariableValue(const char *var_name);
 void	trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
-void	trap_LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *gameClients, int sizeofGameClient);
+void	trap_LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, svPlayerState_t *gameClients);
 void	trap_DropClient(int clientNum, const char *reason);
 void	trap_SendServerCommand(int clientNum, const char *text);
 void	trap_SetConfigstring(int num, const char *string);

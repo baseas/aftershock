@@ -131,9 +131,9 @@ void trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufs
 }
 
 void trap_LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t,
-	playerState_t *clients, int sizeofGClient)
+	svPlayerState_t *clients)
 {
-	syscall(G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients, sizeofGClient);
+	syscall(G_LOCATE_GAME_DATA, gEnts, numGEntities, sizeofGEntity_t, clients);
 }
 
 void trap_DropClient(int clientNum, const char *reason)

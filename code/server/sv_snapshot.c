@@ -470,7 +470,7 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	}
 
 	// grab the current playerState_t
-	ps = SV_GameClientNum( client - svs.clients );
+	ps = sv.gameClients[client - svs.clients].ps;
 	frame->ps = *ps;
 
 	// never send client's own entity, because it can

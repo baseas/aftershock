@@ -45,14 +45,6 @@ sharedEntity_t *SV_GentityNum( int num ) {
 	return ent;
 }
 
-playerState_t *SV_GameClientNum( int num ) {
-	playerState_t	*ps;
-
-	ps = (playerState_t *)((byte *)sv.gameClients + sv.gameClientSize*(num));
-
-	return ps;
-}
-
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt ) {
 	if ( !gEnt || gEnt->s.number < 0 || gEnt->s.number >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
@@ -251,13 +243,12 @@ SV_LocateGameData
 ===============
 */
 void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t,
-					   playerState_t *clients, int sizeofGameClient ) {
+					   svPlayerState_t *clients) {
 	sv.gentities = gEnts;
 	sv.gentitySize = sizeofGEntity_t;
 	sv.num_entities = numGEntities;
 
 	sv.gameClients = clients;
-	sv.gameClientSize = sizeofGameClient;
 }
 
 
@@ -340,7 +331,7 @@ intptr_t SV_GameSystemCalls( intptr_t *args ) {
 	case G_INI_SECTION:
 		return Ini_Section(VMA(1), args[2]);
 	case G_LOCATE_GAME_DATA:
-		SV_LocateGameData( VMA(1), args[2], args[3], VMA(4), args[5] );
+		SV_LocateGameData( VMA(1), args[2], args[3], VMA(4));
 		return 0;
 	case G_DROP_CLIENT:
 		SV_GameDropClient( args[1], VMA(2) );

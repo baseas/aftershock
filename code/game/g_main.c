@@ -38,6 +38,7 @@ typedef struct {
 	qboolean 	teamShader;			// track and if changed, update shader state
 } cvarTable_t;
 
+svPlayerState_t	svps[MAX_CLIENTS];
 level_locals_t	level;
 gentity_t		g_entities[MAX_GENTITIES];
 
@@ -468,8 +469,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	}
 
 	// let the server system know where the entites are
-	trap_LocateGameData(level.gentities, level.num_entities, sizeof(gentity_t),
-		&level.clients[0].ps, sizeof(level.clients[0]));
+	trap_LocateGameData(level.gentities, level.num_entities, sizeof (gentity_t), svps);
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();
@@ -741,10 +741,10 @@ int QDECL SortRanks(const void *a, const void *b)
 	}
 
 	// then sort by score
-	if (ca->ps.persistant[PERS_SCORE] > cb->ps.persistant[PERS_SCORE]) {
+	if (ca->pers.score > cb->pers.score) {
 		return -1;
 	}
-	if (ca->ps.persistant[PERS_SCORE] < cb->ps.persistant[PERS_SCORE]) {
+	if (ca->pers.score < cb->pers.score) {
 		return 1;
 	}
 	return 0;
@@ -826,7 +826,7 @@ void CalculateRanks(void)
 		score = 0;
 		for (i = 0;  i < level.numPlayingClients; i++) {
 			cl = &level.clients[ level.sortedClients[i] ];
-			newScore = cl->ps.persistant[PERS_SCORE];
+			newScore = cl->pers.score;
 			if (i == 0 || newScore != score) {
 				rank = i;
 				// assume we aren't tied until the next client is checked
@@ -849,15 +849,15 @@ void CalculateRanks(void)
 			trap_SetConfigstring(CS_SCORES1, va("%i", SCORE_NOT_PRESENT));
 			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
 		} else if (level.numConnectedClients == 1) {
-			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[ level.sortedClients[0] ].pers.score));
 			trap_SetConfigstring(CS_SCORES2, va("%i", SCORE_NOT_PRESENT));
 		} else {
 			// in tourney: SCORES1 corresponds to the client with the lower clientNum
 			int	min, max;
 			min = MIN(level.sortedClients[0], level.sortedClients[1]);
 			max = MAX(level.sortedClients[0], level.sortedClients[1]);
-			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[min].ps.persistant[PERS_SCORE]));
-			trap_SetConfigstring(CS_SCORES2, va("%i", level.clients[max].ps.persistant[PERS_SCORE]));
+			trap_SetConfigstring(CS_SCORES1, va("%i", level.clients[min].pers.score));
+			trap_SetConfigstring(CS_SCORES2, va("%i", level.clients[max].pers.score));
 		}
 	}
 
@@ -1061,7 +1061,7 @@ void ExitLevel (void)
 		if (cl->pers.connected != CON_CONNECTED) {
 			continue;
 		}
-		cl->ps.persistant[PERS_SCORE] = 0;
+		cl->pers.score = 0;
 	}
 
 	// we need to do this here before changing to CON_CONNECTING
@@ -1148,9 +1148,9 @@ void LogExit(const char *string)
 			continue;
 		}
 
-		ping = (cl->ps.ping < 999 ? cl->ps.ping : 999);
+		ping = (cl->pers.ping < 999 ? cl->pers.ping : 999);
 
-		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->ps.persistant[PERS_SCORE],
+		G_LogPrintf("score: %i  ping: %i  client: %i %s\n", cl->pers.score,
 			ping, level.sortedClients[i], cl->pers.netname);
 	}
 }
@@ -1307,7 +1307,7 @@ void CheckExitRules(void)
 				continue;
 			}
 
-			if (cl->ps.persistant[PERS_SCORE] >= g_fraglimit.integer) {
+			if (cl->pers.score >= g_fraglimit.integer) {
 				LogExit("Fraglimit hit.");
 				trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " hit the fraglimit.\n\"",
 					cl->pers.netname));
@@ -1357,7 +1357,7 @@ void CheckPings(qboolean forceSend)
 		if (cl->pers.connected == CON_CONNECTING) {
 			Q_strcat(pings, sizeof pings, " -1");
 		} else if (cl->pers.connected == CON_CONNECTED) {
-			Q_strcat(pings, sizeof pings, va(" %i", cl->ps.ping));
+			Q_strcat(pings, sizeof pings, va(" %i", cl->pers.ping));
 		} else {
 			continue;
 		}
@@ -1443,7 +1443,7 @@ static qboolean EnoughReady(void)
 /**
 Once a frame, check for changes in tournement player state
 */
-void CheckTournament(void)
+void CheckWarmup(void)
 {
 	if (g_gametype.integer == GT_DEFRAG) {
 		return;
@@ -1803,8 +1803,15 @@ void G_RunFrame(int levelTime)
 		}
 	}
 
-	// see if it is time to do a tournement restart
-	CheckTournament();
+	// update game data that is sent to server
+	for (i = 0; i < MAX_CLIENTS; ++i) {
+		svps[i].score = level.clients[i].pers.score;
+		svps[i].ping = level.clients[i].pers.ping;
+		svps[i].team = level.clients[i].sess.sessionTeam;
+		svps[i].ps = &level.clients[i].ps;
+	}
+
+	CheckWarmup();
 
 	// see if it is time to end the level
 	CheckExitRules();
@@ -1834,6 +1841,12 @@ void G_RunFrame(int levelTime)
 		}
 		trap_Cvar_Set("g_listEntity", "0");
 	}
+
+	// unlagged - backward reconciliation #4
+	// record the time at the end of this frame - it should be about
+	// the time the next frame begins - when the server starts
+	// accepting commands from connected clients
+	level.frameStartTime = trap_Milliseconds();
 }
 
 static void G_ScoreboardLine(char *buffer, int length, gclient_t *cl, qboolean cache)
