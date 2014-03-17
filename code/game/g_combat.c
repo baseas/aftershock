@@ -282,6 +282,14 @@ void AddScore(gentity_t *ent, vec3_t origin, int score)
 		return;
 	}
 
+	if (g_gametype.integer == GT_TOURNAMENT
+		&& (level.time - level.startTime > g_timelimit.integer * 60000 - 5000
+		|| (level.overtimeStart && level.time - level.overtimeStart > g_overtime.integer * 60000 - 5000)))
+	{
+		level.clients[level.sortedClients[0]].ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+		level.clients[level.sortedClients[1]].ps.persistant[PERS_PLAYEREVENTS] ^= PLAYEREVENT_HOLYSHIT;
+	}
+
 	// show score plum
 	ScorePlum(ent, origin, score);
 	//

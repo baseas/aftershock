@@ -348,6 +348,10 @@ static void CG_ConfigStringModified(void)
 
 		cgs.redLivingCount = newRed;
 		cgs.blueLivingCount = newBlue;
+	} else if (num == CS_OVERTIME) {
+		cgs.overtimeStart = atoi(str);
+		trap_S_StartLocalSound(cgs.media.protectSound, CHAN_ANNOUNCER);
+		CG_CenterPrint(va("^3OVERTIME^7 - %d seconds added", cgs.overtimeLimit));
 	}
 }
 
@@ -547,6 +551,7 @@ void CG_ParseServerinfo(void)
 	cgs.redLocked = atoi(Info_ValueForKey(info, "g_redLocked"));
 	cgs.blueLocked = atoi(Info_ValueForKey(info, "g_blueLocked"));
 	cgs.friendsThroughWalls = atoi(Info_ValueForKey(info, "g_friendsThroughWalls"));
+	cgs.overtimeLimit = atoi(Info_ValueForKey(info, "g_overtime"));
 
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cgs.mapname, sizeof cgs.mapname, "maps/%s.bsp", mapname);

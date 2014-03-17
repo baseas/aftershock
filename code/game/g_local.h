@@ -369,6 +369,7 @@ typedef struct {
 
 	int			startTime;				// level.time the map was started
 	int			timeComplete;			// time when teams were complete
+	int			overtimeStart;			// level.time the overtime started
 
 	int			lastPingTime;			// last time of ping update
 	int			lastScoreboardTime;
@@ -439,7 +440,6 @@ typedef struct {
 
 	// unlagged
 	int			frameStartTime;			// actual time this server frame started
-
 } level_locals_t;
 
 //

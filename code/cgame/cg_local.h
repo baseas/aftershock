@@ -1023,6 +1023,8 @@ typedef struct {
 	int				levelStartTime;
 	int				roundStartTime;			// for elimination gametype
 	int				roundTimelimit;
+	int				overtimeStart;
+	int				overtimeLimit;
 
 	int				scores1, scores2;		// from configstrings
 	int				redflag, blueflag;		// flag status from configstrings

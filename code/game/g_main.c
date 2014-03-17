@@ -1328,17 +1328,26 @@ void CheckExitRules(void)
 	}
 
 	// check for sudden death
-	if (ScoreIsTied()) {
+	if (ScoreIsTied() && !g_overtime.integer) {
 		// always wait for sudden death
 		return;
 	}
 
-	if (g_timelimit.integer && !level.warmupTime) {
-		if (level.time - level.startTime >= g_timelimit.integer*60000) {
-			trap_SendServerCommand(-1, "print \"Timelimit hit.\n\"");
+	if (g_timelimit.integer && !level.warmupTime
+		&& (level.time - level.startTime >= g_timelimit.integer * 60000
+		|| (level.overtimeStart && level.time - level.overtimeStart >= g_overtime.integer * 60000)))
+	{
+		if (ScoreIsTied() && g_overtime.integer) {
+			level.overtimeStart = level.time;
+			trap_SetConfigstring(CS_OVERTIME, va("%d", level.overtimeStart));
+		} else if (!g_overtime.integer || level.overtimeStart) {
+			ClientPrint(NULL, "Timelimit hit.");
 			LogExit("Timelimit hit.");
-			return;
+		} else {
+			ClientPrint(NULL, "Overtime complete.");
+			LogExit("Overtime complete.");
 		}
+		return;
 	}
 
 	if (g_gametype.integer < GT_CTF && g_fraglimit.integer) {
