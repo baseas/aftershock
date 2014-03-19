@@ -655,6 +655,9 @@ static void G_SayTo(gentity_t *ent, gentity_t *other, int mode, int color, const
 	if (other->client->pers.connected != CON_CONNECTED) {
 		return;
 	}
+	if (other->client->pers.blocklist[ent - g_entities]) {
+		return;
+	}
 	if (mode == SAY_TEAM  && !OnSameTeam(ent, other)) {
 		return;
 	}
@@ -1228,8 +1231,6 @@ static void Cmd_SetViewpos_f(gentity_t *ent)
 	TeleportPlayer(ent, origin, angles);
 }
 
-static void Cmd_Stats_f(gentity_t *ent) { }
-
 static void Cmd_DropArmor_f(gentity_t *ent)
 {
 	gitem_t	*item;
@@ -1393,7 +1394,7 @@ static void Cmd_Ready_f(gentity_t *ent)
 	ClientUserinfoChanged(ent->client - level.clients);
 }
 
-static void Cmd_Lock_f(gentity_t *ent)
+static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 {
 	if (!g_teamLock.integer) {
 		ClientPrint(ent, "Teamlock not allowed on this server.");
@@ -1411,50 +1412,26 @@ static void Cmd_Lock_f(gentity_t *ent)
 	}
 
 	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_RED) {
-		if (g_redLocked.integer) {
+		if (g_redLocked.integer && lock) {
 			ClientPrint(ent, "Red team is already locked.");
-		} else {
+		} else if (!g_redLocked.integer && !lock) {
+			ClientPrint(ent, "Red team is already unlocked.");
+		} else if (lock) {
 			ClientPrint(NULL, va("Red team locked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "1");
-		}
-	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-		if (g_blueLocked.integer) {
-			ClientPrint(ent, "Blue team is already locked.");
-		} else {
-			ClientPrint(NULL, va("Blue team locked by %s.", ent->client->pers.netname));
-			trap_Cvar_Set("g_blueLocked", "1");
-		}
-	}
-}
-
-static void Cmd_Unlock_f(gentity_t *ent)
-{
-	if (!g_teamLock.integer) {
-		ClientPrint(ent, "Teamlock not allowed on this server.");
-		return;
-	}
-
-	if (g_gametype.integer < GT_TEAM) {
-		ClientPrint(ent, "Teamlock not available in this gametype.");
-		return;
-	}
-
-	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR) {
-		ClientPrint(ent, "Teamlock is not available for spectators.");
-		return;
-	}
-
-	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_RED) {
-		if (!g_redLocked.integer) {
-			ClientPrint(ent, "Red team is already unlocked.");
-		} else {
+		} else if (!lock) {
 			ClientPrint(NULL, va("Red team unlocked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "0");
 		}
 	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
-		if (!g_blueLocked.integer) {
+		if (g_blueLocked.integer && lock) {
+			ClientPrint(ent, "Blue team is already locked.");
+		} else if (!g_blueLocked.integer && !lock) {
 			ClientPrint(ent, "Blue team is already unlocked.");
-		} else {
+		} else if (lock) {
+			ClientPrint(NULL, va("Blue team locked by %s.", ent->client->pers.netname));
+			trap_Cvar_Set("g_redLocked", "1");
+		} else if (!lock) {
 			ClientPrint(NULL, va("Blue team unlocked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_blueLocked", "0");
 		}
@@ -1485,6 +1462,33 @@ static void Cmd_Forfeit_f(gentity_t *ent)
 
 	level.intermissionQueued = level.time;
 	ClientPrint(NULL, "Match has been forfeited.");
+}
+
+static void Cmd_Block_f(gentity_t *ent, qboolean block)
+{
+	gclient_t	*cl;
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
+		return;
+	}
+
+	if (ent->client->pers.blocklist[cl - level.clients] == block) {
+		if (block) {
+			ClientPrint(ent, va("Player '%s' is already blocked.", cl->pers.netname));
+		} else {
+			ClientPrint(ent, va("Player '%s' is already unblocked.", cl->pers.netname));
+		}
+		return;
+	}
+
+	if (block) {
+		ent->client->pers.blocklist[cl - level.clients] = qtrue;
+		ClientPrint(ent, va("Blocked '%s'.", cl->pers.netname));
+	} else {
+		ent->client->pers.blocklist[cl - level.clients] = qfalse;
+		ClientPrint(ent, va("Unblocked '%s'.", cl->pers.netname));
+	}
 }
 
 void ClientCommand(int clientNum)
@@ -1554,8 +1558,6 @@ void ClientCommand(int clientNum)
 		Cmd_GameCommand_f(ent);
 	else if (Q_stricmp(cmd, "setviewpos") == 0)
 		Cmd_SetViewpos_f(ent);
-	else if (Q_stricmp(cmd, "stats") == 0)
-		Cmd_Stats_f(ent);
 	else if (Q_stricmp(cmd, "dropammo") == 0)
 		Cmd_DropAmmo_f(ent);
 	else if (Q_stricmp(cmd, "droparmor") == 0)
@@ -1571,11 +1573,15 @@ void ClientCommand(int clientNum)
 	else if (Q_stricmp(cmd, "ready") == 0)
 		Cmd_Ready_f(ent);
 	else if (Q_stricmp(cmd, "lock") == 0)
-		Cmd_Lock_f(ent);
+		Cmd_Lock_f(ent, qtrue);
 	else if (Q_stricmp(cmd, "unlock") == 0)
-		Cmd_Unlock_f(ent);
+		Cmd_Lock_f(ent, qfalse);
 	else if (Q_stricmp(cmd, "forfeit") == 0)
 		Cmd_Forfeit_f(ent);
+	else if (Q_stricmp(cmd, "block") == 0)
+		Cmd_Block_f(ent, qtrue);
+	else if (Q_stricmp(cmd, "unblock") == 0)
+		Cmd_Block_f(ent, qfalse);
 	else
 		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
 }

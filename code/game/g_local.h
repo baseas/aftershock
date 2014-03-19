@@ -255,6 +255,7 @@ typedef struct {
 	playerStats_t	stats;
 
 	qboolean	muted;
+	qboolean	blocklist[MAX_CLIENTS];
 
 	int			score;
 	int			ping;

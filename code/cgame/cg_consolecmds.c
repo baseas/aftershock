@@ -228,7 +228,6 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("vote");
 	trap_AddCommand("callteamvote");
 	trap_AddCommand("teamvote");
-	trap_AddCommand("stats");
 	trap_AddCommand("teamtask");
 	trap_AddCommand("dropammo");
 	trap_AddCommand("droparmor");
@@ -240,5 +239,7 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("lock");
 	trap_AddCommand("unlock");
 	trap_AddCommand("forfeit");
+	trap_AddCommand("block");
+	trap_AddCommand("unblock");
 }
 
