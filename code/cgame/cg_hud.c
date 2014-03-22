@@ -1263,7 +1263,7 @@ static void Hud_ScoreLimit(int hudnumber)
 {
 	int	limit;
 
-	if (cgs.gametype == GT_CTF) {
+	if (cgs.gametype == GT_CTF || cgs.gametype == GT_ELIMINATION) {
 		limit = cgs.capturelimit;
 	} else {
 		limit = cgs.fraglimit;
