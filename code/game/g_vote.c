@@ -189,7 +189,7 @@ static int Vote_Custom(gentity_t *ent, customVote_t *vote)
 		{ "shuffle", Vote_Shuffle },
 		{ "forceteam", Vote_ForceTeam },
 		{ "mute", Vote_Mute },
-		{ NULL, NULL }
+		{ NULL, 0 }
 	};
 
 static void G_VotePrintCommands(gentity_t *ent)

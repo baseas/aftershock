@@ -91,7 +91,7 @@ char	*strchr(const char *string, int c);
 char	*strrchr(const char *string, int c);
 char	*strstr(const char *string, const char *strCharSet);
 char	*strncpy(char *strDest, const char *strSource, size_t count);
-intc	tolower(int c);
+int		tolower(int c);
 int		toupper(int c);
 
 double	atof(const char *string);

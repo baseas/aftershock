@@ -401,13 +401,13 @@ static int CG_CalcFov(void)
 
 	// Based on LordHavoc's code for Darkplaces
 	// http://www.quakeworld.nu/forum/topic/53/what-does-your-qw-look-like/page/30
-	fov_x = atan(tan(fov_x * M_PI / 360.0f) * 0.75f / aspect) * 360.0f / M_PI;
+	fov_x = atan2(tan(fov_x * M_PI / 360.0f) * 0.75f / aspect, 1) * 360.0f / M_PI;
 
 	if (cg_zoomSensitivity.value != 0.0f && fov_x != cg_fov.value) {
 		float	fovarg1, fovarg2;
 		fovarg1 = fov_x / 720.0f * M_PI;
 		fovarg2 = cg_fov.value / 720.0f * M_PI;
-		cg.zoomSensitivity = atan(aspect * tan(fovarg1)) / atan(aspect * tan(fovarg2));
+		cg.zoomSensitivity = atan2(aspect * tan(fovarg1), 1) / atan2(aspect * tan(fovarg2), 1);
 		cg.zoomSensitivity *= cg_zoomSensitivity.value;
 	} else {
 		cg.zoomSensitivity = 1.0f;

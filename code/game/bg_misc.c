@@ -851,6 +851,7 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t *ent, const playe
 		Com_Printf("BG_CanItemBeGrabbed: unknown enum %d\n", item->giType);
 #endif
 #endif
+		break;
 	}
 
 	return qfalse;
@@ -1163,25 +1164,29 @@ int *BG_StatsData(playerStats_t *stats, int index)
 	struct {
 		int	*data;
 		int	size;
-	} fields[] = {
-		{ stats->rewards, ARRAY_LEN(stats->rewards) },
-		{ stats->shots, ARRAY_LEN(stats->shots) },
-		{ stats->teamHits, ARRAY_LEN(stats->teamHits) },
-		{ stats->enemyHits, ARRAY_LEN(stats->enemyHits) },
-		{ stats->damage, ARRAY_LEN(stats->damage) },
-		{ stats->kills, ARRAY_LEN(stats->kills) },
-		{ stats->deaths, ARRAY_LEN(stats->deaths) },
-		{ stats->weaponPickups, ARRAY_LEN(stats->weaponPickups) },
-		{ stats->miscStats, ARRAY_LEN(stats->miscStats) },
-		{ NULL, 0 }
-	};
+	} fields[7];
+
+	fields[0].data = stats->rewards;
+	fields[0].size = ARRAY_LEN(stats->rewards);
+	fields[1].data = stats->teamHits;
+	fields[1].size = ARRAY_LEN(stats->teamHits);
+	fields[2].data = stats->enemyHits;
+	fields[2].size = ARRAY_LEN(stats->enemyHits);
+	fields[3].data = stats->damage;
+	fields[3].size = ARRAY_LEN(stats->damage);
+	fields[4].data = stats->kills;
+	fields[4].size = ARRAY_LEN(stats->kills);
+	fields[5].data = stats->weaponPickups;
+	fields[5].size = ARRAY_LEN(stats->weaponPickups);
+	fields[6].data = stats->miscStats;
+	fields[6].size = ARRAY_LEN(stats->miscStats);
 
 	if (index < 0) {
 		return NULL;
 	}
 
-	for (i = 0; fields[i].data; ++i) {
-		if (index > fields[i].size) {
+	for (i = 0; i < ARRAY_LEN(fields); ++i) {
+		if (index >= fields[i].size) {
 			index -= fields[i].size;
 		} else {
 			return &fields[i].data[index];

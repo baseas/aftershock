@@ -796,7 +796,8 @@ void	trap_Cvar_Set(const char *var_name, const char *value);
 int		trap_Cvar_VariableIntegerValue(const char *var_name);
 float	trap_Cvar_VariableValue(const char *var_name);
 void	trap_Cvar_VariableStringBuffer(const char *var_name, char *buffer, int bufsize);
-void	trap_LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t, svPlayerState_t *gameClients);
+void	trap_LocateGameData(gentity_t *gEnts, int numGEntities, int sizeofGEntity_t,
+	playerState_t *gameClients, int sizeofGameClient, svPlayerState_t *svps);
 void	trap_DropClient(int clientNum, const char *reason);
 void	trap_SendServerCommand(int clientNum, const char *text);
 void	trap_SetConfigstring(int num, const char *string);

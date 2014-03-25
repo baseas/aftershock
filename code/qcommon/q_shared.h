@@ -1169,7 +1169,6 @@ typedef struct {
 	int				score;
 	int				ping;
 	int				team;
-	playerState_t	*ps;
 } svPlayerState_t;
 
 //====================================================================

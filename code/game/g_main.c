@@ -457,6 +457,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	level.maxclients = g_maxclients.integer;
 	memset(level.clients, 0, sizeof level.clients);
 	memset(level.disconnectedClients, 0, sizeof level.clients);
+	memset(svps, 0, sizeof svps);
 
 	// set client fields on player ents
 	for (i = 0; i<level.maxclients; i++) {
@@ -468,12 +469,13 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	// range are NEVER anything but clients
 	level.num_entities = MAX_CLIENTS;
 
-	for (i = 0; i<MAX_CLIENTS; i++) {
+	for (i = 0; i < MAX_CLIENTS; i++) {
 		g_entities[i].classname = "clientslot";
 	}
 
 	// let the server system know where the entites are
-	trap_LocateGameData(level.gentities, level.num_entities, sizeof (gentity_t), svps);
+	trap_LocateGameData(level.gentities, level.num_entities, sizeof (gentity_t),
+		&level.clients[0].ps, sizeof level.clients[0], svps);
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();
@@ -1946,7 +1948,6 @@ void G_RunFrame(int levelTime)
 		svps[i].score = level.clients[i].pers.score;
 		svps[i].ping = level.clients[i].pers.ping;
 		svps[i].team = level.clients[i].sess.sessionTeam;
-		svps[i].ps = &level.clients[i].ps;
 	}
 
 	CheckWarmup();

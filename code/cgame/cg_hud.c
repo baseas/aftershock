@@ -1412,7 +1412,7 @@ void CG_DrawHud()
 		{ HUD_HELP, Hud_Help, qtrue },
 		{ HUD_TC_OWN, Hud_TeamCountOwn, qtrue },
 		{ HUD_TC_NME, Hud_TeamCountNme, qtrue },
-		{ HUD_MAX, NULL, qfalse }
+		{ HUD_MAX, 0, qfalse }
 	};
 
 	if (cg.showInfo || cg.scoreBoardShowing || !cg_drawHud.integer) {

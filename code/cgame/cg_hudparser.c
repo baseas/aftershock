@@ -232,7 +232,7 @@ struct {
 	{ "textalign", Prop_TextAlign, Prop_TextAlignPrint },
 	{ "time", Prop_Time, Prop_TimePrint },
 	{ "textstyle", Prop_TextStyle, Prop_TextStylePrint },
-	{ NULL, NULL, NULL }
+	{ NULL, 0, 0 }
 };
 
 static const char *hudTags[] = {

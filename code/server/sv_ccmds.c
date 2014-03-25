@@ -350,17 +350,17 @@ static void SV_Status_f( void ) {
 		if (!cl->state)
 			continue;
 		Com_Printf ("%3i ", i);
-		Com_Printf("%5i ", sv.gameClients[i].score);
+		Com_Printf("%5i ", sv.svps[i].score);
 
 		if (cl->state == CS_CONNECTED)
 			Com_Printf ("CNCT ");
 		else if (cl->state == CS_ZOMBIE)
 			Com_Printf ("ZMBI ");
 		else {
-			Com_Printf ("%4i ", sv.gameClients[i].ping);
+			Com_Printf ("%4i ", sv.svps[i].ping);
 		}
 
-		switch (sv.gameClients[i].team) {
+		switch (sv.svps[i].team) {
 			case TEAM_FREE:
 				Com_Printf("free ");
 				break;

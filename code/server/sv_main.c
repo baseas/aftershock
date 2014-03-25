@@ -560,7 +560,7 @@ static void SVC_Status( netadr_t from ) {
 		cl = &svs.clients[i];
 		if ( cl->state >= CS_CONNECTED ) {
 			Com_sprintf(player, sizeof(player), "%i %i \"%s\" %i\n",
-				sv.gameClients[i].score, sv.gameClients[i].ping, cl->name, sv.gameClients[i].team);
+				sv.svps[i].score, sv.svps[i].ping, cl->name, sv.svps[i].team);
 			playerLength = strlen(player);
 			if (statusLength + playerLength >= sizeof(status) ) {
 				break;		// can't hold any more

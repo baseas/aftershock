@@ -88,7 +88,9 @@ typedef struct {
 	int				gentitySize;
 	int				num_entities;		// current number, <= MAX_GENTITIES
 
-	svPlayerState_t	*gameClients;
+	playerState_t	*gameClients;
+	int				gameClientSize;
+	svPlayerState_t	*svps;
 
 	int				restartTime;
 	int				time;
@@ -372,6 +374,7 @@ void SV_SendClientSnapshot( client_t *client );
 //
 int	SV_NumForGentity( sharedEntity_t *ent );
 sharedEntity_t *SV_GentityNum( int num );
+playerState_t	*SV_GameClientNum(int num);
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );

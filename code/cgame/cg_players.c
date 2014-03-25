@@ -1065,7 +1065,7 @@ static void CG_HasteTrail(centity_t *cent)
 	VectorCopy(cent->lerpOrigin, origin);
 	origin[2] -= 16;
 
-	smoke = CG_SmokePuff(origin, vec3_origin, 8, (vec4_t) { 1, 1, 1, 1 },
+	smoke = CG_SmokePuff(origin, vec3_origin, 8, colorWhite,
 		500, cg.time, 0, 0, cgs.media.hastePuffShader);
 
 	// use the optimized local entity add
@@ -1229,6 +1229,7 @@ static qboolean CG_PlayerShadow(centity_t *cent, float *shadowPlane)
 	vec3_t		end, mins = {-15, -15, 0}, maxs = {15, 15, 2};
 	trace_t		trace;
 	float		alpha;
+	vec4_t		color;
 
 	*shadowPlane = 0;
 
@@ -1266,8 +1267,12 @@ static qboolean CG_PlayerShadow(centity_t *cent, float *shadowPlane)
 
 	// add the mark as a temporary, so it goes directly to the renderer
 	// without taking a spot in the cg_marks array
+	color[0] = alpha;
+	color[1] = alpha;
+	color[2] = alpha;
+	color[3] = 1.0f;
 	CG_ImpactMark(cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
-		cent->pe.legs.yawAngle, (vec4_t) { alpha, alpha, alpha, 1}, qfalse, 24, qtrue);
+		cent->pe.legs.yawAngle, color, qfalse, 24, qtrue);
 
 	return qtrue;
 }
