@@ -2246,7 +2246,6 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_specifyserver.o \
   $(B)/$(BASEGAME)/ui/ui_startserver.o \
   $(B)/$(BASEGAME)/ui/ui_team.o \
-  $(B)/$(BASEGAME)/ui/ui_teamorders.o \
   $(B)/$(BASEGAME)/ui/ui_video.o \
   $(B)/$(BASEGAME)/ui/ui_gameinfo.o \
   \

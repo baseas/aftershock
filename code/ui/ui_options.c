@@ -19,26 +19,23 @@ along with Quake III Arena source code; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
-/*
-=======================================================================
-
-SYSTEM CONFIGURATION MENU
-
-=======================================================================
-*/
+//
+// ui_options.c -- system configuration menu
 
 #include "ui_local.h"
 
 #define ART_BACK0			"menu/art/back_0"
 #define ART_BACK1			"menu/art/back_1"
 
-#define ID_GRAPHICS			10
-#define ID_DISPLAY			11
-#define ID_SOUND			12
-#define ID_NETWORK			13
-#define ID_BACK				14
-
 #define VERTICAL_SPACING	34
+
+enum {
+	ID_GRAPHICS = 10,
+	ID_DISPLAY,
+	ID_SOUND,
+	ID_NETWORK,
+	ID_BACK
+};
 
 typedef struct {
 	menuframework_s	menu;
@@ -54,18 +51,13 @@ typedef struct {
 
 static optionsmenu_t	s_options;
 
-
-/*
-=================
-Options_Event
-=================
-*/
-static void Options_Event( void* ptr, int event ) {
-	if( event != QM_ACTIVATED ) {
+static void Options_Event(void* ptr, int event)
+{
+	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
+	switch (((menucommon_s*)ptr)->id) {
 	case ID_GRAPHICS:
 		UI_GraphicsOptionsMenu();
 		break;
@@ -88,33 +80,24 @@ static void Options_Event( void* ptr, int event ) {
 	}
 }
 
-
-/*
-===============
-SystemConfig_Cache
-===============
-*/
-void SystemConfig_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_BACK0 );
-	trap_R_RegisterShaderNoMip( ART_BACK1 );
+void SystemConfig_Cache(void)
+{
+	trap_R_RegisterShaderNoMip(ART_BACK0);
+	trap_R_RegisterShaderNoMip(ART_BACK1);
 }
 
-/*
-===============
-Options_MenuInit
-===============
-*/
-void Options_MenuInit( void ) {
+void Options_MenuInit(void)
+{
 	int				y;
 	uiClientState_t	cstate;
 
-	memset( &s_options, 0, sizeof(optionsmenu_t) );
+	memset(&s_options, 0, sizeof(optionsmenu_t));
 
 	SystemConfig_Cache();
 	s_options.menu.wrapAround = qtrue;
 
-	trap_GetClientState( &cstate );
-	if ( cstate.connState >= CA_CONNECTED ) {
+	trap_GetClientState(&cstate);
+	if (cstate.connState >= CA_CONNECTED) {
 		s_options.menu.fullscreen = qfalse;
 	}
 	else {
@@ -184,20 +167,16 @@ void Options_MenuInit( void ) {
 	s_options.back.height  		    = 64;
 	s_options.back.focuspic         = ART_BACK1;
 
-	Menu_AddItem( &s_options.menu, ( void * ) &s_options.graphics );
-	Menu_AddItem( &s_options.menu, ( void * ) &s_options.display );
-	Menu_AddItem( &s_options.menu, ( void * ) &s_options.sound );
-	Menu_AddItem( &s_options.menu, ( void * ) &s_options.network );
-	Menu_AddItem( &s_options.menu, ( void * ) &s_options.back );
+	Menu_AddItem(&s_options.menu, (void *) &s_options.graphics);
+	Menu_AddItem(&s_options.menu, (void *) &s_options.display);
+	Menu_AddItem(&s_options.menu, (void *) &s_options.sound);
+	Menu_AddItem(&s_options.menu, (void *) &s_options.network);
+	Menu_AddItem(&s_options.menu, (void *) &s_options.back);
 }
 
-
-/*
-===============
-UI_SystemConfigMenu
-===============
-*/
-void UI_SystemConfigMenu( void ) {
+void UI_SystemConfigMenu(void)
+{
 	Options_MenuInit();
-	UI_PushMenu ( &s_options.menu );
+	UI_PushMenu (&s_options.menu);
 }
+

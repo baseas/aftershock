@@ -20,26 +20,21 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-/*
-=======================================================================
-
-NETWORK OPTIONS MENU
-
-=======================================================================
-*/
+// ui_network.c -- network options menu
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
+#define ART_BACK0	"menu/art/back_0"
+#define ART_BACK1	"menu/art/back_1"
 
-#define ID_GRAPHICS			10
-#define ID_DISPLAY			11
-#define ID_SOUND			12
-#define ID_NETWORK			13
-#define ID_RATE				14
-#define ID_BACK				15
-
+enum {
+	ID_GRAPHICS = 10,
+	ID_DISPLAY,
+	ID_SOUND,
+	ID_NETWORK,
+	ID_RATE,
+	ID_BACK
+};
 
 static const char *rate_items[] = {
 	"<= 28.8K",
@@ -67,18 +62,13 @@ typedef struct {
 
 static networkOptionsInfo_t	networkOptionsInfo;
 
-
-/*
-=================
-UI_NetworkOptionsMenu_Event
-=================
-*/
-static void UI_NetworkOptionsMenu_Event( void* ptr, int event ) {
-	if( event != QM_ACTIVATED ) {
+static void UI_NetworkOptionsMenu_Event(void *ptr, int event)
+{
+	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
+	switch (((menucommon_s*)ptr)->id) {
 	case ID_GRAPHICS:
 		UI_PopMenu();
 		UI_GraphicsOptionsMenu();
@@ -98,20 +88,16 @@ static void UI_NetworkOptionsMenu_Event( void* ptr, int event ) {
 		break;
 
 	case ID_RATE:
-		if( networkOptionsInfo.rate.curvalue == 0 ) {
-			trap_Cvar_SetValue( "rate", 2500 );
-		}
-		else if( networkOptionsInfo.rate.curvalue == 1 ) {
-			trap_Cvar_SetValue( "rate", 3000 );
-		}
-		else if( networkOptionsInfo.rate.curvalue == 2 ) {
-			trap_Cvar_SetValue( "rate", 4000 );
-		}
-		else if( networkOptionsInfo.rate.curvalue == 3 ) {
-			trap_Cvar_SetValue( "rate", 5000 );
-		}
-		else if( networkOptionsInfo.rate.curvalue == 4 ) {
-			trap_Cvar_SetValue( "rate", 25000 );
+		if (networkOptionsInfo.rate.curvalue == 0) {
+			trap_Cvar_SetValue("rate", 2500);
+		} else if (networkOptionsInfo.rate.curvalue == 1) {
+			trap_Cvar_SetValue("rate", 3000);
+		} else if (networkOptionsInfo.rate.curvalue == 2) {
+			trap_Cvar_SetValue("rate", 4000);
+		} else if (networkOptionsInfo.rate.curvalue == 3) {
+			trap_Cvar_SetValue("rate", 5000);
+		} else if (networkOptionsInfo.rate.curvalue == 4) {
+			trap_Cvar_SetValue("rate", 25000);
 		}
 		break;
 
@@ -121,17 +107,12 @@ static void UI_NetworkOptionsMenu_Event( void* ptr, int event ) {
 	}
 }
 
-
-/*
-===============
-UI_NetworkOptionsMenu_Init
-===============
-*/
-static void UI_NetworkOptionsMenu_Init( void ) {
+static void UI_NetworkOptionsMenu_Init(void)
+{
 	int		y;
 	int		rate;
 
-	memset( &networkOptionsInfo, 0, sizeof(networkOptionsInfo) );
+	memset(&networkOptionsInfo, 0, sizeof(networkOptionsInfo));
 
 	UI_NetworkOptionsMenu_Cache();
 	networkOptionsInfo.menu.wrapAround = qtrue;
@@ -206,51 +187,38 @@ static void UI_NetworkOptionsMenu_Init( void ) {
 	networkOptionsInfo.back.height				= 64;
 	networkOptionsInfo.back.focuspic			= ART_BACK1;
 
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.banner );
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.graphics );
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.display );
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.sound );
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.network );
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.rate );
-	Menu_AddItem( &networkOptionsInfo.menu, ( void * ) &networkOptionsInfo.back );
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.banner);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.graphics);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.display);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.sound);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.network);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.rate);
+	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.back);
 
-	rate = trap_Cvar_VariableValue( "rate" );
-	if( rate <= 2500 ) {
+	rate = trap_Cvar_VariableValue("rate");
+	if (rate <= 2500) {
 		networkOptionsInfo.rate.curvalue = 0;
-	}
-	else if( rate <= 3000 ) {
+	} else if (rate <= 3000) {
 		networkOptionsInfo.rate.curvalue = 1;
-	}
-	else if( rate <= 4000 ) {
+	} else if (rate <= 4000) {
 		networkOptionsInfo.rate.curvalue = 2;
-	}
-	else if( rate <= 5000 ) {
+	} else if (rate <= 5000) {
 		networkOptionsInfo.rate.curvalue = 3;
-	}
-	else {
+	} else {
 		networkOptionsInfo.rate.curvalue = 4;
 	}
 }
 
-
-/*
-===============
-UI_NetworkOptionsMenu_Cache
-===============
-*/
-void UI_NetworkOptionsMenu_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_BACK0 );
-	trap_R_RegisterShaderNoMip( ART_BACK1 );
+void UI_NetworkOptionsMenu_Cache(void)
+{
+	trap_R_RegisterShaderNoMip(ART_BACK0);
+	trap_R_RegisterShaderNoMip(ART_BACK1);
 }
 
-
-/*
-===============
-UI_NetworkOptionsMenu
-===============
-*/
-void UI_NetworkOptionsMenu( void ) {
+void UI_NetworkOptionsMenu(void)
+{
 	UI_NetworkOptionsMenu_Init();
-	UI_PushMenu( &networkOptionsInfo.menu );
-	Menu_SetCursorToItem( &networkOptionsInfo.menu, &networkOptionsInfo.network );
+	UI_PushMenu(&networkOptionsInfo.menu);
+	Menu_SetCursorToItem(&networkOptionsInfo.menu, &networkOptionsInfo.network);
 }
+

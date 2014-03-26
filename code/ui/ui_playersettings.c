@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+// ui_playersettings.c
+
 #include "ui_local.h"
 
 #define ART_BACK0			"menu/art/back_0"
@@ -33,11 +35,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ART_FX_WHITE		"menu/art/fx_white"
 #define ART_FX_YELLOW		"menu/art/fx_yel"
 
-#define ID_NAME			10
-#define ID_BACK			11
-
 #define MAX_NAMELENGTH	20
 
+enum {
+	ID_NAME = 10,
+	ID_BACK
+};
 
 typedef struct {
 	menuframework_s		menu;
@@ -52,7 +55,7 @@ typedef struct {
 
 static playersettings_t	s_playersettings;
 
-static void PlayerSettings_DrawName( void *self )
+static void PlayerSettings_DrawName(void *self)
 {
 	menufield_s		*f;
 	qboolean		focus;
@@ -70,12 +73,12 @@ static void PlayerSettings_DrawName( void *self )
 
 	style = UI_LEFT | UI_BIGFONT;
 	color = text_color_normal;
-	if( focus ) {
+	if (focus) {
 		style |= UI_PULSE;
 		color = text_color_highlight;
 	}
 
-	UI_DrawProportionalString( basex, y, "Name", style, color );
+	UI_DrawProportionalString(basex, y, "Name", style, color);
 
 	// draw the actual name
 	basex += 64;
@@ -83,10 +86,10 @@ static void PlayerSettings_DrawName( void *self )
 	txt = f->field.buffer;
 	color = g_color_table[ColorIndex(COLOR_WHITE)];
 	x = basex;
-	while ( (c = *txt) != 0 ) {
-		if ( Q_IsColorString( txt ) ) {
-			n = ColorIndex( *(txt+1) );
-			if( n == 0 ) {
+	while ((c = *txt) != 0) {
+		if (Q_IsColorString(txt)) {
+			n = ColorIndex(*(txt+1));
+			if (n == 0) {
 				n = 7;
 			}
 			color = g_color_table[n];
@@ -95,14 +98,14 @@ static void PlayerSettings_DrawName( void *self )
 				continue;
 			}
 		}
-		UI_DrawChar( x, y, c, style, color );
+		UI_DrawChar(x, y, c, style, color);
 		txt++;
 		x += BIGCHAR_WIDTH;
 	}
 
 	// draw cursor if we have focus
-	if( focus ) {
-		if ( trap_Key_GetOverstrikeMode() ) {
+	if (focus) {
+		if (trap_Key_GetOverstrikeMode()) {
 			c = 11;
 		} else {
 			c = 10;
@@ -111,35 +114,37 @@ static void PlayerSettings_DrawName( void *self )
 		style &= ~UI_PULSE;
 		style |= UI_BLINK;
 
-		UI_DrawChar( basex + f->field.cursor * BIGCHAR_WIDTH, y, c, style, color_white );
+		UI_DrawChar(basex + f->field.cursor * BIGCHAR_WIDTH, y, c, style, color_white);
 	}
 }
 
-static void PlayerSettings_SaveChanges( void ) {
+static void PlayerSettings_SaveChanges(void)
+{
 	// name
-	trap_Cvar_Set( "name", s_playersettings.name.field.buffer );
+	trap_Cvar_Set("name", s_playersettings.name.field.buffer);
 }
 
-static sfxHandle_t PlayerSettings_MenuKey( int key )
+static sfxHandle_t PlayerSettings_MenuKey(int key)
 {
-	if( key == K_MOUSE2 || key == K_ESCAPE ) {
+	if (key == K_MOUSE2 || key == K_ESCAPE) {
 		PlayerSettings_SaveChanges();
 	}
-	return Menu_DefaultKey( &s_playersettings.menu, key );
+	return Menu_DefaultKey(&s_playersettings.menu, key);
 }
 
-static void PlayerSettings_SetMenuItems( void )
+static void PlayerSettings_SetMenuItems(void)
 {
-	Q_strncpyz( s_playersettings.name.field.buffer, UI_Cvar_VariableString("name"), sizeof(s_playersettings.name.field.buffer) );
+	Q_strncpyz(s_playersettings.name.field.buffer, UI_Cvar_VariableString("name"),
+		sizeof s_playersettings.name.field.buffer);
 }
 
-static void PlayerSettings_MenuEvent( void* ptr, int event )
+static void PlayerSettings_MenuEvent(void* ptr, int event)
 {
-	if( event != QM_ACTIVATED ) {
+	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	switch( ((menucommon_s*)ptr)->id ) {
+	switch (((menucommon_s *)ptr)->id) {
 	case ID_BACK:
 		PlayerSettings_SaveChanges();
 		UI_PopMenu();
@@ -147,24 +152,24 @@ static void PlayerSettings_MenuEvent( void* ptr, int event )
 	}
 }
 
-static void PlayerSettings_MenuInit( void )
+static void PlayerSettings_MenuInit(void)
 {
 	int		y;
 
-	memset(&s_playersettings,0,sizeof(playersettings_t));
+	memset(&s_playersettings, 0, sizeof (playersettings_t));
 
 	PlayerSettings_Cache();
 
-	s_playersettings.menu.key        = PlayerSettings_MenuKey;
-	s_playersettings.menu.wrapAround = qtrue;
-	s_playersettings.menu.fullscreen = qtrue;
+	s_playersettings.menu.key			= PlayerSettings_MenuKey;
+	s_playersettings.menu.wrapAround	= qtrue;
+	s_playersettings.menu.fullscreen	= qtrue;
 
-	s_playersettings.banner.generic.type  = MTYPE_BTEXT;
-	s_playersettings.banner.generic.x     = 320;
-	s_playersettings.banner.generic.y     = 16;
-	s_playersettings.banner.string        = "PLAYER SETTINGS";
-	s_playersettings.banner.color         = color_white;
-	s_playersettings.banner.style         = UI_CENTER;
+	s_playersettings.banner.generic.type	= MTYPE_BTEXT;
+	s_playersettings.banner.generic.x		= 320;
+	s_playersettings.banner.generic.y		= 16;
+	s_playersettings.banner.string			= "PLAYER SETTINGS";
+	s_playersettings.banner.color			= color_white;
+	s_playersettings.banner.style			= UI_CENTER;
 
 	y = 144;
 	s_playersettings.name.generic.type			= MTYPE_FIELD;
@@ -190,20 +195,22 @@ static void PlayerSettings_MenuInit( void )
 	s_playersettings.back.height				= 64;
 	s_playersettings.back.focuspic				= ART_BACK1;
 
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.banner );
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.banner);
 
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.name );
-	Menu_AddItem( &s_playersettings.menu, &s_playersettings.back );
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.name);
+	Menu_AddItem(&s_playersettings.menu, &s_playersettings.back);
 	PlayerSettings_SetMenuItems();
 }
 
-void PlayerSettings_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_BACK0 );
-	trap_R_RegisterShaderNoMip( ART_BACK1 );
+void PlayerSettings_Cache(void)
+{
+	trap_R_RegisterShaderNoMip(ART_BACK0);
+	trap_R_RegisterShaderNoMip(ART_BACK1);
 }
 
-void UI_PlayerSettingsMenu( void ) {
+void UI_PlayerSettingsMenu(void)
+{
 	PlayerSettings_MenuInit();
-	UI_PushMenu( &s_playersettings.menu );
+	UI_PushMenu(&s_playersettings.menu);
 }
 

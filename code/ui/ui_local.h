@@ -630,13 +630,6 @@ void UI_RemoveBots_Cache(void);
 void UI_RemoveBotsMenu(void);
 
 //
-// ui_teamorders.c
-//
-extern void UI_TeamOrdersMenu(void);
-extern void UI_TeamOrdersMenu_f(void);
-extern void UI_TeamOrdersMenu_Cache(void);
-
-//
 // ui_loadconfig.c
 //
 void UI_LoadConfig_Cache(void);

@@ -20,16 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-/*
-=============================================================================
-
-LOAD CONFIG MENU
-
-=============================================================================
-*/
+// ui_loadconfig.c -- load config menu
 
 #include "ui_local.h"
-
 
 #define ART_BACK0			"menu/art/back_0"
 #define ART_BACK1			"menu/art/back_1"	
@@ -40,17 +33,18 @@ LOAD CONFIG MENU
 #define ART_ARROWRIGHT		"menu/art/arrows_horz_right"
 
 #define MAX_CONFIGS			128
-#define NAMEBUFSIZE			( MAX_CONFIGS * 16 )
-
-#define ID_BACK				10
-#define ID_GO				11
-#define ID_LIST				12
-#define ID_LEFT				13
-#define ID_RIGHT			14
+#define NAMEBUFSIZE			(MAX_CONFIGS * 16)
 
 #define ARROWS_WIDTH		128
 #define ARROWS_HEIGHT		48
 
+enum {
+	ID_BACK = 10,
+	ID_GO,
+	ID_LIST,
+	ID_LEFT,
+	ID_RIGHT
+};
 
 typedef struct {
 	menuframework_s	menu;
@@ -71,51 +65,38 @@ typedef struct {
 
 static configs_t	s_configs;
 
-
-/*
-===============
-LoadConfig_MenuEvent
-===============
-*/
-static void LoadConfig_MenuEvent( void *ptr, int event ) {
-	if( event != QM_ACTIVATED ) {
+static void LoadConfig_MenuEvent(void *ptr, int event)
+{
+	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	switch ( ((menucommon_s*)ptr)->id ) {
+	switch (((menucommon_s *)ptr)->id) {
 	case ID_GO:
-		trap_Cmd_ExecuteText( EXEC_APPEND, va( "exec %s\n", s_configs.list.itemnames[s_configs.list.curvalue] ) );
+		trap_Cmd_ExecuteText(EXEC_APPEND, va("exec %s\n", s_configs.list.itemnames[s_configs.list.curvalue]));
 		UI_PopMenu();
 		break;
-
 	case ID_BACK:
 		UI_PopMenu();
 		break;
-
 	case ID_LEFT:
-		ScrollList_Key( &s_configs.list, K_LEFTARROW );
+		ScrollList_Key(&s_configs.list, K_LEFTARROW);
 		break;
-
 	case ID_RIGHT:
-		ScrollList_Key( &s_configs.list, K_RIGHTARROW );
+		ScrollList_Key(&s_configs.list, K_RIGHTARROW);
 		break;
 	}
 }
 
-
-/*
-===============
-LoadConfig_MenuInit
-===============
-*/
-static void LoadConfig_MenuInit( void ) {
+static void LoadConfig_MenuInit(void)
+{
 	int		i;
 	int		len;
 	char	*configname;
 
 	UI_LoadConfig_Cache();
 
-	memset( &s_configs, 0 ,sizeof(configs_t) );
+	memset(&s_configs, 0 ,sizeof(configs_t));
 	s_configs.menu.wrapAround = qtrue;
 	s_configs.menu.fullscreen = qtrue;
 
@@ -144,15 +125,15 @@ static void LoadConfig_MenuInit( void ) {
 	s_configs.left.height			= ARROWS_HEIGHT;
 	s_configs.left.focuspic			= ART_ARROWLEFT;
 
-	s_configs.right.generic.type	= MTYPE_BITMAP;
-	s_configs.right.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
-	s_configs.right.generic.x		= 320;
-	s_configs.right.generic.y		= 400;
-	s_configs.right.generic.id		= ID_RIGHT;
-	s_configs.right.generic.callback = LoadConfig_MenuEvent;
-	s_configs.right.width			= ARROWS_WIDTH/2;
-	s_configs.right.height			= ARROWS_HEIGHT;
-	s_configs.right.focuspic		= ART_ARROWRIGHT;
+	s_configs.right.generic.type		= MTYPE_BITMAP;
+	s_configs.right.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_MOUSEONLY;
+	s_configs.right.generic.x			= 320;
+	s_configs.right.generic.y			= 400;
+	s_configs.right.generic.id			= ID_RIGHT;
+	s_configs.right.generic.callback	= LoadConfig_MenuEvent;
+	s_configs.right.width				= ARROWS_WIDTH/2;
+	s_configs.right.height				= ARROWS_HEIGHT;
+	s_configs.right.focuspic			= ART_ARROWRIGHT;
 
 	s_configs.back.generic.type		= MTYPE_BITMAP;
 	s_configs.back.generic.name		= ART_BACK0;
@@ -185,7 +166,7 @@ static void LoadConfig_MenuInit( void ) {
 	s_configs.list.generic.y		= 130;
 	s_configs.list.width			= 16;
 	s_configs.list.height			= 14;
-	s_configs.list.numitems			= trap_FS_GetFileList( "", "cfg", s_configs.names, NAMEBUFSIZE );
+	s_configs.list.numitems			= trap_FS_GetFileList("", "cfg", s_configs.names, NAMEBUFSIZE);
 	s_configs.list.itemnames		= (const char **)s_configs.configlist;
 	s_configs.list.columns			= 3;
 
@@ -200,51 +181,43 @@ static void LoadConfig_MenuInit( void ) {
 		s_configs.list.numitems = MAX_CONFIGS;
 	
 	configname = s_configs.names;
-	for ( i = 0; i < s_configs.list.numitems; i++ ) {
+	for (i = 0; i < s_configs.list.numitems; i++) {
 		s_configs.list.itemnames[i] = configname;
 		
 		// strip extension
-		len = strlen( configname );
-		if (!Q_stricmp(configname +  len - 4,".cfg"))
+		len = strlen(configname);
+		if (!Q_stricmp(configname +  len - 4,".cfg")) {
 			configname[len-4] = '\0';
+		}
 
 		Q_strupr(configname);
 
 		configname += len + 1;
 	}
 
-	Menu_AddItem( &s_configs.menu, &s_configs.banner );
-	Menu_AddItem( &s_configs.menu, &s_configs.list );
-	Menu_AddItem( &s_configs.menu, &s_configs.arrows );
-	Menu_AddItem( &s_configs.menu, &s_configs.left );
-	Menu_AddItem( &s_configs.menu, &s_configs.right );
-	Menu_AddItem( &s_configs.menu, &s_configs.back );
-	Menu_AddItem( &s_configs.menu, &s_configs.go );
+	Menu_AddItem(&s_configs.menu, &s_configs.banner);
+	Menu_AddItem(&s_configs.menu, &s_configs.list);
+	Menu_AddItem(&s_configs.menu, &s_configs.arrows);
+	Menu_AddItem(&s_configs.menu, &s_configs.left);
+	Menu_AddItem(&s_configs.menu, &s_configs.right);
+	Menu_AddItem(&s_configs.menu, &s_configs.back);
+	Menu_AddItem(&s_configs.menu, &s_configs.go);
 }
 
-/*
-=================
-UI_LoadConfig_Cache
-=================
-*/
-void UI_LoadConfig_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_BACK0 );
-	trap_R_RegisterShaderNoMip( ART_BACK1 );
-	trap_R_RegisterShaderNoMip( ART_FIGHT0 );
-	trap_R_RegisterShaderNoMip( ART_FIGHT1 );
-	trap_R_RegisterShaderNoMip( ART_ARROWS );
-	trap_R_RegisterShaderNoMip( ART_ARROWLEFT );
-	trap_R_RegisterShaderNoMip( ART_ARROWRIGHT );
+void UI_LoadConfig_Cache(void)
+{
+	trap_R_RegisterShaderNoMip(ART_BACK0);
+	trap_R_RegisterShaderNoMip(ART_BACK1);
+	trap_R_RegisterShaderNoMip(ART_FIGHT0);
+	trap_R_RegisterShaderNoMip(ART_FIGHT1);
+	trap_R_RegisterShaderNoMip(ART_ARROWS);
+	trap_R_RegisterShaderNoMip(ART_ARROWLEFT);
+	trap_R_RegisterShaderNoMip(ART_ARROWRIGHT);
 }
 
-
-/*
-===============
-UI_LoadConfigMenu
-===============
-*/
-void UI_LoadConfigMenu( void ) {
+void UI_LoadConfigMenu(void)
+{
 	LoadConfig_MenuInit();
-	UI_PushMenu( &s_configs.menu );
+	UI_PushMenu(&s_configs.menu);
 }
 

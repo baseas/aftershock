@@ -20,26 +20,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-/*
-=======================================================================
-
-DISPLAY OPTIONS MENU
-
-=======================================================================
-*/
+// ui_display.c -- display options menu
 
 #include "ui_local.h"
 
 #define ART_BACK0			"menu/art/back_0"
 #define ART_BACK1			"menu/art/back_1"
 
-#define ID_GRAPHICS			10
-#define ID_DISPLAY			11
-#define ID_SOUND			12
-#define ID_NETWORK			13
-#define ID_BRIGHTNESS		14
-#define ID_SCREENSIZE		15
-#define ID_BACK				16
+enum {
+	ID_GRAPHICS = 10,
+	ID_DISPLAY,
+	ID_SOUND,
+	ID_NETWORK,
+	ID_BRIGHTNESS,
+	ID_SCREENSIZE,
+	ID_BACK
+};
 
 typedef struct {
 	menuframework_s	menu;
@@ -61,11 +57,11 @@ static displayOptionsInfo_t	displayOptionsInfo;
 
 static void UI_DisplayOptionsMenu_Event(void* ptr, int event)
 {
-	if(event != QM_ACTIVATED) {
+	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	switch(((menucommon_s*)ptr)->id) {
+	switch (((menucommon_s*)ptr)->id) {
 	case ID_GRAPHICS:
 		UI_PopMenu();
 		UI_GraphicsOptionsMenu();
@@ -201,8 +197,8 @@ static void UI_DisplayOptionsMenu_Init(void)
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.screensize);
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.back);
 
-	displayOptionsInfo.brightness.curvalue  = trap_Cvar_VariableValue("r_gamma") * 10;
-	displayOptionsInfo.screensize.curvalue  = trap_Cvar_VariableValue("cg_viewsize")/10;
+	displayOptionsInfo.brightness.curvalue = trap_Cvar_VariableValue("r_gamma") * 10;
+	displayOptionsInfo.screensize.curvalue = trap_Cvar_VariableValue("cg_viewsize")/10;
 }
 
 void UI_DisplayOptionsMenu_Cache(void)

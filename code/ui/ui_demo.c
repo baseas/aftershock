@@ -69,11 +69,11 @@ static void Demos_MenuEvent(void *ptr, int event)
 		return;
 	}
 
-	switch(((menucommon_s*)ptr)->id) {
+	switch (((menucommon_s *)ptr)->id) {
 	case ID_GO:
 		UI_ForceMenuOff();
 		trap_Cmd_ExecuteText(EXEC_APPEND, va("demo %s\n",
-								s_demos.list.itemnames[s_demos.list.curvalue]));
+			s_demos.list.itemnames[s_demos.list.curvalue]));
 		break;
 
 	case ID_BACK:
@@ -189,14 +189,13 @@ static void Demos_MenuInit(void)
 	i = 0;
 
 	for (j = 0; j < 2; j++) {
-		if (s_demos.numDemos > MAX_DEMOS)
+		if (s_demos.numDemos > MAX_DEMOS) {
 			s_demos.numDemos = MAX_DEMOS;
+		}
 
 		for (; i < s_demos.numDemos; i++) {
 			s_demos.list.itemnames[i] = demoname;
-		
 			len = strlen(demoname);
-
 			demoname += len + 1;
 		}
 
@@ -205,8 +204,7 @@ static void Demos_MenuInit(void)
 				Com_sprintf(extension, sizeof(extension), ".%s%d", DEMOEXT, protocolLegacy);
 				s_demos.numDemos += trap_FS_GetFileList("demos", extension, demoname,
 									ARRAY_LEN(s_demos.names) - (demoname - s_demos.names));
-			}
-			else {
+			} else {
 				break;
 			}
 		}

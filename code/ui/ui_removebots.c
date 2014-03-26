@@ -20,39 +20,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-/*
-=======================================================================
-
-REMOVE BOTS MENU
-
-=======================================================================
-*/
-
+// ui_removebots.c -- remove bots menu
 
 #include "ui_local.h"
 
-
 #define ART_BACKGROUND		"menu/art/addbotframe"
 #define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"	
+#define ART_BACK1			"menu/art/back_1"
 #define ART_DELETE0			"menu/art/delete_0"
 #define ART_DELETE1			"menu/art/delete_1"
 #define ART_ARROWS			"menu/art/arrows_vert_0"
 #define ART_ARROWUP			"menu/art/arrows_vert_top"
 #define ART_ARROWDOWN		"menu/art/arrows_vert_bot"
 
-#define ID_UP				10
-#define ID_DOWN				11
-#define ID_DELETE			12
-#define ID_BACK				13
-#define ID_BOTNAME0			20
-#define ID_BOTNAME1			21
-#define ID_BOTNAME2			22
-#define ID_BOTNAME3			23
-#define ID_BOTNAME4			24
-#define ID_BOTNAME5			25
-#define ID_BOTNAME6			26
-
+enum {
+	ID_UP = 10,
+	ID_DOWN,
+	ID_DELETE,
+	ID_BACK,
+	ID_BOTNAME0,
+	ID_BOTNAME1,
+	ID_BOTNAME2,
+	ID_BOTNAME3,
+	ID_BOTNAME4,
+	ID_BOTNAME5,
+	ID_BOTNAME6
+};
 
 typedef struct {
 	menuframework_s	menu;
@@ -78,45 +71,29 @@ typedef struct {
 
 static removeBotsMenuInfo_t	removeBotsMenuInfo;
 
-
-/*
-=================
-UI_RemoveBotsMenu_SetBotNames
-=================
-*/
-static void UI_RemoveBotsMenu_SetBotNames( void ) {
+static void UI_RemoveBotsMenu_SetBotNames(void)
+{
 	int		n;
 	char	info[MAX_INFO_STRING];
 
-	for ( n = 0; (n < 7) && (removeBotsMenuInfo.baseBotNum + n < removeBotsMenuInfo.numBots); n++ ) {
-		trap_GetConfigString( CS_PLAYERS + removeBotsMenuInfo.botClientNums[removeBotsMenuInfo.baseBotNum + n], info, MAX_INFO_STRING );
-		Q_strncpyz( removeBotsMenuInfo.botnames[n], Info_ValueForKey( info, "n" ), sizeof(removeBotsMenuInfo.botnames[n]) );
-		Q_CleanStr( removeBotsMenuInfo.botnames[n] );
+	for (n = 0; (n < 7) && (removeBotsMenuInfo.baseBotNum + n < removeBotsMenuInfo.numBots); n++) {
+		trap_GetConfigString(CS_PLAYERS + removeBotsMenuInfo.botClientNums[removeBotsMenuInfo.baseBotNum + n], info, MAX_INFO_STRING);
+		Q_strncpyz(removeBotsMenuInfo.botnames[n], Info_ValueForKey(info, "n"), sizeof(removeBotsMenuInfo.botnames[n]));
+		Q_CleanStr(removeBotsMenuInfo.botnames[n]);
 	}
-
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu_DeleteEvent
-=================
-*/
-static void UI_RemoveBotsMenu_DeleteEvent( void* ptr, int event ) {
+static void UI_RemoveBotsMenu_DeleteEvent(void *ptr, int event)
+{
 	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	trap_Cmd_ExecuteText( EXEC_APPEND, va("clientkick %i\n", removeBotsMenuInfo.botClientNums[removeBotsMenuInfo.baseBotNum + removeBotsMenuInfo.selectedBotNum]) );
+	trap_Cmd_ExecuteText(EXEC_APPEND, va("clientkick %i\n", removeBotsMenuInfo.botClientNums[removeBotsMenuInfo.baseBotNum + removeBotsMenuInfo.selectedBotNum]));
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu_BotEvent
-=================
-*/
-static void UI_RemoveBotsMenu_BotEvent( void* ptr, int event ) {
+static void UI_RemoveBotsMenu_BotEvent(void *ptr, int event)
+{
 	if (event != QM_ACTIVATED) {
 		return;
 	}
@@ -126,74 +103,54 @@ static void UI_RemoveBotsMenu_BotEvent( void* ptr, int event ) {
 	removeBotsMenuInfo.bots[removeBotsMenuInfo.selectedBotNum].color = color_white;
 }
 
-
-/*
-=================
-UI_RemoveAddBotsMenu_BackEvent
-=================
-*/
-static void UI_RemoveBotsMenu_BackEvent( void* ptr, int event ) {
+static void UI_RemoveBotsMenu_BackEvent(void *ptr, int event)
+{
 	if (event != QM_ACTIVATED) {
 		return;
 	}
 	UI_PopMenu();
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu_UpEvent
-=================
-*/
-static void UI_RemoveBotsMenu_UpEvent( void* ptr, int event ) {
+static void UI_RemoveBotsMenu_UpEvent(void *ptr, int event)
+{
 	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	if( removeBotsMenuInfo.baseBotNum > 0 ) {
+	if (removeBotsMenuInfo.baseBotNum > 0) {
 		removeBotsMenuInfo.baseBotNum--;
 		UI_RemoveBotsMenu_SetBotNames();
 	}
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu_DownEvent
-=================
-*/
-static void UI_RemoveBotsMenu_DownEvent( void* ptr, int event ) {
+static void UI_RemoveBotsMenu_DownEvent(void *ptr, int event)
+{
 	if (event != QM_ACTIVATED) {
 		return;
 	}
 
-	if( removeBotsMenuInfo.baseBotNum + 7 < removeBotsMenuInfo.numBots ) {
+	if (removeBotsMenuInfo.baseBotNum + 7 < removeBotsMenuInfo.numBots) {
 		removeBotsMenuInfo.baseBotNum++;
 		UI_RemoveBotsMenu_SetBotNames();
 	}
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu_GetBots
-=================
-*/
-static void UI_RemoveBotsMenu_GetBots( void ) {
+static void UI_RemoveBotsMenu_GetBots(void)
+{
 	int		numPlayers;
 	int		isBot;
 	int		n;
 	char	info[MAX_INFO_STRING];
 
-	trap_GetConfigString( CS_SERVERINFO, info, sizeof(info) );
-	numPlayers = atoi( Info_ValueForKey( info, "sv_maxclients" ) );
+	trap_GetConfigString(CS_SERVERINFO, info, sizeof(info));
+	numPlayers = atoi(Info_ValueForKey(info, "sv_maxclients"));
 	removeBotsMenuInfo.numBots = 0;
 
-	for( n = 0; n < numPlayers; n++ ) {
-		trap_GetConfigString( CS_PLAYERS + n, info, MAX_INFO_STRING );
+	for (n = 0; n < numPlayers; n++) {
+		trap_GetConfigString(CS_PLAYERS + n, info, MAX_INFO_STRING);
 
-		isBot = atoi( Info_ValueForKey( info, "skill" ) );
-		if( !isBot ) {
+		isBot = atoi(Info_ValueForKey(info, "skill"));
+		if (!isBot) {
 			continue;
 		}
 
@@ -202,32 +159,22 @@ static void UI_RemoveBotsMenu_GetBots( void ) {
 	}
 }
 
-
-/*
-=================
-UI_RemoveBots_Cache
-=================
-*/
-void UI_RemoveBots_Cache( void ) {
-	trap_R_RegisterShaderNoMip( ART_BACKGROUND );
-	trap_R_RegisterShaderNoMip( ART_BACK0 );
-	trap_R_RegisterShaderNoMip( ART_BACK1 );
-	trap_R_RegisterShaderNoMip( ART_DELETE0 );
-	trap_R_RegisterShaderNoMip( ART_DELETE1 );
+void UI_RemoveBots_Cache(void)
+{
+	trap_R_RegisterShaderNoMip(ART_BACKGROUND);
+	trap_R_RegisterShaderNoMip(ART_BACK0);
+	trap_R_RegisterShaderNoMip(ART_BACK1);
+	trap_R_RegisterShaderNoMip(ART_DELETE0);
+	trap_R_RegisterShaderNoMip(ART_DELETE1);
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu_Init
-=================
-*/
-static void UI_RemoveBotsMenu_Init( void ) {
+static void UI_RemoveBotsMenu_Init(void)
+{
 	int		n;
 	int		count;
 	int		y;
 
-	memset( &removeBotsMenuInfo, 0 ,sizeof(removeBotsMenuInfo) );
+	memset(&removeBotsMenuInfo, 0 ,sizeof(removeBotsMenuInfo));
 	removeBotsMenuInfo.menu.fullscreen = qfalse;
 	removeBotsMenuInfo.menu.wrapAround = qtrue;
 
@@ -280,7 +227,7 @@ static void UI_RemoveBotsMenu_Init( void ) {
 	removeBotsMenuInfo.down.height				= 64;
 	removeBotsMenuInfo.down.focuspic			= ART_ARROWDOWN;
 
-	for( n = 0, y = 120; n < count; n++, y += 20 ) {
+	for (n = 0, y = 120; n < count; n++, y += 20) {
 		removeBotsMenuInfo.bots[n].generic.type		= MTYPE_PTEXT;
 		removeBotsMenuInfo.bots[n].generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
 		removeBotsMenuInfo.bots[n].generic.id		= ID_BOTNAME0 + n;
@@ -314,29 +261,25 @@ static void UI_RemoveBotsMenu_Init( void ) {
 	removeBotsMenuInfo.back.height				= 64;
 	removeBotsMenuInfo.back.focuspic			= ART_BACK1;
 
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.background );
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.banner );
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.arrows );
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.up );
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.down );
-	for( n = 0; n < count; n++ ) {
-		Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.bots[n] );
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.background);
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.banner);
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.arrows);
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.up);
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.down);
+	for (n = 0; n < count; n++) {
+		Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.bots[n]);
 	}
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.delete );
-	Menu_AddItem( &removeBotsMenuInfo.menu, &removeBotsMenuInfo.back );
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.delete);
+	Menu_AddItem(&removeBotsMenuInfo.menu, &removeBotsMenuInfo.back);
 
 	removeBotsMenuInfo.baseBotNum = 0;
 	removeBotsMenuInfo.selectedBotNum = 0;
 	removeBotsMenuInfo.bots[0].color = color_white;
 }
 
-
-/*
-=================
-UI_RemoveBotsMenu
-=================
-*/
-void UI_RemoveBotsMenu( void ) {
+void UI_RemoveBotsMenu(void)
+{
 	UI_RemoveBotsMenu_Init();
-	UI_PushMenu( &removeBotsMenuInfo.menu );
+	UI_PushMenu(&removeBotsMenuInfo.menu);
 }
+

@@ -31,11 +31,13 @@ MAIN MENU
 
 #include "ui_local.h"
 
-#define ID_SINGLEPLAYER			10
-#define ID_MULTIPLAYER			11
-#define ID_SETUP				12
-#define ID_DEMOS				13
-#define ID_EXIT					17
+enum {
+	ID_SINGLEPLAYER = 10,
+	ID_MULTIPLAYER,
+	ID_SETUP,
+	ID_DEMOS,
+	ID_EXIT
+};
 
 #define MAIN_MENU_TOP_Y					150
 #define MAIN_MENU_VERTICAL_SPACING		34

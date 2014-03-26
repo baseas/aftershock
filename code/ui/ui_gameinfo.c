@@ -20,12 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-//
-// gameinfo.c
-//
+// ui_gameinfo.c
 
 #include "ui_local.h"
-
 
 //
 // arena and bot info
@@ -43,42 +40,30 @@ static char		memoryPool[POOLSIZE];
 static int		allocPoint, outOfMemory;
 
 
-/*
-===============
-UI_Alloc
-===============
-*/
-void *UI_Alloc( int size ) {
+void *UI_Alloc(int size)
+{
 	char	*p;
 
-	if ( allocPoint + size > POOLSIZE ) {
+	if (allocPoint + size > POOLSIZE) {
 		outOfMemory = qtrue;
 		return NULL;
 	}
 
 	p = &memoryPool[allocPoint];
 
-	allocPoint += ( size + 31 ) & ~31;
+	allocPoint += (size + 31) & ~31;
 
 	return p;
 }
 
-/*
-===============
-UI_InitMemory
-===============
-*/
-void UI_InitMemory( void ) {
+void UI_InitMemory(void)
+{
 	allocPoint = 0;
 	outOfMemory = qfalse;
 }
 
-/*
-===============
-UI_ParseInfos
-===============
-*/
-int UI_ParseInfos( char *buf, int max, char *infos[] ) {
+int UI_ParseInfos(char *buf, int max, char *infos[])
+{
 	char	*token;
 	int		count;
 	char	key[MAX_TOKEN_CHARS];
@@ -86,38 +71,38 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 
 	count = 0;
 
-	while ( 1 ) {
-		token = COM_Parse( &buf );
-		if ( !token[0] ) {
+	while (1) {
+		token = COM_Parse(&buf);
+		if (!token[0]) {
 			break;
 		}
-		if ( strcmp( token, "{" ) ) {
-			Com_Printf( "Missing { in info file\n" );
+		if (strcmp(token, "{")) {
+			Com_Printf("Missing { in info file\n");
 			break;
 		}
 
-		if ( count == max ) {
-			Com_Printf( "Max infos exceeded\n" );
+		if (count == max) {
+			Com_Printf("Max infos exceeded\n");
 			break;
 		}
 
 		info[0] = '\0';
-		while ( 1 ) {
-			token = COM_ParseExt( &buf, qtrue );
-			if ( !token[0] ) {
-				Com_Printf( "Unexpected end of info file\n" );
+		while (1) {
+			token = COM_ParseExt(&buf, qtrue);
+			if (!token[0]) {
+				Com_Printf("Unexpected end of info file\n");
 				break;
 			}
-			if ( !strcmp( token, "}" ) ) {
+			if (!strcmp(token, "}")) {
 				break;
 			}
-			Q_strncpyz( key, token, sizeof( key ) );
+			Q_strncpyz(key, token, sizeof(key));
 
-			token = COM_ParseExt( &buf, qfalse );
-			if ( !token[0] ) {
-				strcpy( token, "<NULL>" );
+			token = COM_ParseExt(&buf, qfalse);
+			if (!token[0]) {
+				strcpy(token, "<NULL>");
 			}
-			Info_SetValueForKey( info, key, token );
+			Info_SetValueForKey(info, key, token);
 		}
 		//NOTE: extra space for arena number
 		infos[count] = UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
@@ -129,40 +114,32 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 	return count;
 }
 
-/*
-===============
-UI_LoadArenasFromFile
-===============
-*/
-static void UI_LoadArenasFromFile( char *filename ) {
+static void UI_LoadArenasFromFile(char *filename)
+{
 	int				len;
 	fileHandle_t	f;
 	char			buf[MAX_ARENAS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
-	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+	len = trap_FS_FOpenFile(filename, &f, FS_READ);
+	if (!f) {
+		trap_Print(va(S_COLOR_RED "file not found: %s\n", filename));
 		return;
 	}
-	if ( len >= MAX_ARENAS_TEXT ) {
-		trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT ) );
-		trap_FS_FCloseFile( f );
+	if (len >= MAX_ARENAS_TEXT) {
+		trap_Print(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_ARENAS_TEXT));
+		trap_FS_FCloseFile(f);
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	trap_FS_Read(buf, len, f);
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	trap_FS_FCloseFile(f);
 
-	ui_numArenas += UI_ParseInfos( buf, MAX_ARENAS - ui_numArenas, &ui_arenaInfos[ui_numArenas] );
+	ui_numArenas += UI_ParseInfos(buf, MAX_ARENAS - ui_numArenas, &ui_arenaInfos[ui_numArenas]);
 }
 
-/*
-===============
-UI_LoadArenas
-===============
-*/
-static void UI_LoadArenas( void ) {
+static void UI_LoadArenas(void)
+{
 	int			numdirs;
 	char		filename[128];
 	char		dirlist[2048];
@@ -173,7 +150,7 @@ static void UI_LoadArenas( void ) {
 	ui_numArenas = 0;
 
 	// get all arenas from .arena files
-	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 2048 );
+	numdirs = trap_FS_GetFileList("scripts", ".arena", dirlist, 2048);
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -184,28 +161,24 @@ static void UI_LoadArenas( void ) {
 	if (outOfMemory) trap_Print(S_COLOR_YELLOW"WARNING: not enough memory in pool to load all arenas\n");
 
 	// set initial numbers
-	for( n = 0; n < ui_numArenas; n++ ) {
-		Info_SetValueForKey( ui_arenaInfos[n], "num", va( "%i", n ) );
+	for (n = 0; n < ui_numArenas; n++) {
+		Info_SetValueForKey(ui_arenaInfos[n], "num", va("%i", n));
 	}
 }
 
-/*
-===============
-UI_GetArenaInfoByNumber
-===============
-*/
-const char *UI_GetArenaInfoByNumber( int num ) {
+const char *UI_GetArenaInfoByNumber(int num)
+{
 	int		n;
 	char	*value;
 
-	if( num < 0 || num >= ui_numArenas ) {
-		trap_Print( va( S_COLOR_RED "Invalid arena number: %i\n", num ) );
+	if (num < 0 || num >= ui_numArenas) {
+		trap_Print(va(S_COLOR_RED "Invalid arena number: %i\n", num));
 		return NULL;
 	}
 
-	for( n = 0; n < ui_numArenas; n++ ) {
-		value = Info_ValueForKey( ui_arenaInfos[n], "num" );
-		if( *value && atoi(value) == num ) {
+	for (n = 0; n < ui_numArenas; n++) {
+		value = Info_ValueForKey(ui_arenaInfos[n], "num");
+		if (*value && atoi(value) == num) {
 			return ui_arenaInfos[n];
 		}
 	}
@@ -213,17 +186,12 @@ const char *UI_GetArenaInfoByNumber( int num ) {
 	return NULL;
 }
 
-
-/*
-===============
-UI_GetArenaInfoByNumber
-===============
-*/
-const char *UI_GetArenaInfoByMap( const char *map ) {
+const char *UI_GetArenaInfoByMap(const char *map)
+{
 	int			n;
 
-	for( n = 0; n < ui_numArenas; n++ ) {
-		if( Q_stricmp( Info_ValueForKey( ui_arenaInfos[n], "map" ), map ) == 0 ) {
+	for (n = 0; n < ui_numArenas; n++) {
+		if (Q_stricmp(Info_ValueForKey(ui_arenaInfos[n], "map"), map) == 0) {
 			return ui_arenaInfos[n];
 		}
 	}
@@ -231,17 +199,12 @@ const char *UI_GetArenaInfoByMap( const char *map ) {
 	return NULL;
 }
 
-
-/*
-===============
-UI_GetSpecialArenaInfo
-===============
-*/
-const char *UI_GetSpecialArenaInfo( const char *tag ) {
+const char *UI_GetSpecialArenaInfo(const char *tag)
+{
 	int			n;
 
-	for( n = 0; n < ui_numArenas; n++ ) {
-		if( Q_stricmp( Info_ValueForKey( ui_arenaInfos[n], "special" ), tag ) == 0 ) {
+	for (n = 0; n < ui_numArenas; n++) {
+		if (Q_stricmp(Info_ValueForKey(ui_arenaInfos[n], "special"), tag) == 0) {
 			return ui_arenaInfos[n];
 		}
 	}
@@ -249,41 +212,33 @@ const char *UI_GetSpecialArenaInfo( const char *tag ) {
 	return NULL;
 }
 
-/*
-===============
-UI_LoadBotsFromFile
-===============
-*/
-static void UI_LoadBotsFromFile( char *filename ) {
+static void UI_LoadBotsFromFile(char *filename)
+{
 	int				len;
 	fileHandle_t	f;
 	char			buf[MAX_BOTS_TEXT];
 
-	len = trap_FS_FOpenFile( filename, &f, FS_READ );
-	if ( !f ) {
-		trap_Print( va( S_COLOR_RED "file not found: %s\n", filename ) );
+	len = trap_FS_FOpenFile(filename, &f, FS_READ);
+	if (!f) {
+		trap_Print(va(S_COLOR_RED "file not found: %s\n", filename));
 		return;
 	}
-	if ( len >= MAX_BOTS_TEXT ) {
-		trap_Print( va( S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT ) );
-		trap_FS_FCloseFile( f );
+	if (len >= MAX_BOTS_TEXT) {
+		trap_Print(va(S_COLOR_RED "file too large: %s is %i, max allowed is %i\n", filename, len, MAX_BOTS_TEXT));
+		trap_FS_FCloseFile(f);
 		return;
 	}
 
-	trap_FS_Read( buf, len, f );
+	trap_FS_Read(buf, len, f);
 	buf[len] = 0;
-	trap_FS_FCloseFile( f );
+	trap_FS_FCloseFile(f);
 
-	ui_numBots += UI_ParseInfos( buf, MAX_BOTS - ui_numBots, &ui_botInfos[ui_numBots] );
+	ui_numBots += UI_ParseInfos(buf, MAX_BOTS - ui_numBots, &ui_botInfos[ui_numBots]);
 	if (outOfMemory) trap_Print(S_COLOR_YELLOW"WARNING: not enough memory in pool to load all bots\n");
 }
 
-/*
-===============
-UI_LoadBots
-===============
-*/
-static void UI_LoadBots( void ) {
+static void UI_LoadBots(void)
+{
 	vmCvar_t	botsFile;
 	int			numdirs;
 	char		filename[128];
@@ -294,8 +249,8 @@ static void UI_LoadBots( void ) {
 
 	ui_numBots = 0;
 
-	trap_Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
-	if( *botsFile.string ) {
+	trap_Cvar_Register(&botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM);
+	if (*botsFile.string) {
 		UI_LoadBotsFromFile(botsFile.string);
 	}
 	else {
@@ -303,7 +258,7 @@ static void UI_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024 );
+	numdirs = trap_FS_GetFileList("scripts", ".bot", dirlist, 1024);
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
@@ -313,33 +268,23 @@ static void UI_LoadBots( void ) {
 	}
 }
 
-
-/*
-===============
-UI_GetBotInfoByNumber
-===============
-*/
-char *UI_GetBotInfoByNumber( int num ) {
-	if( num < 0 || num >= ui_numBots ) {
-		trap_Print( va( S_COLOR_RED "Invalid bot number: %i\n", num ) );
+char *UI_GetBotInfoByNumber(int num)
+{
+	if (num < 0 || num >= ui_numBots) {
+		trap_Print(va(S_COLOR_RED "Invalid bot number: %i\n", num));
 		return NULL;
 	}
 	return ui_botInfos[num];
 }
 
-
-/*
-===============
-UI_GetBotInfoByName
-===============
-*/
-char *UI_GetBotInfoByName( const char *name ) {
+char *UI_GetBotInfoByName(const char *name)
+{
 	int		n;
 	char	*value;
 
-	for ( n = 0; n < ui_numBots ; n++ ) {
-		value = Info_ValueForKey( ui_botInfos[n], "name" );
-		if ( !Q_stricmp( value, name ) ) {
+	for (n = 0; n < ui_numBots ; n++) {
+		value = Info_ValueForKey(ui_botInfos[n], "name");
+		if (!Q_stricmp(value, name)) {
 			return ui_botInfos[n];
 		}
 	}
@@ -347,30 +292,18 @@ char *UI_GetBotInfoByName( const char *name ) {
 	return NULL;
 }
 
-/*
-===============
-UI_GetNumArenas
-===============
-*/
-int UI_GetNumArenas( void ) {
+int UI_GetNumArenas(void)
+{
 	return ui_numArenas;
 }
 
-/*
-===============
-UI_GetNumBots
-===============
-*/
-int UI_GetNumBots( void ) {
+int UI_GetNumBots(void)
+{
 	return ui_numBots;
 }
 
-/*
-===============
-UI_InitGameinfo
-===============
-*/
-void UI_InitGameinfo( void ) {
+void UI_InitGameinfo(void)
+{
 	UI_InitMemory();
 	UI_LoadArenas();
 	UI_LoadBots();
