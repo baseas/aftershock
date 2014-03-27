@@ -52,8 +52,8 @@ typedef struct {
 	menubitmap_s	arrows;
 	menubitmap_s	left;
 	menubitmap_s	right;
-	menutext_s	back;
-	menutext_s	go;
+	menubutton_s	back;
+	menubutton_s	go;
 
 	int				numDemos;
 	char			names[NAMEBUFSIZE];
@@ -141,25 +141,23 @@ static void Demos_MenuInit(void)
 
 	s_demos.back.generic.type		= MTYPE_BUTTON;
 	s_demos.back.string				= "Back";
-	s_demos.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_demos.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	s_demos.back.generic.id			= ID_BACK;
 	s_demos.back.generic.callback	= Demos_MenuEvent;
 	s_demos.back.generic.x			= 0;
 	s_demos.back.generic.y			= 480-64;
-	s_demos.back.color				= color_red;
-//	s_demos.back.width				= 128;
-//	s_demos.back.height				= 64;
+	s_demos.back.width				= 128;
+	s_demos.back.height				= 30;
 
 	s_demos.go.generic.type			= MTYPE_BUTTON;
 	s_demos.go.string				= "Go";
-	s_demos.go.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_demos.go.generic.flags		= QMF_RIGHT_JUSTIFY;
 	s_demos.go.generic.id			= ID_GO;
 	s_demos.go.generic.callback		= Demos_MenuEvent;
 	s_demos.go.generic.x			= 640;
 	s_demos.go.generic.y			= 480-64;
-	s_demos.go.color				= color_red;
-//	s_demos.go.width				= 128;
-//	s_demos.go.height				= 64;
+	s_demos.go.width				= 128;
+	s_demos.go.height				= 30;
 
 	s_demos.list.generic.type		= MTYPE_SCROLLLIST;
 	s_demos.list.generic.flags		= QMF_PULSEIFFOCUS;

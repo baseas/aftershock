@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-
 #define VERTICAL_SPACING	34
 
 enum {
@@ -46,7 +43,7 @@ typedef struct {
 	menutext_s		display;
 	menutext_s		sound;
 	menutext_s		network;
-	menubitmap_s	back;
+	menubutton_s	back;
 } optionsmenu_t;
 
 static optionsmenu_t	s_options;
@@ -80,12 +77,6 @@ static void Options_Event(void* ptr, int event)
 	}
 }
 
-void SystemConfig_Cache(void)
-{
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-}
-
 void Options_MenuInit(void)
 {
 	int				y;
@@ -93,7 +84,6 @@ void Options_MenuInit(void)
 
 	memset(&s_options, 0, sizeof(optionsmenu_t));
 
-	SystemConfig_Cache();
 	s_options.menu.wrapAround = qtrue;
 
 	trap_GetClientState(&cstate);
@@ -156,16 +146,13 @@ void Options_MenuInit(void)
 	s_options.network.color				= color_red;
 	s_options.network.style				= UI_CENTER;
 
-	s_options.back.generic.type	    = MTYPE_BITMAP;
-	s_options.back.generic.name     = ART_BACK0;
-	s_options.back.generic.flags    = QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_options.back.generic.type		= MTYPE_BUTTON;
+	s_options.back.generic.flags	= QMF_LEFT_JUSTIFY;
 	s_options.back.generic.callback = Options_Event;
-	s_options.back.generic.id	    = ID_BACK;
+	s_options.back.generic.id		= ID_BACK;
 	s_options.back.generic.x		= 0;
-	s_options.back.generic.y		= 480-64;
-	s_options.back.width  		    = 128;
-	s_options.back.height  		    = 64;
-	s_options.back.focuspic         = ART_BACK1;
+	s_options.back.generic.y		= 480 - 64;
+	s_options.back.string			= "Back";
 
 	Menu_AddItem(&s_options.menu, (void *) &s_options.graphics);
 	Menu_AddItem(&s_options.menu, (void *) &s_options.display);

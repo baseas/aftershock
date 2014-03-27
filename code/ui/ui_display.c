@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-
 enum {
 	ID_GRAPHICS = 10,
 	ID_DISPLAY,
@@ -50,7 +47,7 @@ typedef struct {
 	menuslider_s	brightness;
 	menuslider_s	screensize;
 
-	menubitmap_s	back;
+	menubutton_s	back;
 } displayOptionsInfo_t;
 
 static displayOptionsInfo_t	displayOptionsInfo;
@@ -100,7 +97,6 @@ static void UI_DisplayOptionsMenu_Init(void)
 
 	memset(&displayOptionsInfo, 0, sizeof(displayOptionsInfo));
 
-	UI_DisplayOptionsMenu_Cache();
 	displayOptionsInfo.menu.wrapAround = qtrue;
 	displayOptionsInfo.menu.fullscreen = qtrue;
 
@@ -177,16 +173,13 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.screensize.minvalue			= 3;
     displayOptionsInfo.screensize.maxvalue			= 10;
 
-	displayOptionsInfo.back.generic.type		= MTYPE_BITMAP;
-	displayOptionsInfo.back.generic.name		= ART_BACK0;
-	displayOptionsInfo.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	displayOptionsInfo.back.generic.type		= MTYPE_BUTTON;
+	displayOptionsInfo.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	displayOptionsInfo.back.generic.callback	= UI_DisplayOptionsMenu_Event;
 	displayOptionsInfo.back.generic.id			= ID_BACK;
 	displayOptionsInfo.back.generic.x			= 0;
 	displayOptionsInfo.back.generic.y			= 480-64;
-	displayOptionsInfo.back.width				= 128;
-	displayOptionsInfo.back.height				= 64;
-	displayOptionsInfo.back.focuspic			= ART_BACK1;
+	displayOptionsInfo.back.string				= "Back";
 
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.banner);
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.graphics);
@@ -201,11 +194,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.screensize.curvalue = trap_Cvar_VariableValue("cg_viewsize")/10;
 }
 
-void UI_DisplayOptionsMenu_Cache(void)
-{
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-}
+void UI_DisplayOptionsMenu_Cache(void) { }
 
 void UI_DisplayOptionsMenu(void)
 {

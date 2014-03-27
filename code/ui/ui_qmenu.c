@@ -24,6 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
+#define BUTTON_WIDTH	120
+#define BUTTON_HEIGHT	30
+
 sfxHandle_t	menu_in_sound;
 sfxHandle_t	menu_move_sound;
 sfxHandle_t	menu_out_sound;
@@ -96,10 +99,9 @@ static void Text_Init(menutext_s *t)
 
 static void Text_Draw(menutext_s *t)
 {
-	int		x;
-	int		y;
+	float	x, y;
 	char	buff[512];
-	float*	color;
+	float	*color;
 
 	x = t->generic.x;
 	y = t->generic.y;
@@ -130,15 +132,63 @@ static void BText_Init(menutext_s *t)
 	t->generic.flags |= QMF_INACTIVE;
 }
 
-static void Button_Init(menubutton_s *t) { }
+static void Button_Init(menubutton_s *b)
+{
+	float	x, y;
 
-static void Button_Draw(menubutton_s *t) { }
+	x = b->generic.x;
+	y = b->generic.y;
+
+	if (b->generic.flags & QMF_RIGHT_JUSTIFY) {
+		x = x - BUTTON_WIDTH;
+	} else if (b->generic.flags & QMF_CENTER_JUSTIFY) {
+		x = x - BUTTON_WIDTH / 2;
+	}
+
+	b->generic.left = x;
+	b->generic.right = x + BUTTON_WIDTH;
+	b->generic.top = y;
+	b->generic.bottom = y + BUTTON_HEIGHT;
+}
+
+static void Button_Draw(menubutton_s *b)
+{
+	float	x, y, w, h;
+	int		style;
+	float	*color;
+	qhandle_t	shader;
+	const float sizeScale = 1;
+
+	x = b->generic.left;
+	y = b->generic.top;
+
+	if (b->generic.flags & QMF_GRAYED) {
+		color = text_color_disabled;
+	} else {
+		color = colorBlack;
+	}
+
+	style = b->style | UI_SMALLFONT;
+	if (Menu_ItemAtCursor(b->generic.parent) == b) {
+		style |= UI_PULSE;
+		shader = uis.buttonHover;
+	} else {
+		shader = uis.button;
+	}
+
+	UI_DrawHandlePic(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, shader);
+
+	w = UI_ProportionalStringWidth(b->string) * sizeScale;
+	h = PROP_HEIGHT * sizeScale;
+
+	UI_DrawProportionalString(x + (BUTTON_WIDTH - w) / 2, y + (BUTTON_HEIGHT - h) / 2,
+		b->string, style, color);
+}
 
 static void BText_Draw(menutext_s *t)
 {
-	int		x;
-	int		y;
-	float*	color;
+	float	x, y;
+	float	*color;
 
 	x = t->generic.x;
 	y = t->generic.y;
@@ -154,10 +204,7 @@ static void BText_Draw(menutext_s *t)
 
 static void PText_Init(menutext_s *t)
 {
-	int	x;
-	int	y;
-	int	w;
-	int	h;
+	float	x, y, w, h;
 	float	sizeScale;
 
 	sizeScale = UI_ProportionalSizeScale(t->style);
@@ -181,8 +228,7 @@ static void PText_Init(menutext_s *t)
 
 static void PText_Draw(menutext_s *t)
 {
-	int		x;
-	int		y;
+	float	x, y;
 	float *	color;
 	int		style;
 
@@ -209,10 +255,7 @@ static void PText_Draw(menutext_s *t)
 
 void Bitmap_Init(menubitmap_s *b)
 {
-	int	x;
-	int	y;
-	int	w;
-	int	h;
+	float	x, y, w, h;
 
 	x = b->generic.x;
 	y = b->generic.y;
@@ -334,7 +377,7 @@ static void Action_Init(menuaction_s *a)
 
 static void Action_Draw(menuaction_s *a)
 {
-	int		x, y;
+	float	x, y;
 	int		style;
 	float*	color;
 
@@ -414,8 +457,8 @@ static sfxHandle_t RadioButton_Key(menuradiobutton_s *rb, int key)
 
 static void RadioButton_Draw(menuradiobutton_s *rb)
 {
-	int			x;
-	int			y;
+	float		x;
+	float		y;
 	float		*color;
 	int			style;
 	qboolean	focus;
@@ -634,9 +677,9 @@ static sfxHandle_t SpinControl_Key(menulist_s *s, int key)
 
 static void SpinControl_Draw(menulist_s *s)
 {
-	float *color;
-	int	x,y;
-	int	style;
+	float	*color;
+	float	x, y;
+	int		style;
 	qboolean focus;
 
 	x = s->generic.x;
@@ -962,9 +1005,9 @@ sfxHandle_t ScrollList_Key(menulist_s *l, int key)
 
 void ScrollList_Draw(menulist_s *l)
 {
-	int			x;
-	int			u;
-	int			y;
+	float		x;
+	float		u;
+	float		y;
 	int			i;
 	int			base;
 	int			column;
@@ -1429,6 +1472,9 @@ void Menu_Cache(void)
 	uis.cursor = trap_R_RegisterShaderNoMip("gfx/menu/3_cursor2");
 	uis.rb_on = trap_R_RegisterShaderNoMip("gfx/menu/switch_on");
 	uis.rb_off = trap_R_RegisterShaderNoMip("gfx/menu/switch_off");
+	uis.button = trap_R_RegisterShaderNoMip("gfx/menu/button");
+	uis.buttonHover = trap_R_RegisterShaderNoMip("gfx/menu/button_hover");
+	uis.buttonActive = trap_R_RegisterShaderNoMip("gfx/menu/button_active");
 
 	uis.whiteShader = trap_R_RegisterShaderNoMip("white");
 	uis.menuBackShader	= trap_R_RegisterShaderNoMip("menuback");

@@ -151,14 +151,14 @@ typedef struct _tag_menuframework {
 } menuframework_s;
 
 typedef struct {
-	int type;
-	const char *name;
-	int	id;
-	int x, y;
-	int left;
-	int	top;
-	int	right;
-	int	bottom;
+	int 	type;
+	const char	*name;
+	int		id;
+	float	x, y;
+	float	left;
+	float	top;
+	float	right;
+	float	bottom;
 	menuframework_s *parent;
 	int menuPosition;
 	unsigned int flags;
@@ -238,8 +238,8 @@ typedef struct {
 	menucommon_s	generic;
 	char			*string;
 	int				style;
-	int				width;
-	int				height;
+	float			width;
+	float			height;
 } menubutton_s;
 
 extern void			Menu_Cache(void);
@@ -515,6 +515,9 @@ typedef struct {
 	qhandle_t			cursor;
 	qhandle_t			rb_on;
 	qhandle_t			rb_off;
+	qhandle_t			button;
+	qhandle_t			buttonHover;
+	qhandle_t			buttonActive;
 	float				xscale;
 	float				yscale;
 	float				bias;
