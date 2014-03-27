@@ -677,11 +677,7 @@ Cvar_SetValueSafe
 void Cvar_SetValueSafe( const char *var_name, float value )
 {
 	char val[32];
-
-	if( Q_isintegral( value ) )
-		Com_sprintf( val, sizeof(val), "%i", (int)value );
-	else
-		Com_sprintf( val, sizeof(val), "%f", value );
+	Com_sprintf( val, sizeof val, "%g", value );
 	Cvar_SetSafe( var_name, val );
 }
 
