@@ -438,7 +438,7 @@ static void CG_RegisterGraphics(void)
 	}
 
 	for (i = 0; i < NUM_CROSSHAIRS; i++) {
-		cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("gfx/crosshair/crosshair%i", i));
+		cgs.media.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("crosshair%i", i));
 	}
 
 	cgs.media.backTileShader = trap_R_RegisterShaderNoMip("gfx/2d/backtile");
