@@ -1407,6 +1407,8 @@ double fabs( double x ) {
  *    don't declare argument types to (v)snprintf if stdarg is not used.
  *    use int instead of short int as 2nd arg to va_arg.
  *
+ * Aftershock, 2014: %g implemented
+ *
  **************************************************************/
 
 /* BDR 2002-01-13  %e and %g were being ignored.  Now do something,
@@ -1459,6 +1461,7 @@ static int dopr_outch (char *buffer, size_t *currlen, size_t maxlen, char c );
 #define DP_F_ZERO  	(1 << 4)
 #define DP_F_UP    	(1 << 5)
 #define DP_F_UNSIGNED 	(1 << 6)
+#define DP_F_FLOATG	(1 << 7)
 
 /* Conversion Flags */
 #define DP_C_SHORT   1
@@ -1686,6 +1689,7 @@ static int dopr (char *buffer, size_t maxlen, const char *format, va_list args)
 	else
 	  fvalue = va_arg (args, double);
 	/* um, floating point? */
+	flags |= DP_F_FLOATG;
 	total += fmtfp (buffer, &currlen, maxlen, fvalue, min, max, flags);
 	break;
       case 'c':
@@ -1982,6 +1986,13 @@ static int fmtfp (char *buffer, size_t *currlen, size_t maxlen,
   } while(intpart && (iplace < 20));
   if (iplace == 20) iplace--;
   iconvert[iplace] = 0;
+
+	if (flags & DP_F_FLOATG) {
+		while (max > 0 && fracpart % 10 == 0) {
+			--max;
+			fracpart /= 10;
+		}
+	}
 
   /* Convert fractional part */
   do {
