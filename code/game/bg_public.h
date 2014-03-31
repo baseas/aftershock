@@ -54,6 +54,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CROUCH_VIEWHEIGHT	12
 #define DEAD_VIEWHEIGHT		-16
 
+#define	MAX_SAY_TEXT	150
+
+#define SAY_ALL		0
+#define SAY_TEAM	1
+#define SAY_TELL	2
+
 //
 // config strings are a general means of communicating variable length strings
 // from the server to all connected clients.
