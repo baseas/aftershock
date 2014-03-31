@@ -1821,7 +1821,11 @@ int BotFindEnemy(bot_state_t *bs, int curenemy) {
 		if (i == bs->client) continue;
 		//if it's the current enemy
 		if (i == curenemy) continue;
-		//
+
+		if (g_entities[i].flags & FL_NOTARGET) {
+			continue;
+		}
+
 		BotEntityInfo(i, &entinfo);
 		//
 		if (!entinfo.valid) continue;
