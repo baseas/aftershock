@@ -1538,6 +1538,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 
 	re.Shutdown = RE_Shutdown;
 
+	re.GetGlconfig = RE_GetGlconfig;
 	re.BeginRegistration = RE_BeginRegistration;
 	re.RegisterModel = RE_RegisterModel;
 	re.RegisterSkin = RE_RegisterSkin;
