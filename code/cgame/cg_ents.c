@@ -568,7 +568,7 @@ static void CG_AddCEntity(centity_t *cent)
 	CG_CalcEntityLerpPositions(cent);
 
 	// add automatic effects
-	if (s_ambient.integer || cent->currentState.eType != ET_SPEAKER) {
+	if (cg_ambient.integer || cent->currentState.eType != ET_SPEAKER) {
 		CG_EntityEffects(cent);
 	}
 

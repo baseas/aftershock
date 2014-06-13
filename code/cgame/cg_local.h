@@ -1184,7 +1184,7 @@ extern vmCvar_t		cg_zoomToggle;
 extern vmCvar_t		cg_zoomOutOnDeath;
 extern vmCvar_t		cg_zoomScaling;
 extern vmCvar_t		cg_zoomSensitivity;
-extern vmCvar_t		s_ambient;
+extern vmCvar_t		cg_ambient;
 extern vmCvar_t		cg_weaponConfig;
 extern vmCvar_t		cg_weaponConfig_g;
 extern vmCvar_t		cg_weaponConfig_mg;

@@ -191,7 +191,7 @@ vmCvar_t	cg_zoomToggle;
 vmCvar_t	cg_zoomOutOnDeath;
 vmCvar_t	cg_zoomScaling;
 vmCvar_t	cg_zoomSensitivity;
-vmCvar_t	s_ambient;
+vmCvar_t	cg_ambient;
 vmCvar_t	cg_weaponConfig;
 vmCvar_t	cg_weaponConfig_g;
 vmCvar_t	cg_weaponConfig_mg;
@@ -335,7 +335,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_zoomScaling, "cg_zoomScaling", "1", CVAR_ARCHIVE },
 	{ &cg_zoomSensitivity, "cg_zoomSensitivity", "1", CVAR_ARCHIVE },
 
-	{ &s_ambient, "s_ambient", "0", CVAR_ARCHIVE },
+	{ &cg_ambient, "cg_ambient", "0", CVAR_ARCHIVE },
 
 	{ &cg_weaponConfig, "cg_weaponConfig", "", CVAR_ARCHIVE },
 	{ &cg_weaponConfig_g, "cg_weaponConfig_g", "", CVAR_ARCHIVE },
