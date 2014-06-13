@@ -372,6 +372,18 @@ void ClientTimerActions(gentity_t *ent, int msec)
 				}
 				G_AddEvent(ent, EV_POWERUP_REGEN, 0);
 			}
+		} else if (g_gametype.integer != GT_ELIMINATION
+			&& ent->health > client->ps.stats[STAT_MAX_HEALTH])
+		{
+			// count down health when over max
+			ent->health--;
+		}
+
+		// count down armor when over max
+		if (g_gametype.integer != GT_ELIMINATION
+			&& client->ps.stats[STAT_ARMOR] > client->ps.stats[STAT_MAX_HEALTH])
+		{
+			client->ps.stats[STAT_ARMOR]--;
 		}
 	}
 }
