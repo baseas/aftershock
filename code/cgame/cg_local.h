@@ -1155,7 +1155,6 @@ extern vmCvar_t		cg_timescaleFadeEnd;
 extern vmCvar_t		cg_timescaleFadeSpeed;
 extern vmCvar_t		cg_timescale;
 extern vmCvar_t		cg_cameraMode;
-extern vmCvar_t		cg_trueLightning;
 extern vmCvar_t		cg_crosshairColor;
 extern vmCvar_t		cg_teamModel;
 extern vmCvar_t		cg_teamSoundModel;

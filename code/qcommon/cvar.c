@@ -1326,7 +1326,16 @@ void Cvar_Register(vmCvar_t *vmCvar, const char *varName, const char *defaultVal
 		flags &= ~CVAR_ROM;
 	}
 
-	cv = Cvar_Get(varName, defaultValue, flags | CVAR_VM_CREATED);
+	// Pass defaultValue = 0 to prevent creation of new cvar (force to use .ini definition)
+
+	if (defaultValue) {
+		cv = Cvar_Get(varName, defaultValue, flags | CVAR_VM_CREATED);
+	} else {
+		cv = Cvar_FindVar(varName);
+		if (!cv) {
+			Com_Error(ERR_FATAL, "Cvar: VM cvar '%s' does not exist.", varName);
+		}
+	}
 
 	if (!vmCvar)
 		return;
