@@ -804,7 +804,7 @@ void Cvar_Help_f(void)
 		return;
 	}
 
-	if (!cv->help) {
+	if (!cv->help || !cv->help[0]) {
 		Com_Printf("Cvar '%s' has no help text.\n", cv->name);
 		return;
 	}

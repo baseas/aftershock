@@ -134,7 +134,7 @@ static void Prop_Inuse(hudElement_t *element, const char *arg)
 	} else if (!strcmp(arg, "false")) {
 		element->inuse = qfalse;
 	} else {
-		Com_Printf("HUD: Invalid value '%20s' for property 'inuse'.\n", arg);
+		Com_Printf("HUD: Invalid value '%.10s' for 'inuse'. Allowed values: true, false.\n", arg);
 	}
 }
 
@@ -155,7 +155,7 @@ static void Prop_Rect(hudElement_t *element, const char *arg)
 	element->height = atof(token);
 	
 	if (*token == '\0') {
-		CG_Printf(S_COLOR_YELLOW "HUD: rect requires four arguments.\n");
+		CG_Printf("HUD: Property 'rect' requires four arguments.\n");
 	}
 }
 
@@ -191,7 +191,7 @@ static void Prop_Fill(hudElement_t *element, const char *arg)
 	} else if (!strcmp(arg, "false")) {
 		element->fill = qfalse;
 	} else {
-		Com_Printf("HUD: Invalid value '%20s' for property 'fill'.\n", arg);
+		Com_Printf("HUD: Invalid value '%.10s' for 'fill'. Allowed values: true, false.\n", arg);
 	}
 }
 
@@ -204,7 +204,7 @@ static void Prop_TextAlign(hudElement_t *element, const char *arg)
 	} else if (!strcmp(arg, "R")) {
 		element->textAlign = 2;
 	} else {
-		Com_Printf("HUD: Invalid value '%20s' for property 'textalign'.\n", arg);
+		Com_Printf("HUD: Invalid value '%.10s' for 'textalign'. Allowed values: L, C, R.\n", arg);
 	}
 }
 
