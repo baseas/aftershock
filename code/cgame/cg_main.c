@@ -94,6 +94,7 @@ vmCvar_t	cg_centertime;
 vmCvar_t	cg_swingSpeed;
 vmCvar_t	cg_shadows;
 vmCvar_t	cg_gibs;
+vmCvar_t	cg_blood;
 vmCvar_t	cg_drawSnapshot;
 vmCvar_t	cg_drawAmmoWarning;
 vmCvar_t	cg_drawCrosshair;
@@ -144,7 +145,6 @@ vmCvar_t	cg_deathNoticeTime;
 vmCvar_t	cg_stats;
 vmCvar_t	cg_buildScript;
 vmCvar_t	cg_paused;
-vmCvar_t	cg_blood;
 vmCvar_t	cg_predictItems;
 vmCvar_t	cg_drawTeamOverlay;
 vmCvar_t	cg_teamOverlayUserinfo;
@@ -235,6 +235,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_viewsize, "cg_viewsize" },
 	{ &cg_shadows, "cg_shadows" },
 	{ &cg_gibs, "cg_gibs" },
+	{ &cg_blood, "cg_blood" },
 	{ &cg_drawHud, "cg_drawHud" },
 	{ &cg_drawScoreboard, "cg_drawScoreboard" },
 	{ &cg_drawSnapshot, "cg_drawSnapshot" },
@@ -287,7 +288,6 @@ static cvarTable_t cvarTable[] = {
 	// but we also reference them here
 	{ &cg_buildScript, "com_buildScript" },	// force loading of all possible data amd error on failures
 	{ &cg_paused, "cl_paused" },
-	{ &cg_blood, "com_blood" },
 	{ &cg_synchronousClients, "g_synchronousClients" },
 	{ &cg_cameraOrbit, "cg_cameraOrbit" },
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay" },
