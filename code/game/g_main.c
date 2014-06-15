@@ -98,6 +98,7 @@ vmCvar_t	g_blueLocked;
 vmCvar_t	g_writeStats;
 vmCvar_t	g_roundWarmup;
 vmCvar_t	g_roundTimelimit;
+vmCvar_t	g_allowRespawnTimer;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -172,7 +173,8 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_blueLocked, "g_blueLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_writeStats, "g_writeStats", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_roundWarmup, "g_roundWarmup", "7", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_roundTimelimit, "g_roundTimelimit", "300", CVAR_ARCHIVE, 0, qfalse }
+	{ &g_roundTimelimit, "g_roundTimelimit", "300", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_allowRespawnTimer, "g_allowRespawnTimer", "1", CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);

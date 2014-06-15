@@ -460,6 +460,8 @@ static void CG_RegisterGraphics(void)
 		cgs.media.blueFlagShader[0] = trap_R_RegisterShaderNoMip("icons/iconf_blu1");
 		cgs.media.blueFlagShader[1] = trap_R_RegisterShaderNoMip("icons/iconf_blu2");
 		cgs.media.blueFlagShader[2] = trap_R_RegisterShaderNoMip("icons/iconf_blu3");
+		cgs.media.redMarker = trap_R_RegisterShaderNoMip("icons/red.tga");
+		cgs.media.blueMarker = trap_R_RegisterShaderNoMip("icons/blue.tga");
 	}
 
 	if (cgs.gametype >= GT_TEAM || cg_buildScript.integer) {

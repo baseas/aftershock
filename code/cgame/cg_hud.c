@@ -1365,6 +1365,177 @@ static void Hud_TeamCountNme(int hudnumber)
 	}
 }
 
+static void Hud_RespawnTimer(int hudnumber)
+{
+	int				i, k;
+	int				time;
+	int				x, y;
+	int				count;
+	int				xpos, ypos, width, height, boxWidth, boxHeight, textalign;
+	qboolean		horizontal;
+	int				iconsize, icon_xrel, icon_yrel, text_xrel, text_yrel, text_step;
+	char			*s;
+	vec4_t			color;
+	hudElement_t	*hudelement;
+
+	if (cgs.gametype == GT_DEFRAG || cgs.gametype == GT_ELIMINATION) {
+		return;
+	}
+
+	if (!cgs.allowRespawnTimer && !cg.demoPlayback) {
+		return;
+	}
+
+	if (cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR) {
+		return;
+	}
+
+	hudelement = &cgs.hud[hudnumber];
+
+	height = hudelement->height;
+	width = hudelement->width;
+	xpos = hudelement->xpos;
+	ypos = hudelement->ypos;
+	textalign = hudelement->textAlign;
+
+	horizontal = height < width;
+
+	for (count = 0, i = 0; i < MAX_RESPAWN_TIMERS; ++i) {
+		if (cgs.respawnTimer[i].item) {
+			++count;
+		}
+	}
+
+	if (horizontal) {
+		boxHeight = height;
+		boxWidth = width / 8;
+		x = xpos + width / 2 - (boxWidth * count) / 2;
+		y = ypos;
+	} else {
+		boxHeight = height / 8;
+		boxWidth = width;
+		x = xpos;
+		y = ypos + height / 2 - (boxHeight * count) / 2;
+	}
+
+	if (textalign == 0) {
+		if (boxHeight < (boxWidth - 2 * hudelement->fontWidth - 6)) {
+			iconsize = boxHeight;
+		} else {
+			iconsize = (boxWidth - 2 * hudelement->fontWidth - 6);
+		}
+
+		icon_yrel = boxHeight / 2 - iconsize / 2;
+		icon_xrel = boxWidth - iconsize - 2;
+
+		text_yrel = boxHeight / 2 - hudelement->fontHeight / 2;
+		text_xrel = 2;
+		text_step = 0;
+	} else if (textalign == 2) {
+		if (boxHeight < (boxWidth - 2 * hudelement->fontWidth - 6)) {
+			iconsize = boxHeight;
+		} else {
+			iconsize = (boxWidth - 2 * hudelement->fontWidth - 6);
+		}
+
+		icon_yrel = boxHeight / 2 - iconsize / 2;
+		icon_xrel = 2;
+
+		text_yrel = boxHeight / 2 - hudelement->fontHeight / 2;
+		text_xrel = boxWidth - 2 * hudelement->fontWidth - 2;
+		text_step = hudelement->fontWidth;
+	} else {
+		if (boxWidth < (boxHeight - hudelement->fontHeight - 6)) {
+			iconsize = boxWidth;
+		} else {
+			iconsize = (boxHeight - hudelement->fontHeight - 6);
+		}
+
+		icon_xrel = boxWidth / 2 - iconsize/2;
+		icon_yrel = 2;
+
+		text_xrel = boxWidth / 2 - 2 * hudelement->fontWidth / 2;
+		text_yrel = boxHeight - hudelement->fontHeight - 2;
+		text_step = hudelement->fontWidth / 2;
+	}
+
+	if (iconsize < 0) {
+		iconsize = 0;
+	}
+
+	for (i = 0; i < MAX_RESPAWN_TIMERS; ++i) {
+		if (!cgs.respawnTimer[i].item) {
+			continue;
+		}
+		time = (cgs.respawnTimer[i].time - cg.time);
+		CG_DrawAdjustPic(x + icon_xrel, y + icon_yrel, iconsize,
+			iconsize, cg_items[cgs.respawnTimer[i].item].icon);
+
+		// check if there are multiple items of the same type
+		for (k = 0; k < MAX_RESPAWN_TIMERS; ++k) {
+			if (i == k) {
+				continue;
+			}
+			if (cgs.respawnTimer[i].item == cgs.respawnTimer[k].item
+				&& cgs.respawnTimer[i].ctfTeam == cgs.respawnTimer[k].ctfTeam
+				&& cgs.respawnTimer[i].nearestItem != cgs.respawnTimer[k].nearestItem)
+			{
+				break;
+			}
+		}
+
+		// draw a small icon with the nearest item
+		if (k < MAX_RESPAWN_TIMERS && cgs.respawnTimer[i].nearestItem != -1) {
+			CG_DrawAdjustPic(x + icon_xrel + iconsize - iconsize / 4,
+				y + icon_yrel + iconsize - iconsize / 4, iconsize / 4, iconsize / 4,
+				cg_items[cgs.respawnTimer[i].nearestItem].icon);
+		}
+
+		if (cgs.gametype >= GT_TEAM) {
+			if (cgs.respawnTimer[i].taker == TEAM_RED) {
+				Vector4Copy(colorRed, color);
+			} else if (cgs.respawnTimer[i].taker == TEAM_BLUE) {
+				Vector4Copy(colorBlue, color);
+			} else {
+				Vector4Copy(colorWhite, color);
+			}
+		} else {
+			if (cgs.respawnTimer[i].taker == -1
+				|| cgs.respawnTimer[i].taker == cg.snap->ps.clientNum)
+			{
+				Vector4Copy(colorWhite, color);
+			} else {
+				Vector4Copy(colorGreen, color);
+			}
+		}
+
+		if (time > 0) {
+			s = va("%i", time / 1000 + 1);
+		} else {
+			s = va("*");
+		}
+
+		CG_DrawStringExt(x + text_xrel + (2 - CG_DrawStrlen(s)) * text_step, y + text_yrel, s, color, qtrue,
+			hudelement->textStyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
+
+		if (cgs.respawnTimer[i].ctfTeam) {
+			qhandle_t	marker;
+			if (cgs.respawnTimer[i].ctfTeam == TEAM_RED) {
+				marker = cgs.media.redMarker;
+			} else if (cgs.respawnTimer[i].ctfTeam == TEAM_BLUE) {
+				marker = cgs.media.blueMarker;
+			}
+			CG_DrawPic(x + icon_xrel, y + icon_yrel + iconsize - iconsize / 4, iconsize / 4, iconsize / 4, marker);
+		}
+
+		if (horizontal) {
+			x += boxWidth;
+		} else {
+			y += boxHeight;
+		}
+	}
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1412,6 +1583,7 @@ void CG_DrawHud()
 		{ HUD_HELP, Hud_Help, qtrue },
 		{ HUD_TC_OWN, Hud_TeamCountOwn, qtrue },
 		{ HUD_TC_NME, Hud_TeamCountNme, qtrue },
+		{ HUD_RESPAWNTIMER, Hud_RespawnTimer, qtrue },
 		{ HUD_MAX, 0, qfalse }
 	};
 

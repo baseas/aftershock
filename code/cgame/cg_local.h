@@ -79,6 +79,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define NUM_CROSSHAIRS		19
 
 #define MAX_SPAWNPOINTS		32
+#define MAX_RESPAWNTIMERS	16
 
 #define LAG_SAMPLES			128
 
@@ -602,6 +603,8 @@ typedef struct {
 	qhandle_t	redFlagShader[3];
 	qhandle_t	blueFlagShader[3];
 	qhandle_t	flagShader[4];
+	qhandle_t	redMarker;
+	qhandle_t	blueMarker;
 
 	qhandle_t	flagPoleModel;
 	qhandle_t	flagFlapModel;
@@ -1025,6 +1028,7 @@ typedef struct {
 	int				roundTimelimit;
 	int				overtimeStart;
 	int				overtimeLimit;
+	qboolean		allowRespawnTimer;
 
 	int				scores1, scores2;		// from configstrings
 	int				redflag, blueflag;		// flag status from configstrings
@@ -1047,6 +1051,13 @@ typedef struct {
 	msgItem_t		chatMessages[CHAT_HEIGHT];
 	msgItem_t		teamChatMessages[CHAT_HEIGHT];
 	deathNotice_t	deathNotices[DEATHNOTICE_HEIGHT];
+
+	struct {
+		int		item, nearestItem;
+		int		time;
+		int		taker;
+		team_t	ctfTeam;
+	} respawnTimer[MAX_RESPAWN_TIMERS];	// only store the position of entity numbers
 
 	int			cursorX;
 	int			cursorY;

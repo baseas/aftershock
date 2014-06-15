@@ -65,6 +65,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // from the server to all connected clients.
 //
 
+#define MAX_RESPAWN_TIMERS	16
+
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
 #define CS_MESSAGE				3		// from the map worldspawn's message field
 #define CS_MOTD					4		// g_motd string for server message of the day
@@ -96,7 +98,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_OVERTIME				36		// overtime start time
 #define CS_MODELS				37
 
-#define CS_SOUNDS				(CS_MODELS+MAX_MODELS)
+#define CS_RESPAWN_TIMERS		(CS_MODELS+MAX_MODELS)
+#define CS_SOUNDS				(CS_RESPAWN_TIMERS+MAX_RESPAWN_TIMERS)
 #define CS_PLAYERS				(CS_SOUNDS+MAX_SOUNDS)
 #define CS_LOCATIONS			(CS_PLAYERS+MAX_CLIENTS)
 #define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS) 

@@ -26,6 +26,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "cg_local.h"
 
+static void CG_ParseRespawnTimer(int index, const char *str)
+{
+	cgs.respawnTimer[index].item = atoi(COM_Parse((char **) &str));
+	cgs.respawnTimer[index].nearestItem = atoi(COM_Parse((char **) &str));
+	cgs.respawnTimer[index].time = 1000 * atoi(COM_Parse((char **) &str));
+	cgs.respawnTimer[index].taker = atoi(COM_Parse((char **) &str));
+	cgs.respawnTimer[index].ctfTeam = atoi(COM_Parse((char **) &str));
+}
+
 static void CG_ParseTeamInfo(void)
 {
 	int				i, argc;
@@ -352,6 +361,8 @@ static void CG_ConfigStringModified(void)
 		cgs.overtimeStart = atoi(str);
 		trap_S_StartLocalSound(cgs.media.protectSound, CHAN_ANNOUNCER);
 		CG_CenterPrint(va("^3OVERTIME^7 - %d seconds added", cgs.overtimeLimit));
+	} else if (num >= CS_RESPAWN_TIMERS && num < CS_RESPAWN_TIMERS + MAX_RESPAWN_TIMERS) {
+		CG_ParseRespawnTimer(num - CS_RESPAWN_TIMERS, str);
 	}
 }
 
@@ -552,6 +563,7 @@ void CG_ParseServerinfo(void)
 	cgs.blueLocked = atoi(Info_ValueForKey(info, "g_blueLocked"));
 	cgs.friendsThroughWalls = atoi(Info_ValueForKey(info, "g_friendsThroughWalls"));
 	cgs.overtimeLimit = atoi(Info_ValueForKey(info, "g_overtime"));
+	cgs.allowRespawnTimer = atoi(Info_ValueForKey(info, "g_allowRespawnTimer"));
 
 	mapname = Info_ValueForKey(info, "mapname");
 	Com_sprintf(cgs.mapname, sizeof cgs.mapname, "maps/%s.bsp", mapname);
@@ -592,6 +604,7 @@ Called on load to set the initial values from configure strings
 */
 void CG_SetConfigValues(void)
 {
+	int i;
 	const char *s;
 
 	cgs.scores1 = atoi(CG_ConfigString(CS_SCORES1));
@@ -604,6 +617,10 @@ void CG_SetConfigValues(void)
 	}
 
 	cg.warmup = atoi(CG_ConfigString(CS_WARMUP));
+
+	for (i = 0; i < MAX_RESPAWN_TIMERS; ++i) {
+		CG_ParseRespawnTimer(i, CG_ConfigString(CS_RESPAWN_TIMERS + i));
+	}
 }
 
 void CG_ShaderStateChanged(void)

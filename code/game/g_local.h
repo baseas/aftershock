@@ -441,6 +441,8 @@ typedef struct {
 
 	// unlagged
 	int			frameStartTime;			// actual time this server frame started
+
+	int			respawnTimer[MAX_RESPAWN_TIMERS];	// only store the position of entity numbers
 } level_locals_t;
 
 //
@@ -772,8 +774,7 @@ extern vmCvar_t	g_teamLock;
 extern vmCvar_t	g_redLocked;
 extern vmCvar_t	g_blueLocked;
 extern vmCvar_t	g_writeStats;
-extern vmCvar_t	g_eliminationWarmup;
-extern vmCvar_t	g_eliminationRoundTime;
+extern vmCvar_t	g_allowRespawnTimer;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

@@ -45,6 +45,161 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 qboolean	itemRegistered[MAX_ITEMS];
 
+/* RESPAWN TIMER */
+
+/**
+For gametype CTF: return the team on whose side the item is.
+*/
+static team_t G_ItemTeam(gentity_t *ent)
+{
+	gentity_t	*red, *blue;
+	vec3_t		diff;
+	float		distRed, distBlue;
+
+	if (g_gametype.integer != GT_CTF) {
+		return TEAM_FREE;
+	}
+
+	if (ent->s.eType != ET_ITEM) {
+		return TEAM_FREE;
+	}
+
+	red = G_Find(NULL, FOFS(classname), "team_CTF_redflag");
+	blue = G_Find(NULL, FOFS(classname), "team_CTF_blueflag");
+
+	if (!red || !blue) {
+		return TEAM_FREE;
+	}
+
+	VectorSubtract(ent->r.currentOrigin, red->s.origin, diff);
+	distRed = VectorLengthSquared(diff);
+	VectorSubtract(ent->r.currentOrigin, blue->s.origin, diff);
+	distBlue = VectorLengthSquared(diff);
+
+	if (distBlue - distRed > 20.0f) {
+		return TEAM_RED;
+	} else if (distBlue - distRed < -20.0f) {
+		return TEAM_BLUE;
+	} else {
+		return TEAM_FREE;
+	}
+}
+
+static int G_FindNearestItemSpawn(gentity_t *ent)
+{
+	gitem_t		*item;
+	float		dist, minDist;
+	vec3_t		tmp;
+	int			i;
+	int			minNumber;
+
+	minNumber = -1;
+
+	for (i = 0; i < MAX_GENTITIES; ++i) {
+		if (!g_entities[i].inuse) {
+			continue;
+		}
+
+		if (g_entities[i].s.eType != ET_ITEM || g_entities[i].flags == FL_DROPPED_ITEM) {
+			continue;
+		}
+
+		if (ent->s.number == g_entities[i].s.number) {
+			continue;
+		}
+
+		item = g_entities[i].item;
+
+		if ((item->giType != IT_ARMOR || item->quantity < 50)
+			&& (item->giType != IT_HEALTH || item->quantity < 100)
+			&& item->giType != IT_WEAPON && item->giType != IT_POWERUP && item->giType != IT_HOLDABLE
+			&& item->giType == IT_TEAM)
+		{
+			continue;
+		}
+
+		VectorSubtract(ent->r.currentOrigin, g_entities[i].r.currentOrigin, tmp);
+		dist = VectorLengthSquared(tmp);
+		if (minNumber == -1 || dist < minDist) {
+			minDist = dist;
+			minNumber = g_entities[i].s.modelindex;
+		}
+	}
+
+	return minNumber;
+}
+
+/**
+Store a new respawn timer entry and send this to all clients.
+*/
+static void G_SetRespawnTimer(gentity_t *ent, int taker)
+{
+	int		i;
+	char	*str;
+	int		entid;
+
+	if (level.warmupTime || ent->flags & FL_DROPPED_ITEM) {
+		return;
+	}
+
+	if ((ent->item->giType != IT_ARMOR || ent->item->quantity < 50)
+		&& (ent->item->giType != IT_HEALTH || ent->item->quantity < 100)
+		&& ent->item->giType != IT_POWERUP && ent->item->giType != IT_HOLDABLE)
+	{
+		return;
+	}
+
+	if (ent->team && ent->teammaster) {
+		// combine random powerups to a single entry
+		// FIXME set modelindex properly
+		entid = ent->teammaster->s.number;
+	} else {
+		entid = ent->s.number;
+	}
+
+	// check if we have item in table
+	for (i = 0; i < MAX_RESPAWN_TIMERS; ++i) {
+		if (level.respawnTimer[i] == entid) {
+			break;
+		}
+	}
+
+	if (i == MAX_RESPAWN_TIMERS) {
+		// otherwise, find a new slot
+		for (i = 0; i < MAX_RESPAWN_TIMERS; ++i) {
+			if (!level.respawnTimer[i]) {
+				level.respawnTimer[i] = entid;
+				break;
+			}
+		}
+	} else if (taker == -1) {
+		// the item just spawned, but not for the first time
+		return;
+	}
+
+	if (i == MAX_RESPAWN_TIMERS) {
+		// too many items
+		return;
+	}
+
+	if (g_gametype.integer >= GT_TEAM) {
+		taker = level.clients[taker].sess.sessionTeam;
+	}
+
+	// FIXME: it is better to determine whether the map has flags/bases
+	if (g_gametype.integer == GT_CTF) {
+		str = va("%d %d %d %d %d", ent->s.modelindex, G_FindNearestItemSpawn(ent),
+			ent->nextthink / 1000, taker, G_ItemTeam(ent));
+	} else {
+		str = va("%d %d %d %d", ent->s.modelindex, G_FindNearestItemSpawn(ent),
+			ent->nextthink / 1000, taker);
+	}
+
+	trap_SetConfigstring(CS_RESPAWN_TIMERS + i, str);
+}
+
+/* END RESPAWN TIMER */
+
 int Pickup_Powerup(gentity_t *ent, gentity_t *other)
 {
 	int			quantity;
@@ -430,6 +585,8 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 		ent->think = RespawnItem;
 	}
 	trap_LinkEntity(ent);
+
+	G_SetRespawnTimer(ent, other->s.clientNum);
 }
 
 /**
@@ -625,10 +782,12 @@ void FinishSpawningItem(gentity_t *ent)
 		ent->r.contents = 0;
 		ent->nextthink = level.time + respawn * 1000;
 		ent->think = RespawnItem;
+		G_SetRespawnTimer(ent, -1);
 		return;
 	}
 
-	trap_LinkEntity (ent);
+	trap_LinkEntity(ent);
+	G_SetRespawnTimer(ent, -1);
 }
 
 void G_CheckTeamItems(void)
