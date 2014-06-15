@@ -702,6 +702,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			attacker->client->pers.lastTarget = targ->s.number;
 			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
 			attacker->client->pers.stats.miscStats[MSTAT_DAMAGE_DONE] += dmg;
+			attacker->client->ps.persistant[PERS_DAMAGE_DONE] += dmg;
 			attacker->client->roundDamageDone += dmg;
 			targ->client->pers.stats.miscStats[MSTAT_DAMAGE_TAKEN] += dmg;
 			targ->client->roundDamageTaken += dmg;
