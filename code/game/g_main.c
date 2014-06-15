@@ -393,12 +393,12 @@ static void G_TeamSpawnpoints(char *buffer, int size, team_t team)
 static void G_SetSpawnpoints(void)
 {
 	if (g_gametype.integer == GT_CTF) {
-		char	red[2048], blue[2048];
+		char	red[MAX_STRING_CHARS], blue[MAX_STRING_CHARS];
 		G_TeamSpawnpoints(red, sizeof red, TEAM_RED);
 		G_TeamSpawnpoints(blue, sizeof blue, TEAM_BLUE);
 		trap_SetConfigstring(CS_SPAWNPOINTS, va("red %s blue %s", red, blue));
 	} else {
-		char	free[2048];
+		char	free[MAX_STRING_CHARS];
 		G_TeamSpawnpoints(free, sizeof free, TEAM_FREE);
 		trap_SetConfigstring(CS_SPAWNPOINTS, free);
 	}

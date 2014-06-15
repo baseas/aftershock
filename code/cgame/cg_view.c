@@ -667,6 +667,10 @@ static void CG_AddSpawnpoints(void)
 	re.hModel = cgs.media.spawnpoint;
 	re.customShader = cgs.media.spawnpointShader;
 
+	if (cg_drawSpawnpoints.integer == 2) {
+		re.renderfx |= RF_DEPTHHACK;
+	}
+
 	// move spawnpoint to the ground
 	trap_R_ModelBounds(cgs.media.spawnpoint, mins, maxs);
 
