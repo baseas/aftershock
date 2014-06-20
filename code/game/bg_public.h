@@ -596,7 +596,6 @@ typedef enum {
 							// EFX: rotate + external ring that rotates
 	IT_HOLDABLE,			// single use, holdable item
 							// EFX: rotate + bob
-	IT_PERSISTANT_POWERUP,
 	IT_TEAM
 } itemType_t;
 

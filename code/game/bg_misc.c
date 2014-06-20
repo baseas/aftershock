@@ -688,10 +688,9 @@ gitem_t	*BG_FindItemForPowerup(powerup_t pw)
 	int		i;
 
 	for (i = 0; i < bg_numItems; i++) {
-		if ((bg_itemlist[i].giType == IT_POWERUP ||
-					bg_itemlist[i].giType == IT_TEAM ||
-					bg_itemlist[i].giType == IT_PERSISTANT_POWERUP) &&
-			bg_itemlist[i].giTag == pw) {
+		if ((bg_itemlist[i].giType == IT_POWERUP || bg_itemlist[i].giType == IT_TEAM) &&
+			bg_itemlist[i].giTag == pw)
+		{
 			return &bg_itemlist[i];
 		}
 	}
