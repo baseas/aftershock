@@ -3091,15 +3091,22 @@ void BotPrintActivateGoalInfo(bot_state_t *bs, bot_activategoal_t *activategoal,
 void BotRandomMove(bot_state_t *bs, bot_moveresult_t *moveresult)
 {
 	vec3_t dir, angles;
+	int i;
 
 	angles[0] = 0;
 	angles[1] = random() * 360;
 	angles[2] = 0;
-	AngleVectors(angles, dir, NULL, NULL);
 
-	trap_BotMoveInDirection(bs->ms, dir, 400, MOVE_WALK);
+	for (i = 0; i < 8; i++) {
+		AngleVectors(angles, dir, NULL, NULL);
+		if (trap_BotMoveInDirection(bs->ms, dir, 400, MOVE_WALK)) {
+			break;
+		}
 
-	moveresult->failure = qfalse;
+		angles[1] = ((int) angles[1] + 45) % 360;
+	}
+
+	moveresult->failure = (i == 8);
 	VectorCopy(dir, moveresult->movedir);
 }
 
