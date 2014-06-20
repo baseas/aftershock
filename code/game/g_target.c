@@ -43,7 +43,7 @@ void Use_Target_Give(gentity_t *ent, gentity_t *other, gentity_t *activator)
 
 	memset(&trace, 0, sizeof(trace));
 	t = NULL;
-	while ((t = G_Find (t, FOFS(targetname), ent->target)) != NULL) {
+	while ((t = G_Find(t, FOFS(targetname), ent->target)) != NULL) {
 		if (!t->item) {
 			continue;
 		}
@@ -139,7 +139,7 @@ QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
 "message"	text to print
 If "private", only the activator gets the message.  If no checks, all clients get the message.
 */
-void Use_Target_Print (gentity_t *ent, gentity_t *other, gentity_t *activator)
+void Use_Target_Print(gentity_t *ent, gentity_t *other, gentity_t *activator)
 {
 	if (activator->client && (ent->spawnflags & 4)) {
 		trap_SendServerCommand(activator-g_entities, va("cp \"%s\"", ent->message));
@@ -177,14 +177,15 @@ Multiple identical looping sounds will just increase volume without any speed co
 "wait" : Seconds between auto triggerings, 0 = don't auto trigger
 "random"	wait variance, default is 0
 */
-void Use_Target_Speaker (gentity_t *ent, gentity_t *other, gentity_t *activator)
+void Use_Target_Speaker(gentity_t *ent, gentity_t *other, gentity_t *activator)
 {
 	if (ent->spawnflags & 3) {	// looping sound toggles
-		if (ent->s.loopSound)
+		if (ent->s.loopSound) {
 			ent->s.loopSound = 0;	// turn it off
-		else
+		} else {
 			ent->s.loopSound = ent->noise_index;	// start it
-	}else {	// normal sound
+		}
+	} else {	// normal sound
 		if (ent->spawnflags & 8) {
 			G_AddEvent(activator, EV_GENERAL_SOUND, ent->noise_index);
 		} else if (ent->spawnflags & 4) {
@@ -214,9 +215,9 @@ void SP_target_speaker(gentity_t *ent)
 	}
 
 	if (!strstr(s, ".wav")) {
-		Com_sprintf (buffer, sizeof(buffer), "%s.wav", s);
+		Com_sprintf(buffer, sizeof buffer, "%s.wav", s);
 	} else {
-		Q_strncpyz(buffer, s, sizeof(buffer));
+		Q_strncpyz(buffer, s, sizeof buffer);
 	}
 	ent->noise_index = G_SoundIndex(buffer);
 
@@ -225,7 +226,6 @@ void SP_target_speaker(gentity_t *ent)
 	ent->s.eventParm = ent->noise_index;
 	ent->s.frame = ent->wait * 10;
 	ent->s.clientNum = ent->random * 10;
-
 
 	// check for prestarted looping sound
 	if (ent->spawnflags & 1) {
@@ -259,8 +259,8 @@ void target_laser_think(gentity_t *self)
 	if (self->enemy) {
 		VectorMA(self->enemy->s.origin, 0.5, self->enemy->r.mins, point);
 		VectorMA(point, 0.5, self->enemy->r.maxs, point);
-		VectorSubtract (point, self->s.origin, self->movedir);
-		VectorNormalize (self->movedir);
+		VectorSubtract(point, self->s.origin, self->movedir);
+		VectorNormalize(self->movedir);
 	}
 
 	// fire forward and see what we hit
@@ -295,10 +295,11 @@ void target_laser_off(gentity_t *self)
 void target_laser_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	self->activator = activator;
-	if (self->nextthink > 0)
+	if (self->nextthink > 0) {
 		target_laser_off(self);
-	else
+	} else {
 		target_laser_on(self);
+	}
 }
 
 void target_laser_start(gentity_t *self)
@@ -324,10 +325,11 @@ void target_laser_start(gentity_t *self)
 		self->damage = 1;
 	}
 
-	if (self->spawnflags & 1)
+	if (self->spawnflags & 1) {
 		target_laser_on(self);
-	else
+	} else {
 		target_laser_off(self);
+	}
 }
 
 void SP_target_laser(gentity_t *self)
@@ -370,7 +372,7 @@ This doesn't perform any actions except fire its targets.
 The activator can be forced to be from a certain team.
 if RANDOM is checked, only one of the targets will be fired, not all of them
 */
-void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator)
+void target_relay_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	if ((self->spawnflags & 1) && activator->client
 		&& activator->client->sess.sessionTeam != TEAM_RED) {
@@ -392,7 +394,7 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 	G_UseTargets(self, activator);
 }
 
-void SP_target_relay (gentity_t *self)
+void SP_target_relay(gentity_t *self)
 {
 	self->use = target_relay_use;
 }

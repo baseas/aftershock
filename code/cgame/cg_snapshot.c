@@ -35,8 +35,8 @@ static void CG_ResetEntity(centity_t *cent)
 
 	cent->trailTime = cg.snap->serverTime;
 
-	VectorCopy (cent->currentState.origin, cent->lerpOrigin);
-	VectorCopy (cent->currentState.angles, cent->lerpAngles);
+	VectorCopy(cent->currentState.origin, cent->lerpOrigin);
+	VectorCopy(cent->currentState.angles, cent->lerpAngles);
 	if (cent->currentState.eType == ET_PLAYER) {
 		CG_ResetPlayerEntity(cent);
 	}
@@ -84,7 +84,7 @@ static void CG_TransitionSnapshot(void)
 
 	// clear the currentValid flag for all entities in the existing snapshot
 	for (i = 0; i < cg.snap->numEntities; i++) {
-		cent = &cg_entities[ cg.snap->entities[ i ].number ];
+		cent = &cg_entities[cg.snap->entities[i].number];
 		cent->currentValid = qfalse;
 	}
 
@@ -97,11 +97,11 @@ static void CG_TransitionSnapshot(void)
 		CG_ForceModelChange();
 	}
 
-	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, qfalse);
-	cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
+	BG_PlayerStateToEntityState(&cg.snap->ps, &cg_entities[cg.snap->ps.clientNum].currentState, qfalse);
+	cg_entities[cg.snap->ps.clientNum].interpolate = qfalse;
 
 	for (i = 0; i < cg.snap->numEntities; i++) {
-		cent = &cg_entities[ cg.snap->entities[ i ].number ];
+		cent = &cg_entities[cg.snap->entities[i].number];
 		CG_TransitionEntity(cent);
 
 		// remember time of snapshot this entity was last updated in
@@ -141,13 +141,13 @@ static void CG_SetNextSnap(snapshot_t *snap)
 
 	cg.nextSnap = snap;
 
-	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[ snap->ps.clientNum ].nextState, qfalse);
-	cg_entities[ cg.snap->ps.clientNum ].interpolate = qtrue;
+	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].nextState, qfalse);
+	cg_entities[cg.snap->ps.clientNum].interpolate = qtrue;
 
 	// check for extrapolation errors
 	for (num = 0; num < snap->numEntities; num++) {
 		es = &snap->entities[num];
-		cent = &cg_entities[ es->number ];
+		cent = &cg_entities[es->number];
 
 		memcpy(&cent->nextState, es, sizeof(entityState_t));
 		//cent->nextState = *es;
@@ -253,7 +253,7 @@ void CG_SetInitialSnapshot(snapshot_t *snap)
 
 	cg.snap = snap;
 
-	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[ snap->ps.clientNum ].currentState, qfalse);
+	BG_PlayerStateToEntityState(&snap->ps, &cg_entities[snap->ps.clientNum].currentState, qfalse);
 
 	// sort out solid entities
 	CG_BuildSolidList();
@@ -265,8 +265,8 @@ void CG_SetInitialSnapshot(snapshot_t *snap)
 	CG_Respawn();
 
 	for (i = 0; i < cg.snap->numEntities; i++) {
-		state = &cg.snap->entities[ i ];
-		cent = &cg_entities[ state->number ];
+		state = &cg.snap->entities[i];
+		cent = &cg_entities[state->number];
 
 		memcpy(&cent->currentState, state, sizeof(entityState_t));
 		//cent->currentState = *state;

@@ -782,7 +782,7 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t *ent, const playe
 
 	item = &bg_itemlist[ent->modelindex];
 
-	switch(item->giType) {
+	switch (item->giType) {
 	case IT_WEAPON:
 		return qtrue;	// weapons are always picked up
 
@@ -862,7 +862,7 @@ void BG_EvaluateTrajectory(const trajectory_t *tr, int atTime, vec3_t result)
 	float		deltaTime;
 	float		phase;
 
-	switch(tr->trType) {
+	switch (tr->trType) {
 	case TR_STATIONARY:
 	case TR_INTERPOLATE:
 		VectorCopy(tr->trBase, result);
@@ -905,7 +905,7 @@ void BG_EvaluateTrajectoryDelta(const trajectory_t *tr, int atTime, vec3_t resul
 	float	deltaTime;
 	float	phase;
 
-	switch(tr->trType) {
+	switch (tr->trType) {
 	case TR_STATIONARY:
 	case TR_INTERPOLATE:
 		VectorClear(result);

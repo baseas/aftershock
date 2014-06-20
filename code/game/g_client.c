@@ -78,13 +78,12 @@ qboolean SpotWouldTelefrag(gentity_t *spot)
 	VectorAdd(spot->s.origin, playerMaxs, maxs);
 	num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
 
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		hit = &g_entities[touch[i]];
 		//if (hit->client && hit->client->ps.stats[STAT_HEALTH] > 0) {
 		if (hit->client) {
 			return qtrue;
 		}
-
 	}
 
 	return qfalse;
@@ -104,7 +103,7 @@ gentity_t *SelectNearestDeathmatchSpawnPoint(vec3_t from)
 	nearestSpot = NULL;
 	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
 
 		VectorSubtract(spot->s.origin, from, delta);
 		dist = VectorLength(delta);
@@ -168,7 +167,7 @@ gentity_t *SelectRandomFurthestSpawnPoint (vec3_t avoidPoint, vec3_t origin, vec
 	numSpots = 0;
 	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
 		if (SpotWouldTelefrag(spot))
 			continue;
 
@@ -213,18 +212,18 @@ gentity_t *SelectRandomFurthestSpawnPoint (vec3_t avoidPoint, vec3_t origin, vec
 		if (!spot)
 			G_Error("Couldn't find a spawn point");
 
-		VectorCopy (spot->s.origin, origin);
+		VectorCopy(spot->s.origin, origin);
 		origin[2] += 9;
-		VectorCopy (spot->s.angles, angles);
+		VectorCopy(spot->s.angles, angles);
 		return spot;
 	}
 
 	// select a random spot from the spawn points furthest away
 	rnd = random() * (numSpots / 2);
 
-	VectorCopy (list_spot[rnd]->s.origin, origin);
+	VectorCopy(list_spot[rnd]->s.origin, origin);
 	origin[2] += 9;
-	VectorCopy (list_spot[rnd]->s.angles, angles);
+	VectorCopy(list_spot[rnd]->s.angles, angles);
 
 	return list_spot[rnd];
 }
@@ -247,7 +246,7 @@ gentity_t *SelectInitialSpawnPoint(vec3_t origin, vec3_t angles, qboolean isbot)
 
 	spot = NULL;
 
-	while ((spot = G_Find (spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
+	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
 		if (((spot->flags & FL_NO_BOTS) && isbot) ||
 		   ((spot->flags & FL_NO_HUMANS) && !isbot))
 		{
@@ -261,9 +260,9 @@ gentity_t *SelectInitialSpawnPoint(vec3_t origin, vec3_t angles, qboolean isbot)
 	if (!spot || SpotWouldTelefrag(spot))
 		return SelectSpawnPoint(vec3_origin, origin, angles, isbot);
 
-	VectorCopy (spot->s.origin, origin);
+	VectorCopy(spot->s.origin, origin);
 	origin[2] += 9;
-	VectorCopy (spot->s.angles, angles);
+	VectorCopy(spot->s.angles, angles);
 
 	return spot;
 }
@@ -284,7 +283,7 @@ void InitBodyQue(void)
 	gentity_t	*ent;
 
 	level.bodyQueIndex = 0;
-	for (i=0; i<BODY_QUEUE_SIZE; i++) {
+	for (i = 0; i < BODY_QUEUE_SIZE; i++) {
 		ent = G_Spawn();
 		ent->classname = "bodyque";
 		ent->neverFree = qtrue;
@@ -364,10 +363,10 @@ void CopyToBodyQue(gentity_t *ent)
 	}
 
 	body->r.svFlags = ent->r.svFlags;
-	VectorCopy (ent->r.mins, body->r.mins);
-	VectorCopy (ent->r.maxs, body->r.maxs);
-	VectorCopy (ent->r.absmin, body->r.absmin);
-	VectorCopy (ent->r.absmax, body->r.absmax);
+	VectorCopy(ent->r.mins, body->r.mins);
+	VectorCopy(ent->r.maxs, body->r.maxs);
+	VectorCopy(ent->r.absmin, body->r.absmin);
+	VectorCopy(ent->r.absmax, body->r.absmax);
 
 	body->clipmask = CONTENTS_SOLID | CONTENTS_PLAYERCLIP;
 	body->r.contents = CONTENTS_CORPSE;
@@ -386,23 +385,23 @@ void CopyToBodyQue(gentity_t *ent)
 	}
 
 
-	VectorCopy (body->s.pos.trBase, body->r.currentOrigin);
+	VectorCopy(body->s.pos.trBase, body->r.currentOrigin);
 	trap_LinkEntity (body);
 }
 
 void SetClientViewAngle(gentity_t *ent, vec3_t angle)
 {
-	int			i;
+	int	i;
 
 	// set the delta angle
-	for (i=0; i<3; i++) {
-		int		cmdAngle;
+	for (i = 0; i < 3; i++) {
+		int	cmdAngle;
 
 		cmdAngle = ANGLE2SHORT(angle[i]);
 		ent->client->ps.delta_angles[i] = cmdAngle - ent->client->pers.cmd.angles[i];
 	}
 	VectorCopy(angle, ent->s.angles);
-	VectorCopy (ent->s.angles, ent->client->ps.viewangles);
+	VectorCopy(ent->s.angles, ent->client->ps.viewangles);
 }
 
 void ClientRespawn(gentity_t *ent)
@@ -602,7 +601,7 @@ void ClientUserinfoChanged(int clientNum)
 	}
 
 	// set name
-	Q_strncpyz (oldname, client->pers.netname, sizeof(oldname));
+	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
 	s = Info_ValueForKey (userinfo, "name");
 	ClientCleanName(s, client->pers.netname, sizeof(client->pers.netname));
 
@@ -1008,8 +1007,8 @@ void ClientSpawn(gentity_t *ent)
 	ent->watertype = 0;
 	ent->flags = 0;
 
-	VectorCopy (playerMins, ent->r.mins);
-	VectorCopy (playerMaxs, ent->r.maxs);
+	VectorCopy(playerMins, ent->r.mins);
+	VectorCopy(playerMaxs, ent->r.maxs);
 
 	client->ps.clientNum = index;
 

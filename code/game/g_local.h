@@ -1,13 +1,13 @@
 /*
 ===========================================================================
-Copyright (C) 1999-2005 Id Software, Inc.
+Copyright(C) 1999-2005 Id Software, Inc.
 
 This file is part of Quake III Arena source code.
 
 Quake III Arena source code is free software; you can redistribute it
 and/or modify it under the terms of the GNU General Public License as
 published by the Free Software Foundation; either version 2 of the License,
-or (at your option) any later version.
+or(at your option) any later version.
 
 Quake III Arena source code is distributed in the hope that it will be
 useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -328,10 +328,10 @@ struct gclient_s {
 
 	// unlagged
 	int				attackTime;			// the server time the button was pressed
-										// (before pmove_fixed changes serverTime)
+										//(before pmove_fixed changes serverTime)
 	int				historyHead;		// head of history queue
 	int				frameOffset;		// approximation of the actual server time we received
-										// this command (not in 50ms increments)
+										// this command(not in 50ms increments)
 	int				lastUpdateFrame;	// the last frame number we got an update from this client
 	clientHistory_t	history[NUM_CLIENT_HISTORY];
 	clientHistory_t	saved;				// client's saved position, used to restore after time shift
@@ -459,7 +459,7 @@ char		*G_NewString(const char *string);
 //
 // g_cmds.c
 //
-void	Cmd_Score_f (gentity_t *ent);
+void	Cmd_Score_f(gentity_t *ent);
 void	StopFollowing(gentity_t *ent);
 void	LogTeamChange(gclient_t *client, int oldTeam);
 void	SetTeam(gentity_t *ent, const char *s);
@@ -473,7 +473,7 @@ void	G_RunItem(gentity_t *ent);
 void	RespawnItem(gentity_t *ent);
 
 void		UseHoldableItem(gentity_t *ent);
-void		PrecacheItem (gitem_t *it);
+void		PrecacheItem(gitem_t *it);
 gentity_t	*LaunchItem(gitem_t *item, vec3_t origin, vec3_t velocity);
 gentity_t	*Drop_Item(gentity_t *ent, gitem_t *item, float angle);
 void		Drop_Item_Ammo(gentity_t *ent, gitem_t *item);
@@ -482,13 +482,13 @@ void		Drop_Item_Health(gentity_t *ent, gitem_t *item);
 void		Drop_Item_Weapon(gentity_t *ent, gitem_t *item);
 void		Drop_Item_Flag(gentity_t *ent, gitem_t *item);
 
-void		SetRespawn (gentity_t *ent, float delay);
-void		G_SpawnItem (gentity_t *ent, gitem_t *item);
+void		SetRespawn(gentity_t *ent, float delay);
+void		G_SpawnItem(gentity_t *ent, gitem_t *item);
 void		FinishSpawningItem(gentity_t *ent);
-void		Think_Weapon (gentity_t *ent);
-int			ArmorIndex (gentity_t *ent);
-void		Add_Ammo (gentity_t *ent, int weapon, int count);
-void		Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace);
+void		Think_Weapon(gentity_t *ent);
+int			ArmorIndex(gentity_t *ent);
+void		Add_Ammo(gentity_t *ent, int weapon, int count);
+void		Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace);
 
 void		ClearRegisteredItems(void);
 void		RegisterItem(gitem_t *item);
@@ -500,21 +500,21 @@ void		SaveRegisteredItems(void);
 int			G_ModelIndex(char *name);
 int			G_SoundIndex(char *name);
 void		G_TeamCommand(team_t team, char *cmd);
-void		G_KillBox (gentity_t *ent);
-gentity_t	*G_Find (gentity_t *from, int fieldofs, const char *match);
-gentity_t	*G_PickTarget (char *targetname);
-void		G_UseTargets (gentity_t *ent, gentity_t *activator);
-void		G_SetMovedir (vec3_t angles, vec3_t movedir);
+void		G_KillBox(gentity_t *ent);
+gentity_t	*G_Find(gentity_t *from, int fieldofs, const char *match);
+gentity_t	*G_PickTarget(char *targetname);
+void		G_UseTargets(gentity_t *ent, gentity_t *activator);
+void		G_SetMovedir(vec3_t angles, vec3_t movedir);
 
 void		G_InitGentity(gentity_t *e);
-gentity_t	*G_Spawn (void);
+gentity_t	*G_Spawn(void);
 gentity_t	*G_TempEntity(vec3_t origin, int event);
 void		G_Sound(gentity_t *ent, int channel, int soundIndex);
 void		G_FreeEntity(gentity_t *e);
 qboolean	G_EntitiesFree(void);
-void		G_TouchTriggers (gentity_t *ent);
+void		G_TouchTriggers(gentity_t *ent);
 
-float	*tv (float x, float y, float z);
+float	*tv(float x, float y, float z);
 char	*vtos(const vec3_t v);
 float	vectoyaw(const vec3_t vec);
 
@@ -547,11 +547,11 @@ void		TossClientItems(gentity_t *self);
 // g_missile.c
 //
 void		G_RunMissile(gentity_t *ent);
-gentity_t	*fire_plasma (gentity_t *self, vec3_t start, vec3_t aimdir);
-gentity_t	*fire_grenade (gentity_t *self, vec3_t start, vec3_t aimdir);
-gentity_t	*fire_rocket (gentity_t *self, vec3_t start, vec3_t dir);
-gentity_t	*fire_bfg (gentity_t *self, vec3_t start, vec3_t dir);
-gentity_t	*fire_grapple (gentity_t *self, vec3_t start, vec3_t dir);
+gentity_t	*fire_plasma(gentity_t *self, vec3_t start, vec3_t aimdir);
+gentity_t	*fire_grenade(gentity_t *self, vec3_t start, vec3_t aimdir);
+gentity_t	*fire_rocket(gentity_t *self, vec3_t start, vec3_t dir);
+gentity_t	*fire_bfg(gentity_t *self, vec3_t start, vec3_t dir);
+gentity_t	*fire_grapple(gentity_t *self, vec3_t start, vec3_t dir);
 
 //
 // g_mover.c
@@ -562,7 +562,7 @@ void	Touch_DoorTrigger(gentity_t *ent, gentity_t *other, trace_t *trace);
 //
 // g_trigger.c
 //
-void	trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace);
+void	trigger_teleporter_touch(gentity_t *self, gentity_t *other, trace_t *trace);
 
 //
 // g_misc.c
@@ -574,11 +574,11 @@ void	TeleportPlayer(gentity_t *player, vec3_t origin, vec3_t angles);
 //
 qboolean	LogAccuracyHit(gentity_t *target, gentity_t *attacker,
 	qboolean *teamHit, qboolean *enemyHit);
-void		CalcMuzzlePoint (gentity_t *ent, vec3_t forward, vec3_t right,
+void		CalcMuzzlePoint(gentity_t *ent, vec3_t forward, vec3_t right,
 	vec3_t up, vec3_t muzzlePoint);
 qboolean	CheckGauntletAttack(gentity_t *ent);
-void		Weapon_HookFree (gentity_t *ent);
-void		Weapon_HookThink (gentity_t *ent);
+void		Weapon_HookFree(gentity_t *ent);
+void		Weapon_HookThink(gentity_t *ent);
 
 //
 // g_client.c
@@ -588,11 +588,11 @@ int			TeamCount(int ignoreClientNum, team_t team);
 int			TeamLeader(int team);
 team_t		PickTeam(int ignoreClientNum);
 void		SetClientViewAngle(gentity_t *ent, vec3_t angle);
-gentity_t	*SelectSpawnPoint (vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot);
+gentity_t	*SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot);
 void		CopyToBodyQue(gentity_t *ent);
 void		ClientRespawn(gentity_t *ent);
-void		BeginIntermission (void);
-void		InitBodyQue (void);
+void		BeginIntermission(void);
+void		InitBodyQue(void);
 void		ClientSpawn(gentity_t *ent);
 void		CalculateRanks(void);
 qboolean	SpotWouldTelefrag(gentity_t *spot);
@@ -602,7 +602,7 @@ qboolean	SpotWouldTelefrag(gentity_t *spot);
 //
 qboolean	ConsoleCommand(void);
 void		G_ProcessIPBans(void);
-qboolean	G_FilterPacket (char *from);
+qboolean	G_FilterPacket(char *from);
 
 //
 // g_weapon.c
@@ -617,12 +617,12 @@ void	FindIntermissionPoint(void);
 void	SetLeader(int team, int client);
 void	CheckTeamLeader(int team);
 void	CheckPings(qboolean forceSend);
-void	G_RunThink (gentity_t *ent);
+void	G_RunThink(gentity_t *ent);
 void	AddTournamentQueue(gclient_t *client);
 void	G_SendScoreboard(gclient_t *client);
-void	QDECL	G_LogPrintf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void	QDECL	G_Printf(const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
-void	QDECL	G_Error(const char *fmt, ...) __attribute__ ((noreturn, format (printf, 1, 2)));
+void	QDECL	G_LogPrintf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+void	QDECL	G_Printf(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
+void	QDECL	G_Error(const char *fmt, ...) __attribute__((noreturn, format(printf, 1, 2)));
 
 //
 // g_client.c

@@ -189,9 +189,9 @@ void CG_GrappleTrail(centity_t *ent, const weaponInfo_t *wi)
 
 	memset(&beam, 0, sizeof(beam));
 	//FIXME adjust for muzzle position
-	VectorCopy (cg_entities[ ent->currentState.otherEntityNum ].lerpOrigin, beam.origin);
+	VectorCopy(cg_entities[ent->currentState.otherEntityNum].lerpOrigin, beam.origin);
 	beam.origin[2] += 26;
-	AngleVectors(cg_entities[ ent->currentState.otherEntityNum ].lerpAngles, forward, NULL, up);
+	AngleVectors(cg_entities[ent->currentState.otherEntityNum].lerpAngles, forward, NULL, up);
 	VectorMA(beam.origin, -6, up, beam.origin);
 	VectorCopy(origin, beam.oldorigin);
 
@@ -403,12 +403,12 @@ void CG_RegisterItem(int itemNum)
 		CG_Error("CG_RegisterItemVisuals: itemNum %d out of range [0-%d]", itemNum, bg_numItems-1);
 	}
 
-	itemInfo = &cg_items[ itemNum ];
+	itemInfo = &cg_items[itemNum];
 	if (itemInfo->registered) {
 		return;
 	}
 
-	item = &bg_itemlist[ itemNum ];
+	item = &bg_itemlist[itemNum];
 
 	memset(itemInfo, 0, sizeof(*itemInfo));
 	itemInfo->registered = qtrue;
@@ -842,9 +842,9 @@ void CG_AddViewWeapon(playerState_t *ps)
 
 	cent = &cg.predictedPlayerEntity;	// &cg_entities[cg.snap->ps.clientNum];
 	CG_RegisterWeapon(ps->weapon);
-	weapon = &cg_weapons[ ps->weapon ];
+	weapon = &cg_weapons[ps->weapon];
 
-	memset (&hand, 0, sizeof(hand));
+	memset(&hand, 0, sizeof(hand));
 
 	// set up gun position
 	CG_CalculateWeaponPosition(hand.origin, angles);
@@ -858,7 +858,7 @@ void CG_AddViewWeapon(playerState_t *ps)
 	// map torso animations to weapon animations
 	if (cg_weaponBobbing.integer) {
 		// get clientinfo for animation map
-		ci = &cgs.clientinfo[ cent->currentState.clientNum ];
+		ci = &cgs.clientinfo[cent->currentState.clientNum];
 		hand.frame = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.frame);
 		hand.oldframe = CG_MapTorsoToWeaponFrame(ci, cent->pe.torso.oldFrame);
 		hand.backlerp = cent->pe.torso.backlerp;
@@ -882,7 +882,7 @@ static qboolean CG_WeaponSelectable(int i)
 	if (!cg.snap->ps.ammo[i]) {
 		return qfalse;
 	}
-	if (!(cg.snap->ps.stats[ STAT_WEAPONS ] & (1 << i))) {
+	if (!(cg.snap->ps.stats[STAT_WEAPONS] & (1 << i))) {
 		return qfalse;
 	}
 
@@ -1071,7 +1071,7 @@ void CG_FireWeapon(centity_t *cent)
 		CG_Error("CG_FireWeapon: ent->weapon >= WP_NUM_WEAPONS");
 		return;
 	}
-	weap = &cg_weapons[ ent->weapon ];
+	weap = &cg_weapons[ent->weapon];
 
 	// mark the entity as muzzle flashing, so when it is added it will
 	// append the flash to the weapon model
@@ -1090,7 +1090,7 @@ void CG_FireWeapon(centity_t *cent)
 
 	// play quad sound if needed
 	if (cent->currentState.powerups & (1 << PW_QUAD)) {
-		trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound);
+		trap_S_StartSound(NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound);
 	}
 
 	// play a sound
@@ -1344,8 +1344,8 @@ void CG_ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, int otherEntNum)
 		r = Q_crandom(&seed) * DEFAULT_SHOTGUN_SPREAD * 16;
 		u = Q_crandom(&seed) * DEFAULT_SHOTGUN_SPREAD * 16;
 		VectorMA(origin, 8192 * 16, forward, end);
-		VectorMA (end, r, right, end);
-		VectorMA (end, u, up, end);
+		VectorMA(end, r, right, end);
+		VectorMA(end, u, up, end);
 
 		CG_ShotgunPellet(origin, end, otherEntNum);
 	}

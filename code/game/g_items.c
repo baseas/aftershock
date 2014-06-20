@@ -276,7 +276,7 @@ int Pickup_Holdable(gentity_t *ent, gentity_t *other)
 	return RESPAWN_HOLDABLE;
 }
 
-void Add_Ammo (gentity_t *ent, int weapon, int count)
+void Add_Ammo(gentity_t *ent, int weapon, int count)
 {
 	if (ent->client->ps.ammo[weapon] == -1) {
 		return;
@@ -293,7 +293,7 @@ void Add_Ammo (gentity_t *ent, int weapon, int count)
 	}
 }
 
-int Pickup_Ammo (gentity_t *ent, gentity_t *other)
+int Pickup_Ammo(gentity_t *ent, gentity_t *other)
 {
 	int		quantity;
 
@@ -308,7 +308,7 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 	return RESPAWN_AMMO;
 }
 
-int Pickup_Weapon (gentity_t *ent, gentity_t *other)
+int Pickup_Weapon(gentity_t *ent, gentity_t *other)
 {
 	int		quantity;
 
@@ -349,7 +349,7 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other)
 	return g_weaponRespawn.integer;
 }
 
-int Pickup_Health (gentity_t *ent, gentity_t *other)
+int Pickup_Health(gentity_t *ent, gentity_t *other)
 {
 	int			max;
 	int			quantity;
@@ -454,10 +454,12 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 	int			respawn;
 	qboolean	predict;
 
-	if (!other->client)
+	if (!other->client) {
 		return;
-	if (other->health < 1)
+	}
+	if (other->health < 1) {
 		return;		// dead people can't pickup
+	}
 
 	// prevent the dropper to pickup item before it lands on the ground
 	if ((ent->s.eFlags & EF_DROPPED_ITEM)
@@ -476,7 +478,7 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 	predict = other->client->pers.predictItemPickup;
 
 	// call the item-specific pickup function
-	switch(ent->item->giType) {
+	switch (ent->item->giType) {
 	case IT_WEAPON:
 		respawn = Pickup_Weapon(ent, other);
 		break;
@@ -537,7 +539,7 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 	}
 
 	// fire item targets
-	G_UseTargets (ent, other);
+	G_UseTargets(ent, other);
 
 	// wait of -1 will not respawn
 	if (ent->wait == -1) {
@@ -604,8 +606,8 @@ gentity_t *LaunchItem(gitem_t *item, vec3_t origin, vec3_t velocity)
 
 	dropped->classname = item->classname;
 	dropped->item = item;
-	VectorSet (dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
-	VectorSet (dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
+	VectorSet(dropped->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS);
+	VectorSet(dropped->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS);
 	dropped->r.contents = CONTENTS_TRIGGER;
 
 	dropped->touch = Touch_Item;
@@ -627,7 +629,7 @@ gentity_t *LaunchItem(gitem_t *item, vec3_t origin, vec3_t velocity)
 
 	dropped->flags = FL_DROPPED_ITEM;
 
-	trap_LinkEntity (dropped);
+	trap_LinkEntity(dropped);
 
 	return dropped;
 }
@@ -868,7 +870,7 @@ Sets the clipping size and plants the object on the floor.
 Items can't be immediately dropped to floor, because they might
 be on an entity that hasn't spawned yet.
 */
-void G_SpawnItem (gentity_t *ent, gitem_t *item)
+void G_SpawnItem(gentity_t *ent, gitem_t *item)
 {
 	G_SpawnFloat("random", "0", &ent->random);
 	G_SpawnFloat("wait", "0", &ent->wait);
@@ -883,8 +885,9 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item)
 		return;
 	}
 
-	if (G_ItemDisabled(item))
+	if (G_ItemDisabled(item)) {
 		return;
+	}
 
 	ent->item = item;
 	// some movers spawn on the second frame, so delay item

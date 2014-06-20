@@ -107,17 +107,17 @@ static void CG_DrawHudString(int hudnumber, qboolean colorize, const char *text)
 
 	w = CG_StringWidth(hudelement->fontWidth, text);
 
-	if (hudelement->textAlign == 0)
+	if (hudelement->textAlign == 0) {
 		x = hudelement->xpos;
-	else if (hudelement->textAlign == 2)
+	} else if (hudelement->textAlign == 2) {
 		x = hudelement->xpos + hudelement->width - w;
-	else
+	} else {
 		x = hudelement->xpos + hudelement->width/2 - w/2;
+	}
 
 	if (colorize) {
 		Vector4Copy(hudelement->color, color);
-	}
-	else {
+	} else {
 		Vector4Copy(colorWhite, color);
 	}
 
@@ -942,10 +942,11 @@ static void Hud_WeaponList(int hudnumber)
 	}
 
 	if (textalign == 0) {
-		if (boxHeight < (boxWidth - 3*fontWidth - 6))
+		if (boxHeight < (boxWidth - 3*fontWidth - 6)) {
 			iconsize = boxHeight;
-		else
+		} else {
 			iconsize = (boxWidth - 3*fontWidth - 6);
+		}
 
 		icon_yrel = boxHeight/2 - iconsize/2;
 		icon_xrel = boxWidth - iconsize - 2;
@@ -954,10 +955,11 @@ static void Hud_WeaponList(int hudnumber)
 		text_xrel = 2;
 		text_step = 0;
 	} else if (textalign == 2) {
-		if (boxHeight < (boxWidth - 3*fontWidth - 6))
+		if (boxHeight < (boxWidth - 3*fontWidth - 6)) {
 			iconsize = boxHeight;
-		else
+		} else {
 			iconsize = (boxWidth - 3*fontWidth - 6);
+		}
 
 		icon_yrel = boxHeight/2 - iconsize/2;
 		icon_xrel = 2;
@@ -966,10 +968,11 @@ static void Hud_WeaponList(int hudnumber)
 		text_xrel = boxWidth - 3*fontWidth - 2;
 		text_step = fontWidth;
 	} else {
-		if (boxWidth < (boxHeight - hudelement->fontHeight - 6))
+		if (boxWidth < (boxHeight - hudelement->fontHeight - 6)) {
 			iconsize = boxWidth;
-		else
+		} else {
 			iconsize = (boxHeight - hudelement->fontHeight - 6);
+		}
 
 		icon_xrel = boxWidth/2 - iconsize/2;
 		icon_yrel = 2;
@@ -1066,10 +1069,11 @@ static void Hud_WeaponList(int hudnumber)
 				qfalse, hudelement->textStyle & 1, hudelement->fontWidth, hudelement->fontHeight, 0);
 		}
 
-		if (horizontal)
+		if (horizontal) {
 			x += boxWidth;
-		else
+		} else {
 			y += boxHeight;
+		}
 	}
 }
 

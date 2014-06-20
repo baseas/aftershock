@@ -706,7 +706,7 @@ static void CG_SetLerpFrameAnimation(clientInfo_t *ci, lerpFrame_t *lf, int newA
 		CG_Error("Bad animation number: %i", newAnimation);
 	}
 
-	anim = &ci->model->animations[ newAnimation ];
+	anim = &ci->model->animations[newAnimation];
 
 	lf->animation = anim;
 	lf->animationTime = lf->frameTime + anim->initialLerp;
@@ -829,7 +829,7 @@ static void CG_PlayerAnimation(centity_t *cent, int *legsOld, int *legs, float *
 		speedScale = 1;
 	}
 
-	ci = &cgs.clientinfo[ clientNum ];
+	ci = &cgs.clientinfo[clientNum];
 
 	// do the shuffle turn frames locally
 	if (cent->pe.legs.yawing && (cent->currentState.legsAnim & ~ANIM_TOGGLEBIT) == LEGS_IDLE) {
@@ -970,8 +970,8 @@ static void CG_PlayerAngles(centity_t *cent, vec3_t legs[3], vec3_t torso[3], ve
 			CG_Error("Bad player movement angle");
 		}
 	}
-	legsAngles[YAW] = headAngles[YAW] + movementOffsets[ dir ];
-	torsoAngles[YAW] = headAngles[YAW] + 0.25 * movementOffsets[ dir ];
+	legsAngles[YAW] = headAngles[YAW] + movementOffsets[dir];
+	torsoAngles[YAW] = headAngles[YAW] + 0.25 * movementOffsets[dir];
 
 	// torso
 	CG_SwingAngles(torsoAngles[YAW], 25, 90, cg_swingSpeed.value, &cent->pe.torso.yawAngle, &cent->pe.torso.yawing);
@@ -995,7 +995,7 @@ static void CG_PlayerAngles(centity_t *cent, vec3_t legs[3], vec3_t torso[3], ve
 	//
 	clientNum = cent->currentState.clientNum;
 	if (clientNum >= 0 && clientNum < MAX_CLIENTS) {
-		ci = &cgs.clientinfo[ clientNum ];
+		ci = &cgs.clientinfo[clientNum];
 		if (ci->model->fixedtorso) {
 			torsoAngles[PITCH] = 0.0f;
 		}
@@ -1024,7 +1024,7 @@ static void CG_PlayerAngles(centity_t *cent, vec3_t legs[3], vec3_t torso[3], ve
 	//
 	clientNum = cent->currentState.clientNum;
 	if (clientNum >= 0 && clientNum < MAX_CLIENTS) {
-		ci = &cgs.clientinfo[ clientNum ];
+		ci = &cgs.clientinfo[clientNum];
 		if (ci->model->fixedlegs) {
 			legsAngles[YAW] = torsoAngles[YAW];
 			legsAngles[PITCH] = 0.0f;
@@ -1512,7 +1512,7 @@ void CG_Player(centity_t *cent)
 	VectorCopy(cent->lerpOrigin, legs.lightingOrigin);
 	legs.shadowPlane = shadowPlane;
 	legs.renderfx = renderfx;
-	VectorCopy (legs.origin, legs.oldorigin);	// don't positionally lerp at all
+	VectorCopy(legs.origin, legs.oldorigin);	// don't positionally lerp at all
 
 	CG_AddRefEntityWithPowerups(&legs, &cent->currentState, ci->team);
 
@@ -1578,8 +1578,8 @@ void CG_ResetPlayerEntity(centity_t *cent)
 	cent->errorTime = -99999;		// guarantee no error decay added
 	cent->extrapolated = qfalse;	
 
-	CG_ClearLerpFrame(&cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.legs, cent->currentState.legsAnim);
-	CG_ClearLerpFrame(&cgs.clientinfo[ cent->currentState.clientNum ], &cent->pe.torso, cent->currentState.torsoAnim);
+	CG_ClearLerpFrame(&cgs.clientinfo[cent->currentState.clientNum], &cent->pe.legs, cent->currentState.legsAnim);
+	CG_ClearLerpFrame(&cgs.clientinfo[cent->currentState.clientNum], &cent->pe.torso, cent->currentState.torsoAnim);
 
 	BG_EvaluateTrajectory(&cent->currentState.pos, cg.time, cent->lerpOrigin);
 	BG_EvaluateTrajectory(&cent->currentState.apos, cg.time, cent->lerpAngles);

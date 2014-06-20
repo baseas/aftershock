@@ -536,15 +536,15 @@ void G_PredictPlayerStepSlideMove(gentity_t *ent, float frametime)
 	trace_t trace;
 	float stepSize;
 
-	VectorCopy (ent->s.pos.trBase, start_o);
-	VectorCopy (ent->s.pos.trDelta, start_v);
+	VectorCopy(ent->s.pos.trBase, start_o);
+	VectorCopy(ent->s.pos.trDelta, start_v);
 
 	if (!G_PredictPlayerSlideMove(ent, frametime)) {
 		// not clipped, so forget stepping
 		return;
 	}
 
-	VectorCopy (start_o, up);
+	VectorCopy(start_o, up);
 	up[2] += STEPSIZE;
 
 	// test the player position if they were a stepheight higher

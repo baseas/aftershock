@@ -395,7 +395,7 @@ static void CG_RegisterGraphics(void)
 	};
 
 	// clear any references to old media
-	memset(&cg.refdef, 0, sizeof(cg.refdef));
+	memset(&cg.refdef, 0, sizeof cg.refdef);
 	trap_R_ClearScene();
 
 	trap_R_LoadWorldMap(cgs.mapname);
@@ -547,7 +547,7 @@ static void CG_RegisterGraphics(void)
 		vec3_t			mins, maxs;
 		int				j;
 
-		Com_sprintf(name, sizeof(name), "*%i", i);
+		Com_sprintf(name, sizeof name, "*%i", i);
 		cgs.inlineDrawModel[i] = trap_R_RegisterModel(name);
 		trap_R_ModelBounds(cgs.inlineDrawModel[i], mins, maxs);
 		for (j = 0; j < 3; j++) {
@@ -566,7 +566,7 @@ static void CG_RegisterGraphics(void)
 		cgs.gameModels[i] = trap_R_RegisterModel(modelName);
 	}
 
-	CG_ClearParticles ();
+	CG_ClearParticles();
 }
 
 static void CG_RegisterSpawnpoints(void)
@@ -614,8 +614,8 @@ static void CG_RegisterItems(void)
 	char	items[MAX_ITEMS + 1];
 	int		i;
 
-	memset(cg_items, 0, sizeof(cg_items));
-	memset(cg_weapons, 0, sizeof(cg_weapons));
+	memset(cg_items, 0, sizeof cg_items);
+	memset(cg_weapons, 0, sizeof cg_weapons);
 
 	// only register the items that the server says we need
 	Q_strncpyz(items, CG_ConfigString(CS_ITEMS), sizeof items);
@@ -723,29 +723,29 @@ static void CG_RegisterSounds(void)
 	cgs.media.watrOutSound = trap_S_RegisterSound("sound/player/watr_out.wav", qfalse);
 	cgs.media.watrUnSound = trap_S_RegisterSound("sound/player/watr_un.wav", qfalse);
 
-	cgs.media.jumpPadSound = trap_S_RegisterSound ("sound/world/jumppad.wav", qfalse);
+	cgs.media.jumpPadSound = trap_S_RegisterSound("sound/world/jumppad.wav", qfalse);
 
 	for (i = 0; i<4; i++) {
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/step%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_NORMAL][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/step%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_NORMAL][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/boot%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_BOOT][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/boot%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_BOOT][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/flesh%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_FLESH][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/flesh%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_FLESH][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/mech%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_MECH][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/mech%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_MECH][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/energy%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_ENERGY][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/energy%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_ENERGY][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/splash%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/splash%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_SPLASH][i] = trap_S_RegisterSound(name, qfalse);
 
-		Com_sprintf (name, sizeof(name), "sound/player/footsteps/clank%i.wav", i+1);
-		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound (name, qfalse);
+		Com_sprintf(name, sizeof name, "sound/player/footsteps/clank%i.wav", i+1);
+		cgs.media.footsteps[FOOTSTEP_METAL][i] = trap_S_RegisterSound(name, qfalse);
 	}
 
 	for (i = 1; i < MAX_SOUNDS; i++) {
@@ -760,14 +760,14 @@ static void CG_RegisterSounds(void)
 	}
 
 	// FIXME: only needed with item
-	cgs.media.medkitSound = trap_S_RegisterSound ("sound/items/use_medkit.wav", qfalse);
+	cgs.media.medkitSound = trap_S_RegisterSound("sound/items/use_medkit.wav", qfalse);
 	cgs.media.quadSound = trap_S_RegisterSound("sound/items/damage3.wav", qfalse);
-	cgs.media.sfx_ric1 = trap_S_RegisterSound ("sound/weapons/machinegun/ric1.wav", qfalse);
-	cgs.media.sfx_ric2 = trap_S_RegisterSound ("sound/weapons/machinegun/ric2.wav", qfalse);
-	cgs.media.sfx_ric3 = trap_S_RegisterSound ("sound/weapons/machinegun/ric3.wav", qfalse);
-	//cgs.media.sfx_railg = trap_S_RegisterSound ("sound/weapons/railgun/railgf1a.wav", qfalse);
-	cgs.media.sfx_rockexp = trap_S_RegisterSound ("sound/weapons/rocket/rocklx1a.wav", qfalse);
-	cgs.media.sfx_plasmaexp = trap_S_RegisterSound ("sound/weapons/plasma/plasmx1a.wav", qfalse);
+	cgs.media.sfx_ric1 = trap_S_RegisterSound("sound/weapons/machinegun/ric1.wav", qfalse);
+	cgs.media.sfx_ric2 = trap_S_RegisterSound("sound/weapons/machinegun/ric2.wav", qfalse);
+	cgs.media.sfx_ric3 = trap_S_RegisterSound("sound/weapons/machinegun/ric3.wav", qfalse);
+	//cgs.media.sfx_railg = trap_S_RegisterSound("sound/weapons/railgun/railgf1a.wav", qfalse);
+	cgs.media.sfx_rockexp = trap_S_RegisterSound("sound/weapons/rocket/rocklx1a.wav", qfalse);
+	cgs.media.sfx_plasmaexp = trap_S_RegisterSound("sound/weapons/plasma/plasmx1a.wav", qfalse);
 
 	cgs.media.regenSound = trap_S_RegisterSound("sound/items/regen.wav", qfalse);
 	cgs.media.protectSound = trap_S_RegisterSound("sound/items/protect3.wav", qfalse);
@@ -886,7 +886,7 @@ const char *CG_ConfigString(int index)
 		CG_Error("CG_ConfigString: bad index: %i", index);
 	}
 
-	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
+	return cgs.gameState.stringData + cgs.gameState.stringOffsets[index];
 }
 
 /**
@@ -899,11 +899,11 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	const char	*s;
 
 	// clear everything
-	memset(&cgs, 0, sizeof(cgs));
-	memset(&cg, 0, sizeof(cg));
-	memset(cg_entities, 0, sizeof(cg_entities));
-	memset(cg_weapons, 0, sizeof(cg_weapons));
-	memset(cg_items, 0, sizeof(cg_items));
+	memset(&cgs, 0, sizeof cgs);
+	memset(&cg, 0, sizeof cg);
+	memset(cg_entities, 0, sizeof cg_entities);
+	memset(cg_weapons, 0, sizeof cg_weapons);
+	memset(cg_items, 0, sizeof cg_items);
 
 	for (i = 0; i < MAX_CLIENTS; ++i) {
 		cg.sortedClients[i] = i;
@@ -1066,7 +1066,7 @@ void QDECL CG_Printf(const char *msg, ...)
 	char		text[1024];
 
 	va_start (argptr, msg);
-	Q_vsnprintf (text, sizeof(text), msg, argptr);
+	Q_vsnprintf(text, sizeof text, msg, argptr);
 	va_end (argptr);
 
 	trap_Print(text);
@@ -1078,7 +1078,7 @@ void QDECL CG_Error(const char *msg, ...)
 	char		text[1024];
 
 	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
+	Q_vsnprintf(text, sizeof text, msg, argptr);
 	va_end(argptr);
 
 	trap_Error(text);
@@ -1090,7 +1090,7 @@ void QDECL Com_Error(int level, const char *error, ...)
 	char		text[1024];
 
 	va_start(argptr, error);
-	Q_vsnprintf(text, sizeof(text), error, argptr);
+	Q_vsnprintf(text, sizeof text, error, argptr);
 	va_end(argptr);
 
 	trap_Error(text);
@@ -1102,7 +1102,7 @@ void QDECL Com_Printf(const char *msg, ...)
 	char		text[1024];
 
 	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
+	Q_vsnprintf(text, sizeof text, msg, argptr);
 	va_end(argptr);
 
 	trap_Print(text);

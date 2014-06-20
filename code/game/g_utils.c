@@ -135,24 +135,27 @@ the matching string at fieldofs (use the FOFS() macro) in the structure.
 Searches beginning at the entity after from, or the beginning if NULL
 NULL will be returned if the end of the list is reached.
 */
-gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
+gentity_t *G_Find(gentity_t *from, int fieldofs, const char *match)
 {
 	char	*s;
 
-	if (!from)
+	if (!from) {
 		from = g_entities;
-	else
+	} else {
 		from++;
+	}
 
-	for (; from < &g_entities[level.num_entities]; from++)
-	{
-		if (!from->inuse)
+	for (; from < &g_entities[level.num_entities]; from++) {
+		if (!from->inuse) {
 			continue;
+		}
 		s = *(char **) ((byte *)from + fieldofs);
-		if (!s)
+		if (!s) {
 			continue;
-		if (!Q_stricmp (s, match))
+		}
+		if (!Q_stricmp (s, match)) {
 			return from;
+		}
 	}
 
 	return NULL;
@@ -167,24 +170,23 @@ gentity_t *G_PickTarget (char *targetname)
 	int		num_choices = 0;
 	gentity_t	*choice[MAXCHOICES];
 
-	if (!targetname)
-	{
+	if (!targetname) {
 		G_Printf("G_PickTarget called with NULL targetname\n");
 		return NULL;
 	}
 
-	while(1)
-	{
-		ent = G_Find (ent, FOFS(targetname), targetname);
-		if (!ent)
+	while (1) {
+		ent = G_Find(ent, FOFS(targetname), targetname);
+		if (!ent) {
 			break;
+		}
 		choice[num_choices++] = ent;
-		if (num_choices == MAXCHOICES)
+		if (num_choices == MAXCHOICES) {
 			break;
+		}
 	}
 
-	if (!num_choices)
-	{
+	if (!num_choices) {
 		G_Printf("G_PickTarget: target %s not found\n", targetname);
 		return NULL;
 	}
@@ -200,7 +202,7 @@ match (string)self.target and call their .use function
 */
 void G_UseTargets(gentity_t *ent, gentity_t *activator)
 {
-	gentity_t		*t;
+	gentity_t	*t;
 
 	if (!ent) {
 		return;
@@ -217,13 +219,13 @@ void G_UseTargets(gentity_t *ent, gentity_t *activator)
 	}
 
 	t = NULL;
-	while ((t = G_Find (t, FOFS(targetname), ent->target)) != NULL) {
+	while ((t = G_Find(t, FOFS(targetname), ent->target)) != NULL) {
 		if (t == ent) {
 			G_Printf ("WARNING: Entity used itself.\n");
-		}
-		else if (t->use) {
+		} else if (t->use) {
 			t->use (t, ent, activator);
 		}
+
 		if (!ent->inuse) {
 			G_Printf("entity was removed while using targets\n");
 			return;
@@ -237,9 +239,9 @@ for making temporary vectors for function calls
 */
 float *tv(float x, float y, float z)
 {
-	static	int		index;
-	static	vec3_t	vecs[8];
-	float	*v;
+	static int		index;
+	static vec3_t	vecs[8];
+	float			*v;
 
 	// use an array so that multiple tempvectors won't collide
 	// for a while
@@ -259,15 +261,15 @@ for printing vectors
 */
 char *vtos(const vec3_t v)
 {
-	static	int		index;
-	static	char	str[8][32];
-	char	*s;
+	static int	index;
+	static char	str[8][32];
+	char		*s;
 
 	// use an array so that multiple vtos won't collide
 	s = str[index];
-	index = (index + 1)&7;
+	index = (index + 1) & 7;
 
-	Com_sprintf (s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2]);
+	Com_sprintf(s, 32, "(%i %i %i)", (int)v[0], (int)v[1], (int)v[2]);
 
 	return s;
 }
@@ -286,11 +288,11 @@ void G_SetMovedir(vec3_t angles, vec3_t movedir)
 	static vec3_t MOVEDIR_DOWN	= {0, 0, -1};
 
 	if (VectorCompare (angles, VEC_UP)) {
-		VectorCopy (MOVEDIR_UP, movedir);
+		VectorCopy(MOVEDIR_UP, movedir);
 	} else if (VectorCompare (angles, VEC_DOWN)) {
-		VectorCopy (MOVEDIR_DOWN, movedir);
+		VectorCopy(MOVEDIR_DOWN, movedir);
 	} else {
-		AngleVectors (angles, movedir, NULL, NULL);
+		AngleVectors(angles, movedir, NULL, NULL);
 	}
 	VectorClear(angles);
 }
@@ -405,7 +407,7 @@ Marks the entity as free
 */
 void G_FreeEntity(gentity_t *ed)
 {
-	trap_UnlinkEntity (ed);		// unlink from world
+	trap_UnlinkEntity(ed);		// unlink from world
 
 	if (ed->neverFree) {
 		return;
@@ -459,7 +461,7 @@ void G_KillBox (gentity_t *ent)
 	VectorAdd(ent->client->ps.origin, ent->r.maxs, maxs);
 	num = trap_EntitiesInBox(mins, maxs, touch, MAX_GENTITIES);
 
-	for (i=0; i<num; i++) {
+	for (i = 0; i < num; i++) {
 		hit = &g_entities[touch[i]];
 		if (!hit->client) {
 			continue;
@@ -488,7 +490,7 @@ Adds an event+parm and twiddles the event counter
 */
 void G_AddEvent(gentity_t *ent, int event, int eventParm)
 {
-	int		bits;
+	int	bits;
 
 	if (!event) {
 		G_Printf("G_AddEvent: zero event added for entity %i\n", ent->s.number);
@@ -539,7 +541,7 @@ with r_debugSurface set to 2
 */
 int DebugLine(vec3_t start, vec3_t end, int color)
 {
-	vec3_t points[4], dir, cross, up = {0, 0, 1};
+	vec3_t points[4], dir, cross, up = { 0, 0, 1 };
 	float dot;
 
 	VectorCopy(start, points[0]);
@@ -551,8 +553,11 @@ int DebugLine(vec3_t start, vec3_t end, int color)
 	VectorSubtract(end, start, dir);
 	VectorNormalize(dir);
 	dot = DotProduct(dir, up);
-	if (dot > 0.99 || dot < -0.99) VectorSet(cross, 1, 0, 0);
-	else CrossProduct(dir, up, cross);
+	if (dot > 0.99 || dot < -0.99) {
+		VectorSet(cross, 1, 0, 0);
+	} else {
+		CrossProduct(dir, up, cross);
+	}
 
 	VectorNormalize(cross);
 

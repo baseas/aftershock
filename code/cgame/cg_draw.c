@@ -84,7 +84,7 @@ void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean for
 		return;
 	}
 	if (item) {
-	  CG_DrawAdjustPic(x, y, w, h, cg_items[ ITEM_INDEX(item) ].icon);
+	  CG_DrawAdjustPic(x, y, w, h, cg_items[ITEM_INDEX(item)].icon);
 	}
 }
 
@@ -201,10 +201,11 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 
 	w = (pwidth + lwidth + 4 + 7) * TINYCHAR_WIDTH;
 
-	if (right)
+	if (right) {
 		x = 640 - w;
-	else
+	} else {
 		x = 0;
+	}
 
 	h = plyrs * TINYCHAR_HEIGHT;
 
@@ -568,7 +569,7 @@ static void CG_DrawCrosshair(void)
 	if (ca < 0) {
 		ca = 0;
 	}
-	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+	hShader = cgs.media.crosshairShader[ca % NUM_CROSSHAIRS];
 
 	trap_R_DrawStretchPic(x + cg.refdef.x + 0.5 * (cg.refdef.width - w),
 		y + cg.refdef.y + 0.5 * (cg.refdef.height - h),
@@ -605,7 +606,7 @@ static void CG_DrawCrosshair3D(void)
 	if (ca < 0) {
 		ca = 0;
 	}
-	hShader = cgs.media.crosshairShader[ ca % NUM_CROSSHAIRS ];
+	hShader = cgs.media.crosshairShader[ca % NUM_CROSSHAIRS];
 
 	// Use a different method rendering the crosshair so players don't see two of them when
 	// focusing their eyes at distant objects with high stereo separation
@@ -642,12 +643,13 @@ static void CG_DrawTeamVote(void)
 	char	*s;
 	int		sec, cs_offset;
 
-	if (cgs.clientinfo[cg.clientNum].team == TEAM_RED)
+	if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
 		cs_offset = 0;
-	else if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE)
+	} else if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
 		cs_offset = 1;
-	else
+	} else {
 		return;
+	}
 
 	if (!cgs.teamVoteTime[cs_offset]) {
 		return;

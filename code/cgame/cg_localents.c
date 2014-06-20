@@ -476,8 +476,7 @@ void CG_AddScorePlum(localEntity_t *le)
 		re->shaderRGBA[0] = 0xff;
 		re->shaderRGBA[1] = 0x11;
 		re->shaderRGBA[2] = 0x11;
-	}
-	else {
+	} else {
 		re->shaderRGBA[0] = 0xff;
 		re->shaderRGBA[1] = 0xff;
 		re->shaderRGBA[2] = 0xff;
@@ -492,10 +491,12 @@ void CG_AddScorePlum(localEntity_t *le)
 		}
 
 	}
-	if (c < 0.25)
+
+	if (c < 0.25) {
 		re->shaderRGBA[3] = 0xff * 4 * c;
-	else
+	} else {
 		re->shaderRGBA[3] = 0xff;
+	}
 
 	re->radius = SCORE_PLUM_SIZE / 2;
 

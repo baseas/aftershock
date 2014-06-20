@@ -72,7 +72,7 @@ void CG_TestModel_f(void)
 		return;
 	}
 
-	Q_strncpyz (cg.testModelName, BG_Argv(1), MAX_QPATH);
+	Q_strncpyz(cg.testModelName, BG_Argv(1), MAX_QPATH);
 	cg.testModelEntity.hModel = trap_R_RegisterModel(cg.testModelName);
 
 	if (trap_Argc() == 3) {
@@ -154,7 +154,7 @@ static void CG_AddTestModel(void)
 		VectorCopy(cg.refdef.viewaxis[2], cg.testModelEntity.axis[2]);
 
 		// allow the position to be adjusted
-		for (i=0; i<3; i++) {
+		for (i = 0; i < 3; i++) {
 			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg_gun_x.value;
 			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gun_y.value;
 			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gun_z.value;
@@ -763,7 +763,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	if (!cg.hyperspace) {
 		CG_AddPacketEntities();			// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
-		CG_AddParticles ();
+		CG_AddParticles();
 		CG_AddLocalEntities();
 		CG_AddSpawnpoints();
 	}

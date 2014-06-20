@@ -56,7 +56,7 @@ void CG_BuildSolidList(void)
 	}
 
 	for (i = 0; i < snap->numEntities; i++) {
-		cent = &cg_entities[ snap->entities[ i ].number ];
+		cent = &cg_entities[snap->entities[i].number];
 		ent = &cent->currentState;
 
 		if (ent->eType == ET_ITEM || ent->eType == ET_PUSH_TRIGGER || ent->eType == ET_TELEPORT_TRIGGER) {
@@ -85,7 +85,7 @@ static void CG_ClipMoveToEntities (const vec3_t start, const vec3_t mins, const 
 	centity_t	*cent;
 
 	for (i = 0; i < cg_numSolidEntities; i++) {
-		cent = cg_solidEntities[ i ];
+		cent = cg_solidEntities[i];
 		ent = &cent->currentState;
 
 		if (ent->number == skipNumber) {
@@ -113,7 +113,7 @@ static void CG_ClipMoveToEntities (const vec3_t start, const vec3_t mins, const 
 			VectorCopy(cent->lerpOrigin, origin);
 		}
 
-		trap_CM_TransformedBoxTrace (&trace, start, end,
+		trap_CM_TransformedBoxTrace(&trace, start, end,
 			mins, maxs, cmodel,  mask, origin, angles);
 
 		if (trace.allsolid || trace.fraction < tr->fraction) {
@@ -133,7 +133,7 @@ void CG_Trace(trace_t *result, const vec3_t start, const vec3_t mins, const vec3
 {
 	trace_t	t;
 
-	trap_CM_BoxTrace (&t, start, end, mins, maxs, 0, mask);
+	trap_CM_BoxTrace(&t, start, end, mins, maxs, 0, mask);
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
 	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t);
@@ -152,7 +152,7 @@ int CG_PointContents(const vec3_t point, int passEntityNum)
 	contents = trap_CM_PointContents (point, 0);
 
 	for (i = 0; i < cg_numSolidEntities; i++) {
-		cent = cg_solidEntities[ i ];
+		cent = cg_solidEntities[i];
 
 		ent = &cent->currentState;
 
@@ -261,7 +261,7 @@ static void CG_TouchItem(centity_t *cent)
 		return;		// can't hold it
 	}
 
-	item = &bg_itemlist[ cent->currentState.modelindex ];
+	item = &bg_itemlist[cent->currentState.modelindex];
 
 	// Special case for flags.  
 	// We don't predict touching our own flag
@@ -285,9 +285,9 @@ static void CG_TouchItem(centity_t *cent)
 
 	// if it's a weapon, give them some predicted ammo so the autoswitch will work
 	if (item->giType == IT_WEAPON) {
-		cg.predictedPlayerState.stats[ STAT_WEAPONS ] |= 1 << item->giTag;
-		if (!cg.predictedPlayerState.ammo[ item->giTag ]) {
-			cg.predictedPlayerState.ammo[ item->giTag ] = 1;
+		cg.predictedPlayerState.stats[STAT_WEAPONS] |= 1 << item->giTag;
+		if (!cg.predictedPlayerState.ammo[item->giTag]) {
+			cg.predictedPlayerState.ammo[item->giTag] = 1;
 		}
 	}
 }
@@ -316,7 +316,7 @@ static void CG_TouchTriggerPrediction(void)
 	}
 
 	for (i = 0; i < cg_numTriggerEntities; i++) {
-		cent = cg_triggerEntities[ i ];
+		cent = cg_triggerEntities[i];
 		ent = &cent->currentState;
 
 		if (ent->eType == ET_ITEM && !spectator) {
@@ -375,7 +375,6 @@ playerState_t during prediction.
 
 We detect prediction errors and allow them to be decayed off over several frames
 to ease the jerk.
-=================
 */
 void CG_PredictPlayerState(void)
 {
@@ -434,8 +433,9 @@ void CG_PredictPlayerState(void)
 	// the last good position we had
 	cmdNum = current - CMD_BACKUP + 1;
 	trap_GetUserCmd(cmdNum, &oldestCmd);
-	if (oldestCmd.serverTime > cg.snap->ps.commandTime 
-		&& oldestCmd.serverTime < cg.time) {	// special check for map_restart
+	if (oldestCmd.serverTime > cg.snap->ps.commandTime
+		&& oldestCmd.serverTime < cg.time)	// special check for map_restart
+	{
 		if (cg_showmiss.integer) {
 			CG_Printf ("exceeded PACKET_BACKUP on commands\n");
 		}
@@ -459,8 +459,7 @@ void CG_PredictPlayerState(void)
 
 	if (pmove_msec.integer < 8) {
 		trap_Cvar_Set("pmove_msec", "8");
-	}
-	else if (pmove_msec.integer > 33) {
+	} else if (pmove_msec.integer > 33) {
 		trap_Cvar_Set("pmove_msec", "33");
 	}
 
@@ -549,7 +548,7 @@ void CG_PredictPlayerState(void)
 			cg_pmove.cmd.serverTime = ((cg_pmove.cmd.serverTime + pmove_msec.integer-1) / pmove_msec.integer) * pmove_msec.integer;
 		}
 
-		Pmove (&cg_pmove);
+		Pmove(&cg_pmove);
 
 		moved = qtrue;
 

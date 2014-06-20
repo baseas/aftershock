@@ -40,15 +40,15 @@ void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing)
 	float		len;
 	int			i;
 
-	VectorCopy (start, move);
-	VectorSubtract (end, start, vec);
-	len = VectorNormalize (vec);
+	VectorCopy(start, move);
+	VectorSubtract(end, start, vec);
+	len = VectorNormalize(vec);
 
 	// advance a random amount first
-	i = rand() % (int)spacing;
+	i = rand() % (int) spacing;
 	VectorMA(move, i, vec, move);
 
-	VectorScale (vec, spacing, vec);
+	VectorScale(vec, spacing, vec);
 
 	for (; i < len; i += spacing) {
 		localEntity_t	*le;
@@ -78,11 +78,11 @@ void CG_BubbleTrail(vec3_t start, vec3_t end, float spacing)
 		le->pos.trType = TR_LINEAR;
 		le->pos.trTime = cg.time;
 		VectorCopy(move, le->pos.trBase);
-		le->pos.trDelta[0] = crandom()*5;
-		le->pos.trDelta[1] = crandom()*5;
-		le->pos.trDelta[2] = crandom()*5 + 6;
+		le->pos.trDelta[0] = crandom() * 5;
+		le->pos.trDelta[1] = crandom() * 5;
+		le->pos.trDelta[2] = crandom() * 5 + 6;
 
-		VectorAdd (move, vec, move);
+		VectorAdd(move, vec, move);
 	}
 }
 
@@ -112,8 +112,7 @@ localEntity_t *CG_SmokePuff(const vec3_t p, const vec3_t vel, float radius, vec4
 	le->endTime = startTime + duration;
 	if (fadeInTime > startTime) {
 		le->lifeRate = 1.0 / (le->endTime - le->fadeInTime);
-	}
-	else {
+	} else {
 		le->lifeRate = 1.0 / (le->endTime - le->startTime);
 	}
 
@@ -290,7 +289,7 @@ void CG_Bleed(vec3_t origin, int entityNum)
 	ex->startTime = cg.time;
 	ex->endTime = ex->startTime + 500;
 
-	VectorCopy (origin, ex->refEntity.origin);
+	VectorCopy(origin, ex->refEntity.origin);
 	ex->refEntity.reType = RT_SPRITE;
 	ex->refEntity.rotation = rand() % 360;
 	ex->refEntity.radius = 24;

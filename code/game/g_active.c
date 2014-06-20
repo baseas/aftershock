@@ -290,7 +290,7 @@ void SpectatorThink(gentity_t *ent, usercmd_t *ucmd)
 		client->ps.speed = 400;	// faster than normal
 
 		// set up for pmove
-		memset (&pm, 0, sizeof(pm));
+		memset(&pm, 0, sizeof(pm));
 		pm.ps = &client->ps;
 		pm.cmd = *ucmd;
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;	// spectators can fly through bodies
@@ -298,7 +298,7 @@ void SpectatorThink(gentity_t *ent, usercmd_t *ucmd)
 		pm.pointcontents = trap_PointContents;
 
 		// perform a pmove
-		Pmove (&pm);
+		Pmove(&pm);
 		// save results of pmove
 		VectorCopy(client->ps.origin, ent->s.origin);
 
@@ -661,7 +661,7 @@ void ClientThink_real(gentity_t *ent)
 	// set up for pmove
 	oldEventSequence = client->ps.eventSequence;
 
-	memset (&pm, 0, sizeof(pm));
+	memset(&pm, 0, sizeof(pm));
 
 	// check for the hit-scan gauntlet, don't let the action
 	// go through as an attack unless it actually hits something
@@ -717,8 +717,8 @@ void ClientThink_real(gentity_t *ent)
 	// use the snapped origin for linking so it matches client predicted versions
 	VectorCopy(ent->s.pos.trBase, ent->r.currentOrigin);
 
-	VectorCopy (pm.mins, ent->r.mins);
-	VectorCopy (pm.maxs, ent->r.maxs);
+	VectorCopy(pm.mins, ent->r.mins);
+	VectorCopy(pm.maxs, ent->r.maxs);
 
 	ent->waterlevel = pm.waterlevel;
 	ent->watertype = pm.watertype;
@@ -898,10 +898,10 @@ void ClientEndFrame(gentity_t *ent)
 	}
 
 	// burn from lava, etc
-	P_WorldEffects (ent);
+	P_WorldEffects(ent);
 
 	// apply all the damage taken this frame
-	P_DamageFeedback (ent);
+	P_DamageFeedback(ent);
 
 	// add the EF_CONNECTION flag if we haven't gotten commands recently
 	if (level.time - ent->client->lastCmdTime > 1000) {
@@ -912,7 +912,7 @@ void ClientEndFrame(gentity_t *ent)
 
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
-	G_SetClientSound (ent);
+	G_SetClientSound(ent);
 
 	// set the latest infor
 	if (g_smoothClients.integer) {

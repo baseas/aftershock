@@ -21,9 +21,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #define INVENTORY_NONE				0
-//armor
+
+// armor
 #define INVENTORY_ARMOR				1
-//weapons
+
+// weapons
 #define INVENTORY_GAUNTLET			4
 #define INVENTORY_SHOTGUN			5
 #define INVENTORY_MACHINEGUN		6
@@ -34,7 +36,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_PLASMAGUN			11
 #define INVENTORY_BFG10K			13
 #define INVENTORY_GRAPPLINGHOOK		14
-//ammo
+
+// ammo
 #define INVENTORY_SHELLS			15
 #define INVENTORY_BULLETS			16
 #define INVENTORY_GRENADES			17
@@ -43,7 +46,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define INVENTORY_ROCKETS			20
 #define INVENTORY_SLUGS				21
 #define INVENTORY_BFGAMMO			22
-//powerups
+
+// powerups
 #define INVENTORY_HEALTH			23
 #define INVENTORY_TELEPORTER		24
 #define INVENTORY_MEDKIT			25
@@ -55,13 +59,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define INVENTORY_REDFLAG			31
 #define INVENTORY_BLUEFLAG			32
-//enemy stuff
+
+// enemy stuff
 #define ENEMY_HORIZONTAL_DIST		200
 #define ENEMY_HEIGHT				201
 #define NUM_VISIBLE_ENEMIES			202
 #define NUM_VISIBLE_TEAMMATES		203
 
-//item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
+// item numbers (make sure they are in sync with bg_itemlist in bg_misc.c)
 #define MODELINDEX_ARMORSHARD		1
 #define MODELINDEX_ARMORJACKET		2
 #define MODELINDEX_ARMORCOMBAT		3

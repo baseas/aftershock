@@ -44,7 +44,7 @@ static int	propMap[128][3] = {
 {153, 122, 18},	// &
 {9, 93, 7},		// '
 {207, 122, 8},	// (
-{230, 122, 9},	//)
+{230, 122, 9},	// )
 {177, 122, 18},	// *
 {30, 152, 18},	// +
 {85, 181, 7},	// ,
@@ -546,7 +546,7 @@ void UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t 
 
 	sizeScale = UI_ProportionalSizeScale(style);
 
-	switch(style & UI_FORMATMASK) {
+	switch (style & UI_FORMATMASK) {
 		case UI_CENTER:
 			width = UI_ProportionalStringWidth(str) * sizeScale;
 			x -= width / 2;

@@ -121,28 +121,25 @@ static void UpdateIPBans(void)
 	char	ip[64];
 
 	*iplist_final = 0;
-	for (i = 0; i < numIPFilters; i++)
-	{
-		if (ipFilters[i].compare == 0xffffffff)
+	for (i = 0; i < numIPFilters; i++) {
+		if (ipFilters[i].compare == 0xffffffff) {
 			continue;
+		}
 
 		*(unsigned *)b = ipFilters[i].compare;
 		*(unsigned *)m = ipFilters[i].mask;
 		*ip = 0;
-		for (j = 0; j < 4; j++)
-		{
-			if (m[j]!=255)
-				Q_strcat(ip, sizeof(ip), "*");
-			else
-				Q_strcat(ip, sizeof(ip), va("%i", b[j]));
-			Q_strcat(ip, sizeof(ip), (j<3) ? "." : " ");
+		for (j = 0; j < 4; j++) {
+			if (m[j] != 255) {
+				Q_strcat(ip, sizeof ip, "*");
+			} else {
+				Q_strcat(ip, sizeof ip, va("%i", b[j]));
+			}
+			Q_strcat(ip, sizeof ip, (j < 3) ? "." : " ");
 		}
-		if (strlen(iplist_final)+strlen(ip) < MAX_CVAR_VALUE_STRING)
-		{
-			Q_strcat(iplist_final, sizeof(iplist_final), ip);
-		}
-		else
-		{
+		if (strlen(iplist_final) + strlen(ip) < MAX_CVAR_VALUE_STRING) {
+			Q_strcat(iplist_final, sizeof iplist_final, ip);
+		} else {
 			Com_Printf("g_banIPs overflowed at MAX_CVAR_VALUE_STRING\n");
 			break;
 		}
@@ -166,16 +163,19 @@ qboolean G_FilterPacket(char *from)
 			m[i] = m[i]*10 + (*p - '0');
 			p++;
 		}
-		if (!*p || *p == ':')
+		if (!*p || *p == ':') {
 			break;
+		}
 		i++, p++;
 	}
 
 	in = *(unsigned *)m;
 
-	for (i = 0; i<numIPFilters; i++)
-		if ((in & ipFilters[i].mask) == ipFilters[i].compare)
+	for (i = 0; i<numIPFilters; i++) {
+		if ((in & ipFilters[i].mask) == ipFilters[i].compare) {
 			return g_filterBan.integer != 0;
+		}
+	}
 
 	return g_filterBan.integer == 0;
 }
@@ -184,40 +184,45 @@ static void AddIP(const char *str)
 {
 	int		i;
 
-	for (i = 0; i < numIPFilters; i++)
-		if (ipFilters[i].compare == 0xffffffff)
+	for (i = 0; i < numIPFilters; i++) {
+		if (ipFilters[i].compare == 0xffffffff) {
 			break;		// free spot
-	if (i == numIPFilters)
-	{
-		if (numIPFilters == MAX_IPFILTERS)
-		{
+		}
+	}
+
+	if (i == numIPFilters) {
+		if (numIPFilters == MAX_IPFILTERS) {
 			G_Printf ("IP filter list is full\n");
 			return;
 		}
 		numIPFilters++;
 	}
 
-	if (!StringToFilter (str, &ipFilters[i]))
+	if (!StringToFilter (str, &ipFilters[i])) {
 		ipFilters[i].compare = 0xffffffffu;
+	}
 
 	UpdateIPBans();
 }
 
 void G_ProcessIPBans(void)
 {
-	char *s, *t;
-	char		str[MAX_CVAR_VALUE_STRING];
+	char	*s, *t;
+	char	str[MAX_CVAR_VALUE_STRING];
 
-	Q_strncpyz(str, g_banIPs.string, sizeof(str));
+	Q_strncpyz(str, g_banIPs.string, sizeof str);
 
 	for (t = s = g_banIPs.string; *t; /* */) {
 		s = strchr(s, ' ');
-		if (!s)
+		if (!s) {
 			break;
-		while (*s == ' ')
+		}
+		while (*s == ' ') {
 			*s++ = 0;
-		if (*t)
+		}
+		if (*t) {
 			AddIP(t);
+		}
 		t = s;
 	}
 }

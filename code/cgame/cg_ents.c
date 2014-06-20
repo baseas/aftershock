@@ -36,10 +36,10 @@ static void CG_EntityEffects(centity_t *cent)
 	if (cent->currentState.loopSound) {
 		if (cent->currentState.eType != ET_SPEAKER) {
 			trap_S_AddLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
-				cgs.gameSounds[ cent->currentState.loopSound ]);
+				cgs.gameSounds[cent->currentState.loopSound]);
 		} else {
 			trap_S_AddRealLoopingSound(cent->currentState.number, cent->lerpOrigin, vec3_origin,
-				cgs.gameSounds[ cent->currentState.loopSound ]);
+				cgs.gameSounds[cent->currentState.loopSound]);
 		}
 	}
 
@@ -72,7 +72,7 @@ static void CG_General(centity_t *cent)
 		return;
 	}
 
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 
 	// set frame
 
@@ -111,7 +111,7 @@ static void CG_Speaker(centity_t *cent)
 		return;
 	}
 
-	trap_S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm]);
+	trap_S_StartSound(NULL, cent->currentState.number, CHAN_ITEM, cgs.gameSounds[cent->currentState.eventParm]);
 
 	//	ent->s.frame = ent->wait * 10;
 	//	ent->s.clientNum = ent->random * 10;
@@ -138,9 +138,9 @@ static void CG_Item(centity_t *cent)
 		return;
 	}
 
-	item = &bg_itemlist[ es->modelindex ];
+	item = &bg_itemlist[es->modelindex];
 	if (cg_simpleItems.integer && item->giType != IT_TEAM) {
-		memset(&ent, 0, sizeof(ent));
+		memset(&ent, 0, sizeof ent);
 		ent.reType = RT_SPRITE;
 		VectorCopy(cent->lerpOrigin, ent.origin);
 		ent.radius = 14;
@@ -164,7 +164,7 @@ static void CG_Item(centity_t *cent)
 		cent->lerpOrigin[2] += 4;
 	}
 
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 
 	// autorotate at one of two speeds
 	if (cg_itemFX.integer & 2) {
@@ -313,7 +313,7 @@ static void CG_Missile(centity_t *cent)
 	}
 
 	// create the render entity
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
@@ -383,7 +383,7 @@ static void CG_Grapple(centity_t *cent)
 	CG_GrappleTrail (cent, weapon);
 
 	// create the render entity
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 
@@ -408,7 +408,7 @@ static void CG_Mover(centity_t *cent)
 	s1 = &cent->currentState;
 
 	// create the render entity
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(cent->lerpOrigin, ent.oldorigin);
 	AnglesToAxis(cent->lerpAngles, ent.axis);
@@ -445,7 +445,7 @@ static void CG_Portal(centity_t *cent)
 	s1 = &cent->currentState;
 
 	// create the render entity
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 	VectorCopy(cent->lerpOrigin, ent.origin);
 	VectorCopy(s1->origin2, ent.oldorigin);
 	ByteToDir(s1->eventParm, ent.axis[0]);
@@ -672,7 +672,7 @@ void CG_SetEntitySoundPosition(centity_t *cent)
 		vec3_t	origin;
 		float	*v;
 
-		v = cgs.inlineModelMidpoints[ cent->currentState.modelindex ];
+		v = cgs.inlineModelMidpoints[cent->currentState.modelindex];
 		VectorAdd(cent->lerpOrigin, v, origin);
 		trap_S_UpdateEntityPosition(cent->currentState.number, origin);
 	} else {
@@ -719,11 +719,11 @@ void CG_AddPacketEntities(void)
 	CG_AddCEntity(&cg.predictedPlayerEntity);
 
 	// lerp the non-predicted value for lightning gun origins
-	CG_CalcEntityLerpPositions(&cg_entities[ cg.snap->ps.clientNum ]);
+	CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 
 	// add each entity sent over by the server
 	for (num = 0; num < cg.snap->numEntities; num++) {
-		cent = &cg_entities[ cg.snap->entities[ num ].number ];
+		cent = &cg_entities[cg.snap->entities[num].number];
 		CG_AddCEntity(cent);
 	}
 }
@@ -739,7 +739,7 @@ void CG_Beam(centity_t *cent)
 	s1 = &cent->currentState;
 
 	// create the render entity
-	memset (&ent, 0, sizeof(ent));
+	memset(&ent, 0, sizeof ent);
 	VectorCopy(s1->pos.trBase, ent.origin);
 	VectorCopy(s1->origin2, ent.oldorigin);
 	AxisClear(ent.axis);
@@ -767,7 +767,7 @@ void CG_AdjustPositionForMover(const vec3_t in, int moverNum, int fromTime,
 		return;
 	}
 
-	cent = &cg_entities[ moverNum ];
+	cent = &cg_entities[moverNum];
 	if (cent->currentState.eType != ET_MOVER) {
 		VectorCopy(in, out);
 		VectorCopy(angles_in, angles_out);

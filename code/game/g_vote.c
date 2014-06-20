@@ -177,20 +177,20 @@ static int Vote_Custom(gentity_t *ent, customVote_t *vote)
 	return 0;
 }
 
-	struct {
-		const char	*cmd;
-		int			(*func)(gentity_t *ent);
-	} voteCommands[] = {
-		{ "map_restart", Vote_MapRestart },
-		{ "nextmap", Vote_Nextmap },
-		{ "map", Vote_Map },
-		{ "gametype", Vote_Gametype },
-		{ "kick", Vote_Kick },
-		{ "shuffle", Vote_Shuffle },
-		{ "forceteam", Vote_ForceTeam },
-		{ "mute", Vote_Mute },
-		{ NULL, 0 }
-	};
+struct {
+	const char	*cmd;
+	int			(*func)(gentity_t *ent);
+} voteCommands[] = {
+	{ "map_restart", Vote_MapRestart },
+	{ "nextmap", Vote_Nextmap },
+	{ "map", Vote_Map },
+	{ "gametype", Vote_Gametype },
+	{ "kick", Vote_Kick },
+	{ "shuffle", Vote_Shuffle },
+	{ "forceteam", Vote_ForceTeam },
+	{ "mute", Vote_Mute },
+	{ NULL, 0 }
+};
 
 static void G_VotePrintCommands(gentity_t *ent)
 {
@@ -368,7 +368,7 @@ void G_Vote_UpdateCount(void)
 	no = 0;
 	level.numVotingClients = 0;
 
-	for (i = 0 ; i < level.maxclients ; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (level.clients[i].pers.connected != CON_CONNECTED) {
 			continue;
 		}

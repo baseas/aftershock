@@ -69,9 +69,9 @@ static void LookAtKiller(gentity_t *self, gentity_t *inflictor, gentity_t *attac
 	vec3_t		dir;
 
 	if (attacker && attacker != self) {
-		VectorSubtract (attacker->s.pos.trBase, self->s.pos.trBase, dir);
+		VectorSubtract(attacker->s.pos.trBase, self->s.pos.trBase, dir);
 	} else if (inflictor && inflictor != self) {
-		VectorSubtract (inflictor->s.pos.trBase, self->s.pos.trBase, dir);
+		VectorSubtract(inflictor->s.pos.trBase, self->s.pos.trBase, dir);
 	} else {
 		self->client->ps.stats[STAT_DEAD_YAW] = self->s.angles[YAW];
 		return;
@@ -725,7 +725,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			VectorCopy(dir, client->damage_from);
 			client->damage_fromWorld = qfalse;
 		} else {
-			VectorCopy (targ->r.currentOrigin, client->damage_from);
+			VectorCopy(targ->r.currentOrigin, client->damage_from);
 			client->damage_fromWorld = qtrue;
 		}
 	}
@@ -749,11 +749,13 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 		}
 
 		if (targ->health <= 0) {
-			if (client)
+			if (client) {
 				targ->flags |= FL_NO_KNOCKBACK;
+			}
 
-			if (targ->health < -999)
+			if (targ->health < -999) {
 				targ->health = -999;
+			}
 
 			targ->enemy = attacker;
 			targ->die(targ, inflictor, attacker, take, mod);
@@ -779,8 +781,8 @@ qboolean CanDamage (gentity_t *targ, vec3_t origin)
 
 	// use the midpoint of the bounds instead of the origin, because
 	// bmodels may have their origin is 0,0,0
-	VectorAdd (targ->r.absmin, targ->r.absmax, midpoint);
-	VectorScale (midpoint, 0.5, midpoint);
+	VectorAdd(targ->r.absmin, targ->r.absmax, midpoint);
+	VectorScale(midpoint, 0.5, midpoint);
 
 	VectorCopy(midpoint, dest);
 	trap_Trace(&tr, origin, vec3_origin, vec3_origin, dest, ENTITYNUM_NONE, MASK_SOLID);

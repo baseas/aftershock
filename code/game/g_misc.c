@@ -95,7 +95,7 @@ void TeleportPlayer(gentity_t *player, vec3_t origin, vec3_t angles)
 	// unlink to make sure it can't possibly interfere with G_KillBox
 	trap_UnlinkEntity (player);
 
-	VectorCopy (origin, player->client->ps.origin);
+	VectorCopy(origin, player->client->ps.origin);
 	player->client->ps.origin[2] += 1;
 	if (!noAngles) {
 		// spit the player out
@@ -110,7 +110,7 @@ void TeleportPlayer(gentity_t *player, vec3_t origin, vec3_t angles)
 	player->client->ps.eFlags ^= EF_TELEPORT_BIT;
 	// kill anything at the destination
 	if (player->client->sess.sessionTeam != TEAM_SPECTATOR) {
-		G_KillBox (player);
+		G_KillBox(player);
 	}
 
 	// save results of pmove

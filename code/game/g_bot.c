@@ -177,8 +177,7 @@ void G_AddRandomBot(int team)
 	num = 0;
 	for (n = 0; n < g_numBots; n++) {
 		value = Info_ValueForKey(g_botInfos[n], "name");
-		//
-		for (i=0; i< g_maxclients.integer; i++) {
+		for (i = 0; i < g_maxclients.integer; i++) {
 			cl = level.clients + i;
 			if (cl->pers.connected != CON_CONNECTED) {
 				continue;
@@ -200,8 +199,7 @@ void G_AddRandomBot(int team)
 	num = random() * num;
 	for (n = 0; n < g_numBots; n++) {
 		value = Info_ValueForKey(g_botInfos[n], "name");
-		//
-		for (i=0; i< g_maxclients.integer; i++) {
+		for (i = 0; i < g_maxclients.integer; i++) {
 			cl = level.clients + i;
 			if (cl->pers.connected != CON_CONNECTED) {
 				continue;
@@ -237,7 +235,7 @@ int G_RemoveRandomBot(int team)
 	int i;
 	gclient_t	*cl;
 
-	for (i=0; i< g_maxclients.integer; i++) {
+	for (i = 0; i < g_maxclients.integer; i++) {
 		cl = level.clients + i;
 		if (cl->pers.connected != CON_CONNECTED) {
 			continue;
@@ -260,7 +258,7 @@ int G_CountHumanPlayers(int team)
 	gclient_t	*cl;
 
 	num = 0;
-	for (i=0; i< g_maxclients.integer; i++) {
+	for (i = 0; i < g_maxclients.integer; i++) {
 		cl = level.clients + i;
 		if (cl->pers.connected != CON_CONNECTED) {
 			continue;
@@ -282,7 +280,7 @@ int G_CountBotPlayers(int team)
 	gclient_t	*cl;
 
 	num = 0;
-	for (i=0; i< g_maxclients.integer; i++) {
+	for (i = 0; i < g_maxclients.integer; i++) {
 		cl = level.clients + i;
 		if (cl->pers.connected != CON_CONNECTED) {
 			continue;

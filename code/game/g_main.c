@@ -231,7 +231,7 @@ void QDECL G_Printf(const char *fmt, ...)
 	char		text[1024];
 
 	va_start (argptr, fmt);
-	Q_vsnprintf (text, sizeof(text), fmt, argptr);
+	Q_vsnprintf(text, sizeof(text), fmt, argptr);
 	va_end (argptr);
 
 	trap_Print(text);
@@ -243,7 +243,7 @@ void QDECL G_Error(const char *fmt, ...)
 	char		text[1024];
 
 	va_start (argptr, fmt);
-	Q_vsnprintf (text, sizeof(text), fmt, argptr);
+	Q_vsnprintf(text, sizeof(text), fmt, argptr);
 	va_end (argptr);
 
 	trap_Error(text);
@@ -530,7 +530,7 @@ void QDECL Com_Error (int level, const char *error, ...)
 	char		text[1024];
 
 	va_start (argptr, error);
-	Q_vsnprintf (text, sizeof(text), error, argptr);
+	Q_vsnprintf(text, sizeof(text), error, argptr);
 	va_end (argptr);
 
 	trap_Error(text);
@@ -542,7 +542,7 @@ void QDECL Com_Printf(const char *msg, ...)
 	char		text[1024];
 
 	va_start (argptr, msg);
-	Q_vsnprintf (text, sizeof(text), msg, argptr);
+	Q_vsnprintf(text, sizeof(text), msg, argptr);
 	va_end (argptr);
 
 	trap_Print(text);
@@ -888,7 +888,7 @@ void MoveClientToIntermission(gentity_t *ent)
 	// move to the spot
 	VectorCopy(level.intermission_origin, ent->s.origin);
 	VectorCopy(level.intermission_origin, ent->client->ps.origin);
-	VectorCopy (level.intermission_angle, ent->client->ps.viewangles);
+	VectorCopy(level.intermission_angle, ent->client->ps.viewangles);
 	ent->client->ps.pm_type = PM_INTERMISSION;
 
 	// clean up powerup info
@@ -912,12 +912,12 @@ void FindIntermissionPoint(void)
 	vec3_t		dir;
 
 	// find the intermission spot
-	ent = G_Find (NULL, FOFS(classname), "info_player_intermission");
+	ent = G_Find(NULL, FOFS(classname), "info_player_intermission");
 	if (!ent) {	// the map creator forgot to put in an intermission point...
 		SelectSpawnPoint (vec3_origin, level.intermission_origin, level.intermission_angle, qfalse);
 	} else {
-		VectorCopy (ent->s.origin, level.intermission_origin);
-		VectorCopy (ent->s.angles, level.intermission_angle);
+		VectorCopy(ent->s.origin, level.intermission_origin);
+		VectorCopy(ent->s.angles, level.intermission_angle);
 		// if it has a target, look towards it
 		if (ent->target) {
 			target = G_PickTarget(ent->target);
@@ -1304,7 +1304,7 @@ void CheckExitRules(void)
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
 	if (level.intermissiontime) {
-		CheckIntermissionExit ();
+		CheckIntermissionExit();
 		return;
 	}
 
@@ -1775,12 +1775,13 @@ void CheckTeamVote(int team)
 {
 	int		cs_offset;
 
-	if (team == TEAM_RED)
+	if (team == TEAM_RED) {
 		cs_offset = 0;
-	else if (team == TEAM_BLUE)
+	} else if (team == TEAM_BLUE) {
 		cs_offset = 1;
-	else
+	} else {
 		return;
+	}
 
 	if (!level.teamVoteTime[cs_offset]) {
 		return;
