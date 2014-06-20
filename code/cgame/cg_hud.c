@@ -1197,7 +1197,7 @@ static void Hud_Netgraph(int hudnumber)
 
 	trap_R_SetColor(NULL);
 
-	if (cg_nopredict.integer || cg_synchronousClients.integer) {
+	if (cg_nopredict.integer) {
 		CG_DrawBigString(ax, ay, "snc", 1.0);
 	}
 }

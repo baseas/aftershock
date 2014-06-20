@@ -138,7 +138,6 @@ vmCvar_t	cg_thirdPersonRange;
 vmCvar_t	cg_thirdPersonAngle;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
-vmCvar_t	cg_synchronousClients;
 vmCvar_t	cg_chatTime;
 vmCvar_t	cg_teamChatTime;
 vmCvar_t	cg_deathNoticeTime;
@@ -288,7 +287,6 @@ static cvarTable_t cvarTable[] = {
 	// but we also reference them here
 	{ &cg_buildScript, "com_buildScript" },	// force loading of all possible data amd error on failures
 	{ &cg_paused, "cl_paused" },
-	{ &cg_synchronousClients, "g_synchronousClients" },
 	{ &cg_cameraOrbit, "cg_cameraOrbit" },
 	{ &cg_cameraOrbitDelay, "cg_cameraOrbitDelay" },
 	{ &cg_timescaleFadeEnd, "cg_timescaleFadeEnd" },
