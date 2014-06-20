@@ -775,7 +775,7 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match)
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum) {
 			return;
 		}
@@ -796,7 +796,7 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match)
 	bs->teammessage_time = FloatTime() + 2 * random();
 	bs->ltgtype = LTG_GETFLAG;
 	bs->teamgoal_time = FloatTime() + CTF_GETFLAG_TIME;
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		// get an alternative route goal towards the enemy base
 		BotGetAlternateRouteGoal(bs, BotOppositeTeam(bs));
 	}
@@ -812,7 +812,7 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match)
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		BotMatch_GetFlag(bs, match);
 	} else {
 		return;
@@ -844,7 +844,7 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match)
 	char netname[MAX_MESSAGE_SIZE];
 	int client;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		if (!ctf_redflag.areanum || !ctf_blueflag.areanum) {
 			return;
 		}
@@ -923,7 +923,7 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match)
 	int client;
 
 	// if not in CTF mode
-	if (gametype != GT_CTF) {
+	if (g_gametype.integer != GT_CTF) {
 		return;
 	}
 
@@ -1349,7 +1349,7 @@ void BotMatch_WhereAreYou(bot_state_t *bs, bot_match_t *match)
 	}
 
 	if (bestitem != -1) {
-		if (gametype == GT_CTF) {
+		if (g_gametype.integer == GT_CTF) {
 			redtt = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, ctf_redflag.areanum, TFL_DEFAULT);
 			bluett = trap_AAS_AreaTravelTimeToGoalArea(bs->areanum, bs->origin, ctf_blueflag.areanum, TFL_DEFAULT);
 			if (redtt < (redtt + bluett) * 0.4) {
@@ -1464,10 +1464,9 @@ void BotMatch_Kill(bot_state_t *bs, bot_match_t *match)
 
 void BotMatch_CTF(bot_state_t *bs, bot_match_t *match)
 {
-
 	char flag[128], netname[MAX_NETNAME];
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		trap_BotMatchVariable(match, FLAG, flag, sizeof flag);
 		if (match->subtype & ST_GOTFLAG) {
 			if (!Q_stricmp(flag, "red")) {

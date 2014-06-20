@@ -114,7 +114,7 @@ int BotSortTeamMatesByBaseTravelTime(bot_state_t *bs, int *teammates, int maxtea
 	int traveltimes[MAX_CLIENTS];
 	bot_goal_t *goal = NULL;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		if (BotTeam(bs) == TEAM_RED) {
 			goal = &ctf_redflag;
 		} else {
@@ -822,7 +822,7 @@ void BotTeamAI(bot_state_t *bs)
 	int numteammates;
 	char netname[MAX_NETNAME];
 
-	if (gametype < GT_TEAM) {
+	if (g_gametype.integer < GT_TEAM) {
 		return;
 	}
 
@@ -867,7 +867,7 @@ void BotTeamAI(bot_state_t *bs)
 	}
 
 	numteammates = BotNumTeamMates(bs);
-	switch (gametype) {
+	switch (g_gametype.integer) {
 		case GT_TEAM:
 		{
 			if (bs->numteammates != numteammates || bs->forceorders) {

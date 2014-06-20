@@ -58,10 +58,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 bot_waypoint_t botai_waypoints[MAX_WAYPOINTS];
 bot_waypoint_t *botai_freewaypoints;
 
-// NOTE: not using a cvars which can be updated because the game should be reloaded anyway
-int gametype;		// game type
-int maxclients;		// maximum number of clients
-
 vmCvar_t bot_grapple;
 vmCvar_t bot_rocketjump;
 vmCvar_t bot_fastchat;
@@ -100,7 +96,7 @@ void BotSetUserInfo(bot_state_t *bs, char *key, char *value)
 
 int BotCTFCarryingFlag(bot_state_t *bs)
 {
-	if (gametype != GT_CTF) {
+	if (g_gametype.integer != GT_CTF) {
 		return CTF_FLAG_NONE;
 	}
 
@@ -228,7 +224,7 @@ void BotRememberLastOrderedTask(bot_state_t *bs)
 
 int BotSetLastOrderedTask(bot_state_t *bs)
 {
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		// don't go back to returning the flag if it's at the base
 		if (bs->lastgoal_ltgtype == LTG_RETURNFLAG) {
 			if (BotTeam(bs) == TEAM_RED) {
@@ -251,7 +247,7 @@ int BotSetLastOrderedTask(bot_state_t *bs)
 		bs->teammate = bs->lastgoal_teammate;
 		bs->teamgoal_time = FloatTime() + 300;
 
-		if (gametype == GT_CTF) {
+		if (g_gametype.integer == GT_CTF) {
 			if (bs->ltgtype == LTG_GETFLAG) {
 				bot_goal_t *tb, *eb;
 				int tt, et;
@@ -589,15 +585,13 @@ void BotCTFRetreatGoals(bot_state_t *bs)
 void BotTeamGoals(bot_state_t *bs, int retreat)
 {
 	if (retreat) {
-		if (gametype == GT_CTF) {
+		if (g_gametype.integer == GT_CTF) {
 			BotCTFRetreatGoals(bs);
 		}
-	} else {
-		if (gametype == GT_CTF) {
-			// decide what to do in CTF mode
-			BotCTFSeekGoals(bs);
-		}
+	} else if (g_gametype.integer == GT_CTF) {
+		BotCTFSeekGoals(bs);
 	}
+
 	// reset the order time which is used to see if
 	// we decided to refuse an order
 	bs->order_time = 0;
@@ -640,12 +634,8 @@ int ClientFromName(char *name)
 {
 	int i;
 	char buf[MAX_INFO_STRING];
-	static int maxclients;
 
-	if (!maxclients) {
-		maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
-	}
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		trap_GetConfigstring(CS_PLAYERS+i, buf, sizeof buf);
 		Q_CleanStr(buf);
 		if (!Q_stricmp(Info_ValueForKey(buf, "n"), name)) {
@@ -659,12 +649,8 @@ int ClientOnSameTeamFromName(bot_state_t *bs, char *name)
 {
 	int i;
 	char buf[MAX_INFO_STRING];
-	static int maxclients;
 
-	if (!maxclients) {
-		maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
-	}
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (!BotSameTeam(bs, i)) {
 			continue;
 		}
@@ -750,7 +736,7 @@ int BotSynonymContext(bot_state_t *bs)
 
 	context = CONTEXT_NORMAL|CONTEXT_NEARBYITEM|CONTEXT_NAMES;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		if (BotTeam(bs) == TEAM_RED) context |= CONTEXT_CTFREDTEAM;
 		else context |= CONTEXT_CTFBLUETEAM;
 	}
@@ -988,7 +974,7 @@ void BotInitWaypoints(void)
 
 int TeamPlayIsOn(void)
 {
-	return (gametype >= GT_TEAM);
+	return (g_gametype.integer >= GT_TEAM);
 }
 
 float BotAggression(bot_state_t *bs)
@@ -1079,7 +1065,7 @@ int BotWantsToRetreat(bot_state_t *bs)
 {
 	aas_entityinfo_t entinfo;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		// always retreat when carrying a CTF flag
 		if (BotCTFCarryingFlag(bs)) {
 			return qtrue;
@@ -1107,7 +1093,7 @@ int BotWantsToChase(bot_state_t *bs)
 {
 	aas_entityinfo_t entinfo;
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		// never chase when carrying a CTF flag
 		if (BotCTFCarryingFlag(bs)) {
 			return qfalse;
@@ -1570,7 +1556,7 @@ int BotSameTeam(bot_state_t *bs, int entnum)
 		return qfalse;
 	}
 
-	if (gametype >= GT_TEAM) {
+	if (g_gametype.integer >= GT_TEAM) {
 		if (level.clients[bs->client].sess.sessionTeam == level.clients[entnum].sess.sessionTeam) {
 			return qtrue;
 		}
@@ -1744,7 +1730,7 @@ int BotFindEnemy(bot_state_t *bs, int curenemy)
 		cursquaredist = 0;
 	}
 
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == bs->client) {
 			continue;
 		}
@@ -1857,7 +1843,7 @@ int BotTeamFlagCarrierVisible(bot_state_t *bs)
 	float vis;
 	aas_entityinfo_t entinfo;
 
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == bs->client) {
 			continue;
 		}
@@ -1895,7 +1881,7 @@ int BotTeamFlagCarrier(bot_state_t *bs)
 	int i;
 	aas_entityinfo_t entinfo;
 
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == bs->client) {
 			continue;
 		}
@@ -1928,7 +1914,7 @@ int BotEnemyFlagCarrierVisible(bot_state_t *bs)
 	float vis;
 	aas_entityinfo_t entinfo;
 
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == bs->client) {
 			continue;
 		}
@@ -1976,7 +1962,7 @@ void BotVisibleTeamMatesAndEnemies(bot_state_t *bs, int *teammates, int *enemies
 		*enemies = 0;
 	}
 
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (i == bs->client) {
 			continue;
 		}
@@ -2431,7 +2417,7 @@ void BotMapScripts(bot_state_t *bs)
 		}
 		shootbutton = qfalse;
 		// if an enemy is below this bounding box then shoot the button
-		for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+		for (i = 0; i < level.maxclients; i++) {
 			if (i == bs->client) {
 				continue;
 			}
@@ -3474,7 +3460,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state)
 		}
 		case EV_GLOBAL_TEAM_SOUND:
 		{
-			if (gametype == GT_CTF) {
+			if (g_gametype.integer == GT_CTF) {
 				switch (state->eventParm) {
 					case GTS_RED_CAPTURE:
 						bs->blueflagstatus = 0;
@@ -3859,9 +3845,6 @@ void BotSetupDeathmatchAI(void)
 	int ent, modelnum;
 	char model[128];
 
-	gametype = trap_Cvar_VariableIntegerValue("g_gametype");
-	maxclients = trap_Cvar_VariableIntegerValue("sv_maxclients");
-
 	trap_Cvar_Register(&bot_rocketjump, "bot_rocketjump", "1", 0);
 	trap_Cvar_Register(&bot_grapple, "bot_grapple", "0", 0);
 	trap_Cvar_Register(&bot_fastchat, "bot_fastchat", "0", 0);
@@ -3870,7 +3853,7 @@ void BotSetupDeathmatchAI(void)
 	trap_Cvar_Register(&bot_challenge, "bot_challenge", "0", 0);
 	trap_Cvar_Register(&bot_predictobstacles, "bot_predictobstacles", "1", 0);
 
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		if (trap_BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
 			BotAI_Print(PRT_WARNING, "CTF without Red Flag\n");
 		if (trap_BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)

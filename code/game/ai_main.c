@@ -245,7 +245,7 @@ void BotReportStatus(bot_state_t *bs)
 	}
 
 	strcpy(flagstatus, "  ");
-	if (gametype == GT_CTF) {
+	if (g_gametype.integer == GT_CTF) {
 		if (BotCTFCarryingFlag(bs)) {
 			if (BotTeam(bs) == TEAM_RED) {
 				strcpy(flagstatus, S_COLOR_RED "F ");
@@ -331,7 +331,7 @@ void BotTeamplayReport(void)
 	char buf[MAX_INFO_STRING];
 
 	BotAI_Print(PRT_MESSAGE, S_COLOR_RED "RED\n");
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (!botstates[i] || !botstates[i]->inuse) {
 			continue;
 		}
@@ -344,7 +344,7 @@ void BotTeamplayReport(void)
 		}
 	}
 	BotAI_Print(PRT_MESSAGE, S_COLOR_BLUE"BLUE\n");
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients && i < MAX_CLIENTS; i++) {
 		if (!botstates[i] || !botstates[i]->inuse) {
 			continue;
 		}
@@ -374,10 +374,8 @@ void BotSetInfoConfigString(bot_state_t *bs)
 	}
 
 	strcpy(carrying, "  ");
-	if (gametype == GT_CTF) {
-		if (BotCTFCarryingFlag(bs)) {
-			strcpy(carrying, "F ");
-		}
+	if (g_gametype.integer == GT_CTF && BotCTFCarryingFlag(bs)) {
+		strcpy(carrying, "F ");
 	}
 
 	switch (bs->ltgtype) {
@@ -459,7 +457,7 @@ void BotUpdateInfoConfigStrings(void)
 	int i;
 	char buf[MAX_INFO_STRING];
 
-	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
+	for (i = 0; i < level.maxclients; i++) {
 		if (!botstates[i] || !botstates[i]->inuse) {
 			continue;
 		}
@@ -556,7 +554,7 @@ void BotInterbreeding(void)
 	}
 
 	// make sure we are in tournament mode
-	if (gametype != GT_TOURNAMENT) {
+	if (g_gametype.integer != GT_TOURNAMENT) {
 		trap_Cvar_Set("g_gametype", va("%d", GT_TOURNAMENT));
 		ExitLevel();
 		return;
