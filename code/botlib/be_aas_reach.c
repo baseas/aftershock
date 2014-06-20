@@ -3943,8 +3943,7 @@ void AAS_SetWeaponJumpAreaFlags(void)
 			!strcmp(classname, "weapon_railgun") ||
 			!strcmp(classname, "weapon_bfg") ||
 			!strcmp(classname, "item_quad") ||
-			!strcmp(classname, "item_regen") ||
-			!strcmp(classname, "item_invulnerability"))
+			!strcmp(classname, "item_regen"))
 		{
 			if (AAS_VectorForBSPEpairKey(ent, "origin", origin))
 			{

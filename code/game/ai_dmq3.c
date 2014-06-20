@@ -636,20 +636,6 @@ char *ClientName(int client, char *name, int size)
 	return name;
 }
 
-char *ClientSkin(int client, char *skin, int size)
-{
-	char buf[MAX_INFO_STRING];
-
-	if (client < 0 || client >= MAX_CLIENTS) {
-		BotAI_Print(PRT_ERROR, "ClientSkin: client out of range\n");
-		return "[client out of range]";
-	}
-	trap_GetConfigstring(CS_PLAYERS+client, buf, sizeof buf);
-	strncpy(skin, Info_ValueForKey(buf, "model"), size - 1);
-	skin[size - 1] = '\0';
-	return skin;
-}
-
 int ClientFromName(char *name)
 {
 	int i;
@@ -3603,10 +3589,6 @@ void BotCheckSnapshot(bot_state_t *bs)
 
 	// remove all avoid spots
 	trap_BotAddAvoidSpot(bs->ms, vec3_origin, 0, AVOID_CLEAR);
-	// reset kamikaze body
-	bs->kamikazebody = 0;
-	// reset number of proxmines
-	bs->numproxmines = 0;
 
 	ent = 0;
 	while ((ent = BotAI_GetSnapshotEntity(bs->client, ent, &state)) != -1) {
@@ -3614,8 +3596,8 @@ void BotCheckSnapshot(bot_state_t *bs)
 		BotCheckEvents(bs, &state);
 		// check for grenades the bot should avoid
 		BotCheckForGrenades(bs, &state);
-
 	}
+
 	// check the player state for events
 	BotAI_GetEntityState(bs->client, &state);
 	// copy the player state events to the entity state

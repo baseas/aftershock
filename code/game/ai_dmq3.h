@@ -60,8 +60,6 @@ void BotSetUserInfo(bot_state_t *bs, char *key, char *value);
 char *ClientName(int client, char *name, int size);
 // returns a simplified client name
 char *EasyClientName(int client, char *name, int size);
-// returns the skin used by the client
-char *ClientSkin(int client, char *skin, int size);
 //  returns the appropriate synonym context for the current game type and situation
 int BotSynonymContext(bot_state_t *bs);
 //  set last ordered task
@@ -152,10 +150,6 @@ void BotMapScripts(bot_state_t *bs);
 #define CTF_FLAG_NONE		0
 #define CTF_FLAG_RED		1
 #define CTF_FLAG_BLUE		2
-
-// ctf skins
-#define CTF_SKIN_REDTEAM	"red"
-#define CTF_SKIN_BLUETEAM	"blue"
 
 extern int gametype;		// game type
 extern int maxclients;		// maximum number of clients
