@@ -517,7 +517,7 @@ static void CG_CrosshairGetSize(float *width, float *height)
 	if (cg_crosshairHitPulse.integer && cg.lastHitDamage) {
 		scale = cg.time - cg.lastHitTime;
 	} else if (cg_crosshairPickupPulse.integer) {
-		scale = cg.time - cg.itemPickupBlendTime;
+		scale = cg.time - cg.itemPickupTime;
 	} else {
 		return;
 	}

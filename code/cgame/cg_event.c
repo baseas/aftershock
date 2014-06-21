@@ -450,7 +450,6 @@ static void CG_ItemPickup(int itemNum)
 {
 	cg.itemPickup = itemNum;
 	cg.itemPickupTime = cg.time;
-	cg.itemPickupBlendTime = cg.time;
 
 	// see if it should be the grabbed weapon
 	if (bg_itemlist[itemNum].giType != IT_WEAPON) {

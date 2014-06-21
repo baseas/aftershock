@@ -649,7 +649,7 @@ static void Hud_ItemPickupIcon(int hudnumber)
 		return;
 	}
 
-	if (cg.time - cg.itemPickupBlendTime > ICON_BLEND_TIME) {
+	if (cg.time - cg.itemPickupTime > ICON_BLEND_TIME) {
 		return;
 	}
 
@@ -662,7 +662,7 @@ static void Hud_ItemPickupName(int hudnumber)
 		return;
 	}
 
-	if (cg.time - cg.itemPickupBlendTime > ICON_BLEND_TIME) {
+	if (cg.time - cg.itemPickupTime > ICON_BLEND_TIME) {
 		return;
 	}
 
@@ -673,11 +673,15 @@ static void Hud_ItemPickupTime(int hudnumber)
 {
 	int min, ten, second, msecs;
 
-	if (cg.time - cg.itemPickupBlendTime > ICON_BLEND_TIME) {
+	if (!cg.itemPickup) {
 		return;
 	}
 
-	msecs = cg.itemPickupBlendTime - cgs.levelStartTime;
+	if (cg.time - cg.itemPickupTime > ICON_BLEND_TIME) {
+		return;
+	}
+
+	msecs = cg.itemPickupTime - cgs.levelStartTime;
 	second = msecs / 1000;
 	min = second / 60;
 	second -= min * 60;
