@@ -313,13 +313,13 @@ void Cmd_Kill_f(gentity_t *ent)
 void LogTeamChange(gclient_t *client, int oldTeam)
 {
 	if (client->sess.sessionTeam == TEAM_RED) {
-		G_LogPrintf("%s" S_COLOR_WHITE " joined the red team.\n", client->pers.netname);
+		G_LogPrintf("%s ^7joined the red team.\n", client->pers.netname);
 	} else if (client->sess.sessionTeam == TEAM_BLUE) {
-		G_LogPrintf("%s" S_COLOR_WHITE " joined the blue team.\n", client->pers.netname);
+		G_LogPrintf("%s ^7joined the blue team.\n", client->pers.netname);
 	} else if (client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR) {
-		G_LogPrintf("%s" S_COLOR_WHITE " joined the spectators.\n", client->pers.netname);
+		G_LogPrintf("%s ^7joined the spectators.\n", client->pers.netname);
 	} else if (client->sess.sessionTeam == TEAM_FREE) {
-		G_LogPrintf("%s" S_COLOR_WHITE " joined the battle.\n", client->pers.netname);
+		G_LogPrintf("%s ^7joined the battle.\n", client->pers.netname);
 	}
 }
 
@@ -686,7 +686,7 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 	text[0] = '\0';
 
 	switch (letter) {
-	case 'A':
+	case 'A': // colored armor
 		intval = ent->client->ps.stats[STAT_ARMOR];
 		if (intval < 50) {
 			Com_sprintf(text, length, "^1%i", intval);
@@ -696,7 +696,7 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 			Com_sprintf(text, length, "^3%i", intval);
 		}
 		break;
-	case 'H':
+	case 'H': // colored health
 		intval = ent->client->ps.stats[STAT_HEALTH];
 		if (intval < 50) {
 			Com_sprintf(text, length, "^1%i", intval);
@@ -706,37 +706,49 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 			Com_sprintf(text, length, "^3%i", intval);
 		}
 		break;
-	case 'a':
+	case 'a': // white armor
 		Com_sprintf(text, length, "%i", ent->client->ps.stats[STAT_ARMOR]);
 		break;
-	case 'h':
+	case 'h': // white health
 		Com_sprintf(text, length, "%i", ent->client->ps.stats[STAT_HEALTH]);
 		break;
-	case 'K':
-		if (ent->client->pers.lastKiller != -1) {
-			Q_strncpyz(text, g_entities[ent->client->pers.lastKiller].client->pers.netname, length);
+	case 'K': // killer name
+		if (ent->client->pers.lastKiller) {
+			Com_sprintf(text, length, "%s^7", ent->client->pers.lastKiller->pers.netname);
+		} else {
+			Q_strncpyz(text, "<nobody>", length);
 		}
 		break;
-	case 'T':
-		if (ent->client->pers.lastTarget != -1) {
-			Q_strncpyz(text, g_entities[ent->client->pers.lastTarget].client->pers.netname, length);
+	case 'T': // target name
+		if (ent->client->pers.lastTarget) {
+			Com_sprintf(text, length, "%s^7", ent->client->pers.lastTarget->pers.netname);
+		} else {
+			Q_strncpyz(text, "<nobody>", length);
 		}
 		break;
-	case 'D':
+	case 'D': // attacker name
 		intval = ent->client->ps.persistant[PERS_ATTACKER];
-		Q_strncpyz(text, g_entities[intval].client->pers.netname, length);
+		if (g_entities[intval].client) {
+			Com_sprintf(text, length, "%s^7", g_entities[intval].client->pers.netname);
+		} else {
+			Q_strncpyz(text, "<nobody>", length);
+		}
 		break;
-	case 'd':
+	case 'd': // last drop
 		if (ent->client->pers.lastDrop) {
-			Q_strncpyz(text, ent->client->pers.lastDrop->pickup_name, length);
+			Com_sprintf(text, length, "%s", ent->client->pers.lastDrop->pickup_name);
+		} else {
+			Q_strncpyz(text, "<nothing>", length);
 		}
 		break;
-	case 'P':
+	case 'P': // last pickup
 		if (ent->client->pers.lastPickup) {
-			Q_strncpyz(text, ent->client->pers.lastPickup->pickup_name, length);
+			Com_sprintf(text, length, "%s", ent->client->pers.lastPickup->pickup_name);
+		} else {
+			Q_strncpyz(text, "<nothing>", length);
 		}
 		break;
-	case 'U':
+	case 'U': // list of player's powerups
 		first = qtrue;
 		written = 0;
 		for (i = 0; i < bg_numItems; ++i) {
@@ -750,11 +762,11 @@ static int G_ChatToken(gentity_t *ent, char *text, int length, char letter)
 			first = qfalse;
 		}
 		break;
-	case 'L':
+	case 'L': // current location
 		Team_GetLocationMsg(ent->r.currentOrigin, loc, sizeof loc);
 		Q_strncpyz(text, loc, length);
 		break;
-	case 'C':
+	case 'C': // death location
 		Team_GetLocationMsg(ent->client->pers.lastDeathOrigin, loc, sizeof loc);
 		Q_strncpyz(text, loc, length);
 		break;
@@ -992,7 +1004,7 @@ static void Cmd_CallVote_f(gentity_t *ent)
 		return;
 	}
 
-	ClientPrint(NULL, va("%s called a vote.", ent->client->pers.netname));
+	ClientPrint(NULL, va("%s ^7called a vote.", ent->client->pers.netname));
 
 	// start the voting, the caller automatically votes yes
 	level.voteTime = level.time;
@@ -1426,10 +1438,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_redLocked.integer && !lock) {
 			ClientPrint(ent, "Red team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, va("Red team locked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Red team locked by %s^7.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, va("Red team unlocked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Red team unlocked by %s^7.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "0");
 		}
 	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
@@ -1438,10 +1450,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_blueLocked.integer && !lock) {
 			ClientPrint(ent, "Blue team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, va("Blue team locked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Blue team locked by %s^7.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, va("Blue team unlocked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Blue team unlocked by %s^7.", ent->client->pers.netname));
 			trap_Cvar_Set("g_blueLocked", "0");
 		}
 	}

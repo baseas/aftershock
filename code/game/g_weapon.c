@@ -381,7 +381,7 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 	vec3_t		end;
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
-	int			lastTarget;
+	gclient_t	*lastTarget;
 
 	damage = 7 * s_quadFactor;
 

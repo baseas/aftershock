@@ -40,24 +40,48 @@ static qboolean AllowedVote(gentity_t *ent, const char *cmd)
 
 static int Vote_Gametype(gentity_t *ent)
 {
-	int	i;
+	int gt;
+	const char *str;
 	const char *gameNames[] = {
 		"Free For All",
-		"Tournament",
-		"Single Player",
+		"Duel",
 		"Defrag",
 		"Team Deathmatch",
 		"Capture the Flag",
+		"Elimination"
 	};
 
-	i = atoi(BG_Argv(1));
-	if (i < 0 || i >= GT_MAX_GAME_TYPE) {
+	str = BG_Argv(2);
+	if (!str[0]) {
 		ClientPrint(ent, "Invalid gametype.");
 		return 1;
 	}
 
-	Com_sprintf(level.voteString, sizeof level.voteString, "g_gametype %d", i);
-	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay, "Gametype %s?", gameNames[i]);
+	if (!Q_stricmp(str, "ffa")) {
+		gt = 0;
+	} else if (!Q_stricmp(str, "duel")) {
+		gt = 1;
+	} else if (!Q_stricmp(str, "defrag")) {
+		gt = 2;
+	} else if (!Q_stricmp(str, "tdm")) {
+		gt = 3;
+	} else if (!Q_stricmp(str, "ctf")) {
+		gt = 4;
+	} else if (!Q_stricmp(str, "ca") || !Q_stricmp(str, "elimination")) {
+		gt = 5;
+	} else if (Q_isanumber(str)) {
+		gt = atoi(BG_Argv(1));
+	} else {
+		gt = -1;
+	}
+
+	if (gt < 0 || gt >= GT_MAX_GAME_TYPE) {
+		ClientPrint(ent, "Invalid gametype.");
+		return 1;
+	}
+
+	Com_sprintf(level.voteString, sizeof level.voteString, "g_gametype %d; map_restart", gt);
+	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay, "Gametype %s?", gameNames[gt]);
 	return 0;
 }
 
@@ -118,7 +142,7 @@ static int Vote_Kick(gentity_t *ent)
 	}
 
 	Com_sprintf(level.voteString, sizeof level.voteString, "kick %ld", cl - level.clients);
-	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay, "Kick %s?", cl->pers.netname);
+	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay, "Kick %s^7?", cl->pers.netname);
 	return 0;
 }
 
@@ -136,6 +160,7 @@ static int Vote_Shuffle(gentity_t *ent)
 static int Vote_ForceTeam(gentity_t *ent)
 {
 	gclient_t	*cl;
+	const char	*team;
 
 	cl = ClientFromString(BG_Argv(2));
 	if (!cl) {
@@ -143,10 +168,32 @@ static int Vote_ForceTeam(gentity_t *ent)
 		return 1;
 	}
 
-	Com_sprintf(level.voteString, sizeof level.voteString, "forceteam %ld %s", cl - level.clients,
-		BG_Argv(2));
+	team = BG_Argv(3);
+
+	if (!team[0]) {
+		ClientPrint(ent, "Invalid team.");
+		return 1;
+	}
+
+	if (!Q_stricmp(team, "speconly") || !Q_stricmp(team, "so")) {
+		team = "speconly";
+	} else if (!Q_stricmp(team, "spectator") || !Q_stricmp(team, "s")) {
+		team = "spectator";
+	} else if (!Q_stricmp(team, "red") || !Q_stricmp(team, "r")) {
+		team = "red";
+	} else if (!Q_stricmp(team, "blue") || !Q_stricmp(team, "b")) {
+		team = "blue";
+	} else if (!Q_stricmp(team, "free") || !Q_stricmp(team, "f")) {
+		team = "free";
+	} else {
+		ClientPrint(ent, "Invalid team.");
+		return 1;
+	}
+
+	Com_sprintf(level.voteString, sizeof level.voteString, "forceteam %ld %s",
+		cl - level.clients, team);
 	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay,
-		"Force %s to team %s?", cl->pers.netname, BG_Argv(2));
+		"Force %s ^7to team %s?", cl->pers.netname, team);
 	return 0;
 }
 
@@ -161,7 +208,7 @@ static int Vote_Mute(gentity_t *ent)
 	}
 
 	Com_sprintf(level.voteString, sizeof level.voteString, "mute %ld", cl - level.clients);
-	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay, "Mute %s?", cl->pers.netname);
+	Com_sprintf(level.voteDisplay, sizeof level.voteDisplay, "Mute %s^7?", cl->pers.netname);
 	return 0;
 }
 
@@ -199,9 +246,11 @@ static void G_VotePrintCommands(gentity_t *ent)
 
 	strcpy(buffer, "Vote commands are: ");
 	for (i = 0; voteCommands[i].cmd; ++i) {
-		strcat(buffer, voteCommands[i].cmd);
-		strcat(buffer, ", ");
+		Q_strcat(buffer, sizeof buffer, voteCommands[i].cmd);
+		Q_strcat(buffer, sizeof buffer, ", ");
 	}
+
+	buffer[strlen(buffer) - 2] = '\0';
 
 	if (customVoteCount > 0) {
 		strcat(buffer, "\nCustom votes are: ");

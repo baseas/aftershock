@@ -379,6 +379,7 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 	if (attacker) {
 		killer = attacker->s.number;
 		if (attacker->client) {
+			self->client->pers.lastKiller = attacker->client;
 			killerName = attacker->client->pers.netname;
 		} else {
 			killerName = "<non-client>";
@@ -699,7 +700,7 @@ void G_Damage(gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t
 			int	dmg;
 			dmg = asave + (take > targ->health ? targ->health : take);
 
-			attacker->client->pers.lastTarget = targ->s.number;
+			attacker->client->pers.lastTarget = client;
 			client->ps.persistant[PERS_ATTACKER] = attacker->s.number;
 			attacker->client->pers.stats.miscStats[MSTAT_DAMAGE_DONE] += dmg;
 			attacker->client->ps.persistant[PERS_DAMAGE_DONE] += dmg;

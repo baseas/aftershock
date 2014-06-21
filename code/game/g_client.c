@@ -809,9 +809,6 @@ void ClientBegin(int clientNum)
 	// count current clients and rank for scoreboard
 	CalculateRanks();
 
-	ent->client->pers.lastTarget = -1;
-	ent->client->pers.lastKiller = -1;
-
 	CheckPings(qtrue);
 	G_SendScoreboard(client);
 }

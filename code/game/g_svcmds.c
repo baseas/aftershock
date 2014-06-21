@@ -413,12 +413,12 @@ void Svcmd_Mute_f(void)
 	}
 
 	if (cl->pers.muted) {
-		G_Printf("%s is already muted.\n", cl->pers.netname);
+		G_Printf("%s ^7is already muted.\n", cl->pers.netname);
 		return;
 	}
 
 	cl->pers.muted = qtrue;
-	ClientPrint(NULL, va("%s has been muted.", cl->pers.netname));
+	ClientPrint(NULL, va("%s ^7has been muted.", cl->pers.netname));
 }
 
 void Svcmd_Unmute_f(void)
@@ -437,12 +437,12 @@ void Svcmd_Unmute_f(void)
 	}
 
 	if (!cl->pers.muted) {
-		G_Printf("%s is already unmuted.\n", cl->pers.netname);
+		G_Printf("%s ^7is already unmuted.\n", cl->pers.netname);
 		return;
 	}
 
 	cl->pers.muted = qfalse;
-	ClientPrint(NULL, va("%s has been unmuted.", cl->pers.netname));
+	ClientPrint(NULL, va("%s ^7has been unmuted.", cl->pers.netname));
 }
 
 char	*ConcatArgs(int start);

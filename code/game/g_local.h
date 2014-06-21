@@ -242,8 +242,8 @@ typedef struct {
 	int			voteCount;			// to prevent people from constantly calling votes
 	int			teamVoteCount;		// to prevent people from constantly calling votes
 
-	int			lastKiller;
-	int			lastTarget;
+	gclient_t	*lastKiller;
+	gclient_t	*lastTarget;
 	gitem_t		*lastPickup;
 	gitem_t		*lastDrop;
 	vec3_t		lastDeathOrigin;
