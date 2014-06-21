@@ -124,37 +124,7 @@ vec3_t		rforward, rright, rup;
 
 float		oldtime;
 
-void CG_ClearParticles(void)
-{
-	int		i;
-
-	memset(particles, 0, sizeof(particles));
-
-	free_particles = &particles[0];
-	active_particles = NULL;
-
-	for (i = 0; i < cl_numparticles; i++) {
-		particles[i].next = &particles[i+1];
-		particles[i].type = 0;
-	}
-	particles[cl_numparticles-1].next = NULL;
-
-	oldtime = cg.time;
-
-	// Ridah, init the shaderAnims
-	for (i = 0; shaderAnimNames[i]; i++) {
-		int j;
-
-		for (j = 0; j < shaderAnimCounts[i]; j++) {
-			shaderAnims[i][j] = trap_R_RegisterShader(va("%s%i", shaderAnimNames[i], j + 1));
-		}
-	}
-
-	numShaderAnims = i;
-	initparticles = qtrue;
-}
-
-void CG_AddParticleToScene(cparticle_t *p, vec3_t org, float alpha)
+static void CG_AddParticleToScene(cparticle_t *p, vec3_t org, float alpha)
 {
 	vec3_t		point;
 	polyVert_t	verts[4];
@@ -760,6 +730,36 @@ void CG_AddParticleToScene(cparticle_t *p, vec3_t org, float alpha)
 
 }
 
+void CG_ClearParticles(void)
+{
+	int		i;
+
+	memset(particles, 0, sizeof(particles));
+
+	free_particles = &particles[0];
+	active_particles = NULL;
+
+	for (i = 0; i < cl_numparticles; i++) {
+		particles[i].next = &particles[i+1];
+		particles[i].type = 0;
+	}
+	particles[cl_numparticles-1].next = NULL;
+
+	oldtime = cg.time;
+
+	// Ridah, init the shaderAnims
+	for (i = 0; shaderAnimNames[i]; i++) {
+		int j;
+
+		for (j = 0; j < shaderAnimCounts[i]; j++) {
+			shaderAnims[i][j] = trap_R_RegisterShader(va("%s%i", shaderAnimNames[i], j + 1));
+		}
+	}
+
+	numShaderAnims = i;
+	initparticles = qtrue;
+}
+
 void CG_AddParticles(void)
 {
 	cparticle_t		*p, *next;
@@ -882,73 +882,7 @@ void CG_AddParticles(void)
 	active_particles = active;
 }
 
-void CG_ParticleSnowFlurry(qhandle_t pshader, centity_t *cent)
-{
-	cparticle_t	*p;
-	qboolean turb = qtrue;
-
-	if (!pshader) {
-		CG_Printf ("CG_ParticleSnowFlurry pshader == ZERO!\n");
-	}
-
-	if (!free_particles) {
-		return;
-	}
-
-	p = free_particles;
-	free_particles = p->next;
-	p->next = active_particles;
-	active_particles = p;
-	p->time = cg.time;
-	p->color = 0;
-	p->alpha = 0.90f;
-	p->alphavel = 0;
-
-	p->start = cent->currentState.origin2[0];
-	p->end = cent->currentState.origin2[1];
-
-	p->endtime = cg.time + cent->currentState.time;
-	p->startfade = cg.time + cent->currentState.time2;
-
-	p->pshader = pshader;
-
-	if (rand() % 100 > 90) {
-		p->height = 32;
-		p->width = 32;
-		p->alpha = 0.10f;
-	} else {
-		p->height = 1;
-		p->width = 1;
-	}
-
-	p->vel[2] = -20;
-
-	p->type = P_WEATHER_FLURRY;
-
-	if (turb)
-		p->vel[2] = -10;
-
-	VectorCopy(cent->currentState.origin, p->org);
-
-	p->org[0] = p->org[0];
-	p->org[1] = p->org[1];
-	p->org[2] = p->org[2];
-
-	p->vel[0] = p->vel[1] = 0;
-
-	p->accel[0] = p->accel[1] = p->accel[2] = 0;
-
-	p->vel[0] += cent->currentState.angles[0] * 32 + (crandom() * 16);
-	p->vel[1] += cent->currentState.angles[1] * 32 + (crandom() * 16);
-	p->vel[2] += cent->currentState.angles[2];
-
-	if (turb)
-	{
-		p->accel[0] = crandom() * 16;
-		p->accel[1] = crandom() * 16;
-	}
-
-}
+/* unused code below */
 
 void CG_ParticleSnow(qhandle_t pshader, vec3_t origin, vec3_t origin2, int turb, float range, int snum)
 {
@@ -1066,57 +1000,6 @@ void CG_ParticleBubble(qhandle_t pshader, vec3_t origin, vec3_t origin2, int tur
 	p->snum = snum;
 	p->link = qtrue;
 
-}
-
-void CG_ParticleSmoke(qhandle_t pshader, centity_t *cent)
-{
-
-	// using cent->density = enttime
-	//		 cent->frame = startfade
-	cparticle_t	*p;
-
-	if (!pshader) {
-		CG_Printf ("CG_ParticleSmoke == ZERO!\n");
-	}
-
-	if (!free_particles) {
-		return;
-	}
-
-	p = free_particles;
-	free_particles = p->next;
-	p->next = active_particles;
-	active_particles = p;
-	p->time = cg.time;
-
-	p->endtime = cg.time + cent->currentState.time;
-	p->startfade = cg.time + cent->currentState.time2;
-
-	p->color = 0;
-	p->alpha = 1.0;
-	p->alphavel = 0;
-	p->start = cent->currentState.origin[2];
-	p->end = cent->currentState.origin2[2];
-	p->pshader = pshader;
-	p->rotate = qfalse;
-	p->height = 8;
-	p->width = 8;
-	p->endheight = 32;
-	p->endwidth = 32;
-	p->type = P_SMOKE;
-
-	VectorCopy(cent->currentState.origin, p->org);
-
-	p->vel[0] = p->vel[1] = 0;
-	p->accel[0] = p->accel[1] = p->accel[2] = 0;
-
-	p->vel[2] = 5;
-
-	if (cent->currentState.frame == 1) { // reverse gravity
-		p->vel[2] *= -1;
-	}
-
-	p->roll = 8 + (crandom() * 4);
 }
 
 void CG_ParticleBulletDebris(vec3_t org, vec3_t vel, int duration)

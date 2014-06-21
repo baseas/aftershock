@@ -775,7 +775,6 @@ netField_t	entityStateFields[] =
 { NETF(apos.trDelta[0]), 0 },
 { NETF(apos.trDelta[1]), 0 },
 { NETF(apos.trDelta[2]), 0 },
-{ NETF(time2), 32 },
 { NETF(angles[2]), 0 },
 { NETF(angles2[0]), 0 },
 { NETF(angles2[2]), 0 },

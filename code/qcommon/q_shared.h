@@ -1244,7 +1244,6 @@ typedef struct entityState_s {
 	trajectory_t	apos;	// for calculating angles
 
 	int		time;
-	int		time2;
 
 	vec3_t	origin;
 	vec3_t	origin2;
