@@ -354,8 +354,12 @@ int Pickup_Health(gentity_t *ent, gentity_t *other)
 	int			max;
 	int			quantity;
 
-	if (ent->item->quantity == 100) {
-		other->client->pers.stats.miscStats[MSTAT_MH]++;
+	// On maps like q3practice there are items the players receives when spawning, see
+	// function G_UseTargets. This happens before commands are executed or commandTime is set.
+	if (other->client->ps.commandTime) {
+		if (ent->item->quantity == 100) {
+			other->client->pers.stats.miscStats[MSTAT_MH]++;
+		}
 	}
 
 	// small and mega healths will go over the max
@@ -387,10 +391,12 @@ int Pickup_Health(gentity_t *ent, gentity_t *other)
 
 int Pickup_Armor(gentity_t *ent, gentity_t *other)
 {
-	if (ent->item->quantity == 50) {
-		other->client->pers.stats.miscStats[MSTAT_YA]++;
-	} else if (ent->item->quantity == 100) {
-		other->client->pers.stats.miscStats[MSTAT_RA]++;
+	if (other->client->ps.commandTime) {
+		if (ent->item->quantity == 50) {
+			other->client->pers.stats.miscStats[MSTAT_YA]++;
+		} else if (ent->item->quantity == 100) {
+			other->client->pers.stats.miscStats[MSTAT_RA]++;
+		}
 	}
 
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
@@ -588,7 +594,9 @@ void Touch_Item(gentity_t *ent, gentity_t *other, trace_t *trace)
 	}
 	trap_LinkEntity(ent);
 
-	G_SetRespawnTimer(ent, other->s.clientNum);
+	if (other->client->ps.commandTime) {
+		G_SetRespawnTimer(ent, other->s.clientNum);
+	}
 }
 
 /**
