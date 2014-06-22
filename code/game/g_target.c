@@ -24,6 +24,38 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+void Use_Target_StartTimer(gentity_t *ent, gentity_t *other, gentity_t *activator)
+{
+	if (!activator->client->ps.stats[STAT_DEFRAG_TIME]) {
+		activator->client->ps.stats[STAT_DEFRAG_TIME] = level.time;
+	}
+}
+
+void SP_target_startTimer(gentity_t *ent)
+{
+	ent->use = Use_Target_StartTimer;
+}
+
+void Use_Target_StopTimer(gentity_t *ent, gentity_t *other, gentity_t *activator)
+{
+	G_DefragScore(activator->client);
+}
+
+void SP_target_stopTimer(gentity_t *ent)
+{
+	ent->use = Use_Target_StopTimer;
+}
+
+void Use_Target_Checkpoint(gentity_t *ent, gentity_t *other, gentity_t *activator)
+{
+	// TODO
+}
+
+void SP_target_checkpoint(gentity_t *ent)
+{
+	ent->use = Use_Target_Checkpoint;
+}
+
 /**
 QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
 Gives the activator all the items pointed to.

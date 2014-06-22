@@ -1210,6 +1210,10 @@ static void Hud_ScoreOwn(int hudnumber)
 {
 	int			score;
 
+	if (cgs.gametype == GT_DEFRAG) {
+		return;
+	}
+
 	if (cgs.gametype >= GT_TEAM) {
 		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
 			score = cgs.scores1;
@@ -1226,6 +1230,10 @@ static void Hud_ScoreOwn(int hudnumber)
 static void Hud_ScoreNme(int hudnumber)
 {
 	int			score;
+
+	if (cgs.gametype == GT_DEFRAG) {
+		return;
+	}
 
 	if (cgs.gametype >= GT_TEAM) {
 		if (cg.snap->ps.persistant[PERS_TEAM] == TEAM_RED) {
@@ -1270,6 +1278,10 @@ static void Hud_FlagStatus(int hudnumber)
 static void Hud_ScoreLimit(int hudnumber)
 {
 	int	limit;
+
+	if (cgs.gametype == GT_DEFRAG) {
+		return;
+	}
 
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_ELIMINATION) {
 		limit = cgs.capturelimit;
@@ -1544,6 +1556,38 @@ static void Hud_RespawnTimer(int hudnumber)
 	}
 }
 
+static void Hud_DefragTime(int hudnumber)
+{
+	const char	*str;
+	int			mins, seconds, tens;
+	int			msec;
+
+	if (cgs.gametype != GT_DEFRAG) {
+		return;
+	}
+
+	msec = cg.snap->ps.stats[STAT_DEFRAG_TIME];
+
+	if (msec == 0) {
+		return;
+	} else if (msec < 0) {
+		msec *= -1;
+	} else {
+		msec = cg.time - msec;
+	}
+
+	seconds = msec / 1000;
+	mins = seconds / 60;
+	seconds -= mins * 60;
+	tens = seconds / 10;
+	seconds -= tens * 10; if (mins > 1) {
+		str = va("%d:%d%d:%03d", mins, tens, seconds, msec - 1000 * (int) (msec / 1000));
+	} else {
+		str = va("%d%d:%03d", tens, seconds, msec - 1000 * (int) (msec / 1000));
+	}
+	CG_DrawHudString(hudnumber, qtrue, str);
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1592,6 +1636,7 @@ void CG_DrawHud()
 		{ HUD_TC_OWN, Hud_TeamCountOwn, qtrue },
 		{ HUD_TC_NME, Hud_TeamCountNme, qtrue },
 		{ HUD_RESPAWNTIMER, Hud_RespawnTimer, qtrue },
+		{ HUD_DEFRAGTIME, Hud_DefragTime, qfalse },
 		{ HUD_MAX, 0, qfalse }
 	};
 

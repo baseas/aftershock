@@ -56,6 +56,7 @@ qboolean CheckGauntletAttack(gentity_t *ent)
 	gentity_t	*tent;
 	gentity_t	*traceEnt;
 	int			damage;
+	int			mask;
 
 	// set aiming directions
 	AngleVectors(ent->client->ps.viewangles, forward, right, up);
@@ -64,7 +65,12 @@ qboolean CheckGauntletAttack(gentity_t *ent)
 
 	VectorMA(muzzle, 32, forward, end);
 
-	trap_Trace(&tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT);
+	if (g_gametype.integer == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
+	trap_Trace(&tr, muzzle, NULL, NULL, end, ent->s.number, mask);
 	if (tr.surfaceFlags & SURF_NOIMPACT) {
 		return qfalse;
 	}
@@ -110,6 +116,7 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 	gentity_t	*traceEnt;
 	int			i, passent;
 	int			damage;
+	int			mask;
 
 	if (g_gametype.integer >= GT_TEAM) {
 		damage = MACHINEGUN_TEAM_DAMAGE * s_quadFactor;
@@ -124,9 +131,15 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 	VectorMA(end, r, right, end);
 	VectorMA(end, u, up, end);
 
+	if (g_gametype.integer == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
+
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
-		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, mask);
 		if (tr.surfaceFlags & SURF_NOIMPACT) {
 			return;
 		}
@@ -170,12 +183,20 @@ static qboolean ShotgunPellet(vec3_t start, vec3_t end, gentity_t *ent)
 	int			damage, i, passent;
 	gentity_t	*traceEnt;
 	vec3_t		tr_start, tr_end;
+	int			mask;
 
 	passent = ent->s.number;
 	VectorCopy(start, tr_start);
 	VectorCopy(end, tr_end);
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
+
 	for (i = 0; i < 10; i++) {
-		trap_Trace(&tr, tr_start, NULL, NULL, tr_end, passent, MASK_SHOT);
+		trap_Trace(&tr, tr_start, NULL, NULL, tr_end, passent, mask);
 		traceEnt = &g_entities[tr.entityNum];
 
 		// send bullet impact
@@ -286,6 +307,7 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 	int			unlinked;
 	int			passent;
 	gentity_t	*unlinkedEntities[MAX_RAIL_HITS];
+	int			mask;
 
 	damage = (g_instantgib.integer ? 800 : 80 * s_quadFactor);
 
@@ -294,9 +316,16 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 	// trace only against the solids, so the railgun will go through people
 	unlinked = 0;
 	hits = 0;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
+
 	passent = ent->s.number;
 	do {
-		trap_Trace(&trace, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		trap_Trace(&trace, muzzle, NULL, NULL, end, passent, mask);
 		if (trace.entityNum >= ENTITYNUM_MAX_NORMAL) {
 			break;
 		}
@@ -382,14 +411,20 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 	gentity_t	*traceEnt, *tent;
 	int			damage, i, passent;
 	gclient_t	*lastTarget;
+	int			mask;
 
 	damage = 7 * s_quadFactor;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
 		VectorMA(muzzle, LIGHTNING_RANGE, forward, end);
-
-		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, MASK_SHOT);
+		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, mask);
 
 		if (tr.entityNum == ENTITYNUM_NONE) {
 			return;

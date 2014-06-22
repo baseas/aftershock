@@ -763,6 +763,21 @@ int Team_TouchEnemyFlag(gentity_t *ent, gentity_t *other, int team)
 	return -1; // Do not respawn this automatically, but do delete it if it was FL_DROPPED
 }
 
+void Team_TouchDefrag(gentity_t *ent, gentity_t *other, int team)
+{
+	if (team == TEAM_RED) {
+		other->client->ps.powerups[PW_REDFLAG] = INT_MAX;
+		other->client->ps.stats[STAT_DEFRAG_TIME] = level.time;
+		Team_TakeFlagSound(ent, team);
+	} else if (team == TEAM_BLUE) {
+		G_DefragScore(other->client);
+		other->client->ps.powerups[PW_REDFLAG] = 0;
+		if (other->client->ps.stats[STAT_DEFRAG_TIME]) {
+			Team_CaptureFlagSound(ent, team);
+		}
+	}
+}
+
 int Pickup_Team(gentity_t *ent, gentity_t *other)
 {
 	int team;
@@ -776,6 +791,11 @@ int Pickup_Team(gentity_t *ent, gentity_t *other)
 	} else {
 		PrintMsg (other, "Don't know what team the flag is on.\n");
 		return 0;
+	}
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		Team_TouchDefrag(ent, other, team);
+		return 1;
 	}
 
 	// GT_CTF

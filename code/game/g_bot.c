@@ -543,6 +543,12 @@ void Svcmd_AddBot_f(void)
 
 	// are bots enabled?
 	if (!trap_Cvar_VariableIntegerValue("bot_enable")) {
+		trap_Print("Bots are not enabled.\n");
+		return;
+	}
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		trap_Print("Bots cannot play DeFRaG.\n");
 		return;
 	}
 

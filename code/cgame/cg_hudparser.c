@@ -318,6 +318,7 @@ static const char *hudTags[] = {
 	"RewardCount",
 	"Holdable",
 	"Help",
+	"DefragTime",
 	NULL
 };
 

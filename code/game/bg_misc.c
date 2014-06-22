@@ -831,6 +831,12 @@ qboolean BG_CanItemBeGrabbed(int gametype, const entityState_t *ent, const playe
 					(item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]))
 					return qtrue;
 			}
+		} else if (gametype == GT_DEFRAG) {
+			if (item->giTag == PW_REDFLAG ||
+				(item->giTag == PW_BLUEFLAG && ps->powerups[PW_REDFLAG]))
+			{
+				return qtrue;
+			}
 		}
 
 		return qfalse;

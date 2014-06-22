@@ -160,6 +160,7 @@ void CG_PredictWeaponEffects(centity_t *cent)
 		qboolean flesh;
 		int fleshEntityNum = 0;
 		vec3_t endPoint;
+		int mask;
 
 		// do everything exactly like the server does
 
@@ -171,7 +172,13 @@ void CG_PredictWeaponEffects(centity_t *cent)
 		VectorMA(endPoint, r, right, endPoint);
 		VectorMA(endPoint, u, up, endPoint);
 
-		CG_Trace(&tr, muzzlePoint, NULL, NULL, endPoint, cg.predictedPlayerState.clientNum, MASK_SHOT);
+		if (cgs.gametype == GT_DEFRAG) {
+			mask = MASK_SOLID;
+		} else {
+			mask = MASK_SHOT;
+		}
+
+		CG_Trace(&tr, muzzlePoint, NULL, NULL, endPoint, cg.predictedPlayerState.clientNum, mask);
 
 		if (tr.surfaceFlags & SURF_NOIMPACT) {
 			return;

@@ -497,7 +497,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_Vote_ReadCustom();
 
-	if (trap_Cvar_VariableIntegerValue("bot_enable")) {
+	if (g_gametype.integer != GT_DEFRAG && trap_Cvar_VariableIntegerValue("bot_enable")) {
 		BotAISetup(restart);
 		BotAILoadMap(restart);
 		G_InitBots(restart);
@@ -516,7 +516,7 @@ void G_ShutdownGame(int restart)
 	// write all the client session data so we can get it back
 	G_WriteSessionData();
 
-	if (trap_Cvar_VariableIntegerValue("bot_enable")) {
+	if (g_gametype.integer != GT_DEFRAG && trap_Cvar_VariableIntegerValue("bot_enable")) {
 		BotAIShutdown(restart);
 	}
 }
@@ -741,6 +741,16 @@ int QDECL SortRanks(const void *a, const void *b)
 		if (ca->ps.persistant[PERS_DAMAGE_DONE] < cb->ps.persistant[PERS_DAMAGE_DONE]) {
 			return 1;
 		}
+	}
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		if (ca->pers.score < cb->pers.score) {
+			return -1;
+		}
+		if (ca->pers.score > cb->pers.score) {
+			return 1;
+		}
+		return 0;
 	}
 
 	// then sort by score

@@ -926,7 +926,7 @@ void SV_InitGameProgs( void ) {
 	extern int	bot_enable;
 
 	var = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
-	if ( var ) {
+	if ( var && sv_gametype->integer != GT_DEFRAG ) {
 		bot_enable = var->integer;
 	}
 	else {

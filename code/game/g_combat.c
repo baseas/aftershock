@@ -367,6 +367,41 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 		return;
 	}
 
+	if (g_gametype.integer == GT_DEFRAG) {
+		self->client->ps.stats[STAT_DEFRAG_TIME] = 0;
+
+		if (self->client && self->client->hook) {
+			Weapon_HookFree(self->client->hook);
+		}
+
+		self->client->ps.pm_type = PM_DEAD;
+		self->health = -999;
+
+		self->s.weapon = WP_NONE;
+		self->s.powerups = 0;
+
+		self->s.angles[0] = 0;
+		self->s.angles[2] = 0;
+
+		VectorCopy(self->s.angles, self->client->ps.viewangles);
+
+		self->s.loopSound = 0;
+
+		self->r.maxs[2] = -8;
+
+		// don't allow respawn until the death anim is done
+		// g_forcerespawn may force spawning at some later time
+		self->client->respawnTime = level.time + 100;
+
+		// remove powerups
+		memset(self->client->ps.powerups, 0, sizeof self->client->ps.powerups);
+
+		GibEntity(self, self->s.number);
+		trap_LinkEntity(self);
+
+		return;
+	}
+
 	// check for an almost capture
 	CheckAlmostCapture(self, attacker);
 
@@ -896,10 +931,17 @@ qboolean G_RadiusDamage(vec3_t origin, gentity_t *attacker, int damage,
 	for (e = 0; e < numListedEntities; e++) {
 		ent = &g_entities[entityList[ e ]];
 
-		if (ent == ignore)
+		if (ent == ignore) {
 			continue;
-		if (!ent->takedamage)
+		}
+		if (!ent->takedamage) {
 			continue;
+		}
+		if (g_gametype.integer == GT_DEFRAG && ent->client && attacker->client &&
+			ent->client != attacker->client)
+		{
+			continue;
+		}
 
 		// find the distance from the edge of the bounding box
 		for (i = 0; i < 3; i++) {

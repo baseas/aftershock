@@ -209,15 +209,19 @@ typedef struct {
 void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd);
 void Pmove(pmove_t *pmove);
 
+// defrag time values:
+// zero: run not started, positive: start time, negative: -1 * total run time
+
 // player_state->stats[] indexes
 // NOTE: may not have more than 16
 typedef enum {
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
 	STAT_WEAPONS,					// 16 bit fields
-	STAT_ARMOR,				
+	STAT_ARMOR,
 	STAT_DEAD_YAW,					// look this direction when dead (FIXME: get rid of?)
-	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
+	STAT_MAX_HEALTH,				// health / armor limit, changable by handicap
+	STAT_DEFRAG_TIME,
 } statIndex_t;
 
 // player_state->persistant[] indexes

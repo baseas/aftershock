@@ -156,7 +156,7 @@ void CG_DrawInformation(void)
 		y += PROP_HEIGHT;
 	}
 
-	if (cgs.gametype < GT_CTF) {
+	if (cgs.gametype == GT_FFA) {
 		value = atoi(Info_ValueForKey(info, "fraglimit"));
 		if (value) {
 			UI_DrawProportionalString(320, y, va("fraglimit %i", value),

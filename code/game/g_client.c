@@ -90,72 +90,9 @@ qboolean SpotWouldTelefrag(gentity_t *spot)
 }
 
 /**
-Find the spot that we DON'T want to use
-*/
-gentity_t *SelectNearestDeathmatchSpawnPoint(vec3_t from)
-{
-	gentity_t	*spot;
-	vec3_t		delta;
-	float		dist, nearestDist;
-	gentity_t	*nearestSpot;
-
-	nearestDist = 999999;
-	nearestSpot = NULL;
-	spot = NULL;
-
-	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-
-		VectorSubtract(spot->s.origin, from, delta);
-		dist = VectorLength(delta);
-		if (dist < nearestDist) {
-			nearestDist = dist;
-			nearestSpot = spot;
-		}
-	}
-
-	return nearestSpot;
-}
-
-/**
-Go to a random point that doesn't telefrag
-*/
-gentity_t *SelectRandomDeathmatchSpawnPoint(qboolean isbot)
-{
-	gentity_t	*spot;
-	int			count;
-	int			selection;
-	gentity_t	*spots[MAX_SPAWN_POINTS];
-
-	count = 0;
-	spot = NULL;
-
-	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL && count < MAX_SPAWN_POINTS) {
-		if (SpotWouldTelefrag(spot))
-			continue;
-
-		if (((spot->flags & FL_NO_BOTS) && isbot) ||
-		   ((spot->flags & FL_NO_HUMANS) && !isbot))
-		{
-			// spot is not for this human/bot player
-			continue;
-		}
-
-		spots[count] = spot;
-		count++;
-	}
-
-	if (!count) {	// no spots that won't telefrag
-		return G_Find(NULL, FOFS(classname), "info_player_deathmatch");
-	}
-
-	selection = rand() % count;
-	return spots[ selection ];
-}
-
-/**
 Chooses a player start, deathmatch start, etc
 */
-gentity_t *SelectRandomFurthestSpawnPoint (vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot)
+gentity_t *SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot)
 {
 	gentity_t	*spot;
 	vec3_t		delta;
@@ -228,45 +165,6 @@ gentity_t *SelectRandomFurthestSpawnPoint (vec3_t avoidPoint, vec3_t origin, vec
 	return list_spot[rnd];
 }
 
-/**
-Chooses a player start, deathmatch start, etc
-*/
-gentity_t *SelectSpawnPoint(vec3_t avoidPoint, vec3_t origin, vec3_t angles, qboolean isbot)
-{
-	return SelectRandomFurthestSpawnPoint(avoidPoint, origin, angles, isbot);
-}
-
-/**
-Try to find a spawn point marked 'initial', otherwise
-use normal spawn selection.
-*/
-gentity_t *SelectInitialSpawnPoint(vec3_t origin, vec3_t angles, qboolean isbot)
-{
-	gentity_t	*spot;
-
-	spot = NULL;
-
-	while ((spot = G_Find(spot, FOFS(classname), "info_player_deathmatch")) != NULL) {
-		if (((spot->flags & FL_NO_BOTS) && isbot) ||
-		   ((spot->flags & FL_NO_HUMANS) && !isbot))
-		{
-			continue;
-		}
-
-		if ((spot->spawnflags & 0x01))
-			break;
-	}
-
-	if (!spot || SpotWouldTelefrag(spot))
-		return SelectSpawnPoint(vec3_origin, origin, angles, isbot);
-
-	VectorCopy(spot->s.origin, origin);
-	origin[2] += 9;
-	VectorCopy(spot->s.angles, angles);
-
-	return spot;
-}
-
 gentity_t *SelectSpectatorSpawnPoint(vec3_t origin, vec3_t angles)
 {
 	FindIntermissionPoint();
@@ -275,6 +173,41 @@ gentity_t *SelectSpectatorSpawnPoint(vec3_t origin, vec3_t angles)
 	VectorCopy(level.intermission_angle, angles);
 
 	return NULL;
+}
+
+gentity_t *SelectDefragSpawnPoint(vec3_t origin, vec3_t angles)
+{
+	gentity_t	*spot, *bestSpot, *redflag;
+	vec3_t		delta;
+	float		dist, minDist;
+
+	redflag = G_Find(NULL, FOFS(classname), "team_CTF_redflag");
+	if (!redflag) {
+		spot = G_Find(NULL, FOFS(classname), "info_player_deathmatch");
+
+		VectorCopy(spot->s.origin, origin);
+		origin[2] += 9;
+		VectorCopy(spot->s.angles, angles);
+
+		return spot;
+	}
+
+	spot = NULL;
+	bestSpot = NULL;
+	while ((spot = G_Find(spot, FOFS(classname), "team_CTF_redspawn")) != NULL) {
+		VectorSubtract(spot->s.origin, redflag->s.origin, delta);
+		dist = VectorLengthSquared(delta);
+		if (!bestSpot || dist < minDist) {
+			minDist = dist;
+			bestSpot = spot;
+		}
+	}
+
+	VectorCopy(bestSpot->s.origin, origin);
+	origin[2] += 9;
+	VectorCopy(bestSpot->s.angles, angles);
+
+	return bestSpot;
 }
 
 void InitBodyQue(void)
@@ -931,30 +864,25 @@ void ClientSpawn(gentity_t *ent)
 	// do it before setting health back up, so farthest
 	// ranging doesn't count this client
 	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
-		spawnPoint = SelectSpectatorSpawnPoint (
-						spawn_origin, spawn_angles);
-	} else if (g_gametype.integer >= GT_CTF) {
-		// all base oriented team games use the CTF spawn points
-		spawnPoint = SelectCTFSpawnPoint (
-						client->sess.sessionTeam,
-						client->pers.teamState.state,
-						spawn_origin, spawn_angles,
-						!!(ent->r.svFlags & SVF_BOT));
+		SelectSpectatorSpawnPoint(spawn_origin, spawn_angles);
+	} else if (g_gametype.integer == GT_DEFRAG) {
+		spawnPoint = SelectDefragSpawnPoint(spawn_origin, spawn_angles);
+	} else if (g_gametype.integer == GT_CTF) {
+		spawnPoint = SelectCTFSpawnPoint(client->sess.sessionTeam, client->pers.teamState.state,
+			spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
+	} else if (client->pers.lastKiller) {
+		spawnPoint = SelectSpawnPoint(client->pers.lastKiller->ps.origin, spawn_origin,
+			spawn_angles, ent->r.svFlags & SVF_BOT);
+	} else {
+		spawnPoint = SelectSpawnPoint(client->ps.origin, spawn_origin,
+			spawn_angles, ent->r.svFlags & SVF_BOT);
 	}
-	else {
-		// the first spawn should be at a good looking spot
-		if (!client->pers.initialSpawn && client->pers.localClient) {
-			client->pers.initialSpawn = qtrue;
-			spawnPoint = SelectInitialSpawnPoint(spawn_origin, spawn_angles,
-							     !!(ent->r.svFlags & SVF_BOT));
-		}
-		else {
-			// don't spawn near existing origin if possible
-			spawnPoint = SelectSpawnPoint (
-				client->ps.origin,
-				spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
-		}
+
+	if (!spawnPoint) {
+		G_Error("Cannot find a spawn point.\n");
+		return;
 	}
+
 	client->pers.teamState.state = TEAM_ACTIVE;
 
 	// toggle the teleport bit so the client knows to not lerp
@@ -1193,5 +1121,23 @@ gclient_t *ClientFromString(const char *str)
 	}
 
 	return NULL;
+}
+
+void G_DefragScore(gclient_t *client)
+{
+	// a negative time means that the run already ended
+	// a zero time means that the run has not started yet
+	if (client->ps.stats[STAT_DEFRAG_TIME] <= 0) {
+		return;
+	}
+
+	client->ps.stats[STAT_DEFRAG_TIME] = client->ps.stats[STAT_DEFRAG_TIME] - level.time;
+	if (!client->pers.score || -client->ps.stats[STAT_DEFRAG_TIME] < client->pers.score) {
+		client->pers.score = -client->ps.stats[STAT_DEFRAG_TIME];
+		G_SendScoreboard(client);
+	}
+
+	ClientPrint(NULL, va("%s ^7reached the finish line in %.3f.", client->pers.netname,
+		-client->ps.stats[STAT_DEFRAG_TIME]  / 1000.0f));
 }
 

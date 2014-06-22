@@ -537,24 +537,27 @@ static void CG_CalcEntityLerpPositions(centity_t *cent)
 static void CG_TeamBase(centity_t *cent)
 {
 	refEntity_t model;
-	if (cgs.gametype == GT_CTF) {
-		// show the flag base
-		memset(&model, 0, sizeof(model));
-		model.reType = RT_MODEL;
-		VectorCopy(cent->lerpOrigin, model.lightingOrigin);
-		VectorCopy(cent->lerpOrigin, model.origin);
-		AnglesToAxis(cent->currentState.angles, model.axis);
-		if (cent->currentState.modelindex == TEAM_RED) {
-			model.hModel = cgs.media.redFlagBaseModel;
-		}
-		else if (cent->currentState.modelindex == TEAM_BLUE) {
-			model.hModel = cgs.media.blueFlagBaseModel;
-		}
-		else {
-			model.hModel = cgs.media.neutralFlagBaseModel;
-		}
-		trap_R_AddRefEntityToScene(&model);
+
+	if (cgs.gametype != GT_CTF && cgs.gametype != GT_DEFRAG) {
+		return;
 	}
+
+	// show the flag base
+	memset(&model, 0, sizeof(model));
+	model.reType = RT_MODEL;
+	VectorCopy(cent->lerpOrigin, model.lightingOrigin);
+	VectorCopy(cent->lerpOrigin, model.origin);
+	AnglesToAxis(cent->currentState.angles, model.axis);
+	if (cent->currentState.modelindex == TEAM_RED) {
+		model.hModel = cgs.media.redFlagBaseModel;
+	}
+	else if (cent->currentState.modelindex == TEAM_BLUE) {
+		model.hModel = cgs.media.blueFlagBaseModel;
+	}
+	else {
+		model.hModel = cgs.media.neutralFlagBaseModel;
+	}
+	trap_R_AddRefEntityToScene(&model);
 }
 
 static void CG_AddCEntity(centity_t *cent)

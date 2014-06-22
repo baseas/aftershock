@@ -139,6 +139,9 @@ void SP_trigger_push(gentity_t *ent);
 void SP_trigger_teleport(gentity_t *ent);
 void SP_trigger_hurt(gentity_t *ent);
 
+void SP_target_startTimer(gentity_t *ent);
+void SP_target_stopTimer(gentity_t *ent);
+void SP_target_checkpoint(gentity_t *ent);
 void SP_target_remove_powerups(gentity_t *ent);
 void SP_target_give(gentity_t *ent);
 void SP_target_delay(gentity_t *ent);
@@ -210,6 +213,9 @@ spawn_t	spawns[] = {
 
 	// targets perform no action by themselves, but must be triggered
 	// by another entity
+	{"target_startTimer", SP_target_startTimer},
+	{"target_stopTimer", SP_target_stopTimer},
+	{"target_checkpoint", SP_target_checkpoint},
 	{"target_give", SP_target_give},
 	{"target_remove_powerups", SP_target_remove_powerups},
 	{"target_delay", SP_target_delay},
@@ -408,15 +414,21 @@ void G_SpawnGEntityFromSpawnVars(void)
 	}
 
 	if (G_SpawnString("gametype", NULL, &value)) {
-		if (g_gametype.integer >= GT_FFA && g_gametype.integer < GT_MAX_GAME_TYPE) {
-			gametypeName = gametypeNames[g_gametype.integer];
+		gametypeName = gametypeNames[g_gametype.integer];
 
-			s = strstr(value, gametypeName);
-			if (!s) {
-				AdjustAreaPortal(ent);
-				G_FreeEntity(ent);
-				return;
+		s = strstr(value, gametypeName);
+
+		// spawn flags in defrag is they would spawn in ctf
+		if (!strcmp(ent->classname, "team_CTF_redflag") || !strcmp(ent->classname, "team_CTF_blueflag")) {
+			if (!s && g_gametype.integer == GT_DEFRAG) {
+				s = strstr(value, "ctf");
 			}
+		}
+
+		if (!s) {
+			AdjustAreaPortal(ent);
+			G_FreeEntity(ent);
+			return;
 		}
 	}
 
@@ -543,7 +555,7 @@ void SP_worldspawn(void)
 	if (g_restarted.integer) {
 		trap_Cvar_Set("g_restarted", "0");
 		level.warmupTime = 0;
-	} else {
+	} else if (g_gametype.integer != GT_DEFRAG) {
 		level.warmupTime = -1;
 		trap_SetConfigstring(CS_WARMUP, va("%i", level.warmupTime));
 		G_LogPrintf("Warmup:\n");

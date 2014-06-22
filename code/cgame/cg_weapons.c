@@ -519,6 +519,7 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
 	int				style;
 	clientInfo_t	*ci;
 	vec4_t			color;
+	int				mask;
 
 	if (cent->currentState.weapon != WP_LIGHTNING) {
 		return;
@@ -543,9 +544,15 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
 	// project forward by the lightning range
 	VectorMA(muzzlePoint, LIGHTNING_RANGE, forward, endPoint);
 
+	if (cgs.gametype == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
+
 	// see if it hit a wall
-	CG_Trace(&trace, muzzlePoint, vec3_origin, vec3_origin, endPoint, 
-		cent->currentState.number, MASK_SHOT);
+	CG_Trace(&trace, muzzlePoint, vec3_origin, vec3_origin, endPoint,
+		cent->currentState.number, mask);
 
 	// this is the endpoint
 	VectorCopy(trace.endpos, beam.oldorigin);
@@ -1280,8 +1287,15 @@ static void CG_ShotgunPellet(vec3_t start, vec3_t end, int skipNum)
 {
 	trace_t		tr;
 	int			sourceContentType, destContentType;
+	int			mask;
 
-	CG_Trace(&tr, start, NULL, NULL, end, skipNum, MASK_SHOT);
+	if (cgs.gametype == GT_DEFRAG) {
+		mask = MASK_SOLID;
+	} else {
+		mask = MASK_SHOT;
+	}
+
+	CG_Trace(&tr, start, NULL, NULL, end, skipNum, mask);
 
 	sourceContentType = CG_PointContents(start, 0);
 	destContentType = CG_PointContents(tr.endpos, 0);

@@ -1073,6 +1073,8 @@ typedef struct {
 
 //=========================================================
 
+#define MAX_CHECKPOINTS			32		// defrag checkpoints
+
 // bit field limits
 #define	MAX_STATS				16
 #define	MAX_PERSISTANT			16
@@ -1145,6 +1147,9 @@ typedef struct playerState_s {
 	int			damageYaw;
 	int			damagePitch;
 	int			damageCount;
+
+	// defrag
+	int			checkpoints[MAX_CHECKPOINTS];
 
 	int			stats[MAX_STATS];
 	int			persistant[MAX_PERSISTANT];	// stats that aren't cleared on death

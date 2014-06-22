@@ -280,7 +280,13 @@ gentity_t *fire_plasma(gentity_t *self, vec3_t start, vec3_t dir)
 	bolt->splashRadius = 20;
 	bolt->methodOfDeath = MOD_PLASMA;
 	bolt->splashMethodOfDeath = MOD_PLASMA_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		bolt->clipmask = MASK_SOLID;
+	} else {
+		bolt->clipmask = MASK_SHOT;
+	}
+
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -315,7 +321,13 @@ gentity_t *fire_grenade(gentity_t *self, vec3_t start, vec3_t dir)
 	bolt->splashRadius = 150;
 	bolt->methodOfDeath = MOD_GRENADE;
 	bolt->splashMethodOfDeath = MOD_GRENADE_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		bolt->clipmask = MASK_SOLID;
+	} else {
+		bolt->clipmask = MASK_SHOT;
+	}
+
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_GRAVITY;
@@ -349,7 +361,13 @@ gentity_t *fire_bfg(gentity_t *self, vec3_t start, vec3_t dir)
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_BFG;
 	bolt->splashMethodOfDeath = MOD_BFG_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		bolt->clipmask = MASK_SOLID;
+	} else {
+		bolt->clipmask = MASK_SHOT;
+	}
+
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -382,7 +400,13 @@ gentity_t *fire_rocket(gentity_t *self, vec3_t start, vec3_t dir)
 	bolt->splashRadius = 120;
 	bolt->methodOfDeath = MOD_ROCKET;
 	bolt->splashMethodOfDeath = MOD_ROCKET_SPLASH;
-	bolt->clipmask = MASK_SHOT;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		bolt->clipmask = MASK_SOLID;
+	} else {
+		bolt->clipmask = MASK_SHOT;
+	}
+
 	bolt->target_ent = NULL;
 
 	bolt->s.pos.trType = TR_LINEAR;
@@ -410,7 +434,13 @@ gentity_t *fire_grapple(gentity_t *self, vec3_t start, vec3_t dir)
 	hook->s.weapon = WP_GRAPPLING_HOOK;
 	hook->r.ownerNum = self->s.number;
 	hook->methodOfDeath = MOD_GRAPPLE;
-	hook->clipmask = MASK_SHOT;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		hook->clipmask = MASK_SOLID;
+	} else {
+		hook->clipmask = MASK_SHOT;
+	}
+
 	hook->parent = self;
 	hook->target_ent = NULL;
 

@@ -653,6 +653,11 @@ static void CG_DrawTourneyScoreboard(void)
 	}
 }
 
+static void CG_DrawDefragScoreboard(void)
+{
+
+}
+
 static void CG_DrawSingleScoreboard(void)
 {
 	char	string[128];
@@ -693,6 +698,10 @@ qboolean CG_DrawScoreboard(void)
 		return qfalse;
 	}
 
+	if (cgs.gametype == GT_DEFRAG && !cg.showScores) {
+		return qfalse;
+	}
+
 	if (!cg.showScores && cg.predictedPlayerState.pm_type != PM_DEAD
 		&& cg.predictedPlayerState.pm_type != PM_INTERMISSION)
 	{
@@ -707,6 +716,8 @@ qboolean CG_DrawScoreboard(void)
 		CG_DrawTourneyScoreboard();
 	} else if (cgs.gametype >= GT_TEAM) {
 		CG_DrawTeamScoreboard();
+	} else if (cgs.gametype == GT_DEFRAG) {
+		CG_DrawDefragScoreboard();
 	} else {
 		CG_DrawSingleScoreboard();
 	}
