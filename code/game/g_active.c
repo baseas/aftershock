@@ -761,8 +761,7 @@ void ClientThink_real(gentity_t *ent)
 			}
 
 			// forcerespawn is to prevent users from waiting out powerups
-			if (g_forcerespawn.integer > 0 &&
-				(level.time - client->respawnTime) > g_forcerespawn.integer * 1000) {
+			if (level.time - client->respawnTime > 5000) {
 				ClientRespawn(ent);
 				return;
 			}
