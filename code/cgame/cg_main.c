@@ -410,18 +410,18 @@ static void CG_RegisterGraphics(void)
 	cgs.media.botSkillShaders[3] = trap_R_RegisterShader("menu/art/skill4.tga");
 	cgs.media.botSkillShaders[4] = trap_R_RegisterShader("menu/art/skill5.tga");
 
-	cgs.media.viewBloodShader = trap_R_RegisterShader("viewBloodBlend");
+	cgs.media.viewBloodShader = trap_R_RegisterShaderNoMip("viewBloodBlend");
 
 	cgs.media.deferShader = trap_R_RegisterShaderNoMip("gfx/2d/defer.tga");
 
 	cgs.media.smokePuffShader = trap_R_RegisterShaderNoMip("smokePuff");
 	cgs.media.smokePuffRageProShader = trap_R_RegisterShaderNoMip("smokePuffRagePro");
 	cgs.media.plasmaBallShader = trap_R_RegisterShaderNoMip("sprites/plasma1Color");
-	cgs.media.bloodTrailShader = trap_R_RegisterShader("bloodTrail");
+	cgs.media.bloodTrailShader = trap_R_RegisterShaderNoMip("bloodTrail");
 	cgs.media.lagometerShader = trap_R_RegisterShaderNoMip("lagometer");
 	cgs.media.connectionShader = trap_R_RegisterShaderNoMip("disconnected");
 
-	cgs.media.waterBubbleShader = trap_R_RegisterShader("waterBubble");
+	cgs.media.waterBubbleShader = trap_R_RegisterShaderNoMip("waterBubble");
 
 	cgs.media.tracerShader = trap_R_RegisterShader("gfx/misc/tracer");
 
@@ -488,10 +488,10 @@ static void CG_RegisterGraphics(void)
 
 	cgs.media.smoke2 = trap_R_RegisterModel("models/weapons2/shells/s_shell.md3");
 
-	cgs.media.balloonShader = trap_R_RegisterShader("sprites/balloon3");
-	cgs.media.balloonShaderVisible = trap_R_RegisterShader("sprites/balloon4");
+	cgs.media.balloonShader = trap_R_RegisterShaderNoMip("sprites/balloon3");
+	cgs.media.balloonShaderVisible = trap_R_RegisterShaderNoMip("sprites/balloon4");
 
-	cgs.media.bloodExplosionShader = trap_R_RegisterShader("bloodExplosion");
+	cgs.media.bloodExplosionShader = trap_R_RegisterShaderNoMip("bloodExplosion");
 
 	cgs.media.bulletFlashModel = trap_R_RegisterModel("models/weaphits/bullet.md3");
 	cgs.media.ringFlashModel = trap_R_RegisterModel("models/weaphits/ring02.md3");
