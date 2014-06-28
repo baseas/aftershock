@@ -436,9 +436,9 @@ team_t PickTeam(int ignoreClientNum)
 	return TEAM_SPECTATOR;
 }
 
-static void ClientCleanName(const char *in, char *out, int outSize)
+static char *ClientCleanName(const char *in, char *out, int outSize)
 {
-	int outpos = 0, colorlessLen = 0, spaces = 0;
+	int outpos = 0, colorlessLen = 0, letters = 0, spaces = 0;
 
 	// discard leading spaces
 	for (; *in == ' '; in++);
@@ -474,14 +474,38 @@ static void ClientCleanName(const char *in, char *out, int outSize)
 			colorlessLen++;
 		}
 
+		if (Q_isalpha(*in)) {
+			letters++;
+		}
+
 		outpos++;
+	}
+
+	// disregard trailing spaces
+	while (outpos > 0 && out[outpos - 1] == ' ') {
+		--outpos;
 	}
 
 	out[outpos] = '\0';
 
-	// don't allow empty names
-	if (*out == '\0' || colorlessLen == 0)
+	// don't allow empty names in local games
+	if (*out == '\0' || colorlessLen == 0) {
 		Q_strncpyz(out, "UnnamedPlayer", outSize);
+	}
+
+	if (!Q_stricmp(out, "UnnamedPlayer")) {
+		return "Pick a proper name.";
+	}
+
+	if (letters < 3) {
+		return "A valid name contains at least three letters.";
+	}
+
+	if (colorlessLen > 20) {
+		return "Your name is too long.";
+	}
+
+	return NULL;
 }
 
 void ClientPrint(gentity_t *ent, char *str)
@@ -506,6 +530,7 @@ void ClientUserinfoChanged(int clientNum)
 	char	oldname[MAX_STRING_CHARS];
 	gclient_t	*client;
 	char	userinfo[MAX_INFO_STRING];
+	char	*nameError;
 
 	ent = g_entities + clientNum;
 	client = ent->client;
@@ -535,17 +560,27 @@ void ClientUserinfoChanged(int clientNum)
 
 	// set name
 	Q_strncpyz(oldname, client->pers.netname, sizeof(oldname));
-	s = Info_ValueForKey (userinfo, "name");
-	ClientCleanName(s, client->pers.netname, sizeof(client->pers.netname));
+	s = Info_ValueForKey(userinfo, "name");
+	nameError = ClientCleanName(s, client->pers.netname, sizeof client->pers.netname);
+
+	if (client->pers.connected == CON_CONNECTED && strcmp(oldname, s)) {
+		if (client->pers.muted) {
+			ClientPrint(ent, "You cannot change your name while you are muted.");
+		} else if (nameError) {
+			ClientPrint(ent, nameError);
+		} else {
+			G_LogPrintf("%s ^7renamed to %s\n", oldname, client->pers.netname);
+		}
+
+		if (nameError || client->pers.muted) {
+			Q_strncpyz(client->pers.netname, oldname, sizeof client->pers.netname);
+		}
+	}
 
 	if (client->sess.sessionTeam == TEAM_SPECTATOR) {
 		if (client->sess.spectatorState == SPECTATOR_SCOREBOARD) {
 			Q_strncpyz(client->pers.netname, "scoreboard", sizeof(client->pers.netname));
 		}
-	}
-
-	if (client->pers.connected == CON_CONNECTED && strcmp(oldname, client->pers.netname)) {
-		G_LogPrintf("%s" S_COLOR_WHITE " renamed to %s\n", oldname, client->pers.netname);
 	}
 
 	// set max health
@@ -638,6 +673,13 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 	// NOTE: local client <-> "ip" "localhost"
 	// this means this client is not running in our current process
 	if (!isBot && (strcmp(value, "localhost") != 0)) {
+		char	name[MAX_NETNAME];
+		value = Info_ValueForKey(userinfo, "name");
+		value = ClientCleanName(value, name, sizeof name);
+		if (value) {
+			return value;
+		}
+
 		// check for a password
 		value = Info_ValueForKey (userinfo, "password");
 		if (g_password.string[0] && Q_stricmp(g_password.string, "none") &&
