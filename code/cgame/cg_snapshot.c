@@ -42,23 +42,6 @@ static void CG_ResetEntity(centity_t *cent)
 	}
 }
 
-static void CG_TransitionEntity(centity_t *cent)
-{
-	cent->currentState = cent->nextState;
-	cent->currentValid = qtrue;
-
-	// reset if the entity wasn't in the last frame or was teleported
-	if (!cent->interpolate) {
-		CG_ResetEntity(cent);
-	}
-
-	// clear the next state.  if will be set by the next CG_SetNextSnap
-	cent->interpolate = qfalse;
-
-	// check for events
-	CG_CheckEvents(cent);
-}
-
 /**
 The transition point from snap to nextSnap has passed
 */
@@ -235,6 +218,23 @@ static snapshot_t *CG_ReadNextSnapshot(void)
 
 	// nothing left to read
 	return NULL;
+}
+
+void CG_TransitionEntity(centity_t *cent)
+{
+	cent->currentState = cent->nextState;
+	cent->currentValid = qtrue;
+
+	// reset if the entity wasn't in the last frame or was teleported
+	if (!cent->interpolate) {
+		CG_ResetEntity(cent);
+	}
+
+	// clear the next state.  if will be set by the next CG_SetNextSnap
+	cent->interpolate = qfalse;
+
+	// check for events
+	CG_CheckEvents(cent);
 }
 
 /**

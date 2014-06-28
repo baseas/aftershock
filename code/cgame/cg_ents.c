@@ -498,15 +498,7 @@ static void CG_InterpolateEntityPosition(centity_t *cent)
 
 static void CG_CalcEntityLerpPositions(centity_t *cent)
 {
-
-	// if this player does not want to see extrapolated players
-	if (!cg_smoothClients.integer) {
-		// make sure the clients use TR_INTERPOLATE
-		if (cent->currentState.number < MAX_CLIENTS) {
-			cent->currentState.pos.trType = TR_INTERPOLATE;
-			cent->nextState.pos.trType = TR_INTERPOLATE;
-		}
-	}
+	// since smoothClients is done server-side now, players will always be TR_INTERPOLATE
 
 	if (cent->interpolate && cent->currentState.pos.trType == TR_INTERPOLATE) {
 		CG_InterpolateEntityPosition(cent);
@@ -724,10 +716,28 @@ void CG_AddPacketEntities(void)
 	// lerp the non-predicted value for lightning gun origins
 	CG_CalcEntityLerpPositions(&cg_entities[cg.snap->ps.clientNum]);
 
+	// unlagged - early transitioning
+	if (cg.nextSnap) {
+		// pre-add some of the entities sent over by the server
+		// we have data for them and they don't need to interpolate
+		for (num = 0 ; num < cg.nextSnap->numEntities; num++) {
+			cent = &cg_entities[ cg.nextSnap->entities[num].number];
+			if (cent->nextState.eType == ET_MISSILE || cent->nextState.eType == ET_GENERAL) {
+				// transition it immediately and add it
+				CG_TransitionEntity(cent);
+				cent->interpolate = qtrue;
+				CG_AddCEntity(cent);
+			}
+		}
+	}
+
 	// add each entity sent over by the server
 	for (num = 0; num < cg.snap->numEntities; num++) {
 		cent = &cg_entities[cg.snap->entities[num].number];
-		CG_AddCEntity(cent);
+		// unlagged - early transitioning
+		if (!cg.nextSnap || (cent->nextState.eType != ET_MISSILE && cent->nextState.eType != ET_GENERAL)) {
+			CG_AddCEntity(cent);
+		}
 	}
 }
 

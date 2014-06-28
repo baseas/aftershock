@@ -529,8 +529,16 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
 
 	memset(&beam, 0, sizeof(beam));
 
-	AngleVectors(cent->lerpAngles, forward, NULL, NULL);
-	VectorCopy(cent->lerpOrigin, muzzlePoint);
+	// unlagged - attack prediction #1
+	// if the entity is us, unlagged is on server-side, and we've got it on for the lightning gun
+	if (cent->currentState.number == cg.predictedPlayerState.clientNum) {
+		// always shoot straight forward from our current position
+		AngleVectors(cg.predictedPlayerState.viewangles, forward, NULL, NULL);
+		VectorCopy(cg.predictedPlayerState.origin, muzzlePoint);
+	} else {
+		AngleVectors(cent->lerpAngles, forward, NULL, NULL);
+		VectorCopy(cent->lerpOrigin, muzzlePoint);
+	}
 
 	anim = cent->currentState.legsAnim & ~ANIM_TOGGLEBIT;
 	if (anim == LEGS_WALKCR || anim == LEGS_IDLECR) {
@@ -1113,6 +1121,9 @@ void CG_FireWeapon(centity_t *cent)
 			trap_S_StartSound(NULL, ent->number, CHAN_WEAPON, weap->flashSound[c]);
 		}
 	}
+
+	// unlagged - attack prediction #1
+	CG_PredictWeaponEffects(cent);
 }
 
 /**

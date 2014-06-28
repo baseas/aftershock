@@ -90,7 +90,7 @@ static void TimeShiftLerp(float frac, vec3_t start, vec3_t end, vec3_t result)
 /**
 Move a client back to where he was at the specified "time"
 */
-void G_TimeShiftClient(gentity_t *ent, int time, qboolean debug, gentity_t *debugger)
+static void G_TimeShiftClient(gentity_t *ent, int time, qboolean debug, gentity_t *debugger)
 {
 	int		j, k;
 
@@ -347,7 +347,7 @@ void G_UndoTimeShiftFor(gentity_t *ent)
 /**
 Slide on the impacting surface
 */
-void G_PredictPlayerClipVelocity(vec3_t in, vec3_t normal, vec3_t out)
+static void G_PredictPlayerClipVelocity(vec3_t in, vec3_t normal, vec3_t out)
 {
 	float	backoff;
 

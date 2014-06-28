@@ -890,6 +890,12 @@ void ClientSpawn(gentity_t *ent)
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT | EF_TEAMVOTED);
 	flags ^= EF_TELEPORT_BIT;
 
+	// unlagged - backward reconciliation #3
+	// we don't want players being backward-reconciled to the place they died
+	G_ResetHistory( ent );
+	// and this is as good a time as any to clear the saved state
+	ent->client->saved.leveltime = 0;
+
 	// clear everything but the persistant data
 
 	saved = client->pers;

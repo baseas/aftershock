@@ -117,6 +117,7 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 	int			i, passent;
 	int			damage;
 	int			mask;
+	int			seed;
 
 	if (g_gametype.integer >= GT_TEAM) {
 		damage = MACHINEGUN_TEAM_DAMAGE * s_quadFactor;
@@ -124,9 +125,13 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 		damage = MACHINEGUN_DAMAGE * s_quadFactor;
 	}
 
-	r = random() * M_PI * 2.0f;
-	u = sin(r) * crandom() * MACHINEGUN_SPREAD * 16;
-	r = cos(r) * crandom() * MACHINEGUN_SPREAD * 16;
+	// unlagged - attack prediction #2
+	// use predictable pseudo-random numbers
+	seed = ent->client->attackTime % 256;
+	r = Q_random(&seed) * M_PI * 2.0f;
+	u = sin(r) * Q_crandom(&seed) * MACHINEGUN_SPREAD * 16;
+	r = cos(r) * Q_crandom(&seed) * MACHINEGUN_SPREAD * 16;
+
 	VectorMA(muzzle, MAX_WEAPON_RANGE, forward, end);
 	VectorMA(end, r, right, end);
 	VectorMA(end, u, up, end);
@@ -139,7 +144,11 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
+		// unlagged - backward reconciliation #2
+		G_DoTimeShiftFor(ent);
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, mask);
+		G_UndoTimeShiftFor(ent);
+
 		if (tr.surfaceFlags & SURF_NOIMPACT) {
 			return;
 		}
@@ -159,6 +168,11 @@ static void Weapon_Machinegun_Fire(gentity_t *ent)
 			tent = G_TempEntity(tr.endpos, EV_BULLET_HIT_WALL);
 			tent->s.eventParm = DirToByte(tr.plane.normal);
 		}
+
+		// unlagged - attack prediction #2
+		// we need the client number to determine whether or not to suppress this event
+		tent->s.clientNum = ent->s.clientNum;
+
 		tent->s.otherEntityNum = ent->s.number;
 
 		if (traceEnt->takedamage) {
@@ -233,6 +247,10 @@ static void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *e
 	PerpendicularVector(right, forward);
 	CrossProduct(forward, right, up);
 
+	// unlagged - backward reconciliation #2
+	// backward-reconcile the other clients
+	G_DoTimeShiftFor(ent);
+
 	// generate the "random" spread pattern
 	for (i = 0; i < DEFAULT_SHOTGUN_COUNT; i++) {
 		r = Q_crandom(&seed) * DEFAULT_SHOTGUN_SPREAD * 16;
@@ -248,6 +266,9 @@ static void ShotgunPattern(vec3_t origin, vec3_t origin2, int seed, gentity_t *e
 	if (hits == DEFAULT_SHOTGUN_COUNT) {
 		ent->client->pers.stats.rewards[REWARD_FULLSG]++;
 	}
+
+	// unlagged - backward reconciliation #2
+	G_UndoTimeShiftFor(ent);
 }
 
 static void Weapon_Shotgun_Fire(gentity_t *ent)
@@ -258,7 +279,10 @@ static void Weapon_Shotgun_Fire(gentity_t *ent)
 	tent = G_TempEntity(muzzle, EV_SHOTGUN);
 	VectorScale(forward, 4096, tent->s.origin2);
 	SnapVector(tent->s.origin2);
-	tent->s.eventParm = rand() & 255;		// seed for spread pattern
+
+	// unlagged - attack prediction #2
+	tent->s.eventParm = ent->client->attackTime % 255;		// seed for spread pattern
+
 	tent->s.otherEntityNum = ent->s.number;
 
 	ShotgunPattern(tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent);
@@ -313,6 +337,9 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 
 	VectorMA(muzzle, MAX_WEAPON_RANGE, forward, end);
 
+	// unlagged - backward reconciliation #2
+	G_DoTimeShiftFor(ent);
+
 	// trace only against the solids, so the railgun will go through people
 	unlinked = 0;
 	hits = 0;
@@ -344,6 +371,9 @@ static void Weapon_Railgun_Fire(gentity_t *ent)
 		unlinkedEntities[unlinked] = traceEnt;
 		unlinked++;
 	} while (unlinked < MAX_RAIL_HITS);
+
+	// unlagged - backward reconciliation #2
+	G_UndoTimeShiftFor(ent);
 
 	// link back in any entities we unlinked
 	for (i = 0; i < unlinked; i++) {
@@ -424,7 +454,11 @@ static void Weapon_Lightning_Fire(gentity_t *ent)
 	passent = ent->s.number;
 	for (i = 0; i < 10; i++) {
 		VectorMA(muzzle, LIGHTNING_RANGE, forward, end);
+
+		// unlagged - backward reconciliation #2
+		G_DoTimeShiftFor(ent);
 		trap_Trace(&tr, muzzle, NULL, NULL, end, passent, mask);
+		G_UndoTimeShiftFor(ent);
 
 		if (tr.entityNum == ENTITYNUM_NONE) {
 			return;

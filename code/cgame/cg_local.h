@@ -391,7 +391,8 @@ typedef struct {
 // occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
 
 #define MAX_PREDICTED_EVENTS	16
- 
+#define NUM_SAVED_STATES 		(CMD_BACKUP + 2)	// unlagged - optimized prediction
+
 typedef struct {
 	int			clientFrame;		// incremented each frame
 
@@ -561,6 +562,12 @@ typedef struct {
 	refEntity_t		testModelEntity;
 	char			testModelName[MAX_QPATH];
 	qboolean		testGun;
+
+	// unlagged - optimized prediction
+	int				lastPredictedCommand;
+	int				lastServerTime;
+	playerState_t	savedPmoveStates[NUM_SAVED_STATES];
+	int				stateHead, stateTail;
 
 	// spawnpoints
 	vec3_t		spawnOrigin[MAX_SPAWNPOINTS];
@@ -1361,6 +1368,7 @@ void		CG_EntityEvent(centity_t *cent, vec3_t position);
 //
 // cg_ents.c
 //
+void	CG_TransitionEntity(centity_t *cent);
 void	CG_SetEntitySoundPosition(centity_t *cent);
 void	CG_AddPacketEntities(void);
 void	CG_Beam(centity_t *cent);

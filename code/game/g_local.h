@@ -1,24 +1,3 @@
-/*
-===========================================================================
-Copyright(C) 1999-2005 Id Software, Inc.
-
-This file is part of Quake III Arena source code.
-
-Quake III Arena source code is free software; you can redistribute it
-and/or modify it under the terms of the GNU General Public License as
-published by the Free Software Foundation; either version 2 of the License,
-or(at your option) any later version.
-
-Quake III Arena source code is distributed in the hope that it will be
-useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Quake III Arena source code; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-===========================================================================
-*/
 //
 // g_local.h -- local definitions for game module
 
@@ -281,9 +260,6 @@ struct gclient_s {
 
 	qboolean	noclip;
 
-	int			lastCmdTime;		// level.time of last usercmd_t, for EF_CONNECTION
-									// we can't just use pers.lastCommand.time, because
-									// of the g_sycronousclients case
 	int			buttons;
 	int			oldbuttons;
 	int			latched_buttons;
@@ -699,6 +675,19 @@ int		G_Vote_Call(gentity_t *ent);
 void	G_Vote_Check(void);
 void	G_Vote_UpdateCount(void);
 
+//
+// g_unlagged.c
+//
+void	G_ResetHistory(gentity_t *ent);
+void	G_StoreHistory(gentity_t *ent);
+void	G_TimeShiftOneClient(gentity_t *ent);
+void	G_TimeShiftAllClients(int time, gentity_t *skip);
+void	G_UnTimeShiftClient(gentity_t *client);
+void	G_UnTimeShiftAllClients(gentity_t *skip);
+void	G_DoTimeShiftFor(gentity_t *ent);
+void	G_UndoTimeShiftFor(gentity_t *ent);
+void	G_PredictPlayerMove(gentity_t *ent, float frametime);
+
 // ai_main.c
 #define MAX_FILEPATH	144
 
@@ -775,6 +764,7 @@ extern vmCvar_t	g_redLocked;
 extern vmCvar_t	g_blueLocked;
 extern vmCvar_t	g_writeStats;
 extern vmCvar_t	g_allowRespawnTimer;
+extern vmCvar_t	sv_fps;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

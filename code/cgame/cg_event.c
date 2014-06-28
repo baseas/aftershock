@@ -926,6 +926,12 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 		DEBUGNAME("EV_RAILTRAIL");
 		cent->currentState.weapon = WP_RAILGUN;
 
+		// unlagged - attack prediction #2
+		// do nothing, because it was already predicted
+		if (es->clientNum == cg.predictedPlayerState.clientNum) {
+			break;
+		}
+
 		if (es->clientNum == cg.snap->ps.clientNum && !cg.renderingThirdPerson) {
 			if (cg_drawGun.integer == 2) {
 				VectorMA(es->origin2, 8, cg.refdef.viewaxis[1], es->origin2);
@@ -945,12 +951,26 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 
 	case EV_BULLET_HIT_WALL:
 		DEBUGNAME("EV_BULLET_HIT_WALL");
+
+		// unlagged - attack prediction #2
+		// do nothing, because it was already predicted
+		if (es->clientNum == cg.predictedPlayerState.clientNum) {
+			break;
+		}
+
 		ByteToDir(es->eventParm, dir);
 		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qfalse, ENTITYNUM_WORLD);
 		break;
 
 	case EV_BULLET_HIT_FLESH:
 		DEBUGNAME("EV_BULLET_HIT_FLESH");
+
+		// unlagged - attack prediction #2
+		// do nothing, because it was already predicted
+		if (es->clientNum == cg.predictedPlayerState.clientNum) {
+			break;
+		}
+
 		CG_Bullet(es->pos.trBase, es->otherEntityNum, dir, qtrue, es->eventParm);
 		break;
 

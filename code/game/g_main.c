@@ -96,6 +96,7 @@ vmCvar_t	g_writeStats;
 vmCvar_t	g_roundWarmup;
 vmCvar_t	g_roundTimelimit;
 vmCvar_t	g_allowRespawnTimer;
+vmCvar_t	sv_fps;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -167,7 +168,8 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_writeStats, "g_writeStats", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_roundWarmup, "g_roundWarmup", "7", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_roundTimelimit, "g_roundTimelimit", "300", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_allowRespawnTimer, "g_allowRespawnTimer", "1", CVAR_ARCHIVE, 0, qfalse }
+	{ &g_allowRespawnTimer, "g_allowRespawnTimer", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &sv_fps, "sv_fps", "40", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -1918,11 +1920,6 @@ void G_RunFrame(int levelTime)
 			continue;
 		}
 
-		if (ent->s.eType == ET_MISSILE) {
-			G_RunMissile(ent);
-			continue;
-		}
-
 		if (ent->s.eType == ET_ITEM || ent->physicsObject) {
 			G_RunItem(ent);
 			continue;
@@ -1940,6 +1937,23 @@ void G_RunFrame(int levelTime)
 
 		G_RunThink(ent);
 	}
+
+	// unlagged - backward reconciliation #2
+	// NOW run the missiles, with all players backward-reconciled
+	// to the positions they were in exactly 50ms ago, at the end
+	// of the last server frame
+
+	G_TimeShiftAllClients( level.previousTime, NULL );
+	ent = &g_entities[0];
+	for (i = 0; i<level.num_entities; i++, ent++) {
+		if (ent->s.eType == ET_MISSILE) {
+			G_RunMissile(ent);
+			continue;
+		}
+	}
+	G_UnTimeShiftAllClients(NULL);
+
+	// end unlagged
 
 	// perform final fixups on the players
 	ent = &g_entities[0];

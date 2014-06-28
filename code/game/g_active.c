@@ -582,6 +582,17 @@ void ClientThink_real(gentity_t *ent)
 
 	ClientCalcPing(client);
 
+	// unlagged - backward reconciliation #4
+	// save the command time *before* pmove_fixed messes with the serverTime,
+	// and *after* lag simulation messes with it
+	// attackTime will be used for backward reconciliation later (time shift)
+	client->attackTime = ucmd->serverTime;
+
+	// unlagged - smooth clients #1
+	// keep track of this for later - we'll use this to decide whether or not
+	// to send extrapolated positions for this client
+	client->lastUpdateFrame = level.framenum;
+
 	msec = ucmd->serverTime - client->ps.commandTime;
 	// following others may result in bad times, but we still want
 	// to check for follow toggles
@@ -699,12 +710,15 @@ void ClientThink_real(gentity_t *ent)
 	if (ent->client->ps.eventSequence != oldEventSequence) {
 		ent->eventTime = level.time;
 	}
-	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
-	}
-	else {
-		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	}
+
+	// unlagged - smooth clients #2
+	// Clients no longer do extrapolation, because skip correction is all handled server-side now.
+	// Since that's the case, it makes no sense to store the extra info using
+	// BG_PlayerStateToEntityStateExtraPolate in the client's snapshot entity,
+	// so let's save a little bandwidth.
+
+	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
+
 	SendPendingPredictableEvents(&ent->client->ps);
 
 	if (!(ent->client->ps.eFlags & EF_FIRING)) {
@@ -795,10 +809,6 @@ void ClientThink(int clientNum)
 	ent = g_entities + clientNum;
 	trap_GetUsercmd(clientNum, &ent->client->pers.cmd);
 
-	// mark the time we got info, so we can display the
-	// phone jack if they don't get any for a while
-	ent->client->lastCmdTime = level.time;
-
 	if (!(ent->r.svFlags & SVF_BOT)) {
 		ClientThink_real(ent);
 	}
@@ -862,6 +872,7 @@ while a slow client may have multiple ClientEndFrame between ClientThink.
 void ClientEndFrame(gentity_t *ent)
 {
 	int			i;
+	int			frames;
 
 	if (ent->client->sess.spectatorState != SPECTATOR_NOT) {
 		SpectatorClientEndFrame(ent);
@@ -889,28 +900,40 @@ void ClientEndFrame(gentity_t *ent)
 	// apply all the damage taken this frame
 	P_DamageFeedback(ent);
 
-	// add the EF_CONNECTION flag if we haven't gotten commands recently
-	if (level.time - ent->client->lastCmdTime > 1000) {
-		ent->client->ps.eFlags |= EF_CONNECTION;
-	} else {
-		ent->client->ps.eFlags &= ~EF_CONNECTION;
-	}
-
 	ent->client->ps.stats[STAT_HEALTH] = ent->health;	// FIXME: get rid of ent->health...
 
 	G_SetClientSound(ent);
 
-	// set the latest infor
-	if (g_smoothClients.integer) {
-		BG_PlayerStateToEntityStateExtraPolate(&ent->client->ps, &ent->s, ent->client->ps.commandTime, qtrue);
-	}
-	else {
-		BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
-	}
+	// unlagged - smooth clients #1
+	// always use BG_PlayerStateToEntityState instead of BG_PlayerStateToEntityStateExtraPolate
+	BG_PlayerStateToEntityState(&ent->client->ps, &ent->s, qtrue);
 	SendPendingPredictableEvents(&ent->client->ps);
 
-	// set the bit for the reachability area the client is currently in
-//	i = trap_AAS_PointReachabilityAreaIndex(ent->client->ps.origin);
-//	ent->client->areabits[i >> 3] |= 1 << (i & 7);
+	// unlagged - smooth clients #1
+	// mark as not missing updates initially
+	ent->client->ps.eFlags &= ~EF_CONNECTION;
+
+	frames = level.framenum - ent->client->lastUpdateFrame - 1;
+
+	// don't extrapolate more than two frames
+	if (frames > 2) {
+		frames = 2;
+
+		// if they missed more than two in a row, show the phone jack
+		ent->client->ps.eFlags |= EF_CONNECTION;
+		ent->s.eFlags |= EF_CONNECTION;
+	}
+
+	// did the client miss any frames?
+	if (frames > 0) {
+		// yep, missed one or more, so extrapolate the player's movement
+		G_PredictPlayerMove(ent, (float) frames / sv_fps.integer);
+		// save network bandwidth
+		SnapVector(ent->s.pos.trBase);
+	}
+
+	// unlagged - backward reconciliation #1
+	// store the client's position for backward reconciliation later
+	G_StoreHistory(ent);
 }
 

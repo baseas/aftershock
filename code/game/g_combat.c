@@ -367,6 +367,10 @@ void player_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 		return;
 	}
 
+	// unlagged - backward reconciliation #2
+	// make sure the body shows up in the client's current position
+	G_UnTimeShiftClient(self);
+
 	if (g_gametype.integer == GT_DEFRAG) {
 		self->client->ps.stats[STAT_DEFRAG_TIME] = 0;
 
