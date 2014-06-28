@@ -1490,7 +1490,7 @@ static void Cvar_SetRange(cvar_t *cvar, const char *value)
 		max = atof(COM_Parse((char **) &value));
 		Cvar_CheckRange(cvar, min, max, qfalse);
 	} else if (strcmp(token, "all")) {
-		Com_Printf("Cvar: Invalid range.\n");
+		Com_Printf("Cvar: Invalid range '%s' for %s.\n", token, cvar->name);
 	}
 }
 
