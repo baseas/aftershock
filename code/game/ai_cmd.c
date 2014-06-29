@@ -47,78 +47,58 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 int notleader[MAX_CLIENTS];
 
-#ifdef DEBUG
 void BotPrintTeamGoal(bot_state_t *bs)
 {
 	char netname[MAX_NETNAME];
 	float t;
 
+	if (!BotDebug(bs, 1)) {
+		return;
+	}
+
 	ClientName(bs->client, netname, sizeof netname);
 	t = bs->teamgoal_time - FloatTime();
 	switch (bs->ltgtype) {
-		case LTG_TEAMHELP:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna help a team mate for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_TEAMACCOMPANY:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna accompany a team mate for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_GETFLAG:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna get the flag for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_RUSHBASE:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna rush to the base for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_RETURNFLAG:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna try to return the flag for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_DEFENDKEYAREA:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna defend a key area for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_GETITEM:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna get an item for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_KILL:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna kill someone for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_CAMP:
-		case LTG_CAMPORDER:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna camp for %1.0f secs\n", netname, t);
-			break;
-		}
-		case LTG_PATROL:
-		{
-			BotAI_Print(PRT_MESSAGE, "%s: I'm gonna patrol for %1.0f secs\n", netname, t);
-			break;
-		}
-		default:
-		{
-			if (bs->ctfroam_time > FloatTime()) {
-				t = bs->ctfroam_time - FloatTime();
-				BotAI_Print(PRT_MESSAGE, "%s: I'm gonna roam for %1.0f secs\n", netname, t);
-			} else {
-				BotAI_Print(PRT_MESSAGE, "%s: I've got a regular goal\n", netname);
-			}
+	case LTG_TEAMHELP:
+		BotReport(bs, "I'm gonna help a team mate for %1.0f secs", t);
+		break;
+	case LTG_TEAMACCOMPANY:
+		BotReport(bs, "I'm gonna accompany a team mate for %1.0f secs", t);
+		break;
+	case LTG_GETFLAG:
+		BotReport(bs, "I'm gonna get the flag for %1.0f secs", t);
+		break;
+	case LTG_RUSHBASE:
+		BotReport(bs, "I'm gonna rush to the base for %1.0f secs", t);
+		break;
+	case LTG_RETURNFLAG:
+		BotReport(bs, "I'm gonna try to return the flag for %1.0f secs", t);
+		break;
+	case LTG_DEFENDKEYAREA:
+		BotReport(bs, "I'm gonna defend a key area for %1.0f secs", t);
+		break;
+	case LTG_GETITEM:
+		BotReport(bs, "I'm gonna get an item for %1.0f secs", t);
+		break;
+	case LTG_KILL:
+		BotReport(bs, "I'm gonna kill someone for %1.0f secs", t);
+		break;
+	case LTG_CAMP:
+	case LTG_CAMPORDER:
+		BotReport(bs, "I'm gonna camp for %1.0f secs", t);
+		break;
+	case LTG_PATROL:
+		BotReport(bs, "I'm gonna patrol for %1.0f secs", t);
+		break;
+	default:
+		if (bs->ctfroam_time > FloatTime()) {
+			t = bs->ctfroam_time - FloatTime();
+			BotReport(bs, "I'm gonna roam for %1.0f secs", t);
+		} else {
+			BotReport(bs, "I've got a regular goal");
 		}
 	}
 }
-#endif
 
 /**
 FIXME: add stuff like "upper rocket launcher"
@@ -535,9 +515,7 @@ void BotMatch_HelpAccompany(bot_state_t *bs, bot_match_t *match)
 		BotRememberLastOrderedTask(bs);
 	}
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_DefendKeyArea(bot_state_t *bs, bot_match_t *match)
@@ -573,9 +551,7 @@ void BotMatch_DefendKeyArea(bot_state_t *bs, bot_match_t *match)
 	bs->defendaway_time = 0;
 	BotRememberLastOrderedTask(bs);
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_GetItem(bot_state_t *bs, bot_match_t *match)
@@ -606,9 +582,7 @@ void BotMatch_GetItem(bot_state_t *bs, bot_match_t *match)
 	bs->ltgtype = LTG_GETITEM;
 	bs->teamgoal_time = FloatTime() + TEAM_GETITEM_TIME;
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_Camp(bot_state_t *bs, bot_match_t *match)
@@ -694,9 +668,7 @@ void BotMatch_Camp(bot_state_t *bs, bot_match_t *match)
 	bs->arrive_time = 0;
 	BotRememberLastOrderedTask(bs);
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_Patrol(bot_state_t *bs, bot_match_t *match)
@@ -731,9 +703,7 @@ void BotMatch_Patrol(bot_state_t *bs, bot_match_t *match)
 	}
 	BotRememberLastOrderedTask(bs);
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match)
@@ -768,9 +738,7 @@ void BotMatch_GetFlag(bot_state_t *bs, bot_match_t *match)
 	}
 	BotRememberLastOrderedTask(bs);
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match)
@@ -800,9 +768,7 @@ void BotMatch_AttackEnemyBase(bot_state_t *bs, bot_match_t *match)
 	bs->attackaway_time = 0;
 	BotRememberLastOrderedTask(bs);
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match)
@@ -833,9 +799,7 @@ void BotMatch_RushBase(bot_state_t *bs, bot_match_t *match)
 	bs->teamgoal_time = FloatTime() + CTF_RUSHBASE_TIME;
 	bs->rushbaseaway_time = 0;
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_TaskPreference(bot_state_t *bs, bot_match_t *match)
@@ -908,9 +872,7 @@ void BotMatch_ReturnFlag(bot_state_t *bs, bot_match_t *match)
 	bs->teamgoal_time = FloatTime() + CTF_RETURNFLAG_TIME;
 	bs->rushbaseaway_time = 0;
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_JoinSubteam(bot_state_t *bs, bot_match_t *match)
@@ -1423,9 +1385,7 @@ void BotMatch_Kill(bot_state_t *bs, bot_match_t *match)
 	bs->ltgtype = LTG_KILL;
 	bs->teamgoal_time = FloatTime() + TEAM_KILL_SOMEONE;
 
-#ifdef DEBUG
 	BotPrintTeamGoal(bs);
-#endif
 }
 
 void BotMatch_CTF(bot_state_t *bs, bot_match_t *match)
@@ -1660,7 +1620,7 @@ int BotMatchMessage(bot_state_t *bs, char *message)
 		}
 		default:
 		{
-			BotAI_Print(PRT_MESSAGE, "unknown match type\n");
+			G_Printf("BotAI: unknown match type\n");
 			break;
 		}
 	}

@@ -620,7 +620,7 @@ char *ClientName(int client, char *name, int size)
 	char buf[MAX_INFO_STRING];
 
 	if (client < 0 || client >= MAX_CLIENTS) {
-		BotAI_Print(PRT_ERROR, "ClientName: client out of range\n");
+		G_Printf("BotAI: ClientName: client out of range\n");
 		return "[client out of range]";
 	}
 	trap_GetConfigstring(CS_PLAYERS+client, buf, sizeof buf);
@@ -906,7 +906,7 @@ bot_waypoint_t *BotCreateWayPoint(char *name, vec3_t origin, int areanum)
 
 	wp = botai_freewaypoints;
 	if (!wp) {
-		BotAI_Print(PRT_WARNING, "BotCreateWayPoint: Out of waypoints\n");
+		G_Printf("BotAI: BotCreateWayPoint: Out of waypoints\n");
 		return NULL;
 	}
 	botai_freewaypoints = botai_freewaypoints->next;
@@ -2851,12 +2851,12 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		}
 	}
 	if (!ent) {
-		BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity found with model %s\n", model);
+		G_Printf("BotAI: BotGetActivateGoal: no entity found with model %s\n", model);
 		return 0;
 	}
 	trap_AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname));
 	if (!*classname) {
-		BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model %s has no classname\n", model);
+		G_Printf("BotAI: BotGetActivateGoal: entity with model %s has no classname\n", model);
 		return 0;
 	}
 	// if it is a door
@@ -2925,7 +2925,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 	// get the targetname so we can find an entity with a matching target
 	if (!trap_AAS_ValueForBSPEpairKey(ent, "targetname", targetname[0], sizeof(targetname[0]))) {
 		if (bot_developer.integer) {
-			BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with model \"%s\" has no targetname\n", model);
+			G_Printf("BotAI: BotGetActivateGoal: entity with model \"%s\" has no targetname\n", model);
 		}
 		return 0;
 	}
@@ -2941,14 +2941,14 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		}
 		if (!ent) {
 			if (bot_developer.integer) {
-				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no entity with target \"%s\"\n", targetname[i]);
+				G_Printf("BotAI: BotGetActivateGoal: no entity with target \"%s\"\n", targetname[i]);
 			}
 			i--;
 			continue;
 		}
 		if (!trap_AAS_ValueForBSPEpairKey(ent, "classname", classname, sizeof(classname))) {
 			if (bot_developer.integer) {
-				BotAI_Print(PRT_ERROR, "BotGetActivateGoal: entity with target \"%s\" has no classname\n", targetname[i]);
+				G_Printf("BotAI: BotGetActivateGoal: entity with target \"%s\" has no classname\n", targetname[i]);
 			}
 			continue;
 		}
@@ -3017,7 +3017,7 @@ int BotGetActivateGoal(bot_state_t *bs, int entitynum, bot_activategoal_t *activ
 		}
 	}
 #ifdef OBSTACLEDEBUG
-	BotAI_Print(PRT_ERROR, "BotGetActivateGoal: no valid activator for entity with target \"%s\"\n", targetname[0]);
+	BotAI_Print(bs, PRT_ERROR, "BotGetActivateGoal: no valid activator for entity with target \"%s\"\n", targetname[0]);
 #endif
 	return 0;
 }
@@ -3125,7 +3125,7 @@ void BotAIBlocked(bot_state_t *bs, bot_moveresult_t *moveresult, int activate)
 	BotEntityInfo(moveresult->blockentity, &entinfo);
 #ifdef OBSTACLEDEBUG
 	ClientName(bs->client, netname, sizeof(netname));
-	BotAI_Print(PRT_MESSAGE, "%s: I'm blocked by model %d\n", netname, entinfo.modelindex);
+	BotAI_Print(bs, PRT_MESSAGE, "%s: I'm blocked by model %d\n", netname, entinfo.modelindex);
 #endif // OBSTACLEDEBUG
 	// if blocked by a bsp model and the bot wants to activate it
 	if (activate && entinfo.modelindex > 0 && entinfo.modelindex <= max_bspmodelindex) {
@@ -3343,10 +3343,10 @@ void BotCheckConsoleMessages(bot_state_t *bs)
 															NULL, NULL,
 															NULL, NULL,
 															botname, netname)) {
-						BotAI_Print(PRT_MESSAGE, "------------------------\n");
+						G_Printf("------------------------\n");
 					}
 					else {
-						BotAI_Print(PRT_MESSAGE, "**** no valid reply ****\n");
+						G_Printf("**** no valid reply ****\n");
 					}
 				}
 				// if at a valid chat position and not chatting already and not in teamplay
@@ -3443,7 +3443,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state)
 		case EV_GLOBAL_SOUND:
 		{
 			if (state->eventParm < 0 || state->eventParm >= MAX_SOUNDS) {
-				BotAI_Print(PRT_ERROR, "EV_GLOBAL_SOUND: eventParm (%d) out of range\n", state->eventParm);
+				G_Printf("EV_GLOBAL_SOUND: eventParm (%d) out of range\n", state->eventParm);
 				break;
 			}
 			trap_GetConfigstring(CS_SOUNDS + state->eventParm, buf, sizeof buf);
@@ -3501,7 +3501,7 @@ void BotCheckEvents(bot_state_t *bs, entityState_t *state)
 			// if this sound is played on the bot
 			if (state->number == bs->client) {
 				if (state->eventParm < 0 || state->eventParm >= MAX_SOUNDS) {
-					BotAI_Print(PRT_ERROR, "EV_GENERAL_SOUND: eventParm (%d) out of range\n", state->eventParm);
+					G_Printf("EV_GENERAL_SOUND: eventParm (%d) out of range\n", state->eventParm);
 					break;
 				}
 				// check out the sound
@@ -3748,7 +3748,7 @@ void BotDeathmatchAI(bot_state_t *bs, float thinktime)
 		trap_BotDumpAvoidGoals(bs->gs);
 		BotDumpNodeSwitches(bs);
 		ClientName(bs->client, name, sizeof(name));
-		BotAI_Print(PRT_ERROR, "%s at %1.1f switched more than %d AI nodes\n", name, FloatTime(), MAX_NODESWITCHES);
+		G_Printf("%s at %1.1f switched more than %d AI nodes\n", name, FloatTime(), MAX_NODESWITCHES);
 	}
 
 	bs->lastframe_health = bs->inventory[INVENTORY_HEALTH];
@@ -3848,10 +3848,9 @@ void BotSetupDeathmatchAI(void)
 	trap_Cvar_Register(&bot_predictobstacles, "bot_predictobstacles", "1", 0);
 
 	if (g_gametype.integer == GT_CTF) {
-		if (trap_BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag) < 0)
-			BotAI_Print(PRT_WARNING, "CTF without Red Flag\n");
-		if (trap_BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag) < 0)
-			BotAI_Print(PRT_WARNING, "CTF without Blue Flag\n");
+		trap_BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag);
+		trap_BotGetLevelItemGoal(-1, "Blue Flag", &ctf_blueflag);
+		// G_CheckTeamItems already prints warnings if there are no flags
 	}
 
 	max_bspmodelindex = 0;

@@ -74,35 +74,19 @@ vmCvar_t bot_interbreedwrite;
 
 void ExitLevel(void);
 
-void QDECL BotAI_Print(int type, char *fmt, ...)
+void BotReport(bot_state_t *bs, const char *fmt, ...)
 {
-	char str[2048];
-	va_list ap;
+	va_list	argptr;
+	char	netname[MAX_NETNAME];
+	char	text[MAX_STRING_CHARS];
 
-	va_start(ap, fmt);
-	Q_vsnprintf(str, sizeof str, fmt, ap);
-	va_end(ap);
+	ClientName(bs->client, netname, sizeof netname);
 
-	switch (type) {
-		case PRT_MESSAGE:
-			G_Printf("%s", str);
-			break;
-		case PRT_WARNING:
-			G_Printf(S_COLOR_YELLOW "Warning: %s", str);
-			break;
-		case PRT_ERROR:
-			G_Printf(S_COLOR_RED "Error: %s", str);
-			break;
-		case PRT_FATAL:
-			G_Printf(S_COLOR_RED "Fatal: %s", str);
-			break;
-		case PRT_EXIT:
-			G_Error(S_COLOR_RED "Exit: %s", str);
-			break;
-		default:
-			G_Printf("unknown print type\n");
-			break;
-	}
+	va_start(argptr, fmt);
+	Q_vsnprintf(text, sizeof text, fmt, argptr);
+	va_end(argptr);
+
+	trap_Print(va("  %s: %s\n", netname, text));
 }
 
 void BotAI_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask)
@@ -213,9 +197,9 @@ void BotTestAAS(vec3_t origin)
 		}
 		areanum = BotPointAreaNum(origin);
 		if (areanum) {
-			BotAI_Print(PRT_MESSAGE, "\remtpy area");
+			G_Printf("\remtpy area");
 		} else {
-			BotAI_Print(PRT_MESSAGE, "\r^1SOLID area");
+			G_Printf("\r^1SOLID area");
 		}
 	} else if (bot_testclusters.integer) {
 		if (!trap_AAS_Initialized()) {
@@ -223,10 +207,10 @@ void BotTestAAS(vec3_t origin)
 		}
 		areanum = BotPointAreaNum(origin);
 		if (!areanum) {
-			BotAI_Print(PRT_MESSAGE, "\r^1Solid!                              ");
+			G_Printf("\r^1Solid!                              ");
 		} else {
 			trap_AAS_AreaInfo(areanum, &info);
-			BotAI_Print(PRT_MESSAGE, "\rarea %d, cluster %d       ", areanum, info.cluster);
+			G_Printf("\rarea %d, cluster %d       ", areanum, info.cluster);
 		}
 	}
 }
@@ -788,7 +772,7 @@ int BotAI(int client, float thinktime)
 	trap_EA_ResetInput(client);
 	bs = botstates[client];
 	if (!bs || !bs->inuse) {
-		BotAI_Print(PRT_FATAL, "BotAI: client %d is not setup\n", client);
+		G_Printf("BotAI: client %d is not setup\n", client);
 		return qfalse;
 	}
 
@@ -945,18 +929,18 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 	bs = botstates[client];
 
 	if (bs && bs->inuse) {
-		BotAI_Print(PRT_FATAL, "BotAISetupClient: client %d already setup\n", client);
+		G_Printf("^1BotAI: BotAISetupClient: client %d already setup\n", client);
 		return qfalse;
 	}
 
 	if (!trap_AAS_Initialized()) {
-		BotAI_Print(PRT_FATAL, "AAS not initialized\n");
+		G_Printf("^1BotAI: AAS not initialized\n");
 		return qfalse;
 	}
 
 	bs->character = trap_BotLoadCharacter(settings->characterfile, settings->skill);
 	if (!bs->character) {
-		BotAI_Print(PRT_FATAL, "couldn't load skill %f from %s\n", settings->skill, settings->characterfile);
+		G_Printf("^1BotAI: couldn't load skill %f from %s\n", settings->skill, settings->characterfile);
 		return qfalse;
 	}
 

@@ -53,11 +53,15 @@ struct weaponinfo_s;
 #define LINECOLOR_ORANGE		5//0xe0e1e2e3L
 
 //Print types
-#define PRT_MESSAGE				1
-#define PRT_WARNING				2
-#define PRT_ERROR				3
-#define PRT_FATAL				4
-#define PRT_EXIT				5
+enum {
+	PRT_DEBUG1,
+	PRT_DEBUG2,
+	PRT_MESSAGE,
+	PRT_WARNING,
+	PRT_ERROR,
+	PRT_FATAL,
+	PRT_EXIT
+};
 
 //console message types
 #define CMS_NORMAL				0

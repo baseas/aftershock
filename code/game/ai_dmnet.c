@@ -64,11 +64,10 @@ void BotDumpNodeSwitches(bot_state_t *bs)
 	char netname[MAX_NETNAME];
 
 	ClientName(bs->client, netname, sizeof(netname));
-	BotAI_Print(PRT_MESSAGE, "%s at %1.1f switched more than %d AI nodes\n", netname, FloatTime(), MAX_NODESWITCHES);
+	G_Printf("BotAI: %s at %1.1f switched more than %d AI nodes\n", netname, FloatTime(), MAX_NODESWITCHES);
 	for (i = 0; i < numnodeswitches; i++) {
-		BotAI_Print(PRT_MESSAGE, "%s", nodeswitch[i]);
+		G_Printf("%s", nodeswitch[i]);
 	}
-	BotAI_Print(PRT_FATAL, "");
 }
 
 void BotRecordNodeSwitch(bot_state_t *bs, char *node, char *str, char *s)
@@ -161,16 +160,16 @@ int BotNearbyGoal(bot_state_t *bs, int tfl, bot_goal_t *ltg, float range)
 	}
 
 	ret = trap_BotChooseNBGItem(bs->gs, bs->origin, bs->inventory, tfl, ltg, range);
-	/*
-	if (ret)
-	{
+
+	if (ret && BotDebug(bs, 1)) {
+		bot_goal_t goal;
 		char buf[128];
 		// get the goal at the top of the stack
 		trap_BotGetTopGoal(bs->gs, &goal);
-		trap_BotGoalName(goal.number, buf, sizeof(buf));
-		BotAI_Print(PRT_MESSAGE, "%1.1f: new nearby goal %s\n", FloatTime(), buf);
+		trap_BotGoalName(goal.number, buf, sizeof buf);
+		BotReport(bs, "new nearby goal ^5%s", buf);
 	}
-    */
+
 	return ret;
 }
 
@@ -228,7 +227,9 @@ int BotReachedGoal(bot_state_t *bs, bot_goal_t *goal)
 int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal)
 {
 	if (!trap_BotGetTopGoal(bs->gs, goal)) {
-		// BotAI_Print(PRT_MESSAGE, "no ltg on stack\n");
+		if (BotDebug(bs, 1)) {
+			BotReport(bs, "no long term goal on stack");
+		}
 		bs->ltg_time = 0;
 	} else if (BotReachedGoal(bs, goal)) {
 		BotChooseWeapon(bs);
@@ -238,25 +239,21 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal)
 	// if it is time to find a new long term goal
 	if (bs->ltg_time < FloatTime()) {
 		trap_BotPopGoal(bs->gs);
-		// BotAI_Print(PRT_MESSAGE, "%s: choosing new ltg\n", ClientName(bs->client, netname, sizeof(netname)));
-		// choose a new goal
-		// BotAI_Print(PRT_MESSAGE, "%6.1f client %d: BotChooseLTGItem\n", FloatTime(), bs->client);
 		if (trap_BotChooseLTGItem(bs->gs, bs->origin, bs->inventory, tfl)) {
-			/*
-			char buf[128];
-			// get the goal at the top of the stack
-			trap_BotGetTopGoal(bs->gs, goal);
-			trap_BotGoalName(goal->number, buf, sizeof(buf));
-			BotAI_Print(PRT_MESSAGE, "%1.1f: new long term goal %s\n", FloatTime(), buf);
-            */
+			if (BotDebug(bs, 1)) {
+				char buf[128];
+				// get the goal at the top of the stack
+				trap_BotGetTopGoal(bs->gs, goal);
+				trap_BotGoalName(goal->number, buf, sizeof buf);
+				BotReport(bs, "new long term goal ^5%s", buf);
+			}
 			bs->ltg_time = FloatTime() + 20;
 		} else {
 			// the bot gets sorta stuck with all the avoid timings, shouldn't happen though
-#ifdef DEBUG
-			char netname[128];
+			if (BotDebug(bs, 1)) {
+				BotReport(bs, "no valid long term goal (probably stuck)");
+			}
 
-			BotAI_Print(PRT_MESSAGE, "%s: no valid ltg (probably stuck)\n", ClientName(bs->client, netname, sizeof(netname)));
-#endif
 			// trap_BotDumpAvoidGoals(bs->gs);
 			// reset the avoid goals and the avoid reach
 			trap_BotResetAvoidGoals(bs->gs);
@@ -423,10 +420,6 @@ int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal)
 				// check if the bot wants to go for air
 				if (BotGoForAir(bs, bs->tfl, &bs->teamgoal, 400)) {
 					trap_BotResetLastAvoidReach(bs->ms);
-					// get the goal at the top of the stack
-					// trap_BotGetTopGoal(bs->gs, &tmpgoal);
-					// trap_BotGoalName(tmpgoal.number, buf, 144);
-					// BotAI_Print(PRT_MESSAGE, "new nearby goal %s\n", buf);
 					// time the bot gets to pick up the nearby goal item
 					bs->nbg_time = FloatTime() + 8;
 					AIEnter_Seek_NBG(bs, "BotLongTermGoal: go for air");
@@ -1101,9 +1094,9 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs)
 		BotEntityInfo(goal->entitynum, &entinfo);
 		// if the entity the bot shoots at moved
 		if (!VectorCompare(bs->activatestack->origin, entinfo.origin)) {
-#ifdef DEBUG
-			BotAI_Print(PRT_MESSAGE, "hit shootable button or trigger\n");
-#endif
+			if (BotDebug(bs, 2)) {
+				BotReport(bs, "hit shootable button or trigger");
+			}
 			bs->activatestack->time = 0;
 		}
 		// if the activate goal has been activated or the bot takes too long
@@ -1123,9 +1116,9 @@ int AINode_Seek_ActivateEntity(bot_state_t *bs)
 			bs->activatestack->time = 0;
 		} else if (!bs->activatestack->shoot) {
 			if (trap_BotTouchingGoal(bs->origin, goal)) {
-#ifdef DEBUG
-				BotAI_Print(PRT_MESSAGE, "touched button or trigger\n");
-#endif
+				if (BotDebug(bs, 2)) {
+					BotReport(bs, "touched button or trigger");
+				}
 				bs->activatestack->time = 0;
 			}
 		}
@@ -1444,10 +1437,7 @@ int AINode_Seek_LTG(bot_state_t *bs)
 
 		if (BotNearbyGoal(bs, bs->tfl, &goal, range)) {
 			trap_BotResetLastAvoidReach(bs->ms);
-			// get the goal at the top of the stack
-			// trap_BotGetTopGoal(bs->gs, &tmpgoal);
-			// trap_BotGoalName(tmpgoal.number, buf, 144);
-			// BotAI_Print(PRT_MESSAGE, "new nearby goal %s\n", buf);
+
 			// time the bot gets to pick up the nearby goal item
 			bs->nbg_time = FloatTime() + 4 + range * 0.01;
 			AIEnter_Seek_NBG(bs, "ltg seek: nbg");
@@ -1542,10 +1532,8 @@ int AINode_Battle_Fight(bot_state_t *bs)
 	}
 
 	// if there is another better enemy
-	if (BotFindEnemy(bs, bs->enemy)) {
-#ifdef DEBUG
-		BotAI_Print(PRT_MESSAGE, "found new better enemy\n");
-#endif
+	if (BotFindEnemy(bs, bs->enemy) && BotDebug(bs, 2)) {
+		BotReport(bs, "found new better enemy");
 	}
 
 	// if no enemy
@@ -1856,10 +1844,8 @@ int AINode_Battle_Retreat(bot_state_t *bs)
 	}
 
 	// if there is another better enemy
-	if (BotFindEnemy(bs, bs->enemy)) {
-#ifdef DEBUG
-		BotAI_Print(PRT_MESSAGE, "found new better enemy\n");
-#endif
+	if (BotFindEnemy(bs, bs->enemy) && BotDebug(bs, 2)) {
+		BotReport(bs, "found new better enemy");
 	}
 
 	bs->tfl = TFL_DEFAULT;
@@ -1944,7 +1930,9 @@ int AINode_Battle_Retreat(bot_state_t *bs)
 	if (moveresult.failure) {
 		// reset the avoid reach, otherwise bot is stuck in current area
 		trap_BotResetAvoidReach(bs->ms);
-		// BotAI_Print(PRT_MESSAGE, "movement failure %d\n", moveresult.traveltype);
+		if (BotDebug(bs, 1)) {
+			BotReport(bs, "movement failure %d", moveresult.traveltype);
+		}
 		bs->ltg_time = 0;
 	}
 
@@ -2081,7 +2069,9 @@ int AINode_Battle_NBG(bot_state_t *bs)
 	if (moveresult.failure) {
 		// reset the avoid reach, otherwise bot is stuck in current area
 		trap_BotResetAvoidReach(bs->ms);
-		// BotAI_Print(PRT_MESSAGE, "movement failure %d\n", moveresult.traveltype);
+		if (BotDebug(bs, 1)) {
+			BotReport(bs, "movement failure %d", moveresult.traveltype);
+		}
 		bs->nbg_time = 0;
 	}
 
