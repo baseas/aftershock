@@ -927,7 +927,7 @@ static void CG_AddPainTwitch(centity_t *cent, vec3_t torsoAngles)
 }
 
 /**
-Handles seperate torso motion
+Handles separate torso motion
   Legs pivot is based on direction of movement.
   Head always looks exactly at cent->lerpAngles.
   If motion < 20 degrees, show in head only.

@@ -266,7 +266,7 @@ int BotGetItemLongTermGoal(bot_state_t *bs, int tfl, bot_goal_t *goal)
 }
 
 /**
-We could also create a seperate AI node for every long term goal type
+We could also create a separate AI node for every long term goal type
 however this saves us a lot of code.
 */
 int BotGetLongTermGoal(bot_state_t *bs, int tfl, int retreat, bot_goal_t *goal)

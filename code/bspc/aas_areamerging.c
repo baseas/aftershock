@@ -96,7 +96,7 @@ int NonConvex(tmp_face_t *face1, tmp_face_t *face2, int side1, int side2)
 //===========================================================================
 // try to merge the areas at both sides of the given face
 //
-// Parameter:				seperatingface		: face that seperates two areas
+// Parameter:				seperatingface		: face that separates two areas
 // Returns:					-
 // Changes Globals:		-
 //===========================================================================
