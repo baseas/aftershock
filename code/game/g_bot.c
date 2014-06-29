@@ -584,12 +584,6 @@ void Svcmd_AddBot_f(void)
 	trap_Argv(5, altname, sizeof(altname));
 
 	G_AddBot(name, skill, team, delay, altname);
-
-	// if this was issued during gameplay and we are playing locally,
-	// go ahead and load the bot's media immediately
-	if (level.time - level.startTime > 1000 &&
-		trap_Cvar_VariableIntegerValue("cl_running")) {
-	}
 }
 
 void Svcmd_BotList_f(void)

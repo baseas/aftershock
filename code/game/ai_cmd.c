@@ -221,7 +221,7 @@ int FindClientByName(char *name)
 
 	for (i = 0; i < maxclients && i < MAX_CLIENTS; i++) {
 		ClientName(i, buf, sizeof buf);
-		if (stristr(buf, name)) {
+		if (Q_stristr(buf, name)) {
 			return i;
 		}
 	}
@@ -253,7 +253,7 @@ int FindEnemyByName(bot_state_t *bs, char *name)
 			continue;
 		}
 		ClientName(i, buf, sizeof buf);
-		if (stristr(buf, name)) {
+		if (Q_stristr(buf, name)) {
 			return i;
 		}
 	}
@@ -380,10 +380,10 @@ int BotAddressedToBot(bot_state_t *bs, bot_match_t *match)
 			} else if (addresseematch.type == MSG_MULTIPLENAMES) {
 				trap_BotMatchVariable(&addresseematch, TEAMMATE, name, sizeof name);
 				if (strlen(name)) {
-					if (stristr(botname, name)) {
+					if (Q_stristr(botname, name)) {
 						return qtrue;
 					}
-					if (stristr(bs->subteam, name)) {
+					if (Q_stristr(bs->subteam, name)) {
 						return qtrue;
 					}
 				}
@@ -391,10 +391,10 @@ int BotAddressedToBot(bot_state_t *bs, bot_match_t *match)
 			} else {
 				trap_BotMatchVariable(&addresseematch, TEAMMATE, name, MAX_MESSAGE_SIZE);
 				if (strlen(name)) {
-					if (stristr(botname, name)) {
+					if (Q_stristr(botname, name)) {
 						return qtrue;
 					}
-					if (stristr(bs->subteam, name)) {
+					if (Q_stristr(bs->subteam, name)) {
 						return qtrue;
 					}
 				}
@@ -416,40 +416,6 @@ int BotAddressedToBot(bot_state_t *bs, bot_match_t *match)
 				return qfalse;
 			}
 		}
-	}
-	return qtrue;
-}
-
-int BotGPSToPosition(char *buf, vec3_t position)
-{
-	int i, j = 0;
-	int num, sign;
-
-	for (i = 0; i < 3; i++) {
-		num = 0;
-		while (buf[j] == ' ') {
-			j++;
-		}
-
-		if (buf[j] == '-') {
-			j++;
-			sign = -1;
-		} else {
-			sign = 1;
-		}
-
-		while (buf[j]) {
-			if (buf[j] >= '0' && buf[j] <= '9') {
-				num = num * 10 + buf[j] - '0';
-				j++;
-			} else {
-				j++;
-				break;
-			}
-		}
-
-		BotAI_Print(PRT_MESSAGE, "%d\n", sign * num);
-		position[i] = (float) sign * num;
 	}
 	return qtrue;
 }

@@ -663,23 +663,6 @@ int ClientOnSameTeamFromName(bot_state_t *bs, char *name)
 	return -1;
 }
 
-char *stristr(char *str, char *charset) {
-	int i;
-
-	while (*str) {
-		for (i = 0; charset[i] && str[i]; i++) {
-			if (toupper(charset[i]) != toupper(str[i])) {
-				break;
-			}
-		}
-		if (!charset[i]) {
-			return str;
-		}
-		str++;
-	}
-	return NULL;
-}
-
 char *EasyClientName(int client, char *buf, int size)
 {
 	int i;
