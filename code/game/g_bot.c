@@ -35,13 +35,6 @@ static char		*g_arenaInfos[MAX_ARENAS];
 
 #define BOT_SPAWN_QUEUE_DEPTH	16
 
-typedef struct {
-	int		clientNum;
-	int		spawnTime;
-} botSpawnQueue_t;
-
-static botSpawnQueue_t	botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
-
 vmCvar_t	bot_minplayers;
 
 float trap_Cvar_VariableValue(const char *var_name)
@@ -223,7 +216,7 @@ void G_AddRandomBot(int team)
 				else teamstr = "";
 				Q_strncpyz(netname, value, sizeof(netname));
 				Q_CleanStr(netname);
-				trap_SendConsoleCommand(EXEC_INSERT, va("addbot %s %f %s %i\n", netname, skill, teamstr, 0));
+				trap_SendConsoleCommand(EXEC_INSERT, va("addbot %s %f %s\n", netname, skill, teamstr));
 				return;
 			}
 		}
@@ -276,7 +269,7 @@ int G_CountHumanPlayers(int team)
 
 int G_CountBotPlayers(int team)
 {
-	int			i, n, num;
+	int			i, num;
 	gclient_t	*cl;
 
 	num = 0;
@@ -289,15 +282,6 @@ int G_CountBotPlayers(int team)
 			continue;
 		}
 		if (team >= 0 && cl->sess.sessionTeam != team) {
-			continue;
-		}
-		num++;
-	}
-	for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
-		if (!botSpawnQueue[n].spawnTime) {
-			continue;
-		}
-		if (botSpawnQueue[n].spawnTime > level.time) {
 			continue;
 		}
 		num++;
@@ -376,56 +360,6 @@ void G_CheckMinimumPlayers(void)
 	}
 }
 
-void G_CheckBotSpawn(void)
-{
-	int		n;
-
-	G_CheckMinimumPlayers();
-
-	for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
-		if (!botSpawnQueue[n].spawnTime) {
-			continue;
-		}
-		if (botSpawnQueue[n].spawnTime > level.time) {
-			continue;
-		}
-		ClientBegin(botSpawnQueue[n].clientNum);
-		botSpawnQueue[n].spawnTime = 0;
-	}
-}
-
-static void AddBotToSpawnQueue(int clientNum, int delay)
-{
-	int		n;
-
-	for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
-		if (!botSpawnQueue[n].spawnTime) {
-			botSpawnQueue[n].spawnTime = level.time + delay;
-			botSpawnQueue[n].clientNum = clientNum;
-			return;
-		}
-	}
-
-	G_Printf(S_COLOR_YELLOW "Unable to delay spawn\n");
-	ClientBegin(clientNum);
-}
-
-/**
-Called on client disconnect to make sure the delayed spawn
-doesn't happen on a freed index
-*/
-void G_RemoveQueuedBotBegin(int clientNum)
-{
-	int		n;
-
-	for (n = 0; n < BOT_SPAWN_QUEUE_DEPTH; n++) {
-		if (botSpawnQueue[n].clientNum == clientNum) {
-			botSpawnQueue[n].spawnTime = 0;
-			return;
-		}
-	}
-}
-
 qboolean G_BotConnect(int clientNum, qboolean restart)
 {
 	bot_settings_t	settings;
@@ -445,7 +379,7 @@ qboolean G_BotConnect(int clientNum, qboolean restart)
 	return qtrue;
 }
 
-static void G_AddBot(const char *name, float skill, const char *team, int delay, char *altname)
+static void G_AddBot(const char *name, float skill, const char *team, char *altname)
 {
 	int				clientNum;
 	char			*botinfo;
@@ -524,18 +458,13 @@ static void G_AddBot(const char *name, float skill, const char *team, int delay,
 		return;
 	}
 
-	if (delay == 0) {
-		ClientBegin(clientNum);
-		return;
-	}
-
-	AddBotToSpawnQueue(clientNum, delay);
+	ClientBegin(clientNum);
+	return;
 }
 
 void Svcmd_AddBot_f(void)
 {
 	float			skill;
-	int				delay;
 	char			name[MAX_TOKEN_CHARS];
 	char			altname[MAX_TOKEN_CHARS];
 	char			string[MAX_TOKEN_CHARS];
@@ -555,7 +484,7 @@ void Svcmd_AddBot_f(void)
 	// name
 	trap_Argv(1, name, sizeof(name));
 	if (!name[0]) {
-		trap_Print("Usage: Addbot <botname> [skill 1-5] [team] [msec delay] [altname]\n");
+		trap_Print("Usage: addbot <botname> [skill 1-5] [team] [altname]\n");
 		return;
 	}
 
@@ -571,19 +500,10 @@ void Svcmd_AddBot_f(void)
 	// team
 	trap_Argv(3, team, sizeof(team));
 
-	// delay
-	trap_Argv(4, string, sizeof(string));
-	if (!string[0]) {
-		delay = 0;
-	}
-	else {
-		delay = atoi(string);
-	}
-
 	// alternative name
 	trap_Argv(5, altname, sizeof(altname));
 
-	G_AddBot(name, skill, team, delay, altname);
+	G_AddBot(name, skill, team, altname);
 }
 
 void Svcmd_BotList_f(void)

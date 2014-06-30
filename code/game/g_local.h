@@ -655,8 +655,6 @@ void	G_WriteSessionData(void);
 void		G_InitBots(qboolean restart);
 char		*G_GetBotInfoByNumber(int num);
 char		*G_GetBotInfoByName(const char *name);
-void		G_CheckBotSpawn(void);
-void		G_RemoveQueuedBotBegin(int clientNum);
 qboolean	G_BotConnect(int clientNum, qboolean restart);
 void		Svcmd_AddBot_f(void);
 void		Svcmd_BotList_f(void);

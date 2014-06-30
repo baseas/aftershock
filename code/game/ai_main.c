@@ -429,8 +429,8 @@ void BotInterbreeding(void)
 
 	// add a number of bots using the desired bot character
 	for (i = 0; i < bot_interbreedbots.integer; i++) {
-		trap_SendConsoleCommand(EXEC_INSERT, va("addbot %s 4 free %i %s%d\n",
-			bot_interbreedchar.string, i * 50, bot_interbreedchar.string, i));
+		trap_SendConsoleCommand(EXEC_INSERT, va("addbot %s 4 free %s%d\n",
+			bot_interbreedchar.string, bot_interbreedchar.string, i));
 	}
 
 	trap_Cvar_Set("bot_interbreedchar", "");
@@ -1135,8 +1135,6 @@ int BotAIStartFrame(int time)
 	static int local_time;
 	static int botlib_residual;
 	static int lastbotthink_time;
-
-	G_CheckBotSpawn();
 
 	trap_Cvar_Update(&bot_rocketjump);
 	trap_Cvar_Update(&bot_grapple);
