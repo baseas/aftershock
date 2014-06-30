@@ -333,7 +333,7 @@ qboolean ClientInactivityTimer(gclient_t *client)
 		client->inactivityWarning = qfalse;
 	} else if (!client->pers.localClient) {
 		if (level.time > client->inactivityTime) {
-			trap_DropClient(client - level.clients, "Dropped due to inactivity");
+			SetTeam(&g_entities[client - level.clients], "speconly");
 			return qfalse;
 		}
 		if (level.time > client->inactivityTime - 10000 && !client->inactivityWarning) {
