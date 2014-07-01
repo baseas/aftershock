@@ -215,117 +215,6 @@ void BotTestAAS(vec3_t origin)
 	}
 }
 
-void BotSetInfoConfigString(bot_state_t *bs)
-{
-	char goalname[MAX_MESSAGE_SIZE];
-	char netname[MAX_MESSAGE_SIZE];
-	char action[MAX_MESSAGE_SIZE];
-	char *leader, carrying[32], *cs;
-	bot_goal_t goal;
-
-	ClientName(bs->client, netname, sizeof netname);
-	if (Q_stricmp(netname, bs->teamleader) == 0) {
-		leader = "L";
-	} else {
-		leader = " ";
-	}
-
-	strcpy(carrying, "  ");
-	if (g_gametype.integer == GT_CTF && BotCTFCarryingFlag(bs)) {
-		strcpy(carrying, "F ");
-	}
-
-	switch (bs->ltgtype) {
-		case LTG_TEAMHELP:
-		{
-			EasyClientName(bs->teammate, goalname, sizeof goalname);
-			Com_sprintf(action, sizeof action, "helping %s", goalname);
-			break;
-		}
-		case LTG_TEAMACCOMPANY:
-		{
-			EasyClientName(bs->teammate, goalname, sizeof goalname);
-			Com_sprintf(action, sizeof action, "accompanying %s", goalname);
-			break;
-		}
-		case LTG_DEFENDKEYAREA:
-		{
-			trap_BotGoalName(bs->teamgoal.number, goalname, sizeof goalname);
-			Com_sprintf(action, sizeof action, "defending %s", goalname);
-			break;
-		}
-		case LTG_GETITEM:
-		{
-			trap_BotGoalName(bs->teamgoal.number, goalname, sizeof goalname);
-			Com_sprintf(action, sizeof action, "getting item %s", goalname);
-			break;
-		}
-		case LTG_KILL:
-		{
-			ClientName(bs->teamgoal.entitynum, goalname, sizeof goalname);
-			Com_sprintf(action, sizeof action, "killing %s", goalname);
-			break;
-		}
-		case LTG_CAMP:
-		case LTG_CAMPORDER:
-		{
-			Com_sprintf(action, sizeof action, "camping");
-			break;
-		}
-		case LTG_PATROL:
-		{
-			Com_sprintf(action, sizeof action, "patrolling");
-			break;
-		}
-		case LTG_GETFLAG:
-		{
-			Com_sprintf(action, sizeof action, "capturing flag");
-			break;
-		}
-		case LTG_RUSHBASE:
-		{
-			Com_sprintf(action, sizeof action, "rushing base");
-			break;
-		}
-		case LTG_RETURNFLAG:
-		{
-			Com_sprintf(action, sizeof action, "returning flag");
-			break;
-		}
-		case LTG_ATTACKENEMYBASE:
-		{
-			Com_sprintf(action, sizeof action, "attacking the enemy base");
-			break;
-		}
-		default:
-		{
-			trap_BotGetTopGoal(bs->gs, &goal);
-			trap_BotGoalName(goal.number, goalname, sizeof goalname);
-			Com_sprintf(action, sizeof action, "roaming %s", goalname);
-			break;
-		}
-	}
-	cs = va("l\\%s\\c\\%s\\a\\%s", leader, carrying, action);
-	trap_SetConfigstring(CS_BOTINFO + bs->client, cs);
-}
-
-void BotUpdateInfoConfigStrings(void)
-{
-	int i;
-	char buf[MAX_INFO_STRING];
-
-	for (i = 0; i < level.maxclients; i++) {
-		if (!botstates[i] || !botstates[i]->inuse) {
-			continue;
-		}
-		trap_GetConfigstring(CS_PLAYERS + i, buf, sizeof buf);
-		if (!strlen(buf) || !strlen(Info_ValueForKey(buf, "n"))) {
-			continue;
-		}
-		BotSetInfoConfigString(botstates[i]);
-	}
-}
-
 void BotInterbreedBots(void)
 {
 	float ranks[MAX_CLIENTS];
@@ -1146,10 +1035,6 @@ int BotAIStartFrame(int time)
 	trap_Cvar_Update(&bot_saveroutingcache);
 	trap_Cvar_Update(&bot_pause);
 	trap_Cvar_Update(&bot_report);
-
-	if (bot_report.integer) {
-		BotUpdateInfoConfigStrings();
-	}
 
 	if (bot_memorydump.integer) {
 		trap_BotLibVarSet("memorydump", "1");
