@@ -2196,6 +2196,9 @@ Q3GOBJ_ = \
   $(B)/$(BASEGAME)/game/g_unlagged.o \
   $(B)/$(BASEGAME)/game/g_stats.o \
   $(B)/$(BASEGAME)/game/g_vote.o \
+  $(B)/$(BASEGAME)/game/g_mapcycle.o \
+  $(B)/$(BASEGAME)/game/g_user.o \
+  $(B)/$(BASEGAME)/game/g_ban.o \
   \
   $(B)/$(BASEGAME)/qcommon/q_math.o \
   $(B)/$(BASEGAME)/qcommon/q_shared.o

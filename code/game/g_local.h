@@ -258,6 +258,8 @@ struct gclient_s {
 	clientPersistant_t	pers;
 	clientSession_t		sess;
 
+	int			userid;				// for user login system
+
 	qboolean	noclip;
 
 	int			buttons;
