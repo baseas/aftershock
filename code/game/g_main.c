@@ -783,9 +783,6 @@ void CalculateRanks(void)
 	level.numPlayingClients = 0;
 	level.numVotingClients = 0;		// don't count bots
 
-	for (i = 0; i < ARRAY_LEN(level.numteamVotingClients); i++)
-		level.numteamVotingClients[i] = 0;
-
 	for (i = 0; i < level.maxclients; i++) {
 		if (level.clients[i].pers.connected != CON_DISCONNECTED) {
 			level.sortedClients[level.numConnectedClients] = i;
@@ -799,10 +796,6 @@ void CalculateRanks(void)
 					level.numPlayingClients++;
 					if (!(g_entities[i].r.svFlags & SVF_BOT)) {
 						level.numVotingClients++;
-						if (level.clients[i].sess.sessionTeam == TEAM_RED)
-							level.numteamVotingClients[0]++;
-						else if (level.clients[i].sess.sessionTeam == TEAM_BLUE)
-							level.numteamVotingClients[1]++;
 					}
 					if (level.follow1 == -1) {
 						level.follow1 = i;
@@ -1778,50 +1771,6 @@ void CheckTeamLeader(int team)
 	}
 }
 
-void CheckTeamVote(int team)
-{
-	int		cs_offset;
-
-	if (team == TEAM_RED) {
-		cs_offset = 0;
-	} else if (team == TEAM_BLUE) {
-		cs_offset = 1;
-	} else {
-		return;
-	}
-
-	if (!level.teamVoteTime[cs_offset]) {
-		return;
-	}
-	if (level.time - level.teamVoteTime[cs_offset] >= VOTE_TIME) {
-		trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "failed");
-		G_LogPrintf("Team vote failed.\n");
-	} else {
-		if (level.teamVoteYes[cs_offset] > level.numteamVotingClients[cs_offset]/2) {
-			// execute the command, then remove the vote
-			trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "passed");
-			G_LogPrintf("Team vote passed.\n");
-
-			if (!Q_strncmp("leader", level.teamVoteString[cs_offset], 6)) {
-				//set the team leader
-				SetLeader(team, atoi(level.teamVoteString[cs_offset] + 7));
-			}
-			else {
-				trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.teamVoteString[cs_offset]));
-			}
-		} else if (level.teamVoteNo[cs_offset] >= level.numteamVotingClients[cs_offset]/2) {
-			// same behavior as a timeout
-			trap_SetConfigstring(CS_TEAMVOTE_TIME + cs_offset, "failed");
-			G_LogPrintf("Team vote failed.\n");
-		} else {
-			// still waiting for a majority
-			return;
-		}
-	}
-
-	level.teamVoteTime[cs_offset] = 0;
-}
-
 void CheckCvars(void)
 {
 	static int lastMod = -1;
@@ -1982,10 +1931,6 @@ void G_RunFrame(int levelTime)
 
 	// cancel vote if timed out
 	G_Vote_Check();
-
-	// check team votes
-	CheckTeamVote(TEAM_RED);
-	CheckTeamVote(TEAM_BLUE);
 
 	// for tracking changes
 	CheckCvars();

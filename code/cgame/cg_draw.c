@@ -638,32 +638,6 @@ static void CG_DrawCrosshair3D(void)
 	trap_R_AddRefEntityToScene(&ent);
 }
 
-static void CG_DrawTeamVote(void)
-{
-	char	*s;
-	int		sec, cs_offset;
-
-	if (cgs.clientinfo[cg.clientNum].team == TEAM_RED) {
-		cs_offset = 0;
-	} else if (cgs.clientinfo[cg.clientNum].team == TEAM_BLUE) {
-		cs_offset = 1;
-	} else {
-		return;
-	}
-
-	if (!cgs.teamVoteTime[cs_offset]) {
-		return;
-	}
-
-	sec = (VOTE_TIME - (cg.time - cgs.teamVoteTime[cs_offset])) / 1000;
-	if (sec < 0) {
-		sec = 0;
-	}
-	s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
-							cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset]);
-	CG_DrawSmallString(0, 90, s, 1.0F);
-}
-
 static void CG_DrawStats(void)
 {
 	int			i;
@@ -740,7 +714,6 @@ static void CG_Draw2D(stereoFrame_t stereoFrame)
 		}
 	}
 
-	CG_DrawTeamVote();
 	CG_DrawDisconnect();
 	CG_DrawUpperRight(stereoFrame);
 

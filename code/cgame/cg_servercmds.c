@@ -284,28 +284,6 @@ static void CG_ConfigStringModified(void)
 		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
 	} else if (num == CS_VOTE_STRING) {
 		Q_strncpyz(cgs.voteString, str, sizeof(cgs.voteString));
-	} else if (num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
-		if (!strcmp(str, "failed")) {
-			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = 0;
-			CG_Printf("Team vote failed.\n");
-			CG_AddBufferedSound(cgs.media.voteFailed);
-		} else if (!strcmp(str, "passed")) {
-			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = 0;
-			CG_Printf("Team vote passed.\n");
-			CG_AddBufferedSound(cgs.media.votePassed);
-		} else if (*str) {
-			cgs.teamVoteTime[num - CS_TEAMVOTE_TIME] = atoi(str);
-			CG_Printf("Team vote cast.\n");
-			CG_AddBufferedSound(cgs.media.voteNow);
-		}
-	} else if (num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1) {
-		cgs.teamVoteYes[num - CS_TEAMVOTE_YES] = atoi(str);
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-	} else if (num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1) {
-		cgs.teamVoteNo[num - CS_TEAMVOTE_NO] = atoi(str);
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-	} else if (num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
-		Q_strncpyz(cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof(cgs.teamVoteString));
 	} else if (num == CS_INTERMISSION) {
 		cg.intermissionStarted = atoi(str);
 	} else if (num >= CS_MODELS && num < CS_MODELS+MAX_MODELS) {

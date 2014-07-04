@@ -218,7 +218,6 @@ typedef struct {
 	int			vote;				// -1: no, 0: not voted, 1: yes
 	int			voteTime;			// time of last vote
 	int			voteCount;			// to prevent people from constantly calling votes
-	int			teamVoteCount;		// to prevent people from constantly calling votes
 
 	gclient_t	*lastKiller;
 	gclient_t	*lastTarget;
@@ -382,13 +381,6 @@ typedef struct {
 	int			voteYes;
 	int			voteNo;
 	int			numVotingClients;		// set by CalculateRanks
-
-	// team voting state
-	char		teamVoteString[2][MAX_STRING_CHARS];
-	int			teamVoteTime[2];		// level.time vote was called
-	int			teamVoteYes[2];
-	int			teamVoteNo[2];
-	int			numteamVotingClients[2];// set by CalculateRanks
 
 	// spawn variables
 	qboolean	spawning;				// the G_Spawn*() functions are valid

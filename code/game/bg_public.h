@@ -78,24 +78,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_VOTE_YES				10
 #define CS_VOTE_NO				11
 
-#define CS_TEAMVOTE_TIME		12
-#define CS_TEAMVOTE_STRING		14
-#define CS_TEAMVOTE_YES			16
-#define CS_TEAMVOTE_NO			18
+#define CS_GAME_VERSION			12
+#define CS_LEVEL_START_TIME		13		// so the timer only shows the current level
+#define CS_INTERMISSION			14		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
+#define CS_FLAGSTATUS			15		// string indicating flag status in CTF
+#define CS_SHADERSTATE			16
 
-#define CS_GAME_VERSION			20
-#define CS_LEVEL_START_TIME		21		// so the timer only shows the current level
-#define CS_INTERMISSION			22		// when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define CS_FLAGSTATUS			23		// string indicating flag status in CTF
-#define CS_SHADERSTATE			24
+#define CS_ITEMS				17		// string of 0's and 1's that tell which items are present
 
-#define CS_ITEMS				26		// string of 0's and 1's that tell which items are present
-
-#define CS_SPAWNPOINTS			27
-#define CS_ROUND_START			28
-#define CS_LIVING_COUNT			29
-#define CS_OVERTIME				30		// overtime start time
-#define CS_MODELS				31
+#define CS_SPAWNPOINTS			18
+#define CS_ROUND_START			19
+#define CS_LIVING_COUNT			20
+#define CS_OVERTIME				21		// overtime start time
+#define CS_MODELS				22
 
 #define CS_RESPAWN_TIMERS		(CS_MODELS+MAX_MODELS)
 #define CS_SOUNDS				(CS_RESPAWN_TIMERS+MAX_RESPAWN_TIMERS)
@@ -272,7 +267,6 @@ typedef enum {
 #define EF_AWARD_DEFEND		0x00008000		// draw a defend sprite
 #define EF_AWARD_ASSIST		0x00010000		// draw a assist sprite
 #define EF_AWARD_DENIED		0x00020000		// denied
-#define EF_TEAMVOTED		0x00040000		// already cast a team vote
 
 // NOTE: may not have more than 16
 typedef enum {

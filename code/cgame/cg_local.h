@@ -1023,11 +1023,6 @@ typedef struct {
 	int				voteNo;
 	char			voteString[MAX_STRING_TOKENS];
 
-	int				teamVoteTime[2];
-	int				teamVoteYes[2];
-	int				teamVoteNo[2];
-	char			teamVoteString[2][MAX_STRING_TOKENS];
-
 	int				levelStartTime;
 	int				roundStartTime;			// for elimination gametype
 	int				roundTimelimit;
