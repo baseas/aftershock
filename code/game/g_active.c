@@ -320,6 +320,10 @@ Returns qfalse if the client is dropped
 */
 qboolean ClientInactivityTimer(gclient_t *client)
 {
+	if (g_gametype.integer == GT_DEFRAG) {
+		return qtrue;
+	}
+
 	if (! g_inactivity.integer) {
 		// give everyone some time, so if the operator sets g_inactivity during
 		// gameplay, everyone isn't kicked
@@ -633,7 +637,7 @@ void ClientThink_real(gentity_t *ent)
 		return;
 	}
 
-	// check for inactivity timer, but never drop the local client of a non-dedicated server
+	// check for inactivity timer
 	if (!ClientInactivityTimer(client)) {
 		return;
 	}
