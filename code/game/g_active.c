@@ -689,7 +689,9 @@ void ClientThink_real(gentity_t *ent)
 
 	pm.ps = &client->ps;
 	pm.cmd = *ucmd;
-	if (pm.ps->pm_type == PM_DEAD) {
+	if (g_gametype.integer == GT_DEFRAG) {
+		pm.tracemask = MASK_SOLID;
+	} else if (pm.ps->pm_type == PM_DEAD) {
 		pm.tracemask = MASK_PLAYERSOLID & ~CONTENTS_BODY;
 	}
 	else if (ent->r.svFlags & SVF_BOT) {
