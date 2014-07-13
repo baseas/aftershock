@@ -94,7 +94,42 @@ void G_MapCycleRead(void)
 	trap_FS_FCloseFile(fp);
 }
 
-void G_MapCycleNextmap(char *buffer, int length)
+void G_MapCycleNextmap(void)
 {
+}
+
+void G_MapCycleList(gentity_t *ent)
+{
+}
+
+void G_MapCycleAdd(gentity_t *ent)
+{
+}
+
+void G_MapCycleAdjust(gentity_t *ent)
+{
+}
+
+void G_MapCycleDel(gentity_t *ent)
+{
+}
+
+void Cmd_MapCycle_f(gentity_t *ent)
+{
+	const char	*cmd;
+
+	cmd = BG_Argv(1);
+
+	if (!strcmp(cmd, "list")) {
+		G_MapCycleList(ent);
+	} else if (!strcmp(cmd, "add")) {
+		G_MapCycleAdd(ent);
+	} else if (!strcmp(cmd, "adjust")) {
+		G_MapCycleAdjust(ent);
+	} else if (!strcmp(cmd, "del")) {
+		G_MapCycleDel(ent);
+	} else {
+		ClientPrint(ent, "Usage: mapcycle (list | add | adjust | del) [...]");
+	}
 }
 

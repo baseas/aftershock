@@ -70,6 +70,8 @@ vmCvar_t	g_restarted;
 vmCvar_t	g_logfile;
 vmCvar_t	g_logfileSync;
 vmCvar_t	g_allowVote;
+vmCvar_t	g_allowLock;
+vmCvar_t	g_allowDrop;
 vmCvar_t	g_teamAutoJoin;
 vmCvar_t	g_teamForceBalance;
 vmCvar_t	g_banIPs;
@@ -84,12 +86,10 @@ vmCvar_t	g_instantgibGauntlet;
 vmCvar_t	g_instantgibRailjump;
 vmCvar_t	g_rockets;
 vmCvar_t	g_selfDamage;
-vmCvar_t	g_itemDrop;
 vmCvar_t	g_startWhenReady;
 vmCvar_t	g_autoReady;
 vmCvar_t	g_overtime;
 vmCvar_t	g_friendsThroughWalls;
-vmCvar_t	g_teamLock;
 vmCvar_t	g_redLocked;
 vmCvar_t	g_blueLocked;
 vmCvar_t	g_writeStats;
@@ -145,6 +145,8 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_motd, "g_motd", "", 0, 0, qfalse },
 
 	{ &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_allowLock, "g_allowLock", "0", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
+	{ &g_allowDrop, "g_allowDrop", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_listEntity, "g_listEntity", "0", 0, 0, qfalse },
 
 	{ &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
@@ -157,19 +159,17 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_instantgibRailjump, "g_instantgibRailjump", "1", 0, 0, qfalse },
 	{ &g_rockets, "g_rockets", "0", CVAR_LATCH, 0, qfalse },
 	{ &g_selfDamage, "g_selfDamage", "1", 0, 0, qfalse },
-	{ &g_itemDrop, "g_itemDrop", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_startWhenReady, "g_startWhenReady", "1", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_autoReady, "g_autoReady", "0", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_overtime, "g_overtime", "120", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 	{ &g_friendsThroughWalls, "g_friendsThroughWalls", "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
-	{ &g_teamLock, "g_teamLock", "0", CVAR_ARCHIVE | CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_redLocked, "g_redLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_blueLocked, "g_blueLocked", "0", CVAR_SERVERINFO | CVAR_NORESTART, 0, qfalse },
 	{ &g_writeStats, "g_writeStats", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_roundWarmup, "g_roundWarmup", "7", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_roundTimelimit, "g_roundTimelimit", "300", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_allowRespawnTimer, "g_allowRespawnTimer", "1", CVAR_ARCHIVE, 0, qfalse },
-	{ &sv_fps, "sv_fps", "40", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse }
+	{ &sv_fps, "sv_fps", "40", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse },
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -495,7 +495,10 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	SaveRegisteredItems();
 
-	G_Vote_ReadCustom();
+	G_VoteRead();
+	G_UserRead();
+	G_BanRead();
+	G_MapCycleRead();
 
 	if (g_gametype.integer != GT_DEFRAG && trap_Cvar_VariableIntegerValue("bot_enable")) {
 		BotAISetup(restart);
@@ -1930,7 +1933,7 @@ void G_RunFrame(int levelTime)
 	CheckTeamStatus();
 
 	// cancel vote if timed out
-	G_Vote_Check();
+	G_VoteCheck();
 
 	// for tracking changes
 	CheckCvars();

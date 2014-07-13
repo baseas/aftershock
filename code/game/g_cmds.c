@@ -501,7 +501,7 @@ void Cmd_Team_f(gentity_t *ent)
 			break;
 		case TEAM_SPECTATOR:
 			if (ent->client->sess.specOnly) {
-				ClientPrint(ent, "Speconly team");
+				ClientPrint(ent, "SpecOnly team");
 			} else {
 				ClientPrint(ent, "Spectator team");
 			}
@@ -511,7 +511,7 @@ void Cmd_Team_f(gentity_t *ent)
 	}
 
 	if (ent->client->switchTeamTime > level.time) {
-		trap_SendServerCommand(ent - g_entities, "print \"May not switch teams more than once per 5 seconds.\n\"");
+		ClientPrint(ent, "May not switch teams more than once per 5 seconds.");
 		return;
 	}
 
@@ -920,64 +920,16 @@ static void Cmd_Tell_f(gentity_t *ent)
 	}
 }
 
-static char	*gc_orders[] = {
-	"hold your position",
-	"hold this position",
-	"come here",
-	"cover me",
-	"guard location",
-	"search and destroy",
-	"report"
-};
-
-static const int numgc_orders = ARRAY_LEN(gc_orders);
-
-void Cmd_GameCommand_f(gentity_t *ent)
+static void Cmd_Where_f(gentity_t *ent)
 {
-	gclient_t	*cl;
-	gentity_t	*target;
-	int			order;
-
-	if (trap_Argc() != 3) {
-		trap_SendServerCommand(ent - g_entities, va("print \"Usage: gc <player id> <order 0-%d>\n\"", numgc_orders - 1));
-		return;
-	}
-
-	order = atoi(BG_Argv(2));
-
-	if (order < 0 || order >= numgc_orders) {
-		trap_SendServerCommand(ent - g_entities, va("print \"Bad order: %i\n\"", order));
-		return;
-	}
-
-	cl = ClientFromString(BG_Argv(1));
-	if (!cl) {
-		ClientPrint(ent, "Player not found.");
-		return;
-	}
-
-	target = &g_entities[cl - level.clients];
-	if (!target->inuse || !target->client) {
-		return;
-	}
-
-	G_LogPrintf("tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, gc_orders[order]);
-	G_Say(ent, target, SAY_TELL, gc_orders[order]);
-	// don't tell to the player self if it was already directed to this player
-	// also don't send the chat back to a bot
-	if (ent != target && !(ent->r.svFlags & SVF_BOT)) {
-		G_Say(ent, ent, SAY_TELL, gc_orders[order]);
-	}
-}
-
-void Cmd_Where_f(gentity_t *ent)
-{
-	trap_SendServerCommand(ent - g_entities, va("print \"%s\n\"", vtos(ent->r.currentOrigin)));
+	ClientPrint(ent, va("%s", vtos(ent->r.currentOrigin)));
 }
 
 static void Cmd_CallVote_f(gentity_t *ent)
 {
-	int		i;
+	int			i;
+	const char	*arg;
+	char		callString[MAX_STRING_CHARS];
 
 	if (!g_allowVote.integer) {
 		ClientPrint(ent, "Voting not allowed here.");
@@ -1000,11 +952,20 @@ static void Cmd_CallVote_f(gentity_t *ent)
 		return;
 	}
 
-	if (G_Vote_Call(ent)) {
+	if (G_VoteCall(ent)) {
 		return;
 	}
 
-	ClientPrint(NULL, va("%s ^7called a vote.", ent->client->pers.netname));
+	// reconstruct the vote string and send it to clients
+	Com_sprintf(callString, sizeof callString, "%s called a vote:", G_UserName(ent));
+	arg = BG_Argv(1);
+	i = 2;
+	do {
+		Q_strcat(callString, sizeof callString, " ");
+		Q_strcat(callString, sizeof callString, arg);
+	} while (*(arg = BG_Argv(i++)));
+	Q_strcat(callString, sizeof callString, ".");
+	ClientPrint(NULL, callString);
 
 	// start the voting, the caller automatically votes yes
 	level.voteTime = level.time;
@@ -1013,10 +974,10 @@ static void Cmd_CallVote_f(gentity_t *ent)
 	}
 	ent->client->pers.vote = 1;
 
-	G_Vote_UpdateCount();
+	G_VoteUpdateCount();
 
 	// vote passed if there is only one client
-	G_Vote_Check();
+	G_VoteCheck();
 
 	// else give others time to vote
 	if (level.voteTime) {
@@ -1058,7 +1019,7 @@ static void Cmd_Vote_f(gentity_t *ent)
 
 	// a majority will be determined in CheckVote, which will also account
 	// for players entering or leaving
-	G_Vote_UpdateCount();
+	G_VoteUpdateCount();
 }
 
 static void Cmd_SetViewpos_f(gentity_t *ent)
@@ -1095,7 +1056,7 @@ static void Cmd_DropArmor_f(gentity_t *ent)
 		return;
 	}
 
-	if (!(g_itemDrop.integer & 16) || g_instantgib.integer) {
+	if (!(g_allowDrop.integer & 16) || g_instantgib.integer) {
 		return;
 	}
 
@@ -1133,7 +1094,7 @@ static void Cmd_DropHealth_f(gentity_t *ent)
 		return;
 	}
 
-	if (!(g_itemDrop.integer & 8) || g_instantgib.integer) {
+	if (!(g_allowDrop.integer & 8) || g_instantgib.integer) {
 		return;
 	}
 
@@ -1171,7 +1132,7 @@ static void Cmd_DropAmmo_f(gentity_t *ent)
 		return;
 	}
 
-	if (!(g_itemDrop.integer & 4) || g_instantgib.integer || g_rockets.integer) {
+	if (!(g_allowDrop.integer & 4) || g_instantgib.integer || g_rockets.integer) {
 		return;
 	}
 
@@ -1205,7 +1166,7 @@ static void Cmd_DropWeapon_f(gentity_t *ent)
 		return;
 	}
 
-	if (!(g_itemDrop.integer & 2) || g_instantgib.integer || g_rockets.integer) {
+	if (!(g_allowDrop.integer & 2) || g_instantgib.integer || g_rockets.integer) {
 		return;
 	}
 
@@ -1236,7 +1197,7 @@ static void Cmd_DropFlag_f(gentity_t *ent)
 		return;
 	}
 
-	if (!(g_itemDrop.integer & 1)) {
+	if (!(g_allowDrop.integer & 1)) {
 		return;
 	}
 
@@ -1261,10 +1222,10 @@ static void Cmd_Drop_f(gentity_t *ent)
 	}
 
 	if ((ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG])
-		&& g_itemDrop.integer & 1)
+		&& g_allowDrop.integer & 1)
 	{
 		Cmd_DropFlag_f(ent);
-	} else if (g_itemDrop.integer & 2) {
+	} else if (g_allowDrop.integer & 2) {
 		Cmd_DropWeapon_f(ent);
 	}
 }
@@ -1280,7 +1241,7 @@ static void Cmd_Ready_f(gentity_t *ent)
 
 static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 {
-	if (!g_teamLock.integer) {
+	if (!ent->client->userid && !g_allowLock.integer) {
 		ClientPrint(ent, "Teamlock not allowed on this server.");
 		return;
 	}
@@ -1301,10 +1262,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_redLocked.integer && !lock) {
 			ClientPrint(ent, "Red team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, va("Red team locked by %s^7.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Red team locked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, va("Red team unlocked by %s^7.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Red team unlocked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "0");
 		}
 	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
@@ -1313,10 +1274,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_blueLocked.integer && !lock) {
 			ClientPrint(ent, "Blue team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, va("Blue team locked by %s^7.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Blue team locked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, va("Blue team unlocked by %s^7.", ent->client->pers.netname));
+			ClientPrint(NULL, va("Blue team unlocked by %s.", ent->client->pers.netname));
 			trap_Cvar_Set("g_blueLocked", "0");
 		}
 	}
@@ -1345,7 +1306,7 @@ static void Cmd_Forfeit_f(gentity_t *ent)
 	}
 
 	level.intermissionQueued = level.time;
-	ClientPrint(NULL, "Match has been forfeited.");
+	ClientPrint(NULL, "The match has been forfeited.");
 }
 
 static void Cmd_Block_f(gentity_t *ent, qboolean block)
@@ -1375,6 +1336,275 @@ static void Cmd_Block_f(gentity_t *ent, qboolean block)
 	}
 }
 
+static void Cmd_Timeout_f(gentity_t *ent)
+{
+	if (level.warmupTime) {
+		ClientPrint(ent, "timeout is not allowed in warmup.");
+		return;
+	}
+	ClientPrint(NULL, va("A timeout has been called by %s", G_UserName(ent)));
+}
+
+static void Cmd_Timein_f(gentity_t *ent)
+{
+	if (level.warmupTime) {
+		ClientPrint(ent, "timein is not allowed during warmup.");
+		return;
+	}
+
+	ClientPrint(NULL, va("A timein has been called by %s", G_UserName(ent)));
+}
+
+static void Cmd_Pause_f(gentity_t *ent)
+{
+	ClientPrint(NULL, va("The game has been paused by %s.", G_UserName(ent)));
+}
+
+static void Cmd_Unpause_f(gentity_t *ent)
+{
+	ClientPrint(NULL, va("The game has been unpaused by %s.", G_UserName(ent)));
+}
+
+static void Cmd_AllReady_f(gentity_t *ent)
+{
+	int	i;
+
+	for (i = 0; i < level.maxclients; ++i) {
+		if (level.intermissiontime) {
+		}
+
+		ent->client->pers.ready = qtrue;
+	}
+}
+
+static void Cmd_Kick_f(gentity_t *ent)
+{
+	gclient_t	*cl;
+
+	if (trap_Argc() != 2) {
+		ClientPrint(ent, "Usage: kick <player>");
+		return;
+	}
+
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
+		return;
+		}
+
+	if (cl->pers.localClient) {
+		ClientPrint(ent, "Cannot kick host player.");
+		return;
+	}
+
+	trap_DropClient(cl - level.clients, va("was kicked by %s.", G_UserName(ent)));
+}
+
+static void Cmd_KickAll_f(gentity_t *ent)
+{
+	int	i;
+	for (i = 0; i < level.maxclients; ++i) {
+		if (level.clients[i].pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (level.clients[i].pers.localClient) {
+			continue;
+		}
+		trap_DropClient(i, va("was kicked by %s.", G_UserName(ent)));
+	}
+}
+
+static void Cmd_KickBots_f(gentity_t *ent)
+{
+	int	i;
+	for (i = 0; i < level.maxclients; ++i) {
+		if (level.clients[i].pers.connected != CON_CONNECTED) {
+			continue;
+		}
+		if (g_entities[i].r.svFlags & SVF_BOT) {
+			trap_DropClient(i, va("was kicked by %s.", G_UserName(ent)));
+		}
+	}
+}
+
+static void Cmd_Put_f(gentity_t *ent)
+{
+	gclient_t	*cl;
+
+	if (trap_Argc() < 3) {
+		ClientPrint(ent, "Usage: put <player> <team>");
+		return;
+	}
+
+	// find the player
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
+		return;
+	}
+
+	// set the team
+	SetTeam(&g_entities[cl - level.clients], BG_Argv(2));
+
+	trap_SendConsoleCommand(cl - level.clients, "cp \"You were put in another team.\"\n");
+	ClientPrint(NULL, va("%s ^7has been put to another team by %s.",
+		cl->pers.netname, G_UserName(ent)));
+}
+
+static void Cmd_Mute_f(gentity_t *ent)
+{
+	gclient_t	*cl;
+
+	if (trap_Argc() != 2) {
+		ClientPrint(ent, "Usage: mute <player>");
+		return;
+	}
+
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
+		return;
+	}
+
+	if (cl->pers.muted) {
+		ClientPrint(ent, va("%s ^7is already muted.", cl->pers.netname));
+		return;
+	}
+
+	cl->pers.muted = qtrue;
+	ClientPrint(NULL, va("%s ^7has been muted by %s.", ent->client->pers.netname, G_UserName(ent)));
+}
+
+static void Cmd_Unmute_f(gentity_t *ent)
+{
+	gclient_t	*cl;
+
+	if (trap_Argc() != 2) {
+		ClientPrint(ent, "Usage: mute <player name>");
+		return;
+	}
+
+	cl = ClientFromString(BG_Argv(1));
+	if (!cl) {
+		ClientPrint(ent, "Player not found.");
+		return;
+	}
+
+	if (!cl->pers.muted) {
+		ClientPrint(ent, va("%s ^7is already unmuted.", cl->pers.netname));
+		return;
+	}
+
+	cl->pers.muted = qfalse;
+	ClientPrint(NULL, va("%s ^7has been unmuted by %s.", cl->pers.netname, G_UserName(ent)));
+}
+
+static void Cmd_AddBot_f(gentity_t *ent)
+{
+	float		skill;
+	char		name[MAX_TOKEN_CHARS];
+	char		team[MAX_TOKEN_CHARS];
+	const char	*skillString;
+
+	// are bots enabled?
+	if (!trap_Cvar_VariableIntegerValue("bot_enable")) {
+		ClientPrint(ent, "Bots are not enabled.");
+		return;
+	}
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Bots cannot play DeFRaG.");
+		return;
+	}
+
+	// name
+	trap_Argv(1, name, sizeof name);
+	if (!name[0]) {
+		ClientPrint(ent, "Usage: addbot <botname> [skill 1-5] [team] [altname]");
+		return;
+	}
+
+	// skill
+	skillString = BG_Argv(2);
+	if (!skillString[0]) {
+		skill = 4;
+	} else {
+		skill = atof(skillString);
+	}
+
+	trap_Argv(3, team, sizeof team);
+	G_AddBot(name, skill, team, BG_Argv(4));
+
+	ClientPrint(NULL, va("The bot '%s' has been added by %s.", name, G_UserName(ent)));
+}
+
+static void Cmd_BotList_f(gentity_t *ent)
+{
+#if 0
+	int i;
+	char name[MAX_TOKEN_CHARS];
+	char funname[MAX_TOKEN_CHARS];
+	char aifile[MAX_TOKEN_CHARS];
+
+	ClientPrint(ent, "^1name            aifile              funname");
+	for (i = 0; i < g_numBots; i++) {
+		strcpy(name, Info_ValueForKey(g_botInfos[i], "name"));
+		if (!*name) {
+			strcpy(name, "UnnamedPlayer");
+		}
+		strcpy(funname, Info_ValueForKey(g_botInfos[i], "funname"));
+		if (!*funname) {
+			strcpy(funname, "");
+		}
+		strcpy(aifile, Info_ValueForKey(g_botInfos[i], "aifile"));
+		if (!*aifile) {
+			strcpy(aifile, "bots/default_c.c");
+		}
+		ClientPrint(ent, "%-16s %-20s %-20s", name, aifile, funname);
+	}
+#endif
+}
+
+static void Cmd_PassVote_f(gentity_t *ent)
+{
+	if (!level.voteTime) {
+		ClientPrint(ent, "No vote is in progress.");
+		return;
+	}
+	level.voteExecuteTime = 0;
+	level.voteTime = 0;
+	trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
+	trap_SetConfigstring(CS_VOTE_TIME, "passed");
+	ClientPrint(NULL, va("The vote has been passed by %s.", G_UserName(ent)));
+}
+
+static void Cmd_CancelVote_f(gentity_t *ent)
+{
+	trap_SetConfigstring(CS_VOTE_TIME, "failed");
+	ClientPrint(NULL, va("The vote has been canceled by %s.", G_UserName(ent)));
+}
+
+static void Cmd_Nextmap_f(gentity_t *ent)
+{
+}
+
+static void Cmd_Rename_f(gentity_t *ent)
+{
+	gclient_t	*client;
+	char		userinfo[MAX_INFO_STRING];
+
+	client = ClientFromString(BG_Argv(2));
+	if (!client) {
+		ClientPrint(NULL, "Player not found.");
+		return;
+	}
+
+	trap_GetUserinfo(client - level.clients, userinfo, sizeof userinfo);
+	Info_SetValueForKey(userinfo, "name", BG_Argv(2));
+	trap_SetUserinfo(client - level.clients, userinfo);
+	ClientUserinfoChanged(client - level.clients);
+}
+
 void ClientCommand(int clientNum)
 {
 	gentity_t	*ent;
@@ -1387,15 +1617,15 @@ void ClientCommand(int clientNum)
 
 	cmd = BG_Argv(0);
 
-	if (Q_stricmp(cmd, "say") == 0) {
+	if (!Q_stricmp(cmd, "say")) {
 		Cmd_Say_f(ent, SAY_ALL, qfalse);
 		return;
 	}
-	if (Q_stricmp(cmd, "say_team") == 0) {
+	if (!Q_stricmp(cmd, "say_team")) {
 		Cmd_Say_f(ent, SAY_TEAM, qfalse);
 		return;
 	}
-	if (Q_stricmp(cmd, "tell") == 0) {
+	if (!Q_stricmp(cmd, "tell")) {
 		Cmd_Tell_f(ent);
 		return;
 	}
@@ -1406,63 +1636,112 @@ void ClientCommand(int clientNum)
 		return;
 	}
 
-	if (Q_stricmp(cmd, "give") == 0)
+	if (!Q_stricmp(cmd, "give")) {
 		Cmd_Give_f(ent);
-	else if (Q_stricmp(cmd, "god") == 0)
+	} else if (!Q_stricmp(cmd, "god")) {
 		Cmd_God_f(ent);
-	else if (Q_stricmp(cmd, "notarget") == 0)
+	} else if (!Q_stricmp(cmd, "notarget")) {
 		Cmd_Notarget_f(ent);
-	else if (Q_stricmp(cmd, "noclip") == 0)
+	} else if (!Q_stricmp(cmd, "noclip")) {
 		Cmd_Noclip_f(ent);
-	else if (Q_stricmp(cmd, "kill") == 0)
+	} else if (!Q_stricmp(cmd, "kill")) {
 		Cmd_Kill_f(ent);
-	else if (Q_stricmp(cmd, "teamtask") == 0)
+	} else if (!Q_stricmp(cmd, "teamtask")) {
 		Cmd_TeamTask_f(ent);
-	else if (Q_stricmp(cmd, "levelshot") == 0)
+	} else if (!Q_stricmp(cmd, "levelshot")) {
 		Cmd_LevelShot_f(ent);
-	else if (Q_stricmp(cmd, "follow") == 0)
+	} else if (!Q_stricmp(cmd, "follow")) {
 		Cmd_Follow_f(ent);
-	else if (Q_stricmp(cmd, "follownext") == 0)
+	} else if (!Q_stricmp(cmd, "follownext")) {
 		Cmd_FollowCycle_f(ent, 1);
-	else if (Q_stricmp(cmd, "followprev") == 0)
+	} else if (!Q_stricmp(cmd, "followprev")) {
 		Cmd_FollowCycle_f(ent, -1);
-	else if (Q_stricmp(cmd, "team") == 0)
+	} else if (!Q_stricmp(cmd, "team")) {
 		Cmd_Team_f(ent);
-	else if (Q_stricmp(cmd, "where") == 0)
+	} else if (!Q_stricmp(cmd, "where")) {
 		Cmd_Where_f(ent);
-	else if (Q_stricmp(cmd, "callvote") == 0)
+	} else if (!Q_stricmp(cmd, "callvote")) {
 		Cmd_CallVote_f(ent);
-	else if (Q_stricmp(cmd, "vote") == 0)
+	} else if (!Q_stricmp(cmd, "vote")) {
 		Cmd_Vote_f(ent);
-	else if (Q_stricmp(cmd, "gc") == 0)
-		Cmd_GameCommand_f(ent);
-	else if (Q_stricmp(cmd, "setviewpos") == 0)
+	} else if (!Q_stricmp(cmd, "setviewpos")) {
 		Cmd_SetViewpos_f(ent);
-	else if (Q_stricmp(cmd, "dropammo") == 0)
+	} else if (!Q_stricmp(cmd, "dropammo")) {
 		Cmd_DropAmmo_f(ent);
-	else if (Q_stricmp(cmd, "droparmor") == 0)
+	} else if (!Q_stricmp(cmd, "droparmor")) {
 		Cmd_DropArmor_f(ent);
-	else if (Q_stricmp(cmd, "drophealth") == 0)
+	} else if (!Q_stricmp(cmd, "drophealth")) {
 		Cmd_DropHealth_f(ent);
-	else if (Q_stricmp(cmd, "dropweapon") == 0)
+	} else if (!Q_stricmp(cmd, "dropweapon")) {
 		Cmd_DropWeapon_f(ent);
-	else if (Q_stricmp(cmd, "dropflag") == 0)
+	} else if (!Q_stricmp(cmd, "dropflag")) {
 		Cmd_DropFlag_f(ent);
-	else if (Q_stricmp(cmd, "drop") == 0)
+	} else if (!Q_stricmp(cmd, "drop")) {
 		Cmd_Drop_f(ent);
-	else if (Q_stricmp(cmd, "ready") == 0)
+	} else if (!Q_stricmp(cmd, "ready")) {
 		Cmd_Ready_f(ent);
-	else if (Q_stricmp(cmd, "lock") == 0)
+	} else if (!Q_stricmp(cmd, "lock")) {
 		Cmd_Lock_f(ent, qtrue);
-	else if (Q_stricmp(cmd, "unlock") == 0)
+	} else if (!Q_stricmp(cmd, "unlock")) {
 		Cmd_Lock_f(ent, qfalse);
-	else if (Q_stricmp(cmd, "forfeit") == 0)
+	} else if (!Q_stricmp(cmd, "forfeit")) {
 		Cmd_Forfeit_f(ent);
-	else if (Q_stricmp(cmd, "block") == 0)
+	} else if (!Q_stricmp(cmd, "block")) {
 		Cmd_Block_f(ent, qtrue);
-	else if (Q_stricmp(cmd, "unblock") == 0)
+	} else if (!Q_stricmp(cmd, "unblock")) {
 		Cmd_Block_f(ent, qfalse);
-	else
-		trap_SendServerCommand(clientNum, va("print \"unknown cmd %s\n\"", cmd));
+	} else if (!Q_stricmp(cmd, "login")) {
+		Cmd_Login_f(ent);
+	}
+
+	// check for operator commands
+
+	if (!G_UserAllowed(ent, cmd)) {
+		return;
+	}
+
+	if (!Q_stricmp(cmd, "pause")) {
+		Cmd_Pause_f(ent);
+	} else if (!Q_stricmp(cmd, "unpause")) {
+		Cmd_Unpause_f(ent);
+	} else if (!Q_stricmp(cmd, "user")) {
+		Cmd_User_f(ent);
+	} else if (!Q_stricmp(cmd, "mapcycle")) {
+		Cmd_MapCycle_f(ent);
+	} else if (!Q_stricmp(cmd, "ban")) {
+		Cmd_Ban_f(ent);
+	} else if (!Q_stricmp(cmd, "timeout")) {
+		Cmd_Timeout_f(ent);
+	} else if (!Q_stricmp(cmd, "timein")) {
+		Cmd_Timein_f(ent);
+	} else if (!Q_stricmp(cmd, "mute")) {
+		Cmd_Mute_f(ent);
+	} else if (!Q_stricmp(cmd, "unmute")) {
+		Cmd_Unmute_f(ent);
+	} else if (!Q_stricmp(cmd, "kick")) {
+		Cmd_Kick_f(ent);
+	} else if (!Q_stricmp(cmd, "kickbots")) {
+		Cmd_KickBots_f(ent);
+	} else if (!Q_stricmp(cmd, "kickall")) {
+		Cmd_KickAll_f(ent);
+	} else if (!Q_stricmp(cmd, "put")) {
+		Cmd_Put_f(ent);
+	} else if (!Q_stricmp(cmd, "addbot")) {
+		Cmd_AddBot_f(ent);
+	} else if (!Q_stricmp(cmd, "botlist")) {
+		Cmd_BotList_f(ent);
+	} else if (!Q_stricmp(cmd, "passvote")) {
+		Cmd_PassVote_f(ent);
+	} else if (!Q_stricmp(cmd, "cancelvote")) {
+		Cmd_CancelVote_f(ent);
+	} else if (!Q_stricmp(cmd, "rename")) {
+		Cmd_Rename_f(ent);
+	} else if (!Q_stricmp(cmd, "usertest")) {
+		Cmd_UserTest_f(ent);
+	} else if (!Q_stricmp(cmd, "nextmap")) {
+		Cmd_Nextmap_f(ent);
+	} else if (!Q_stricmp(cmd, "allready")) {
+		Cmd_AllReady_f(ent);
+	}
 }
 

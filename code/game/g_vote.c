@@ -264,7 +264,7 @@ static void G_VotePrintCommands(gentity_t *ent)
 	ClientPrint(ent, buffer);
 }
 
-void G_Vote_ReadCustom(void)
+void G_VoteRead(void)
 {
 	fileHandle_t	fp;
 	iniSection_t	section;
@@ -320,7 +320,7 @@ void G_Vote_ReadCustom(void)
 	trap_FS_FCloseFile(fp);
 }
 
-int G_Vote_Call(gentity_t *ent)
+int G_VoteCall(gentity_t *ent)
 {
 	int			i;
 	const char	*cmd;
@@ -343,12 +343,20 @@ int G_Vote_Call(gentity_t *ent)
 
 	for (i = 0; voteCommands[i].cmd; ++i) {
 		if (!Q_stricmp(cmd, voteCommands[i].cmd)) {
+			if (!G_UserAllowed(ent, va("callvote_%s", voteCommands[i].cmd))) {
+				ClientPrint(ent, "You are not allowed to call this vote.");
+				return 1;
+			}
 			return voteCommands[i].func(ent);
 		}
 	}
 
 	for (i = 0; i < customVoteCount; ++i) {
 		if (!Q_stricmp(cmd, customVotes[i].name)) {
+			if (!G_UserAllowed(ent, va("callvote_%s", customVotes[i].name))) {
+				ClientPrint(ent, "You are not allowed to call this vote.");
+				return 1;
+			}
 			return Vote_Custom(ent, &customVotes[i]);
 		}
 	}
@@ -358,7 +366,7 @@ int G_Vote_Call(gentity_t *ent)
 	return 1;
 }
 
-void G_Vote_Check(void)
+void G_VoteCheck(void)
 {
 	if (level.voteExecuteTime && level.voteExecuteTime < level.time) {
 		level.voteExecuteTime = 0;
@@ -408,7 +416,7 @@ void G_Vote_Check(void)
 /**
 Iterates through all the clients and counts the votes
 */
-void G_Vote_UpdateCount(void)
+void G_VoteUpdateCount(void)
 {
 	int i;
 	int yes, no;

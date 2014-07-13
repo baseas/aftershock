@@ -1127,7 +1127,7 @@ void ClientDisconnect(int clientNum)
 
 	CalculateRanks();
 
-	G_Vote_UpdateCount();
+	G_VoteUpdateCount();
 
 	if (ent->r.svFlags & SVF_BOT) {
 		BotAIShutdownClient(clientNum, qfalse);

@@ -25,12 +25,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 typedef struct {
-	char	name[MAX_NETNAME];	// name of banned player
-	char	id[64];				// ip or guid
-	char	reason[64];
-	int		date;				// time when ban has started
-	char	durationString[32];
-	int		duration;			// in seconds
+	char		name[MAX_NETNAME];	// name of banned player
+	char		id[64];				// ip or guid
+	char		reason[64];
+	int			date;				// time when ban has started
+	char		durationString[32];
+	int			duration;			// in seconds
+
+	unsigned	mask;				// for ip ban
+	unsigned	compare;
 } ban_t;
 
 static int		banCount;
@@ -39,7 +42,7 @@ static ban_t	bans[32];
 /**
 Convert a duration string to seconds.
 */
-static long G_BanDurationToLong(const char *duration)
+static int G_BanDuration(const char *duration)
 {
 	int	sec = 0;
 	int	total = 0;
@@ -66,19 +69,19 @@ static long G_BanDurationToLong(const char *duration)
 	return total;
 }
 
-void G_BanList(void)
+static void G_BanList(gentity_t *ent)
 {
 	int	i;
 
-	G_Printf("Bans:\n");
-	G_Printf("nr    name          date        duration    reason        \n");
-	G_Printf("----------------------------------------------------------\n");
+	ClientPrint(ent, "Bans:\n");
+	ClientPrint(ent, "nr    name          date        duration    reason        \n");
+	ClientPrint(ent, "----------------------------------------------------------\n");
 	for (i = 0; i < banCount; ++i) {
 //		G_Printf("#%d %s %s %s %s\n");
 	}
 }
 
-void G_BanWrite(void)
+static void G_BanWrite(void)
 {
 	int				i;
 	const int		pad = 10;
@@ -106,19 +109,31 @@ void G_BanWrite(void)
 /**
 Remove all bans.
 */
-void G_BanFlush(void)
+static void G_BanFlush(gentity_t *ent)
 {
 	banCount = 0;
 	G_BanWrite();
+	ClientPrint(ent, "All bans have been removed.");
 }
 
-
-void G_BanKick(gclient_t *client, const char *duration, const char *reason)
+static void G_BanAdd(gentity_t *ent)
 {
-	long	dur;
+	int			duration;
+	gclient_t	*client;
 
-	dur = G_BanDurationToLong(duration);
-	if (!dur) {
+	if (trap_Argc() != 5) {
+		ClientPrint(ent, "Usage: ban add <player or ip> <duration> <reason>");
+		return;
+	}
+
+	client = ClientFromString(BG_Argv(2));
+	if (!client) {
+		ClientPrint(ent, "Player not found.");
+		return;
+	}
+
+	duration = G_BanDuration(BG_Argv(3));
+	if (!duration) {
 		ClientPrint(&g_entities[client - level.clients],
 			"Luckily for you, a ban attempt has failed.");
 		return;
@@ -130,14 +145,82 @@ void G_BanKick(gclient_t *client, const char *duration, const char *reason)
 	}
 
 	Q_strncpyz(bans[banCount].name, client->pers.netname, sizeof bans[0].name);
-	Q_strncpyz(bans[banCount].durationString, duration, sizeof bans[0].durationString);
-	bans[banCount].duration = dur;
+	Q_strncpyz(bans[banCount].durationString, BG_Argv(2), sizeof bans[0].durationString);
+	bans[banCount].duration = duration;
 	bans[banCount].date = trap_RealTime(NULL);
 
 	G_BanWrite();
 	banCount++;
 
-	trap_DropClient(client - level.clients, va("Banned for %s: %s\n", duration, reason));
+	trap_DropClient(client - level.clients, va("Banned by %s for %s: %s\n",
+		G_UserName(ent), BG_Argv(3), BG_Argv(4)));
+}
+
+static void G_BanAdjust(gentity_t *ent)
+{
+	int			banid;
+	int			duration;
+	const char	*reason;
+
+	if (trap_Argc() != 4 && trap_Argc() != 5) {
+		ClientPrint(ent, "Usage: ban adjust <banid> <duration> [reason]");
+		return;
+	}
+
+	if (Q_isanumber(BG_Argv(1))) {
+		ClientPrint(ent, "Invalid ban id.");
+		return;
+	}
+
+	banid = atoi(BG_Argv(1));
+	if (banid < 0 || banid > banCount) {
+		ClientPrint(ent, "Invalid ban id.");
+		return;
+	}
+
+	duration = G_BanDuration(BG_Argv(3));
+	if (!duration) {
+		ClientPrint(ent, "Invalid ban duration.");
+		return;
+	}
+
+	reason = BG_Argv(5);
+	if (*reason) {
+		Q_strncpyz(bans[banid].reason, reason, sizeof bans[0].reason);
+	}
+
+	Q_strncpyz(bans[banid].durationString, BG_Argv(3), sizeof bans[0].duration);
+	bans[banid].duration = duration;
+
+	ClientPrint(ent, "The ban has been adjusted.");
+}
+
+static void G_BanDel(gentity_t *ent)
+{
+	int			i;
+	int			banid;
+
+	if (trap_Argc() != 3) {
+		ClientPrint(ent, "Usage: ban del <id>");
+		return;
+	}
+
+	if (!Q_isanumber(BG_Argv(2))) {
+		ClientPrint(ent, "Invalid ban id.");
+		return;
+	}
+
+	banid = atoi(BG_Argv(2));
+	if (banid < 0) {
+		ClientPrint(ent, "Invalid ban id.");
+		return;
+	}
+
+	for (i = banid; i < banCount - 1; ++i) {
+		bans[i] = bans[i + 1];
+	}
+
+	ClientPrint(ent, va("Ban #%d has been deleted.", banid));
 }
 
 void G_BanRead(void)
@@ -180,5 +263,26 @@ void G_BanRead(void)
 	}
 
 	trap_FS_FCloseFile(fp);
+}
+
+void Cmd_Ban_f(gentity_t *ent)
+{
+	const char	*cmd;
+
+	cmd = BG_Argv(1);
+
+	if (!strcmp(cmd, "list")) {
+		G_BanList(ent);
+	} else if (!strcmp(cmd, "add")) {
+		G_BanAdd(ent);
+	} else if (!strcmp(cmd, "del")) {
+		G_BanDel(ent);
+	} else if (!strcmp(cmd, "adjust")) {
+		G_BanAdjust(ent);
+	} else if (!strcmp(cmd, "flush")) {
+		G_BanFlush(ent);
+	} else {
+		ClientPrint(ent, "Usage: ban (list | add | del | adjust | flush) <banid>");
+	}
 }
 

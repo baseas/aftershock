@@ -379,13 +379,13 @@ qboolean G_BotConnect(int clientNum, qboolean restart)
 	return qtrue;
 }
 
-static void G_AddBot(const char *name, float skill, const char *team, char *altname)
+void G_AddBot(const char *name, float skill, const char *team, const char *altname)
 {
 	int				clientNum;
 	char			*botinfo;
 	char			*key;
 	char			*s;
-	char			*botname;
+	const char		*botname;
 	char			userinfo[MAX_INFO_STRING];
 
 	// have the server allocate a client slot
@@ -460,75 +460,6 @@ static void G_AddBot(const char *name, float skill, const char *team, char *altn
 
 	ClientBegin(clientNum);
 	return;
-}
-
-void Svcmd_AddBot_f(void)
-{
-	float			skill;
-	char			name[MAX_TOKEN_CHARS];
-	char			altname[MAX_TOKEN_CHARS];
-	char			string[MAX_TOKEN_CHARS];
-	char			team[MAX_TOKEN_CHARS];
-
-	// are bots enabled?
-	if (!trap_Cvar_VariableIntegerValue("bot_enable")) {
-		trap_Print("Bots are not enabled.\n");
-		return;
-	}
-
-	if (g_gametype.integer == GT_DEFRAG) {
-		trap_Print("Bots cannot play DeFRaG.\n");
-		return;
-	}
-
-	// name
-	trap_Argv(1, name, sizeof(name));
-	if (!name[0]) {
-		trap_Print("Usage: addbot <botname> [skill 1-5] [team] [altname]\n");
-		return;
-	}
-
-	// skill
-	trap_Argv(2, string, sizeof(string));
-	if (!string[0]) {
-		skill = 4;
-	}
-	else {
-		skill = atof(string);
-	}
-
-	// team
-	trap_Argv(3, team, sizeof(team));
-
-	// alternative name
-	trap_Argv(5, altname, sizeof(altname));
-
-	G_AddBot(name, skill, team, altname);
-}
-
-void Svcmd_BotList_f(void)
-{
-	int i;
-	char name[MAX_TOKEN_CHARS];
-	char funname[MAX_TOKEN_CHARS];
-	char aifile[MAX_TOKEN_CHARS];
-
-	trap_Print("^1name            aifile              funname\n");
-	for (i = 0; i < g_numBots; i++) {
-		strcpy(name, Info_ValueForKey(g_botInfos[i], "name"));
-		if (!*name) {
-			strcpy(name, "UnnamedPlayer");
-		}
-		strcpy(funname, Info_ValueForKey(g_botInfos[i], "funname"));
-		if (!*funname) {
-			strcpy(funname, "");
-		}
-		strcpy(aifile, Info_ValueForKey(g_botInfos[i], "aifile"));
-		if (!*aifile) {
-			strcpy(aifile, "bots/default_c.c");
-		}
-		trap_Print(va("%-16s %-20s %-20s\n", name, aifile, funname));
-	}
 }
 
 static void G_LoadBotsFromFile(char *filename)

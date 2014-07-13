@@ -30,18 +30,6 @@ typedef struct {
 	void	(*function)(void);
 } consoleCommand_t;
 
-static void CG_TargetCommand_f(void)
-{
-	int		targetNum;
-
-	targetNum = CG_CrosshairPlayer();
-	if (targetNum == -1) {
-		return;
-	}
-
-	trap_SendClientCommand(va("gc %i %i", targetNum, atoi(BG_Argv(1))));
-}
-
 /**
 Debugging command to print the current position
 */
@@ -165,7 +153,6 @@ static consoleCommand_t	commands[] = {
 	{ "weapnext", CG_NextWeapon_f },
 	{ "weapprev", CG_PrevWeapon_f },
 	{ "weapon", CG_Weapon_f },
-	{ "tcmd", CG_TargetCommand_f },
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "startOrbit", CG_StartOrbit_f },
@@ -222,7 +209,6 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("follownext");
 	trap_AddCommand("followprev");
 	trap_AddCommand("levelshot");
-	trap_AddCommand("addbot");
 	trap_AddCommand("setviewpos");
 	trap_AddCommand("callvote");
 	trap_AddCommand("vote");
@@ -239,5 +225,21 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("forfeit");
 	trap_AddCommand("block");
 	trap_AddCommand("unblock");
+	trap_AddCommand("login");
+	trap_AddCommand("allready");
+	trap_AddCommand("kick");
+	trap_AddCommand("ban");
+	trap_AddCommand("timein");
+	trap_AddCommand("timeout");
+	trap_AddCommand("pause");
+	trap_AddCommand("unpause");
+	trap_AddCommand("put");
+	trap_AddCommand("mute");
+	trap_AddCommand("unmute");
+	trap_AddCommand("addbot");
+	trap_AddCommand("botlist");
+	trap_AddCommand("allready");
+	trap_AddCommand("user");
+	trap_AddCommand("mapcycle");
 }
 

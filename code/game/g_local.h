@@ -650,8 +650,7 @@ void		G_InitBots(qboolean restart);
 char		*G_GetBotInfoByNumber(int num);
 char		*G_GetBotInfoByName(const char *name);
 qboolean	G_BotConnect(int clientNum, qboolean restart);
-void		Svcmd_AddBot_f(void);
-void		Svcmd_BotList_f(void);
+void		G_AddBot(const char *name, float skill, const char *team, const char *altname);
 void		BotInterbreedEndMatch(void);
 
 //
@@ -662,10 +661,10 @@ void	G_StatsWrite(void);
 //
 // g_vote.c
 //
-void	G_Vote_ReadCustom(void);
-int		G_Vote_Call(gentity_t *ent);
-void	G_Vote_Check(void);
-void	G_Vote_UpdateCount(void);
+void	G_VoteRead(void);
+int		G_VoteCall(gentity_t *ent);
+void	G_VoteCheck(void);
+void	G_VoteUpdateCount(void);
 
 //
 // g_unlagged.c
@@ -679,6 +678,29 @@ void	G_UnTimeShiftAllClients(gentity_t *skip);
 void	G_DoTimeShiftFor(gentity_t *ent);
 void	G_UndoTimeShiftFor(gentity_t *ent);
 void	G_PredictPlayerMove(gentity_t *ent, float frametime);
+
+//
+// g_user.c
+//
+void		G_UserRead(void);
+qboolean	G_UserAllowed(gentity_t *ent, const char *action);
+const char	*G_UserName(gentity_t *ent);
+void		Cmd_UserTest_f(gentity_t *ent);
+void		Cmd_Login_f(gentity_t *ent);
+void		Cmd_User_f(gentity_t *ent);
+
+//
+// g_mapcycle.c
+//
+void	G_MapCycleRead(void);
+void	Cmd_MapCycle_f(gentity_t *ent);
+void	G_MapCycleNextmap(void);
+
+//
+// g_ban.c
+//
+void	G_BanRead(void);
+void	Cmd_Ban_f(gentity_t *ent);
 
 // ai_main.c
 #define MAX_FILEPATH	144
@@ -733,6 +755,8 @@ extern vmCvar_t	g_weaponTeamRespawn;
 extern vmCvar_t	g_motd;
 extern vmCvar_t	g_warmupTime;
 extern vmCvar_t	g_allowVote;
+extern vmCvar_t	g_allowLock;
+extern vmCvar_t	g_allowDrop;
 extern vmCvar_t	g_teamAutoJoin;
 extern vmCvar_t	g_teamForceBalance;
 extern vmCvar_t	g_banIPs;
@@ -746,12 +770,10 @@ extern vmCvar_t	g_instantgibGauntlet;
 extern vmCvar_t	g_instantgibRailjump;
 extern vmCvar_t	g_rockets;
 extern vmCvar_t	g_selfDamage;
-extern vmCvar_t	g_itemDrop;
 extern vmCvar_t	g_startWhenReady;
 extern vmCvar_t	g_autoReady;
 extern vmCvar_t	g_overtime;
 extern vmCvar_t	g_friendsThroughWalls;
-extern vmCvar_t	g_teamLock;
 extern vmCvar_t	g_redLocked;
 extern vmCvar_t	g_blueLocked;
 extern vmCvar_t	g_writeStats;
