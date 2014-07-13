@@ -574,6 +574,12 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 	}
 	ci = &cgs.clientinfo[clientNum];
 
+	if (cgs.gametype == GT_DEFRAG || cg.demoPlayback) {
+		if (!cg_playerSounds.integer && es->number != cg.clientNum) {
+			return;
+		}
+	}
+
 	switch (event) {
 	//
 	// movement generated events

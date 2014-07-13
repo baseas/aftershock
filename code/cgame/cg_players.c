@@ -1456,6 +1456,15 @@ void CG_Player(centity_t *cent)
 	}
 	ci = &cgs.clientinfo[clientNum];
 
+	// hide other players inside the nodraw range
+	if (cgs.gametype == GT_DEFRAG && clientNum != cg.clientNum) {
+		vec3_t	dist;
+		VectorSubtract(cent->currentState.origin, cg.snap->ps.origin, dist);
+		if (VectorLengthSquared(dist) > cg_nodrawRadius.value * cg_nodrawRadius.value) {
+			return;
+		}
+	}
+
 	// it is possible to see corpses from disconnected players that may
 	// not have valid clientinfo
 	if (!ci->infoValid) {

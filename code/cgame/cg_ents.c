@@ -283,6 +283,15 @@ static void CG_Missile(centity_t *cent)
 
 	ci = &cgs.clientinfo[cg_entities[cent->currentState.otherEntityNum].currentState.number];
 
+	// do not show missiles of other players inside the nodraw range
+	if (cgs.gametype == GT_DEFRAG && ci != &cgs.clientinfo[cg.clientNum]) {
+		vec3_t	dist;
+		VectorSubtract(cent->lerpOrigin, cg.snap->ps.origin, dist);
+		if (VectorLengthSquared(dist) > cg_nodrawRadius.value * cg_nodrawRadius.value) {
+			return;
+		}
+	}
+
 	s1 = &cent->currentState;
 	if (s1->weapon >= WP_NUM_WEAPONS) {
 		s1->weapon = 0;

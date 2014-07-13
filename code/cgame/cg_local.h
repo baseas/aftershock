@@ -1230,6 +1230,8 @@ extern vmCvar_t		cg_drawBBox;
 extern vmCvar_t		cg_itemFX;
 extern vmCvar_t		cg_wallhack;
 extern vmCvar_t		cg_hitBeep;
+extern vmCvar_t		cg_nodrawRadius;
+extern vmCvar_t		cg_playerSounds;
 
 //
 // cg_main.c

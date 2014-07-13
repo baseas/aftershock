@@ -225,6 +225,8 @@ vmCvar_t	cg_drawBBox;
 vmCvar_t	cg_itemFX;
 vmCvar_t	cg_wallhack;
 vmCvar_t	cg_hitBeep;
+vmCvar_t	cg_nodrawRadius;
+vmCvar_t	cg_playerSounds;
 
 static cvarTable_t cvarTable[] = {
 	{ &cg_autoswitch, "cg_autoswitch" },
@@ -367,7 +369,9 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_drawBBox, "cg_drawBBox" },
 	{ &cg_itemFX, "cg_itemFX" },
 	{ &cg_wallhack, "cg_wallhack" },
-	{ &cg_hitBeep, "cg_hitBeep" }
+	{ &cg_hitBeep, "cg_hitBeep" },
+	{ &cg_nodrawRadius, "cg_nodrawRadius" },
+	{ &cg_playerSounds, "cg_playerSounds" }
 };
 
 static int	cvarTableSize = ARRAY_LEN(cvarTable);

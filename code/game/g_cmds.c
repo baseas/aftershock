@@ -1090,6 +1090,11 @@ static void Cmd_DropArmor_f(gentity_t *ent)
 	gitem_t	*item;
 	int		amount;
 
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Item drop is not available in DeFRaG.");
+		return;
+	}
+
 	if (!(g_itemDrop.integer & 16) || g_instantgib.integer) {
 		return;
 	}
@@ -1122,6 +1127,11 @@ static void Cmd_DropHealth_f(gentity_t *ent)
 {
 	gitem_t	*item;
 	int		amount;
+
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Item drop is not available in DeFRaG.");
+		return;
+	}
 
 	if (!(g_itemDrop.integer & 8) || g_instantgib.integer) {
 		return;
@@ -1156,6 +1166,11 @@ static void Cmd_DropAmmo_f(gentity_t *ent)
 	gitem_t	*item;
 	int		weapon;
 
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Item drop is not available in DeFRaG.");
+		return;
+	}
+
 	if (!(g_itemDrop.integer & 4) || g_instantgib.integer || g_rockets.integer) {
 		return;
 	}
@@ -1185,6 +1200,11 @@ static void Cmd_DropWeapon_f(gentity_t *ent)
 	gitem_t	*item;
 	int		weapon;
 
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Item drop is not available in DeFRaG.");
+		return;
+	}
+
 	if (!(g_itemDrop.integer & 2) || g_instantgib.integer || g_rockets.integer) {
 		return;
 	}
@@ -1209,27 +1229,37 @@ static void Cmd_DropWeapon_f(gentity_t *ent)
 	}
 }
 
-static void Cmd_DropFlag_f(gentity_t *other)
+static void Cmd_DropFlag_f(gentity_t *ent)
 {
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Item drop is not available in DeFRaG.");
+		return;
+	}
+
 	if (!(g_itemDrop.integer & 1)) {
 		return;
 	}
 
-	if (other->client->ps.pm_type == PM_DEAD) {
+	if (ent->client->ps.pm_type == PM_DEAD) {
 		return;
 	}
 
-	if (other->client->ps.powerups[PW_REDFLAG]) {
-		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_REDFLAG));
-		other->client->ps.powerups[PW_REDFLAG] = 0;
-	} else if (other->client->ps.powerups[PW_BLUEFLAG]) {
-		Drop_Item_Flag(other, BG_FindItemForPowerup(PW_BLUEFLAG));
-		other->client->ps.powerups[PW_BLUEFLAG] = 0;
+	if (ent->client->ps.powerups[PW_REDFLAG]) {
+		Drop_Item_Flag(ent, BG_FindItemForPowerup(PW_REDFLAG));
+		ent->client->ps.powerups[PW_REDFLAG] = 0;
+	} else if (ent->client->ps.powerups[PW_BLUEFLAG]) {
+		Drop_Item_Flag(ent, BG_FindItemForPowerup(PW_BLUEFLAG));
+		ent->client->ps.powerups[PW_BLUEFLAG] = 0;
 	}
 }
 
 static void Cmd_Drop_f(gentity_t *ent)
 {
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Item drop is not available in DeFRaG.");
+		return;
+	}
+
 	if ((ent->client->ps.powerups[PW_REDFLAG] || ent->client->ps.powerups[PW_BLUEFLAG])
 		&& g_itemDrop.integer & 1)
 	{
