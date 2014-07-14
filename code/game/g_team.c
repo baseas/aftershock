@@ -865,7 +865,7 @@ qboolean Team_GetLocationMsg(vec3_t origin, char *loc, int loclen)
 /**
 Go to a random point that doesn't telefrag
 */
-gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
+gentity_t *SelectRandomTeamSpawnPoint(team_t team)
 {
 	gentity_t	*spot;
 	int			count;
@@ -873,23 +873,14 @@ gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 	gentity_t	*spots[MAX_TEAM_SPAWN_POINTS];
 	char		*classname;
 
-	if (teamstate == TEAM_BEGIN) {
-		if (team == TEAM_RED) {
-			classname = "team_CTF_redplayer";
-		} else if (team == TEAM_BLUE) {
-			classname = "team_CTF_blueplayer";
-		} else {
-			return NULL;
-		}
+	if (team == TEAM_RED) {
+		classname = "team_CTF_redspawn";
+	} else if (team == TEAM_BLUE) {
+		classname = "team_CTF_bluespawn";
 	} else {
-		if (team == TEAM_RED) {
-			classname = "team_CTF_redspawn";
-		} else if (team == TEAM_BLUE) {
-			classname = "team_CTF_bluespawn";
-		} else {
-			return NULL;
-		}
+		return NULL;
 	}
+
 	count = 0;
 
 	spot = NULL;
@@ -913,11 +904,11 @@ gentity_t *SelectRandomTeamSpawnPoint(int teamstate, team_t team)
 	return spots[ selection ];
 }
 
-gentity_t *SelectCTFSpawnPoint(team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot)
+gentity_t *SelectCTFSpawnPoint(team_t team, vec3_t origin, vec3_t angles, qboolean isbot)
 {
 	gentity_t	*spot;
 
-	spot = SelectRandomTeamSpawnPoint (teamstate, team);
+	spot = SelectRandomTeamSpawnPoint(team);
 
 	if (!spot) {
 		return SelectSpawnPoint(vec3_origin, origin, angles, isbot);
@@ -1052,13 +1043,13 @@ void CheckTeamStatus(void)
 
 /**
 QUAKED team_CTF_redplayer (1 0 0) (-16 -16 -16) (16 16 32)
-Only in CTF games.  Red players spawn here at game start.
+Unused. Red players used to spawn here at CTF game start.
 */
 void SP_team_CTF_redplayer(gentity_t *ent) { }
 
 /**
 QUAKED team_CTF_blueplayer (0 0 1) (-16 -16 -16) (16 16 32)
-Only in CTF games.  Blue players spawn here at game start.
+Unused. Blue players used to spawn here at CTF game start.
 */
 void SP_team_CTF_blueplayer(gentity_t *ent) { }
 

@@ -137,7 +137,7 @@ static int G_UserId(gentity_t *ent, const char *id)
 		}
 	}
 
-	ClientPrint(ent, va("There is no user with the name %s^7", id));
+	ClientPrint(ent, "There is no user with the name %s^7", id);
 	return -1;
 }
 
@@ -156,7 +156,7 @@ static void G_UserList(gentity_t *ent)
 	ClientPrint(ent, "name               rights");
 	ClientPrint(ent, "--------------------------");
 	for (i = 0; i < userCount; ++i) {
-		ClientPrint(ent, va("%-16s %-16s", users[i].name, users[i].rights));
+		ClientPrint(ent, "%-16s %-16s", users[i].name, users[i].rights);
 	}
 }
 
@@ -193,7 +193,7 @@ static void G_UserAdd(gentity_t *ent)
 		Q_strcat(users[userCount].rights, sizeof users[0].rights, right);
 	}
 
-	ClientPrint(ent, va("The user has been added, user id: %d", userCount));
+	ClientPrint(ent, "The user has been added, user id: %d", userCount);
 	userCount++;
 	G_UserWrite();
 }
@@ -217,7 +217,7 @@ static void G_UserAdjust(gentity_t *ent)
 
 	if (!strcmp(field, "name")) {
 		if (!*value) {
-			ClientPrint(ent, users[userid].name);
+			ClientPrint(ent, "%s", users[userid].name);
 			return;
 		}
 		Q_strncpyz(users[userid].name, value, sizeof users[0].name);
@@ -229,7 +229,7 @@ static void G_UserAdjust(gentity_t *ent)
 		Q_strncpyz(users[userid].password, value, sizeof users[0].password);
 	} else if (!strcmp(field, "rights")) {
 		if (!*value) {
-			ClientPrint(ent, users[userid].rights);
+			ClientPrint(ent, "%s", users[userid].rights);
 			return;
 		}
 		Q_strncpyz(users[userid].rights, value, sizeof users[0].rights);
@@ -329,7 +329,7 @@ qboolean G_UserAllowed(gentity_t *ent, const char *action)
 	}
 
 	if ((rights && !G_UserActionAllowed(rights, action)) && !G_UserActionAllowed("", action)) {
-		ClientPrint(ent, va("You are not allowed to use the command \"%s\".", action));
+		ClientPrint(ent, "You are not allowed to use the command \"%s\".", action);
 		return qfalse;
 	}
 
@@ -352,18 +352,18 @@ const char *G_UserName(gentity_t *ent)
 void Cmd_UserTest_f(gentity_t *ent)
 {
 	if (!ent->client->userid) {
-		ClientPrint(NULL, va("^2%s ^2wants to brag with his rights, but is not logged in.",
-			ent->client->pers.netname));
+		ClientPrint(NULL, "^2%s ^2wants to brag with his rights, but is not logged in.",
+			ent->client->pers.netname);
 		return;
 	}
 
 	if (ent->client->pers.localClient) {
-		ClientPrint(NULL, va("^2%s ^7is a local client and has all administrator rights.", G_UserName(ent)));
+		ClientPrint(NULL, "^2%s ^7is a local client and has all administrator rights.", G_UserName(ent));
 		return;
 	}
 
-	ClientPrint(NULL, va("^2%s ^2has the following rights: %s",
-		G_UserName(ent), users[ent->client->userid].rights));
+	ClientPrint(NULL, "^2%s ^2has the following rights: %s",
+		G_UserName(ent), users[ent->client->userid].rights);
 }
 
 void Cmd_Login_f(gentity_t *ent)
@@ -393,7 +393,7 @@ void Cmd_Login_f(gentity_t *ent)
 		// userid is shifted by 1, because for user who are not logged in, we have userid = 0
 		ent->client->userid = i + 1;
 
-		ClientPrint(ent, va("Welcome, %s.", name));
+		ClientPrint(ent, "Welcome, %s.", name);
 		return;
 	}
 }

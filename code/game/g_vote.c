@@ -261,7 +261,7 @@ static void G_VotePrintCommands(gentity_t *ent)
 	}
 
 	buffer[strlen(buffer) - 2] = '\0';
-	ClientPrint(ent, buffer);
+	ClientPrint(ent, "%s", buffer);
 }
 
 void G_VoteRead(void)

@@ -57,6 +57,6 @@ void	TeamplayInfoMessage(gentity_t *ent);
 void	CheckTeamStatus(void);
 int		Pickup_Team(gentity_t *ent, gentity_t *other);
 
-gentity_t	*SelectCTFSpawnPoint (team_t team, int teamstate, vec3_t origin, vec3_t angles, qboolean isbot);
+gentity_t	*SelectCTFSpawnPoint(team_t team, vec3_t origin, vec3_t angles, qboolean isbot);
 qboolean	Team_GetLocationMsg(vec3_t origin, char *loc, int loclen);
 

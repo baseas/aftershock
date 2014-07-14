@@ -432,7 +432,6 @@ void SetTeam(gentity_t *ent, const char *s)
 	}
 
 	// he starts at 'base'
-	client->pers.teamState.state = TEAM_BEGIN;
 	if (oldTeam != TEAM_SPECTATOR) {
 		// Kill him (makes sure he loses flags, etc)
 		ent->flags &= ~FL_GODMODE;
@@ -922,7 +921,7 @@ static void Cmd_Tell_f(gentity_t *ent)
 
 static void Cmd_Where_f(gentity_t *ent)
 {
-	ClientPrint(ent, va("%s", vtos(ent->r.currentOrigin)));
+	ClientPrint(ent, "%s", vtos(ent->r.currentOrigin));
 }
 
 static void Cmd_CallVote_f(gentity_t *ent)
@@ -965,7 +964,7 @@ static void Cmd_CallVote_f(gentity_t *ent)
 		Q_strcat(callString, sizeof callString, arg);
 	} while (*(arg = BG_Argv(i++)));
 	Q_strcat(callString, sizeof callString, ".");
-	ClientPrint(NULL, callString);
+	ClientPrint(NULL, "%s", callString);
 
 	// start the voting, the caller automatically votes yes
 	level.voteTime = level.time;
@@ -1262,10 +1261,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_redLocked.integer && !lock) {
 			ClientPrint(ent, "Red team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, va("Red team locked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, "Red team locked by %s.", ent->client->pers.netname);
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, va("Red team unlocked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, "Red team unlocked by %s.", ent->client->pers.netname);
 			trap_Cvar_Set("g_redLocked", "0");
 		}
 	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
@@ -1274,10 +1273,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_blueLocked.integer && !lock) {
 			ClientPrint(ent, "Blue team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, va("Blue team locked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, "Blue team locked by %s.", ent->client->pers.netname);
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, va("Blue team unlocked by %s.", ent->client->pers.netname));
+			ClientPrint(NULL, "Blue team unlocked by %s.", ent->client->pers.netname);
 			trap_Cvar_Set("g_blueLocked", "0");
 		}
 	}
@@ -1320,19 +1319,19 @@ static void Cmd_Block_f(gentity_t *ent, qboolean block)
 
 	if (ent->client->pers.blocklist[cl - level.clients] == block) {
 		if (block) {
-			ClientPrint(ent, va("Player '%s' is already blocked.", cl->pers.netname));
+			ClientPrint(ent, "Player '%s' is already blocked.", cl->pers.netname);
 		} else {
-			ClientPrint(ent, va("Player '%s' is already unblocked.", cl->pers.netname));
+			ClientPrint(ent, "Player '%s' is already unblocked.", cl->pers.netname);
 		}
 		return;
 	}
 
 	if (block) {
 		ent->client->pers.blocklist[cl - level.clients] = qtrue;
-		ClientPrint(ent, va("Blocked '%s'.", cl->pers.netname));
+		ClientPrint(ent, "Blocked '%s'.", cl->pers.netname);
 	} else {
 		ent->client->pers.blocklist[cl - level.clients] = qfalse;
-		ClientPrint(ent, va("Unblocked '%s'.", cl->pers.netname));
+		ClientPrint(ent, "Unblocked '%s'.", cl->pers.netname);
 	}
 }
 
@@ -1342,7 +1341,7 @@ static void Cmd_Timeout_f(gentity_t *ent)
 		ClientPrint(ent, "timeout is not allowed in warmup.");
 		return;
 	}
-	ClientPrint(NULL, va("A timeout has been called by %s", G_UserName(ent)));
+	ClientPrint(NULL, "A timeout has been called by %s", G_UserName(ent));
 }
 
 static void Cmd_Timein_f(gentity_t *ent)
@@ -1352,17 +1351,17 @@ static void Cmd_Timein_f(gentity_t *ent)
 		return;
 	}
 
-	ClientPrint(NULL, va("A timein has been called by %s", G_UserName(ent)));
+	ClientPrint(NULL, "A timein has been called by %s", G_UserName(ent));
 }
 
 static void Cmd_Pause_f(gentity_t *ent)
 {
-	ClientPrint(NULL, va("The game has been paused by %s.", G_UserName(ent)));
+	ClientPrint(NULL, "The game has been paused by %s.", G_UserName(ent));
 }
 
 static void Cmd_Unpause_f(gentity_t *ent)
 {
-	ClientPrint(NULL, va("The game has been unpaused by %s.", G_UserName(ent)));
+	ClientPrint(NULL, "The game has been unpaused by %s.", G_UserName(ent));
 }
 
 static void Cmd_AllReady_f(gentity_t *ent)
@@ -1447,8 +1446,8 @@ static void Cmd_Put_f(gentity_t *ent)
 	SetTeam(&g_entities[cl - level.clients], BG_Argv(2));
 
 	trap_SendConsoleCommand(cl - level.clients, "cp \"You were put in another team.\"\n");
-	ClientPrint(NULL, va("%s ^7has been put to another team by %s.",
-		cl->pers.netname, G_UserName(ent)));
+	ClientPrint(NULL, "%s ^7has been put to another team by %s.",
+		cl->pers.netname, G_UserName(ent));
 }
 
 static void Cmd_Mute_f(gentity_t *ent)
@@ -1467,12 +1466,12 @@ static void Cmd_Mute_f(gentity_t *ent)
 	}
 
 	if (cl->pers.muted) {
-		ClientPrint(ent, va("%s ^7is already muted.", cl->pers.netname));
+		ClientPrint(ent, "%s ^7is already muted.", cl->pers.netname);
 		return;
 	}
 
 	cl->pers.muted = qtrue;
-	ClientPrint(NULL, va("%s ^7has been muted by %s.", ent->client->pers.netname, G_UserName(ent)));
+	ClientPrint(NULL, "%s ^7has been muted by %s.", ent->client->pers.netname, G_UserName(ent));
 }
 
 static void Cmd_Unmute_f(gentity_t *ent)
@@ -1491,12 +1490,12 @@ static void Cmd_Unmute_f(gentity_t *ent)
 	}
 
 	if (!cl->pers.muted) {
-		ClientPrint(ent, va("%s ^7is already unmuted.", cl->pers.netname));
+		ClientPrint(ent, "%s ^7is already unmuted.", cl->pers.netname);
 		return;
 	}
 
 	cl->pers.muted = qfalse;
-	ClientPrint(NULL, va("%s ^7has been unmuted by %s.", cl->pers.netname, G_UserName(ent)));
+	ClientPrint(NULL, "%s ^7has been unmuted by %s.", cl->pers.netname, G_UserName(ent));
 }
 
 static void Cmd_AddBot_f(gentity_t *ent)
@@ -1535,7 +1534,7 @@ static void Cmd_AddBot_f(gentity_t *ent)
 	trap_Argv(3, team, sizeof team);
 	G_AddBot(name, skill, team, BG_Argv(4));
 
-	ClientPrint(NULL, va("The bot '%s' has been added by %s.", name, G_UserName(ent)));
+	ClientPrint(NULL, "The bot '%s' has been added by %s.", name, G_UserName(ent));
 }
 
 static void Cmd_BotList_f(gentity_t *ent)
@@ -1575,13 +1574,13 @@ static void Cmd_PassVote_f(gentity_t *ent)
 	level.voteTime = 0;
 	trap_SendConsoleCommand(EXEC_APPEND, va("%s\n", level.voteString));
 	trap_SetConfigstring(CS_VOTE_TIME, "passed");
-	ClientPrint(NULL, va("The vote has been passed by %s.", G_UserName(ent)));
+	ClientPrint(NULL, "The vote has been passed by %s.", G_UserName(ent));
 }
 
 static void Cmd_CancelVote_f(gentity_t *ent)
 {
 	trap_SetConfigstring(CS_VOTE_TIME, "failed");
-	ClientPrint(NULL, va("The vote has been canceled by %s.", G_UserName(ent)));
+	ClientPrint(NULL, "The vote has been canceled by %s.", G_UserName(ent));
 }
 
 static void Cmd_Nextmap_f(gentity_t *ent)

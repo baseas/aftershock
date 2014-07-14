@@ -220,7 +220,7 @@ static void G_BanDel(gentity_t *ent)
 		bans[i] = bans[i + 1];
 	}
 
-	ClientPrint(ent, va("Ban #%d has been deleted.", banid));
+	ClientPrint(ent, "Ban #%d has been deleted.", banid);
 }
 
 void G_BanRead(void)

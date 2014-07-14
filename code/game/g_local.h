@@ -159,14 +159,7 @@ typedef enum {
 	SPECTATOR_SCOREBOARD
 } spectatorState_t;
 
-typedef enum {
-	TEAM_BEGIN,		// Beginning a team game, spawn at base
-	TEAM_ACTIVE		// Now actively playing
-} playerTeamStateState_t;
-
 typedef struct {
-	playerTeamStateState_t	state;
-
 	int			location;
 
 	int			captures;
@@ -600,7 +593,7 @@ void	QDECL	G_Error(const char *fmt, ...) __attribute__((noreturn, format(printf,
 // g_client.c
 //
 char	*ClientConnect(int clientNum, qboolean firstTime, qboolean isBot);
-void	ClientPrint(gentity_t *ent, char *str);
+void	ClientPrint(gentity_t *ent, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 void	ClientUserinfoChanged(int clientNum);
 void	ClientDisconnect(int clientNum);
 void	ClientBegin(int clientNum);

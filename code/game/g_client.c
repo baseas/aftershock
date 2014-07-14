@@ -508,11 +508,20 @@ static char *ClientCleanName(const char *in, char *out, int outSize)
 	return NULL;
 }
 
-void ClientPrint(gentity_t *ent, char *str)
+void ClientPrint(gentity_t *ent, const char *fmt, ...)
 {
-	int	clientNum;
+	int		clientNum;
+	va_list	args;
+	char	text[MAX_STRING_CHARS];
+	char	buffer[MAX_STRING_CHARS];
+
 	clientNum = (ent ? ent - g_entities : -1);
-	trap_SendServerCommand(clientNum, va("print \"%s\n\"", str));
+	va_start(args, fmt);
+	Q_vsnprintf(text, sizeof text, fmt, args);
+	va_end(args);
+
+	Com_sprintf(buffer, sizeof buffer, "print \"%s\n\"", text);
+	trap_SendServerCommand(clientNum, buffer);
 }
 
 /**
@@ -567,7 +576,7 @@ void ClientUserinfoChanged(int clientNum)
 		if (client->pers.muted) {
 			ClientPrint(ent, "You cannot change your name while you are muted.");
 		} else if (nameError) {
-			ClientPrint(ent, nameError);
+			ClientPrint(ent, "%s", nameError);
 		} else {
 			G_LogPrintf("%s ^7renamed to %s\n", oldname, client->pers.netname);
 		}
@@ -760,7 +769,6 @@ void ClientBegin(int clientNum)
 
 	client->pers.connected = CON_CONNECTED;
 	client->pers.enterTime = level.time;
-	client->pers.teamState.state = TEAM_BEGIN;
 
 	// save eflags around this, because changing teams will
 	// cause this to happen with a valid entity, and we
@@ -910,7 +918,7 @@ void ClientSpawn(gentity_t *ent)
 	} else if (g_gametype.integer == GT_DEFRAG) {
 		spawnPoint = SelectDefragSpawnPoint(spawn_origin, spawn_angles);
 	} else if (g_gametype.integer == GT_CTF) {
-		spawnPoint = SelectCTFSpawnPoint(client->sess.sessionTeam, client->pers.teamState.state,
+		spawnPoint = SelectCTFSpawnPoint(client->sess.sessionTeam,
 			spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
 	} else if (client->pers.lastKiller) {
 		spawnPoint = SelectSpawnPoint(client->pers.lastKiller->ps.origin, spawn_origin,
@@ -924,8 +932,6 @@ void ClientSpawn(gentity_t *ent)
 		G_Error("Cannot find a spawn point.\n");
 		return;
 	}
-
-	client->pers.teamState.state = TEAM_ACTIVE;
 
 	// toggle the teleport bit so the client knows to not lerp
 	flags = ent->client->ps.eFlags & (EF_TELEPORT_BIT);
@@ -1180,7 +1186,7 @@ void G_DefragScore(gclient_t *client)
 		G_SendScoreboard(client);
 	}
 
-	ClientPrint(NULL, va("%s ^7reached the finish line in %.3f.", client->pers.netname,
-		-client->ps.stats[STAT_DEFRAG_TIME]  / 1000.0f));
+	ClientPrint(NULL, "%s ^7reached the finish line in %.3f.", client->pers.netname,
+		-client->ps.stats[STAT_DEFRAG_TIME]  / 1000.0f);
 }
 

@@ -1282,12 +1282,12 @@ static void G_RoundStats(void)
 		}
 	}
 
-	ClientPrint(NULL, va("Max damage done: %s ^2%i",
-		maxDmgClient->pers.netname, maxDmgClient->roundDamageDone));
-	ClientPrint(NULL, va("Min damage taken: %s ^2%i",
-		minDmgClient->pers.netname, minDmgClient->roundDamageTaken));
-	ClientPrint(NULL, va("Max kills: %s ^2%i",
-		maxKillsClient->pers.netname, maxKillsClient->roundKills));
+	ClientPrint(NULL, "Max damage done: %s ^2%i",
+		maxDmgClient->pers.netname, maxDmgClient->roundDamageDone);
+	ClientPrint(NULL, "Min damage taken: %s ^2%i",
+		minDmgClient->pers.netname, minDmgClient->roundDamageTaken);
+	ClientPrint(NULL, "Max kills: %s ^2%i",
+		maxKillsClient->pers.netname, maxKillsClient->roundKills);
 }
 
 /**
