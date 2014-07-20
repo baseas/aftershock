@@ -734,7 +734,7 @@ void BotChooseWeapon(bot_state_t *bs)
 		trap_EA_SelectWeapon(bs->client, bs->weaponnum);
 	} else {
 		newweaponnum = trap_BotChooseBestFightWeapon(bs->ws, bs->inventory);
-		if (bs->weaponnum != newweaponnum) {
+		if (newweaponnum && bs->weaponnum != newweaponnum) {
 			bs->weaponchange_time = FloatTime();
 		}
 		bs->weaponnum = newweaponnum;
