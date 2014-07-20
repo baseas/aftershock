@@ -1169,22 +1169,24 @@ int *BG_StatsData(playerStats_t *stats, int index)
 	struct {
 		int	*data;
 		int	size;
-	} fields[7];
+	} fields[8];
 
 	fields[0].data = stats->rewards;
 	fields[0].size = ARRAY_LEN(stats->rewards);
-	fields[1].data = stats->teamHits;
-	fields[1].size = ARRAY_LEN(stats->teamHits);
-	fields[2].data = stats->enemyHits;
-	fields[2].size = ARRAY_LEN(stats->enemyHits);
-	fields[3].data = stats->damage;
-	fields[3].size = ARRAY_LEN(stats->damage);
-	fields[4].data = stats->kills;
-	fields[4].size = ARRAY_LEN(stats->kills);
-	fields[5].data = stats->weaponPickups;
-	fields[5].size = ARRAY_LEN(stats->weaponPickups);
-	fields[6].data = stats->miscStats;
-	fields[6].size = ARRAY_LEN(stats->miscStats);
+	fields[1].data = stats->rewards;
+	fields[1].size = ARRAY_LEN(stats->shots);
+	fields[2].data = stats->shots;
+	fields[2].size = ARRAY_LEN(stats->teamHits);
+	fields[3].data = stats->enemyHits;
+	fields[3].size = ARRAY_LEN(stats->enemyHits);
+	fields[4].data = stats->damage;
+	fields[4].size = ARRAY_LEN(stats->damage);
+	fields[5].data = stats->kills;
+	fields[5].size = ARRAY_LEN(stats->kills);
+	fields[6].data = stats->weaponPickups;
+	fields[6].size = ARRAY_LEN(stats->weaponPickups);
+	fields[7].data = stats->miscStats;
+	fields[7].size = ARRAY_LEN(stats->miscStats);
 
 	if (index < 0) {
 		return NULL;

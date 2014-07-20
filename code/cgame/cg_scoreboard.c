@@ -287,8 +287,12 @@ static void CG_DrawSpecs(void)
 		}
 	}
 
-	// draw the local client if he hasn't been drawn yet
-	if (numLine >= 3) {
+	if (*string) {
+		// draw the last spectator line
+		CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
+			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+	} else if (numLine >= 3) {
+		// draw the local client if he hasn't been drawn yet
 		strcpy(string, "... ");
 		if (!localDrawn) {
 			Q_strcat(string, sizeof string, cgs.clientinfo[cg.clientNum].name);

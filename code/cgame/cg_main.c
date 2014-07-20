@@ -974,6 +974,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 
 	CG_HudInit();
 
+	// request statistics after a vid_restart
+	trap_SendClientCommand("gamedata");
+
 	cg.showInfoScreen = qfalse;
 }
 

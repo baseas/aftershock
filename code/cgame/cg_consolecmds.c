@@ -225,6 +225,7 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("forfeit");
 	trap_AddCommand("block");
 	trap_AddCommand("unblock");
+	trap_AddCommand("gamedata");
 	trap_AddCommand("login");
 	trap_AddCommand("allready");
 	trap_AddCommand("kick");

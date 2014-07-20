@@ -1335,6 +1335,14 @@ static void Cmd_Block_f(gentity_t *ent, qboolean block)
 	}
 }
 
+/**
+Send full statistics after a vid_restart.
+*/
+static void Cmd_GameData_f(gentity_t *ent)
+{
+	ent->client->sess.fullStatsSent = qfalse;
+}
+
 static void Cmd_Timeout_f(gentity_t *ent)
 {
 	if (level.warmupTime) {
@@ -1691,6 +1699,8 @@ void ClientCommand(int clientNum)
 		Cmd_Block_f(ent, qfalse);
 	} else if (!Q_stricmp(cmd, "login")) {
 		Cmd_Login_f(ent);
+	} else if (!Q_stricmp(cmd, "gamedata")) {
+		Cmd_GameData_f(ent);
 	}
 
 	// check for operator commands
