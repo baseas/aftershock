@@ -170,9 +170,6 @@ static void SV_Map_f( void ) {
 		return;
 	}
 
-	// force latched values to get set
-	Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_USERINFO | CVAR_LATCH );
-
 	cmd = Cmd_Argv(0);
 	if ( !Q_stricmp( cmd, "devmap" ) ) {
 		cheat = qtrue;

@@ -53,7 +53,7 @@ static int Vote_Gametype(gentity_t *ent)
 
 	str = BG_Argv(2);
 	if (!str[0]) {
-		ClientPrint(ent, "Invalid gametype.");
+		ClientPrint(ent, "Usage: callvote gametype (ffa=0 | duel=1 | defrag=2 | tdm=3 | ctf=4 | ca=5 | elimination=5).");
 		return 1;
 	}
 
@@ -69,10 +69,15 @@ static int Vote_Gametype(gentity_t *ent)
 		gt = 4;
 	} else if (!Q_stricmp(str, "ca") || !Q_stricmp(str, "elimination")) {
 		gt = 5;
-	} else if (Q_isanumber(str)) {
-		gt = atoi(BG_Argv(1));
+	} else if (Q_isanumber(str) && Q_isintegral(atof(str))) {
+		gt = atoi(str);
 	} else {
 		gt = -1;
+	}
+
+	if (gt == g_gametype.integer) {
+		ClientPrint(ent, "The current gametype already matches your vote.");
+		return 1;
 	}
 
 	if (gt < 0 || gt >= GT_MAX_GAME_TYPE) {

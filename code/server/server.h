@@ -94,6 +94,8 @@ typedef struct {
 
 	int				restartTime;
 	int				time;
+
+	int				botEnable;
 } server_t;
 
 

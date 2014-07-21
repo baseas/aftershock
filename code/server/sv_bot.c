@@ -36,7 +36,6 @@ static bot_debugpoly_t *debugpolygons;
 int bot_maxdebugpolys;
 
 extern botlib_export_t	*botlib_export;
-int	bot_enable;
 
 
 /*
@@ -103,7 +102,7 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 	//bot debugging
 	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", 0);
 	//
-	if (bot_enable && bot_debug->integer) {
+	if (sv.botEnable && bot_debug->integer) {
 		//show reachabilities
 		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", 0);
 		//show ground faces only
@@ -430,7 +429,7 @@ SV_BotFrame
 ==================
 */
 void SV_BotFrame( int time ) {
-	if (!bot_enable) return;
+	if (!sv.botEnable) return;
 	//NOTE: maybe the game is already shutdown
 	if (!gvm) return;
 	VM_Call( gvm, BOTAI_START_FRAME, time );
@@ -442,7 +441,7 @@ SV_BotLibSetup
 ===============
 */
 int SV_BotLibSetup( void ) {
-	if (!bot_enable) {
+	if (!sv.botEnable) {
 		return 0;
 	}
 
