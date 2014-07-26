@@ -69,25 +69,6 @@ void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model,
 	trap_R_RenderScene(&refdef);
 }
 
-/**
-Used for both the status bar and the scoreboard
-*/
-void CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D)
-{
-	gitem_t *item;
-
-	if (team == TEAM_RED) {
-		item = BG_FindItemForPowerup(PW_REDFLAG);
-	} else if (team == TEAM_BLUE) {
-		item = BG_FindItemForPowerup(PW_BLUEFLAG);
-	} else {
-		return;
-	}
-	if (item) {
-	  CG_DrawAdjustPic(x, y, w, h, cg_items[ITEM_INDEX(item)].icon);
-	}
-}
-
 /* UPPER RIGHT CORNER */
 
 static float CG_DrawSnapshot(float y)

@@ -1588,6 +1588,19 @@ static void Hud_DefragTime(int hudnumber)
 	CG_DrawHudString(hudnumber, qtrue, str);
 }
 
+static void Hud_Flag(int hudnumber)
+{
+	if (cgs.gametype != GT_DEFRAG && cgs.gametype != GT_CTF) {
+		return;
+	}
+
+	if (cg.predictedPlayerState.powerups[PW_REDFLAG]) {
+		CG_DrawHudIcon(hudnumber, cgs.media.redFlagShader[0]);
+	} else if (cg.predictedPlayerState.powerups[PW_BLUEFLAG]) {
+		CG_DrawHudIcon(hudnumber, cgs.media.blueFlagShader[0]);
+	}
+}
+
 void CG_DrawHud()
 {
 	int	i;
@@ -1637,6 +1650,7 @@ void CG_DrawHud()
 		{ HUD_TC_NME, Hud_TeamCountNme, qtrue },
 		{ HUD_RESPAWNTIMER, Hud_RespawnTimer, qtrue },
 		{ HUD_DEFRAGTIME, Hud_DefragTime, qfalse },
+		{ HUD_FLAG, Hud_Flag, qfalse },
 		{ HUD_MAX, 0, qfalse }
 	};
 

@@ -305,7 +305,7 @@ static const char *hudTags[] = {
 	"DeathNotice5",
 	"Countdown",
 	"RespawnTimer",
-	"StatusBar_Flag",
+	"Flag",
 	"TeamOverlay1",
 	"TeamOverlay2",
 	"TeamOverlay3",

@@ -74,11 +74,27 @@ typedef struct {
 	qboolean	percent;
 } picBar_t;
 
-static void CG_DrawClientScore(int x, int y, int w, int h, clientInfo_t *ci, float *color)
+static void CG_DrawFlag(float x, float y, float w, float h, int team)
+{
+	gitem_t *item;
+
+	if (team == TEAM_RED) {
+		item = BG_FindItemForPowerup(PW_REDFLAG);
+	} else if (team == TEAM_BLUE) {
+		item = BG_FindItemForPowerup(PW_BLUEFLAG);
+	} else {
+		return;
+	}
+	if (item) {
+		CG_DrawAdjustPic(x, y, w, h, cg_items[ITEM_INDEX(item)].icon);
+	}
+}
+
+static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t *ci, float *color)
 {
 	entityState_t	*es;
 	char			string[128];
-	int				picSize;
+	float			picSize;
 	int				time;
 
 	y += h/2;
@@ -155,13 +171,13 @@ static void CG_DrawClientScore(int x, int y, int w, int h, clientInfo_t *ci, flo
 	{
 		CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbSkull);
 	} else if (ci->powerups & (1 << PW_REDFLAG)) {
-		CG_DrawFlagModel(x - picSize, y - picSize / 2, picSize, picSize, TEAM_RED, qfalse);
+		CG_DrawFlag(x - picSize, y - picSize / 2, picSize, picSize, TEAM_RED);
 	} else if (ci->powerups & (1 << PW_BLUEFLAG)) {
-		CG_DrawFlagModel(x - picSize, y - picSize / 2, picSize, picSize, TEAM_BLUE, qfalse);
+		CG_DrawFlag(x - picSize, y - picSize / 2, picSize, picSize, TEAM_BLUE);
 	}
 }
 
-static void CG_TeamScoreboard(int x, int y, int w, int h, team_t team, float *color, int maxClients)
+static void CG_TeamScoreboard(float x, float y, float w, float h, team_t team, float *color, int maxClients)
 {
 	int				i;
 	clientInfo_t	*ci;
@@ -229,7 +245,7 @@ static void CG_DrawSpecs(void)
 {
 	int				numLine;
 	char			string[3 * SB_SPEC_MAXCHAR + 32];
-	int				y;
+	float			y;
 	int				i;
 	qboolean		localDrawn;
 	clientInfo_t	*ci;
@@ -302,9 +318,10 @@ static void CG_DrawSpecs(void)
 	}
 }
 
-static void CG_DrawPicBar(picBar_t *tab, int count, int x, int y, int w, int h)
+static void CG_DrawPicBar(picBar_t *tab, int count, float x, float y, float w, float h)
 {
-	int		i, offset, picBarX;
+	int		i;
+	float	offset, picBarX;
 	char	string[16];
 
 	offset = w / (count * 2 + 1);
@@ -792,5 +809,4 @@ qboolean CG_DrawScoreboard(void)
 
 	return qtrue;
 }
-
 

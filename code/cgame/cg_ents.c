@@ -551,12 +551,10 @@ static void CG_TeamBase(centity_t *cent)
 	AnglesToAxis(cent->currentState.angles, model.axis);
 	if (cent->currentState.modelindex == TEAM_RED) {
 		model.hModel = cgs.media.redFlagBaseModel;
-	}
-	else if (cent->currentState.modelindex == TEAM_BLUE) {
+	} else if (cent->currentState.modelindex == TEAM_BLUE) {
 		model.hModel = cgs.media.blueFlagBaseModel;
-	}
-	else {
-		model.hModel = cgs.media.neutralFlagBaseModel;
+	} else {
+		return;
 	}
 	trap_R_AddRefEntityToScene(&model);
 }

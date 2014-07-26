@@ -603,23 +603,16 @@ typedef struct {
 
 	qhandle_t	redFlagModel;
 	qhandle_t	blueFlagModel;
-	qhandle_t	neutralFlagModel;
 	qhandle_t	redFlagShader[3];
 	qhandle_t	blueFlagShader[3];
-	qhandle_t	flagShader[4];
 	qhandle_t	redMarker;
 	qhandle_t	blueMarker;
 
-	qhandle_t	flagPoleModel;
-	qhandle_t	flagFlapModel;
-
 	qhandle_t	redFlagFlapSkin;
 	qhandle_t	blueFlagFlapSkin;
-	qhandle_t	neutralFlagFlapSkin;
 
 	qhandle_t	redFlagBaseModel;
 	qhandle_t	blueFlagBaseModel;
-	qhandle_t	neutralFlagBaseModel;
 
 	qhandle_t	armorRed;
 	qhandle_t	armorBlue;
@@ -934,7 +927,7 @@ enum {
 	HUD_DEATHNOTICE5,
 	HUD_COUNTDOWN,
 	HUD_RESPAWNTIMER,
-	HUD_STATUSBARFLAG,
+	HUD_FLAG,
 	HUD_TEAMOVERLAY1,
 	HUD_TEAMOVERLAY2,
 	HUD_TEAMOVERLAY3,
@@ -1300,7 +1293,7 @@ void		CG_AddLagometerFrameInfo(void);
 void		CG_AddLagometerSnapshotInfo(snapshot_t *snap);
 void		CG_CenterPrint(const char *str);
 void		CG_DrawActive(stereoFrame_t stereoView);
-void		CG_DrawFlagModel(float x, float y, float w, float h, int team, qboolean force2D);
+void		CG_DrawFlagModel(float x, float y, float w, float h, int team);
 void		CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags,
 				int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle);
 void		CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style);
