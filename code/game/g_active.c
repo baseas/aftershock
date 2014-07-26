@@ -281,7 +281,7 @@ void SpectatorThink(gentity_t *ent, usercmd_t *ucmd)
 		if (client->sess.spectatorState != SPECTATOR_FOLLOW || (client->sess.spectatorClient >= 0
 			&& level.clients[client->sess.spectatorClient].sess.spectatorState != SPECTATOR_NOT))
 		{
-			Cmd_FollowCycle_f(ent, 1);
+			Cmd_FollowCycle_f(ent);
 		}
 	}
 
@@ -311,7 +311,7 @@ void SpectatorThink(gentity_t *ent, usercmd_t *ucmd)
 
 	// attack button cycles through spectators
 	if ((client->buttons & BUTTON_ATTACK) && ! (client->oldbuttons & BUTTON_ATTACK)) {
-		Cmd_FollowCycle_f(ent, 1);
+		Cmd_FollowCycle_f(ent);
 	}
 }
 

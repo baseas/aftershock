@@ -53,7 +53,7 @@ static qboolean G_UserActionAllowed(const char *rights, const char *action)
 	qboolean	allowed;
 
 	allowed = qfalse;
-	while ((token = COM_Parse((char **) action))) {
+	while (*(token = COM_Parse((char **) action))) {
 		if (!strcmp(token, "all")) {
 			allowed = qtrue;
 		} else if (!strcmp(token, "referee") && G_UserActionAllowed(REF_RIGHTS, action)) {
@@ -75,19 +75,20 @@ So we need to clean up the rights string.
 */
 static void G_UserCleanRights(user_t *user)
 {
-	char		cleanRights[MAX_STRING_CHARS];
+	char		oldRights[MAX_TOKEN_CHARS];
+	char		cleanRights[MAX_TOKEN_CHARS];
 	char		*token;
 	qboolean	cleanAllowed, dirtyAllowed;
 
+	Q_strncpyz(oldRights, user->rights, sizeof oldRights);
 	cleanRights[0] = '\0';
-
-	while ((token = COM_Parse((char **) &user->rights))) {
+	while (*(token = COM_Parse((char **) user->rights))) {
 		if (token[0] == '-') {
 			token++;
 		}
 
 		cleanAllowed = G_UserActionAllowed(cleanRights, token);
-		dirtyAllowed = G_UserActionAllowed(user->rights, token);
+		dirtyAllowed = G_UserActionAllowed(oldRights, token);
 
 		if (!cleanAllowed && dirtyAllowed) {
 			Q_strcat(cleanRights, sizeof cleanRights, token);
@@ -122,7 +123,12 @@ static int G_UserId(gentity_t *ent, const char *id)
 	int	i;
 	int	userid;
 
-	if (Q_isanumber(id)) {
+	if (id[0] == '#') {
+		if (!Q_isanumber(++id) || !Q_isintegral(atof(id))) {
+			ClientPrint(ent, "Invalid user id.");
+			return -1;
+		}
+
 		userid = atoi(id);
 		if (userid < 0 || userid >= userCount) {
 			ClientPrint(ent, "Invalid user id.");
@@ -137,13 +143,14 @@ static int G_UserId(gentity_t *ent, const char *id)
 		}
 	}
 
-	ClientPrint(ent, "There is no user with the name %s^7", id);
+	ClientPrint(ent, "There is no user with the name '%s^7'.", id);
 	return -1;
 }
 
 static void G_UserList(gentity_t *ent)
 {
-	int	i;
+	int		i;
+	char	*rights;
 
 	// TODO last seen column
 
@@ -153,10 +160,11 @@ static void G_UserList(gentity_t *ent)
 	}
 
 	ClientPrint(ent, "User list:");
-	ClientPrint(ent, "name               rights");
-	ClientPrint(ent, "--------------------------");
+	ClientPrint(ent, "name             rights");
+	ClientPrint(ent, "-----------------------");
 	for (i = 0; i < userCount; ++i) {
-		ClientPrint(ent, "%-16s %-16s", users[i].name, users[i].rights);
+		rights = (users[i].rights ? users[i].rights : "<default>");
+		ClientPrint(ent, "%-16s %s", users[i].name, rights);
 	}
 }
 
@@ -193,15 +201,15 @@ static void G_UserAdd(gentity_t *ent)
 		Q_strcat(users[userCount].rights, sizeof users[0].rights, right);
 	}
 
-	ClientPrint(ent, "The user has been added, user id: %d", userCount);
+	ClientPrint(ent, "The user has been added, user id: #%d", userCount);
 	userCount++;
 	G_UserWrite();
 }
 
 static void G_UserAdjust(gentity_t *ent)
 {
-	int			userid;
-	const char	*field, *value;
+	int		userid;
+	char	field[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
 
 	if (trap_Argc() < 3) {
 		ClientPrint(ent, "Usage: user adjust <userid> (name | password | rights) <value>");
@@ -212,8 +220,8 @@ static void G_UserAdjust(gentity_t *ent)
 		return;
 	}
 
-	field = BG_Argv(3);
-	value = BG_Argv(4);
+	trap_Argv(3, field, sizeof field);
+	trap_Argv(4, value, sizeof value);
 
 	if (!strcmp(field, "name")) {
 		if (!*value) {
@@ -221,19 +229,23 @@ static void G_UserAdjust(gentity_t *ent)
 			return;
 		}
 		Q_strncpyz(users[userid].name, value, sizeof users[0].name);
+		ClientPrint(ent, "User name has been changed.");
 	} else if (!strcmp(field, "password")) {
 		if (!*value) {
-			ClientPrint(ent, "Specify a password.");
+			ClientPrint(ent, "Specify a new password.");
 			return;
 		}
 		Q_strncpyz(users[userid].password, value, sizeof users[0].password);
+		ClientPrint(ent, "Password has been changed.");
 	} else if (!strcmp(field, "rights")) {
 		if (!*value) {
-			ClientPrint(ent, "%s", users[userid].rights);
+			ClientPrint(ent, "Rights: %s", (*users[userid].rights ? users[userid].rights : "<default>"));
 			return;
 		}
-		Q_strncpyz(users[userid].rights, value, sizeof users[0].rights);
+		Q_strcat(users[userid].rights, sizeof users[0].rights, " ");
+		Q_strcat(users[userid].rights, sizeof users[0].rights, value);
 		G_UserCleanRights(&users[userid]);
+		ClientPrint(ent, "New rights: %s.", (*users[userid].rights ? users[userid].rights : "<default>"));
 	} else {
 		ClientPrint(ent, "Valid fields are: name, password, rights.");
 		return;
@@ -247,9 +259,16 @@ static void G_UserDel(gentity_t *ent)
 	int	i;
 	int	userid;
 
+	if (trap_Argc() < 3) {
+		ClientPrint(ent, "Usage: user del <userid>");
+		return;
+	}
+
 	if ((userid = G_UserId(ent, BG_Argv(2))) < 0) {
 		return;
 	}
+
+	ClientPrint(ent, "The user '%s^7' has been deleted.", users[userid].name);
 
 	for (i = userid; i < userCount - 1; ++i) {
 		users[i] = users[i + 1];
@@ -308,6 +327,13 @@ void G_UserRead(void)
 		}
 		Q_strncpyz(user->password, value, sizeof user->password);
 
+		value = Ini_GetValue(&section, "rights");
+		if (!value) {
+			Q_strncpyz(user->rights, value, sizeof user->rights);
+		} else {
+			user->rights[0] = '\0';
+		}
+
 		userCount++;
 	}
 
@@ -351,51 +377,48 @@ const char *G_UserName(gentity_t *ent)
 
 void Cmd_UserTest_f(gentity_t *ent)
 {
-	if (!ent->client->userid) {
-		ClientPrint(NULL, "^2%s ^2wants to brag with his rights, but is not logged in.",
+	if (ent->client->pers.localClient) {
+		ClientPrint(NULL, "%s ^7is a local client and has administrator rights.",
 			ent->client->pers.netname);
 		return;
 	}
 
-	if (ent->client->pers.localClient) {
-		ClientPrint(NULL, "^2%s ^7is a local client and has all administrator rights.", G_UserName(ent));
+	if (!ent->client->userid) {
+		ClientPrint(NULL, "%s ^7wants to brag with his rights, but is not logged in.",
+			ent->client->pers.netname);
 		return;
 	}
 
-	ClientPrint(NULL, "^2%s ^2has the following rights: %s",
+	ClientPrint(NULL, "%s ^7has the following rights: %s",
 		G_UserName(ent), users[ent->client->userid].rights);
 }
 
 void Cmd_Login_f(gentity_t *ent)
 {
-	int	i;
-	const char	*name, *password;
+	int			userid;
+	const char	*password;
 
 	if (trap_Argc() != 3) {
 		ClientPrint(ent, "Usage: login <username> <password>");
 		return;
 	}
 
-	name = BG_Argv(1);
+	if ((userid = G_UserId(ent, BG_Argv(1))) < 0) {
+		return;
+	}
+
 	password = BG_Argv(2);
 
-	if (!G_UserExists(name)) {
-		ClientPrint(ent, "No user with this name exists.");
+	if (strcmp(users[userid].password, password)) {
+		ClientPrint(ent, "Wrong password.");
 		return;
 	}
 
-	for (i = 0; i < userCount; ++i) {
-		if (strcmp(users[i].password, password)) {
-			ClientPrint(ent, "Wrong password.");
-			return;
-		}
+	// userid is shifted by 1, because for user who are not logged in, we have userid = 0
+	ent->client->userid = userid + 1;
 
-		// userid is shifted by 1, because for user who are not logged in, we have userid = 0
-		ent->client->userid = i + 1;
-
-		ClientPrint(ent, "Welcome, %s.", name);
-		return;
-	}
+	ClientPrint(ent, "Welcome, %s^7.", users[userid].name);
+	return;
 }
 
 void Cmd_User_f(gentity_t *ent)

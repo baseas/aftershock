@@ -83,7 +83,7 @@ void G_MapCycleRead(void)
 		value = Ini_GetValue(&section, "gametype");
 		if (value) {
 			char	*token;
-			while ((token = COM_Parse(&value))) {
+			while (*(token = COM_Parse(&value))) {
 				map->gametype |= 1 << atoi(token);
 			}
 		}
@@ -94,24 +94,139 @@ void G_MapCycleRead(void)
 	trap_FS_FCloseFile(fp);
 }
 
-void G_MapCycleNextmap(void)
+static void G_MapCycleWrite(void)
 {
+	int				i;
+	const int		pad = 10;
+	fileHandle_t	fp;
+
+	trap_FS_FOpenFile("mapcycle.ini", &fp, FS_WRITE);
+
+	for (i = 0; i < mapCount; ++i) {
+		Ini_WriteLabel("map", i == 0, fp);
+		Ini_WriteString("name", maps[i].name, pad, fp);
+		if (maps[i].minPlayers) {
+			Ini_WriteNumber("minPlayers", maps[i].minPlayers, pad, fp);
+		}
+		if (maps[i].maxPlayers) {
+			Ini_WriteNumber("maxPlayers", maps[i].minPlayers, pad, fp);
+		}
+	}
+
+	trap_FS_Write("\n", 1, fp);
+	trap_FS_FCloseFile(fp);
 }
 
-void G_MapCycleList(gentity_t *ent)
+static void G_MapCycleList(gentity_t *ent)
 {
+	int	i;
+
+	ClientPrint(ent, "Map cycle:");
+	for (i = 0; i < MIN(20, mapCount); ++i) {
+		ClientPrint(ent, "%s ", maps[i].name);
+	}
+
+	if (i < mapCount) {
+		ClientPrint(ent, "...");
+	}
 }
 
-void G_MapCycleAdd(gentity_t *ent)
+static void G_MapCycleAdd(gentity_t *ent)
 {
+	if (mapCount == ARRAY_LEN(maps)) {
+		ClientPrint(ent, "Too many maps.");
+		return;
+	}
+
+	if (trap_Argc() != 3) {
+		ClientPrint(ent, "Usage: mapcycle add <map>");
+		return;
+	}
+
+	Q_strncpyz(maps[mapCount].name, BG_Argv(2), sizeof maps[0].name);
+	mapCount++;
+	G_MapCycleWrite();
 }
 
-void G_MapCycleAdjust(gentity_t *ent)
+static int G_MapId(gentity_t *ent, const char *id)
 {
+	int		i;
+
+	for (i = 0; i < mapCount; ++i) {
+		if (!Q_stricmp(id, maps[i].name)) {
+			return i;
+		}
+	}
+
+	ClientPrint(ent, "This map is not in the cycle.");
+	return -1;
+}
+
+static void G_MapCycleAdjust(gentity_t *ent)
+{
+	int		mapid;
+	char	field[MAX_TOKEN_CHARS], value[MAX_TOKEN_CHARS];
+
+	if (trap_Argc() < 3) {
+		ClientPrint(ent, "Usage: mapcycle adjust <map> (minplayers | maxplayers | gametype) <value>");
+		return;
+	}
+
+	if ((mapid = G_MapId(ent, BG_Argv(1))) < 0) {
+		return;
+	}
+
+	trap_Argv(3, field, sizeof field);
+	trap_Argv(4, value, sizeof value);
+
+	if (!strcmp(field, "minplayers") || !strcmp(field, "maxplayers")) {
+		int	number;
+		if (!Q_isanumber(value) || !Q_isintegral(atof(value))) {
+			ClientPrint(ent, "Specify a number.");
+			return;
+		}
+		number = atoi(value);
+		if (number < 0 || number > MAX_CLIENTS) {
+			ClientPrint(ent, "Specify a number from zero to %d.", MAX_CLIENTS);
+			return;
+		}
+	}
+
+	if (!strcmp(field, "minplayers")) {
+		maps[mapid].minPlayers = atoi(value);
+	} else if (!strcmp(field, "maxplayers")) {
+		maps[mapid].maxPlayers = atoi(value);
+	} else if (!strcmp(field, "gametype")) {
+		// TODO
+	} else {
+		ClientPrint(ent, "Valid fields are: minplayers, maxplayers, gametype.");
+		return;
+	}
+
+	G_MapCycleWrite();
 }
 
 void G_MapCycleDel(gentity_t *ent)
 {
+	int			i, k;
+	const char	*map;
+
+	if (trap_Argc() != 3) {
+		ClientPrint(ent, "Usage: mapcycle del <map>");
+		return;
+	}
+
+	map = BG_Argv(2);
+
+	for (i = 0, k = 0; k < mapCount; ++i, ++k) {
+		if (!Q_stricmp(map, maps[i].name)) {
+			k++;
+		}
+		maps[i] = maps[k];
+	}
+
+	mapCount--;
+	G_MapCycleWrite();
 }
 
 void Cmd_MapCycle_f(gentity_t *ent)
@@ -133,3 +248,10 @@ void Cmd_MapCycle_f(gentity_t *ent)
 	}
 }
 
+void G_MapCycleNextmap(void)
+{
+	if (mapCount == 0) {
+		trap_Cvar_Set("nextmap", "map_restart");
+		return;
+	}
+}

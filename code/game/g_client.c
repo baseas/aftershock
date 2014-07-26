@@ -669,19 +669,16 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	trap_GetUserinfo(clientNum, userinfo, sizeof(userinfo));
 
-	// IP filtering
-	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
-	// recommanding PB based IP / GUID banning, the builtin system is pretty limited
-	// check to see if they are on the banned IP list
-	value = Info_ValueForKey (userinfo, "ip");
-	if (G_FilterPacket(value)) {
+	if (G_BanCheck(userinfo)) {
 		return "You are banned from this server.";
 	}
+
+	value = Info_ValueForKey(userinfo, "ip");
 
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
 	// this means this client is not running in our current process
-	if (!isBot && (strcmp(value, "localhost") != 0)) {
+	if (!isBot && strcmp(value, "localhost")) {
 		char	name[MAX_NETNAME];
 		value = Info_ValueForKey(userinfo, "name");
 		value = ClientCleanName(value, name, sizeof name);

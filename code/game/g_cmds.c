@@ -69,11 +69,11 @@ static gitem_t *FindAmmoForWeapon(weapon_t weapon)
 qboolean CheatsOk(gentity_t *ent)
 {
 	if (!g_cheats.integer) {
-		trap_SendServerCommand(ent - g_entities, "print \"Cheats are not enabled on this server.\n\"");
+		ClientPrint(ent, "Cheats are not enabled on this server.");
 		return qfalse;
 	}
 	if (ent->health <= 0) {
-		trap_SendServerCommand(ent - g_entities, "print \"You must be alive to use this command.\n\"");
+		ClientPrint(ent, "You must be alive to use this command.");
 		return qfalse;
 	}
 	return qtrue;
@@ -190,20 +190,16 @@ argv(0) god
 */
 void Cmd_God_f(gentity_t *ent)
 {
-	char	*msg;
-
 	if (!CheatsOk(ent)) {
 		return;
 	}
 
 	ent->flags ^= FL_GODMODE;
 	if (!(ent->flags & FL_GODMODE)) {
-		msg = "godmode OFF\n";
+		ClientPrint(ent, "godmode OFF");
 	} else {
-		msg = "godmode ON\n";
+		ClientPrint(ent, "godmode ON");
 	}
-
-	trap_SendServerCommand(ent - g_entities, va("print \"%s\"", msg));
 }
 
 /**
@@ -213,20 +209,16 @@ argv(0) notarget
 */
 void Cmd_Notarget_f(gentity_t *ent)
 {
-	char	*msg;
-
 	if (!CheatsOk(ent)) {
 		return;
 	}
 
 	ent->flags ^= FL_NOTARGET;
 	if (!(ent->flags & FL_NOTARGET)) {
-		msg = "notarget OFF\n";
+		ClientPrint(ent, "notarget OFF");
 	} else {
-		msg = "notarget ON\n";
+		ClientPrint(ent, "notarget ON");
 	}
-
-	trap_SendServerCommand(ent - g_entities, va("print \"%s\"", msg));
 }
 
 /**
@@ -234,20 +226,16 @@ argv(0) noclip
 */
 void Cmd_Noclip_f(gentity_t *ent)
 {
-	char	*msg;
-
 	if (!CheatsOk(ent)) {
 		return;
 	}
 
 	if (ent->client->noclip) {
-		msg = "noclip OFF\n";
+		ClientPrint(ent, "noclip OFF");
 	} else {
-		msg = "noclip ON\n";
+		ClientPrint(ent, "noclip ON");
 	}
 	ent->client->noclip = !ent->client->noclip;
-
-	trap_SendServerCommand(ent - g_entities, va("print \"%s\"", msg));
 }
 
 /**
@@ -258,15 +246,14 @@ hide the scoreboard, and take a special screenshot
 */
 void Cmd_LevelShot_f(gentity_t *ent)
 {
-	if (!ent->client->pers.localClient)
-	{
-		trap_SendServerCommand(ent - g_entities,
-			"print \"The levelshot command must be executed by a local client\n\"");
+	if (!ent->client->pers.localClient) {
+		ClientPrint(ent, "The levelshot command must be executed by a local client.");
 		return;
 	}
 
-	if (!CheatsOk(ent))
+	if (!CheatsOk(ent)) {
 		return;
+	}
 
 	BeginIntermission();
 	trap_SendServerCommand(ent - g_entities, "clientLevelShot");
@@ -575,10 +562,13 @@ void Cmd_Follow_f(gentity_t *ent)
 	ent->client->sess.fullStatsSent = qfalse;
 }
 
-void Cmd_FollowCycle_f(gentity_t *ent, int dir)
+void Cmd_FollowCycle_f(gentity_t *ent)
 {
+	int		dir;
 	int		clientnum;
 	int		original;
+
+	dir = (strcmp(BG_Argv(0), "followprev") ? 1 : -1);
 
 	// if they are playing a tournement game, count as a loss
 	if ((g_gametype.integer == GT_TOURNAMENT)
@@ -893,7 +883,7 @@ static void Cmd_Tell_f(gentity_t *ent)
 	char		*p;
 
 	if (trap_Argc() < 3) {
-		trap_SendServerCommand(ent - g_entities, "print \"Usage: tell <player id> <message>\n\"");
+		ClientPrint(ent, "Usage: tell <player> <message>");
 		return;
 	}
 
@@ -1027,11 +1017,11 @@ static void Cmd_SetViewpos_f(gentity_t *ent)
 	int			i;
 
 	if (!g_cheats.integer) {
-		trap_SendServerCommand(ent - g_entities, "print \"Cheats are not enabled on this server.\n\"");
+		ClientPrint(ent, "Cheats are not enabled on this server.");
 		return;
 	}
 	if (trap_Argc() != 5) {
-		trap_SendServerCommand(ent - g_entities, "print \"usage: setviewpos x y z yaw\n\"");
+		ClientPrint(ent, "Usage: setviewpos x y z yaw");
 		return;
 	}
 
@@ -1238,11 +1228,21 @@ static void Cmd_Ready_f(gentity_t *ent)
 	ClientUserinfoChanged(ent->client - level.clients);
 }
 
-static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
+static void Cmd_Lock_f(gentity_t *ent)
 {
+	qboolean	lock;
+	const char	*name;
+
 	if (!ent->client->userid && !g_allowLock.integer) {
 		ClientPrint(ent, "Teamlock not allowed on this server.");
 		return;
+	}
+
+	// if admin rights are not needed, keep the login secret
+	if (g_allowLock.integer) {
+		name = va("%s^7", ent->client->pers.netname);
+	} else {
+		name = G_UserName(ent);
 	}
 
 	if (g_gametype.integer < GT_TEAM) {
@@ -1255,16 +1255,18 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		return;
 	}
 
+	lock = !strcmp(BG_Argv(0), "lock");
+
 	if (ent->client->ps.persistant[PERS_TEAM] == TEAM_RED) {
 		if (g_redLocked.integer && lock) {
 			ClientPrint(ent, "Red team is already locked.");
 		} else if (!g_redLocked.integer && !lock) {
 			ClientPrint(ent, "Red team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, "Red team locked by %s.", ent->client->pers.netname);
+			ClientPrint(NULL, "Red team locked by %s.", name);
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, "Red team unlocked by %s.", ent->client->pers.netname);
+			ClientPrint(NULL, "Red team unlocked by %s.", name);
 			trap_Cvar_Set("g_redLocked", "0");
 		}
 	} else if (ent->client->ps.persistant[PERS_TEAM] == TEAM_BLUE) {
@@ -1273,10 +1275,10 @@ static void Cmd_Lock_f(gentity_t *ent, qboolean lock)
 		} else if (!g_blueLocked.integer && !lock) {
 			ClientPrint(ent, "Blue team is already unlocked.");
 		} else if (lock) {
-			ClientPrint(NULL, "Blue team locked by %s.", ent->client->pers.netname);
+			ClientPrint(NULL, "Blue team locked by %s.", name);
 			trap_Cvar_Set("g_redLocked", "1");
 		} else if (!lock) {
-			ClientPrint(NULL, "Blue team unlocked by %s.", ent->client->pers.netname);
+			ClientPrint(NULL, "Blue team unlocked by %s.", name);
 			trap_Cvar_Set("g_blueLocked", "0");
 		}
 	}
@@ -1308,30 +1310,34 @@ static void Cmd_Forfeit_f(gentity_t *ent)
 	ClientPrint(NULL, "The match has been forfeited.");
 }
 
-static void Cmd_Block_f(gentity_t *ent, qboolean block)
+static void Cmd_Block_f(gentity_t *ent)
 {
 	gclient_t	*cl;
+	qboolean	block;
+
 	cl = ClientFromString(BG_Argv(1));
 	if (!cl) {
 		ClientPrint(ent, "Player not found.");
 		return;
 	}
 
+	block = !strcmp(BG_Argv(0), "block");
+
 	if (ent->client->pers.blocklist[cl - level.clients] == block) {
 		if (block) {
-			ClientPrint(ent, "Player '%s' is already blocked.", cl->pers.netname);
+			ClientPrint(ent, "Player '%s^7' is already blocked.", cl->pers.netname);
 		} else {
-			ClientPrint(ent, "Player '%s' is already unblocked.", cl->pers.netname);
+			ClientPrint(ent, "Player '%s^7' is already unblocked.", cl->pers.netname);
 		}
 		return;
 	}
 
 	if (block) {
 		ent->client->pers.blocklist[cl - level.clients] = qtrue;
-		ClientPrint(ent, "Blocked '%s'.", cl->pers.netname);
+		ClientPrint(ent, "Blocked '%s^7'.", cl->pers.netname);
 	} else {
 		ent->client->pers.blocklist[cl - level.clients] = qfalse;
-		ClientPrint(ent, "Unblocked '%s'.", cl->pers.netname);
+		ClientPrint(ent, "Unblocked '%s^7'.", cl->pers.netname);
 	}
 }
 
@@ -1438,7 +1444,7 @@ static void Cmd_Put_f(gentity_t *ent)
 {
 	gclient_t	*cl;
 
-	if (trap_Argc() < 3) {
+	if (trap_Argc() != 3) {
 		ClientPrint(ent, "Usage: put <player> <team>");
 		return;
 	}
@@ -1591,25 +1597,48 @@ static void Cmd_CancelVote_f(gentity_t *ent)
 	ClientPrint(NULL, "The vote has been canceled by %s.", G_UserName(ent));
 }
 
-static void Cmd_Nextmap_f(gentity_t *ent)
-{
-}
-
 static void Cmd_Rename_f(gentity_t *ent)
 {
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING];
 
-	client = ClientFromString(BG_Argv(2));
+	if (trap_Argc() < 3) {
+		ClientPrint(ent, "Usage: rename <player> <new name>");
+		return;
+	}
+
+	client = ClientFromString(BG_Argv(1));
 	if (!client) {
 		ClientPrint(NULL, "Player not found.");
 		return;
 	}
 
+	ClientPrint(NULL, "%s ^7has been renamed by %s.", client->pers.netname, G_UserName(ent));
 	trap_GetUserinfo(client - level.clients, userinfo, sizeof userinfo);
 	Info_SetValueForKey(userinfo, "name", BG_Argv(2));
 	trap_SetUserinfo(client - level.clients, userinfo);
 	ClientUserinfoChanged(client - level.clients);
+}
+
+static void Cmd_LoadMap_f(gentity_t *ent)
+{
+	const char	*map;
+	char		path[MAX_QPATH];
+
+	if (trap_Argc() < 2) {
+		trap_SendConsoleCommand(EXEC_APPEND, "vstr nextmap");
+		return;
+	}
+
+	map = BG_Argv(1);
+
+	Com_sprintf(path, sizeof path, "maps/%s.bsp", map);
+	if (!trap_FS_FOpenFile(path, NULL, FS_READ)) {
+		ClientPrint(ent, "Cannot find map %s.", path);
+		return;
+	}
+
+	trap_SendConsoleCommand(EXEC_APPEND, va("map %s", map));
 }
 
 void ClientCommand(int clientNum)
@@ -1660,9 +1689,9 @@ void ClientCommand(int clientNum)
 	} else if (!Q_stricmp(cmd, "follow")) {
 		Cmd_Follow_f(ent);
 	} else if (!Q_stricmp(cmd, "follownext")) {
-		Cmd_FollowCycle_f(ent, 1);
+		Cmd_FollowCycle_f(ent);
 	} else if (!Q_stricmp(cmd, "followprev")) {
-		Cmd_FollowCycle_f(ent, -1);
+		Cmd_FollowCycle_f(ent);
 	} else if (!Q_stricmp(cmd, "team")) {
 		Cmd_Team_f(ent);
 	} else if (!Q_stricmp(cmd, "where")) {
@@ -1688,15 +1717,15 @@ void ClientCommand(int clientNum)
 	} else if (!Q_stricmp(cmd, "ready")) {
 		Cmd_Ready_f(ent);
 	} else if (!Q_stricmp(cmd, "lock")) {
-		Cmd_Lock_f(ent, qtrue);
+		Cmd_Lock_f(ent);
 	} else if (!Q_stricmp(cmd, "unlock")) {
-		Cmd_Lock_f(ent, qfalse);
+		Cmd_Lock_f(ent);
 	} else if (!Q_stricmp(cmd, "forfeit")) {
 		Cmd_Forfeit_f(ent);
 	} else if (!Q_stricmp(cmd, "block")) {
-		Cmd_Block_f(ent, qtrue);
+		Cmd_Block_f(ent);
 	} else if (!Q_stricmp(cmd, "unblock")) {
-		Cmd_Block_f(ent, qfalse);
+		Cmd_Block_f(ent);
 	} else if (!Q_stricmp(cmd, "login")) {
 		Cmd_Login_f(ent);
 	} else if (!Q_stricmp(cmd, "gamedata")) {
@@ -1747,10 +1776,10 @@ void ClientCommand(int clientNum)
 		Cmd_Rename_f(ent);
 	} else if (!Q_stricmp(cmd, "usertest")) {
 		Cmd_UserTest_f(ent);
-	} else if (!Q_stricmp(cmd, "nextmap")) {
-		Cmd_Nextmap_f(ent);
 	} else if (!Q_stricmp(cmd, "allready")) {
 		Cmd_AllReady_f(ent);
+	} else if (!Q_stricmp(cmd, "loadmap")) {
+		Cmd_LoadMap_f(ent);
 	}
 }
 

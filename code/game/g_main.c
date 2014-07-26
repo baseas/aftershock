@@ -407,8 +407,6 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 
 	G_RegisterCvars();
 
-	G_ProcessIPBans();
-
 	G_InitMemory();
 
 	if (!restart) {

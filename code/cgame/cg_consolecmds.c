@@ -227,7 +227,7 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("unblock");
 	trap_AddCommand("gamedata");
 	trap_AddCommand("login");
-	trap_AddCommand("allready");
+	trap_AddCommand("rename");
 	trap_AddCommand("kick");
 	trap_AddCommand("ban");
 	trap_AddCommand("timein");
@@ -240,6 +240,7 @@ void CG_InitConsoleCommands(void)
 	trap_AddCommand("addbot");
 	trap_AddCommand("botlist");
 	trap_AddCommand("allready");
+	trap_AddCommand("usertest");
 	trap_AddCommand("user");
 	trap_AddCommand("mapcycle");
 }

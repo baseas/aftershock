@@ -428,7 +428,7 @@ void	Cmd_Score_f(gentity_t *ent);
 void	StopFollowing(gentity_t *ent);
 void	LogTeamChange(gclient_t *client, int oldTeam);
 void	SetTeam(gentity_t *ent, const char *s);
-void	Cmd_FollowCycle_f(gentity_t *ent, int dir);
+void	Cmd_FollowCycle_f(gentity_t *ent);
 
 //
 // g_items.c
@@ -566,8 +566,6 @@ qboolean	SpotWouldTelefrag(gentity_t *spot);
 // g_svcmds.c
 //
 qboolean	ConsoleCommand(void);
-void		G_ProcessIPBans(void);
-qboolean	G_FilterPacket(char *from);
 
 //
 // g_weapon.c
@@ -692,8 +690,9 @@ void	G_MapCycleNextmap(void);
 //
 // g_ban.c
 //
-void	G_BanRead(void);
-void	Cmd_Ban_f(gentity_t *ent);
+void		G_BanRead(void);
+qboolean	G_BanCheck(const char *userinfo);
+void		Cmd_Ban_f(gentity_t *ent);
 
 // ai_main.c
 #define MAX_FILEPATH	144
