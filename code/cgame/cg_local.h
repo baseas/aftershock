@@ -852,7 +852,7 @@ typedef struct {
 	qhandle_t	skull;
 	qhandle_t	directHit;
 
-	qhandle_t	netgraph;
+	qhandle_t	lag;
 	qhandle_t	spawnpoint;
 	qhandle_t	spawnpointShader;
 } cgMedia_t;

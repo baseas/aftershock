@@ -406,7 +406,7 @@ static void CG_RegisterGraphics(void)
 		cgs.media.numberShaders[i] = trap_R_RegisterShaderNoMip(sb_nums[i]);
 	}
 
-	cgs.media.netgraph = trap_R_RegisterShaderNoMip("gfx/2d/net.tga");
+	cgs.media.lag = trap_R_RegisterShaderNoMip("gfx/2d/lag.tga");
 
 	cgs.media.botSkillShaders[0] = trap_R_RegisterShader("menu/art/skill1.tga");
 	cgs.media.botSkillShaders[1] = trap_R_RegisterShader("menu/art/skill2.tga");

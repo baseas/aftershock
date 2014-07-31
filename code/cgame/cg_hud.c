@@ -1132,7 +1132,7 @@ static void Hud_Netgraph(int hudnumber)
 		if ((cg.time >> 9) & 1) {
 			return;
 		}
-		trap_R_DrawStretchPic(ax, ay, aw, ah, 0, 0, 1, 1, cgs.media.netgraph);
+		trap_R_DrawStretchPic(ax, ay, aw, ah, 0, 0, 1, 1, cgs.media.lag);
 		return;
 	}
 
