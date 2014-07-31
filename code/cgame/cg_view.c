@@ -551,23 +551,26 @@ static int CG_CalcViewValues(void)
 	return CG_CalcFov();
 }
 
-static void CG_WarmupSounds(void)
+static void CG_CountdownSounds(void)
 {
 	int	sec;
 
 	if (cgs.gametype == GT_ELIMINATION && cg.time < cgs.roundStartTime) {
 		sec = (cgs.roundStartTime - cg.time) / 1000;
-	} else if (cg.warmup > 0) {
-		sec = (cg.warmup - cg.time) / 1000;
-		if (sec < 0) {
-			sec = 0;
-		}
+	} else if (cgs.warmup) {
+		sec = (cgs.warmup - cg.time) / 1000;
+	} else if (cgs.pauseEnd && cg.totalTime < cgs.pauseEnd) {
+		sec = (cgs.pauseEnd - cg.totalTime) / 1000;
 	} else {
 		return;
 	}
 
-	if (sec != cg.warmupCount) {
-		cg.warmupCount = sec;
+	if (sec < 0) {
+		sec = 0;
+	}
+
+	if (sec != cg.countdownCount) {
+		cg.countdownCount = sec;
 		switch (sec) {
 		case 0:
 			trap_S_StartLocalSound(cgs.media.count1Sound, CHAN_ANNOUNCER);
@@ -659,7 +662,7 @@ static void CG_AddSpawnpoints(void)
 		return;
 	}
 
-	if (!cg.warmup) {
+	if (!cgs.warmup) {
 		return;
 	}
 
@@ -704,7 +707,17 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 {
 	int		inwater;
 
-	cg.time = serverTime;
+	cg.totalTime = serverTime;
+
+	// TODO predict pause end and pauseTime which is useful for high ping players
+	if (cgs.pauseStart) {
+		cg.time = cgs.pauseStart;
+	} else {
+		// cg.time needs to be the same as level.time, otherwise
+		// animations and missiles will skip
+		cg.time = cg.totalTime - cgs.pauseTime;
+	}
+
 	cg.demoPlayback = demoPlayback;
 
 	// get the rendering configuration from the client system
@@ -779,7 +792,7 @@ void CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 	cg.refdef.time = cg.time;
 	memcpy(cg.refdef.areamask, cg.snap->areamask, sizeof(cg.refdef.areamask));
 
-	CG_WarmupSounds();
+	CG_CountdownSounds();
 
 	CG_PopReward();
 

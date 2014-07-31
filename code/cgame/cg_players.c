@@ -578,7 +578,7 @@ static void CG_UpdateLivingCount(void)
 		return;
 	}
 
-	if (!cg.warmup && cg.time >= cgs.roundStartTime) {
+	if (!cgs.warmup && cg.time >= cgs.roundStartTime) {
 		return;
 	}
 
@@ -618,7 +618,7 @@ void CG_NewClientInfo(int clientNum)
 
 	configstring = CG_ConfigString(clientNum + CS_PLAYERS);
 	if (!configstring[0]) {
-		if (cgs.gametype == GT_ELIMINATION && (cg.warmup || cg.time < cgs.roundStartTime)) {
+		if (cgs.gametype == GT_ELIMINATION && (cgs.warmup || cg.time < cgs.roundStartTime)) {
 			if (ci->team == TEAM_RED) {
 				cgs.redLivingCount--;
 			} else if (ci->team == TEAM_BLUE) {
@@ -662,7 +662,7 @@ void CG_NewClientInfo(int clientNum)
 
 	v = Info_ValueForKey(configstring, "r");
 	ci->ready = !!atoi(v);
-	if (cgs.startWhenReady && cg.warmup < 0 && oldValid && ci->ready != oldReady) {
+	if (cgs.startWhenReady && cgs.warmup < 0 && oldValid && ci->ready != oldReady) {
 		if (ci->ready) {
 			CG_CenterPrint(va("%s ^2is ready", ci->name));
 		} else {

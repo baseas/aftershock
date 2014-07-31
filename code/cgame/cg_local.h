@@ -427,6 +427,7 @@ typedef struct {
 
 	int			time;			// this is the time value that the client
 								// is rendering at.
+	int			totalTime;		// corresponds to level.totalTime
 	int			oldTime;		// time at last frame, used for missile trails and prediction checking
 
 	int			physicsTime;	// either cg.snap->time or cg.nextSnap->time
@@ -523,9 +524,7 @@ typedef struct {
 	int			soundTime;
 	qhandle_t	soundBuffer[MAX_SOUNDBUFFER];
 
-	// warmup countdown
-	int			warmup;
-	int			warmupCount;
+	int			countdownCount;
 
 	int			itemPickup;
 	int			itemPickupTime;
@@ -828,6 +827,7 @@ typedef struct {
 	sfxHandle_t	gurp1Sound;
 	sfxHandle_t	gurp2Sound;
 	sfxHandle_t	killbeep;
+	sfxHandle_t	pauseSound;
 
 	model_t	teamModel;
 	model_t	enemyModel;
@@ -1022,6 +1022,10 @@ typedef struct {
 	int				overtimeStart;
 	int				overtimeLimit;
 	qboolean		allowRespawnTimer;
+	int				warmup;					// cg.time when game starts, 0 if game has started
+	int				pauseStart;
+	int				pauseEnd;
+	int				pauseTime;
 
 	int				scores1, scores2;		// from configstrings
 	int				redflag, blueflag;		// flag status from configstrings

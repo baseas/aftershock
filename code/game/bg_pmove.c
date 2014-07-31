@@ -1535,7 +1535,16 @@ void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
 
 	// circularly clamp the angles with deltas
 	for (i = 0; i < 3; i++) {
+		if (pm->ps->pm_type == PM_FREEZE) {
+			// prevent any change of view angles
+			// delta_angles need to compensate changes of cmd->angles
+			// otherwise, the view changes abruptly when PM_FREEZE is removed
+			ps->delta_angles[i] = ANGLE2SHORT(ps->viewangles[i]) - cmd->angles[i];
+			continue;
+		}
+
 		temp = cmd->angles[i] + ps->delta_angles[i];
+
 		if (i == PITCH) {
 			// don't let the player look up or down more than 90 degrees
 			if (temp > 16000) {
@@ -1548,7 +1557,6 @@ void PM_UpdateViewAngles(playerState_t *ps, const usercmd_t *cmd)
 		}
 		ps->viewangles[i] = SHORT2ANGLE(temp);
 	}
-
 }
 
 void trap_SnapVector(float *v);

@@ -337,7 +337,7 @@ void CG_AddLagometerFrameInfo(void)
 {
 	int			offset;
 
-	offset = cg.time - cg.latestSnapshotTime;
+	offset = cg.totalTime - cg.latestSnapshotTime;
 	cg.lagometer.frameSamples[cg.lagometer.frameCount & (LAG_SAMPLES - 1)] = offset;
 	cg.lagometer.frameCount++;
 }
@@ -376,7 +376,7 @@ static void CG_DrawDisconnect(void)
 	// draw the phone jack if we are completely past our buffers
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
 	trap_GetUserCmd(cmdNum, &cmd);
-	if (cmd.serverTime <= cg.snap->ps.commandTime || cmd.serverTime > cg.time) {
+	if (cmd.serverTime <= cg.snap->ps.commandTime || cmd.serverTime > cg.totalTime) {
 		// special check for map_restart
 		cg.drawDisconnect = qfalse;
 		return;
@@ -402,7 +402,7 @@ void CG_CenterPrint(const char *str)
 
 	Q_strncpyz(cg.centerPrint, str, sizeof(cg.centerPrint));
 
-	cg.centerPrintTime = cg.time;
+	cg.centerPrintTime = cg.totalTime;
 
 	// count the number of lines for centering
 	cg.centerPrintLines = 1;

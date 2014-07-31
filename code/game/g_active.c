@@ -355,6 +355,10 @@ void ClientTimerActions(gentity_t *ent, int msec)
 {
 	gclient_t	*client;
 
+	if (level.pauseStart) {
+		return;
+	}
+
 	client = ent->client;
 	client->timeResidual += msec;
 
@@ -575,12 +579,12 @@ void ClientThink_real(gentity_t *ent)
 	ucmd = &ent->client->pers.cmd;
 
 	// sanity check the command time to prevent speedup cheating
-	if (ucmd->serverTime > level.time + 200) {
-		ucmd->serverTime = level.time + 200;
+	if (ucmd->serverTime > level.totalTime + 200) {
+		ucmd->serverTime = level.totalTime + 200;
 //		G_Printf("serverTime <<<<<\n");
 	}
-	if (ucmd->serverTime < level.time - 1000) {
-		ucmd->serverTime = level.time - 1000;
+	if (ucmd->serverTime < level.totalTime - 1000) {
+		ucmd->serverTime = level.totalTime - 1000;
 //		G_Printf("serverTime >>>>>\n");
 	}
 
@@ -710,6 +714,13 @@ void ClientThink_real(gentity_t *ent)
 
 	VectorCopy(client->ps.origin, client->oldOrigin);
 
+	if (level.pauseStart) {
+		// We freeze the client while paused and run the pmove code
+		// to set the command times correctly. If we just ignored usercmds,
+		// the lagometer would not work anymore.
+		pm.ps->pm_type |= PM_FREEZE;
+	}
+
 	Pmove(&pm);
 
 	// save results of pmove
@@ -825,7 +836,7 @@ void G_RunClient(gentity_t *ent)
 	if (!(ent->r.svFlags & SVF_BOT)) {
 		return;
 	}
-	ent->client->pers.cmd.serverTime = level.time;
+	ent->client->pers.cmd.serverTime = level.totalTime;
 	ClientThink_real(ent);
 }
 

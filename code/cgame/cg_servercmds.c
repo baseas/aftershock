@@ -228,13 +228,13 @@ static void CG_ParseStats(void)
 
 static void CG_SetWarmup(int warmup)
 {
-	cg.warmupCount = -1;
+	cg.countdownCount = -1;
 
-	if (warmup > 0 && cg.warmup <= 0) {
+	if (warmup > 0 && cgs.warmup <= 0) {
 		trap_S_StartLocalSound(cgs.media.countPrepareSound, CHAN_ANNOUNCER);
 	}
 
-	cg.warmup = warmup;
+	cgs.warmup = warmup;
 }
 
 static void CG_ConfigStringModified(void)
@@ -315,7 +315,7 @@ static void CG_ConfigStringModified(void)
 	} else if (num == CS_SHADERSTATE) {
 		CG_ShaderStateChanged();
 	} else if (num == CS_ROUND_START) {
-		cg.warmupCount = -1;
+		cg.countdownCount = -1;
 		cgs.roundStartTime = atoi(str);
 	} else if (num == CS_LIVING_COUNT) {
 		int		newRed, newBlue;
@@ -323,7 +323,7 @@ static void CG_ConfigStringModified(void)
 		newRed = atoi(COM_Parse((char **) &str));
 		newBlue = atoi(COM_Parse((char **) &str));
 
-		if (!cg.warmup && cg.time >= cgs.roundStartTime) {
+		if (!cgs.warmup && cg.time >= cgs.roundStartTime) {
 			team_t	team;
 			team = cg.snap->ps.persistant[PERS_TEAM];
 			if ((newRed == 1 && cgs.redLivingCount != 1 && team == TEAM_RED)
@@ -341,6 +341,16 @@ static void CG_ConfigStringModified(void)
 		CG_CenterPrint(va("^3OVERTIME^7 - %d seconds added", cgs.overtimeLimit));
 	} else if (num >= CS_RESPAWN_TIMERS && num < CS_RESPAWN_TIMERS + MAX_RESPAWN_TIMERS) {
 		CG_ParseRespawnTimer(num - CS_RESPAWN_TIMERS, str);
+	} else if (num == CS_PAUSE_START) {
+		cgs.pauseStart = atoi(str);
+		if (cgs.pauseStart > 0) {
+			trap_S_StartLocalSound(cgs.media.pauseSound, CHAN_LOCAL_SOUND);
+		}
+	} else if (num == CS_PAUSE_END) {
+		cg.countdownCount = -1;
+		cgs.pauseEnd = atoi(str);
+	} else if (num == CS_PAUSE_TIME) {
+		cgs.pauseTime = atoi(str);
 	}
 }
 
@@ -393,7 +403,7 @@ static void CG_MapRestart(void)
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
-	if (cg.warmup == 0) {
+	if (cgs.warmup == 0) {
 		trap_S_StartLocalSound(cgs.media.countFightSound, CHAN_ANNOUNCER);
 		CG_CenterPrint("Fight!");
 	}
@@ -594,7 +604,10 @@ void CG_SetConfigValues(void)
 		cgs.blueflag = s[1] - '0';
 	}
 
-	cg.warmup = atoi(CG_ConfigString(CS_WARMUP));
+	cgs.warmup = atoi(CG_ConfigString(CS_WARMUP));
+	cgs.pauseStart = atoi(CG_ConfigString(CS_PAUSE_START));
+	cgs.pauseEnd = atoi(CG_ConfigString(CS_PAUSE_END));
+	cgs.pauseTime = atoi(CG_ConfigString(CS_PAUSE_TIME));
 
 	for (i = 0; i < MAX_RESPAWN_TIMERS; ++i) {
 		CG_ParseRespawnTimer(i, CG_ConfigString(CS_RESPAWN_TIMERS + i));

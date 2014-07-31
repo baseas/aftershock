@@ -117,7 +117,7 @@ static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t 
 	CG_DrawStringExt(x, y - SB_MEDCHAR_HEIGHT/2, ci->name, colorWhite, qfalse, qfalse,
 		SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 31);
 
-	if (cg.warmup == 0) {
+	if (cgs.warmup == 0) {
 		Com_sprintf(string, sizeof string, "%d", ci->score);
 	} else {
 		Q_strncpyz(string, "-", sizeof string);
@@ -160,7 +160,7 @@ static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t 
 		return;
 	}
 
-	if (cgs.startWhenReady && (cg.warmup < 0 || cg.intermissionStarted)) {
+	if (cgs.startWhenReady && (cgs.warmup < 0 || cg.intermissionStarted)) {
 		if (ci->ready) {
 			CG_DrawAdjustPic(x - picSize, y - picSize / 2, picSize, picSize, cgs.media.sbReady);
 		} else if (!cg.intermissionStarted) {
@@ -520,7 +520,7 @@ static void CG_DrawTourneyScoreboard(void)
 		CG_DrawStringExt(x + side*w*0.8 - side * SB_INFOICON_SIZE * 2 - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string),
 			y + 30, string, colorWhite, qfalse, qtrue, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
 
-		if (!ci->botSkill && cg.warmup < 0 && cgs.startWhenReady) {
+		if (!ci->botSkill && cgs.warmup < 0 && cgs.startWhenReady) {
 			if (ci->ready) {
 				Q_strncpyz(string, "^2Ready", sizeof string);
 			} else {
@@ -715,7 +715,7 @@ qboolean CG_DrawScoreboard(void)
 	}
 
 	// don't draw scoreboard during death while warmup up
-	if (!cg.showScores && (cg.warmup || !cg_drawScoreboard.integer)) {
+	if (!cg.showScores && (cgs.warmup || !cg_drawScoreboard.integer)) {
 		return qfalse;
 	}
 

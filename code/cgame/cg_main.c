@@ -642,6 +642,7 @@ static void CG_RegisterSounds(void)
 	cgs.media.gurp1Sound = trap_S_RegisterSound("sound/player/gurp1.wav", qfalse);
 	cgs.media.gurp2Sound = trap_S_RegisterSound("sound/player/gurp2.wav", qfalse);
 	cgs.media.killbeep = trap_S_RegisterSound("sound/feedback/killbeep1.wav", qfalse);
+	cgs.media.pauseSound = trap_S_RegisterSound("sound/movers/doors/dr1_end.wav", qfalse);
 
 	// voice commands
 	cgs.media.oneMinuteSound = trap_S_RegisterSound("sound/feedback/1_minute.wav", qtrue);

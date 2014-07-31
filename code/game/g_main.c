@@ -97,6 +97,9 @@ vmCvar_t	g_roundWarmup;
 vmCvar_t	g_roundTimelimit;
 vmCvar_t	g_allowRespawnTimer;
 vmCvar_t	sv_fps;
+vmCvar_t	g_timeoutAllowed;
+vmCvar_t	g_timeoutTime;
+vmCvar_t	g_timeinDelay;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -170,6 +173,9 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &g_roundTimelimit, "g_roundTimelimit", "300", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_allowRespawnTimer, "g_allowRespawnTimer", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &sv_fps, "sv_fps", "40", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse },
+	{ &g_timeoutAllowed, "g_timeoutAllowed", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_timeoutTime, "g_timeoutTime", "60", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_timeinDelay, "g_timeinDelay", "1", CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);
@@ -417,6 +423,7 @@ void G_InitGame(int levelTime, int randomSeed, int restart)
 	// set some level globals
 	memset(&level, 0, sizeof(level));
 	level.time = levelTime;
+	level.totalTime = levelTime;
 	level.startTime = levelTime;
 	level.timeComplete = levelTime;
 
@@ -1825,7 +1832,11 @@ void G_RunFrame(int levelTime)
 
 	level.framenum++;
 	level.previousTime = level.time;
-	level.time = levelTime;
+	level.totalTime = levelTime;
+
+	if (!level.pauseStart) {
+		level.time = levelTime - level.pauseTime;
+	}
 
 	// get any cvar changes
 	G_UpdateCvars();
@@ -1918,6 +1929,10 @@ void G_RunFrame(int levelTime)
 		svps[i].score = level.clients[i].pers.score;
 		svps[i].ping = level.clients[i].pers.ping;
 		svps[i].team = level.clients[i].sess.sessionTeam;
+	}
+
+	if (level.pauseEnd && level.totalTime >= level.pauseEnd) {
+		G_Pause(0, 0);
 	}
 
 	CheckWarmup();

@@ -1037,8 +1037,8 @@ void ClientSpawn(gentity_t *ent)
 
 	// run a client frame to drop exactly to the floor,
 	// initialize animations and other things
-	client->ps.commandTime = level.time - 100;
-	client->pers.cmd.serverTime = level.time;
+	client->ps.commandTime = level.totalTime - 100;
+	client->pers.cmd.serverTime = level.totalTime;
 	ClientThink(ent-g_entities);
 	// run the presend to set anything else, follow spectators wait
 	// until all clients have been reconnected after map_restart
@@ -1065,6 +1065,11 @@ void ClientDisconnect(int clientNum)
 	int			i;
 
 	ent = g_entities + clientNum;
+
+	if (level.pauseCaller == ent) {
+		G_Pause(0, 0);
+	}
+
 	if (!ent->client || ent->client->pers.connected == CON_DISCONNECTED) {
 		return;
 	}

@@ -90,7 +90,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define CS_ROUND_START			19
 #define CS_LIVING_COUNT			20
 #define CS_OVERTIME				21		// overtime start time
-#define CS_MODELS				22
+#define CS_PAUSE_START			22
+#define CS_PAUSE_END			23
+#define CS_PAUSE_TIME			24
+#define CS_MODELS				25
 
 #define CS_RESPAWN_TIMERS		(CS_MODELS+MAX_MODELS)
 #define CS_SOUNDS				(CS_RESPAWN_TIMERS+MAX_RESPAWN_TIMERS)

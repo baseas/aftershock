@@ -338,7 +338,13 @@ typedef struct {
 
 	int			framenum;
 	int			time;					// in msec
+	int			totalTime;				// level time including pause time
 	int			previousTime;			// so movers can back up when blocked
+
+	gentity_t	*pauseCaller;
+	int			pauseStart;
+	int			pauseEnd;
+	int			pauseTime;				// total pause time
 
 	int			startTime;				// level.time the map was started
 	int			timeComplete;			// time when teams were complete
@@ -427,6 +433,7 @@ char		*G_NewString(const char *string);
 void	Cmd_Score_f(gentity_t *ent);
 void	StopFollowing(gentity_t *ent);
 void	LogTeamChange(gclient_t *client, int oldTeam);
+void	G_Pause(int start, int end);
 void	SetTeam(gentity_t *ent, const char *s);
 void	Cmd_FollowCycle_f(gentity_t *ent);
 
@@ -771,6 +778,9 @@ extern vmCvar_t	g_blueLocked;
 extern vmCvar_t	g_writeStats;
 extern vmCvar_t	g_allowRespawnTimer;
 extern vmCvar_t	sv_fps;
+extern vmCvar_t	g_timeoutAllowed;
+extern vmCvar_t	g_timeoutTime;
+extern vmCvar_t	g_timeinDelay;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

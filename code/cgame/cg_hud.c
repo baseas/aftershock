@@ -294,7 +294,7 @@ static void CG_DrawHudChat(int hudnumber, msgItem_t list[CHAT_HEIGHT], int durat
 		if (list[i].time == 0) {
 			break;
 		}
-		if (!cg.showChat && (cg.time - list[i].time > duration)) {
+		if (!cg.showChat && (cg.totalTime - list[i].time > duration)) {
 			break;
 		}
 	}
@@ -616,7 +616,7 @@ static void Hud_RoundTime(int hudnumber)
 	int			mins, seconds, tens;
 	int			msec;
 
-	if (cgs.gametype != GT_ELIMINATION || cg.warmup || cg.time < cgs.roundStartTime) {
+	if (cgs.gametype != GT_ELIMINATION || cgs.warmup || cg.time < cgs.roundStartTime) {
 		return;
 	}
 
@@ -821,10 +821,19 @@ static void Hud_TargetStatus(int hudnumber)
 
 static void Hud_Warmup(int hudnumber)
 {
-	if (cg.warmup >= 0) {
+	const char	*str;
+
+	if (cgs.warmup) {
+		str = "Warmup";
+	} else if (cg.totalTime < cgs.pauseEnd) {
+		str = "Timeout";
+	} else if (cgs.pauseStart && cg.totalTime >= cgs.pauseStart) {
+		str = "Pause";
+	} else {
 		return;
 	}
-	CG_DrawHudString(HUD_WARMUP, qtrue, "Warmup");
+
+	CG_DrawHudString(HUD_WARMUP, qtrue, str);
 }
 
 static void Hud_Gametype(int hudnumber)
@@ -832,7 +841,7 @@ static void Hud_Gametype(int hudnumber)
 	clientInfo_t	*ci1, *ci2;
 	int				i;
 
-	if (cg.warmup <= 0) {
+	if (cgs.warmup <= 0) {
 		return;
 	}
 
@@ -867,12 +876,15 @@ static void Hud_Countdown(int hudnumber)
 	int		sec;
 	char	*label;
 
-	if (cgs.gametype == GT_ELIMINATION && cg.warmup == 0 && cg.time < cgs.roundStartTime) {
+	if (cgs.gametype == GT_ELIMINATION && cgs.warmup == 0 && cg.time < cgs.roundStartTime) {
 		sec = (cgs.roundStartTime - cg.time) / 1000;
 		label = "Round in";
-	} else if (cg.warmup > 0) {
-		sec = (cg.warmup - cg.time) / 1000;
+	} else if (cgs.warmup > 0) {
+		sec = (cgs.warmup - cg.time) / 1000;
 		label = "Start in";
+	} else if (cg.totalTime < cgs.pauseEnd) {
+		sec = (cgs.pauseEnd - cg.totalTime) / 1000;
+		label = "Resume in";
 	} else {
 		return;
 	}
@@ -1353,7 +1365,7 @@ static void Hud_Help(int hudnumber)
 		return;
 	}
 
-	if (cgs.startWhenReady && cg.warmup < 0) {
+	if (cgs.startWhenReady && cgs.warmup < 0) {
 		CG_DrawHudString(hudnumber, qtrue, "Press F3 to get ready");
 		return;
 	}

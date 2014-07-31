@@ -310,6 +310,23 @@ void LogTeamChange(gclient_t *client, int oldTeam)
 	}
 }
 
+void G_Pause(int start, int end)
+{
+	if (!start) {
+		level.pauseTime = level.totalTime - level.time;
+		trap_SetConfigstring(CS_PAUSE_TIME, va("%d", level.pauseTime));
+	}
+
+	if (!end && g_timeinDelay.integer) {
+		end = level.totalTime + 3500;
+	}
+
+	level.pauseStart = start;
+	level.pauseEnd = end;
+	trap_SetConfigstring(CS_PAUSE_START, va("%d", start));
+	trap_SetConfigstring(CS_PAUSE_END, va("%d", end));
+}
+
 void SetTeam(gentity_t *ent, const char *s)
 {
 	int					team, oldTeam;
@@ -1221,7 +1238,7 @@ static void Cmd_Drop_f(gentity_t *ent)
 
 static void Cmd_Ready_f(gentity_t *ent)
 {
-	if (!g_startWhenReady.integer || level.warmupTime != -1) {
+	if (!g_startWhenReady.integer || level.warmupTime >= 0) {
 		return;
 	}
 	ent->client->pers.ready = !ent->client->pers.ready;
@@ -1296,7 +1313,7 @@ static void Cmd_Forfeit_f(gentity_t *ent)
 		return;
 	}
 
-	if (level.warmupTime < 0) {
+	if (level.warmupTime) {
 		ClientPrint(ent, "Forfeit is not available during warmup.");
 		return;
 	}
@@ -1351,31 +1368,79 @@ static void Cmd_GameData_f(gentity_t *ent)
 
 static void Cmd_Timeout_f(gentity_t *ent)
 {
-	if (level.warmupTime) {
-		ClientPrint(ent, "timeout is not allowed in warmup.");
+	if (!g_timeoutAllowed.integer) {
+		ClientPrint(ent, "Timeout is not allowed on this server.");
 		return;
 	}
-	ClientPrint(NULL, "A timeout has been called by %s", G_UserName(ent));
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Pause is not available in this gametype.");
+		return;
+	}
+	if (level.pauseStart) {
+		ClientPrint(ent, "The game is already paused.");
+		return;
+	}
+	if (level.warmupTime) {
+		ClientPrint(ent, "Timeout is not allowed in warmup.");
+		return;
+	}
+	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR) {
+		ClientPrint(ent, "Timeout is not allowed for spectators.");
+		return;
+	}
+
+	// when the player who paused the game disconnects, then unpause
+	level.pauseCaller = ent;
+	G_Pause(level.time, level.totalTime + 1000 * g_timeoutTime.integer);
+
+	ClientPrint(NULL, "%s called a timeout", G_UserName(ent));
 }
 
 static void Cmd_Timein_f(gentity_t *ent)
 {
-	if (level.warmupTime) {
-		ClientPrint(ent, "timein is not allowed during warmup.");
+	if (!level.pauseStart) {
+		ClientPrint(ent, "There is no active timeout.");
 		return;
 	}
 
-	ClientPrint(NULL, "A timein has been called by %s", G_UserName(ent));
+	G_Pause(0, 0);
+
+	ClientPrint(NULL, "%s called a timein.", G_UserName(ent));
 }
 
 static void Cmd_Pause_f(gentity_t *ent)
 {
-	ClientPrint(NULL, "The game has been paused by %s.", G_UserName(ent));
+	if (level.pauseStart) {
+		ClientPrint(ent, "The game is already paused.");
+		return;
+	}
+	if (g_gametype.integer == GT_DEFRAG) {
+		ClientPrint(ent, "Pause is not available in this gametype.");
+		return;
+	}
+	if (level.warmupTime) {
+		ClientPrint(ent, "Pause is not available in warmup.");
+		return;
+	}
+
+	// when the player who paused the game disconnects, then unpause
+	level.pauseCaller = ent;
+
+	G_Pause(level.time, 0);
+
+	ClientPrint(NULL, "%s paused the game.", G_UserName(ent));
 }
 
 static void Cmd_Unpause_f(gentity_t *ent)
 {
-	ClientPrint(NULL, "The game has been unpaused by %s.", G_UserName(ent));
+	if (!level.pauseStart) {
+		ClientPrint(ent, "The game is already unpaused.");
+		return;
+	}
+
+	G_Pause(0, 0);
+
+	ClientPrint(NULL, "%s unpaused the game.", G_UserName(ent));
 }
 
 static void Cmd_AllReady_f(gentity_t *ent)
@@ -1680,7 +1745,7 @@ void ClientCommand(int clientNum)
 		Cmd_Notarget_f(ent);
 	} else if (!Q_stricmp(cmd, "noclip")) {
 		Cmd_Noclip_f(ent);
-	} else if (!Q_stricmp(cmd, "kill")) {
+	} else if (!Q_stricmp(cmd, "kill") && !level.pauseStart) {
 		Cmd_Kill_f(ent);
 	} else if (!Q_stricmp(cmd, "teamtask")) {
 		Cmd_TeamTask_f(ent);
@@ -1702,17 +1767,17 @@ void ClientCommand(int clientNum)
 		Cmd_Vote_f(ent);
 	} else if (!Q_stricmp(cmd, "setviewpos")) {
 		Cmd_SetViewpos_f(ent);
-	} else if (!Q_stricmp(cmd, "dropammo")) {
+	} else if (!Q_stricmp(cmd, "dropammo") && !level.pauseStart) {
 		Cmd_DropAmmo_f(ent);
-	} else if (!Q_stricmp(cmd, "droparmor")) {
+	} else if (!Q_stricmp(cmd, "droparmor") && !level.pauseStart) {
 		Cmd_DropArmor_f(ent);
-	} else if (!Q_stricmp(cmd, "drophealth")) {
+	} else if (!Q_stricmp(cmd, "drophealth") && !level.pauseStart) {
 		Cmd_DropHealth_f(ent);
-	} else if (!Q_stricmp(cmd, "dropweapon")) {
+	} else if (!Q_stricmp(cmd, "dropweapon") && !level.pauseStart) {
 		Cmd_DropWeapon_f(ent);
-	} else if (!Q_stricmp(cmd, "dropflag")) {
+	} else if (!Q_stricmp(cmd, "dropflag") && !level.pauseStart) {
 		Cmd_DropFlag_f(ent);
-	} else if (!Q_stricmp(cmd, "drop")) {
+	} else if (!Q_stricmp(cmd, "drop") && !level.pauseStart) {
 		Cmd_Drop_f(ent);
 	} else if (!Q_stricmp(cmd, "ready")) {
 		Cmd_Ready_f(ent);

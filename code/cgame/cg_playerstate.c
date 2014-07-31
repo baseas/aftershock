@@ -358,7 +358,7 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 	}
 
 	// lead changes
-	if (!reward && !cg.warmup) {
+	if (!reward && !cgs.warmup) {
 		if (cgs.gametype < GT_TEAM && ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK]) {
 			if ( ps->persistant[PERS_RANK] == 0) {
 				CG_AddBufferedSound(cgs.media.takenLeadSound);
@@ -371,7 +371,7 @@ void CG_CheckLocalSounds(playerState_t *ps, playerState_t *ops)
 	}
 
 	// timelimit warnings
-	if (!cg.warmup && cgs.timelimit > 0) {
+	if (!cgs.warmup && cgs.timelimit > 0) {
 		int		msec;
 
 		msec = cg.time - cgs.levelStartTime;
