@@ -72,10 +72,6 @@ qboolean CheatsOk(gentity_t *ent)
 		ClientPrint(ent, "Cheats are not enabled on this server.");
 		return qfalse;
 	}
-	if (ent->health <= 0) {
-		ClientPrint(ent, "You must be alive to use this command.");
-		return qfalse;
-	}
 	return qtrue;
 }
 
@@ -120,6 +116,11 @@ void Cmd_Give_f(gentity_t *ent)
 	trace_t		trace;
 
 	if (!CheatsOk(ent)) {
+		return;
+	}
+
+	if (ent->health <= 0) {
+		ClientPrint(ent, "You must be alive to use this command.");
 		return;
 	}
 
@@ -1611,9 +1612,10 @@ static void Cmd_AddBot_f(gentity_t *ent)
 	}
 
 	trap_Argv(3, team, sizeof team);
-	G_AddBot(name, skill, team, BG_Argv(4));
 
-	ClientPrint(NULL, "The bot '%s' has been added by %s.", name, G_UserName(ent));
+	if (!G_AddBot(name, skill, team, BG_Argv(4))) {
+		ClientPrint(NULL, "The bot '%s' has been added by %s.", name, G_UserName(ent));
+	}
 }
 
 static void Cmd_BotList_f(gentity_t *ent)

@@ -272,7 +272,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.skill.generic.name		= "Skill:";
 	addBotsMenuInfo.skill.generic.id		= ID_SKILL;
 	addBotsMenuInfo.skill.itemnames			= skillNames;
-	addBotsMenuInfo.skill.curvalue			= Com_Clamp(0, 4, (int)trap_Cvar_VariableValue("g_spSkill") - 1);
+	addBotsMenuInfo.skill.curvalue			= Com_Clamp(0, 4, (int)trap_Cvar_VariableValue("g_botSkill") - 1);
 
 	y += SMALLCHAR_HEIGHT;
 	addBotsMenuInfo.team.generic.type		= MTYPE_SPINCONTROL;

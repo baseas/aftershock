@@ -1035,6 +1035,7 @@ int BotAIStartFrame(int time)
 	trap_Cvar_Update(&bot_saveroutingcache);
 	trap_Cvar_Update(&bot_pause);
 	trap_Cvar_Update(&bot_report);
+	trap_Cvar_Update(&bot_shoot);
 
 	if (bot_memorydump.integer) {
 		trap_BotLibVarSet("memorydump", "1");

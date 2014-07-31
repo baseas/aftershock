@@ -51,8 +51,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define AREACONTENTS_MAXMODELNUM		0xFF
 #define AREACONTENTS_MODELNUM			(AREACONTENTS_MAXMODELNUM << AREACONTENTS_MODELNUMSHIFT)
 
-#define IDEAL_ATTACKDIST			140
-
 #define MAX_WAYPOINTS		128
 
 bot_waypoint_t botai_waypoints[MAX_WAYPOINTS];
@@ -65,6 +63,7 @@ vmCvar_t bot_nochat;
 vmCvar_t bot_testrchat;
 vmCvar_t bot_challenge;
 vmCvar_t bot_predictobstacles;
+vmCvar_t bot_shoot;
 
 extern vmCvar_t bot_developer;
 
@@ -1378,7 +1377,7 @@ void BotRoamGoal(bot_state_t *bs, vec3_t goal)
 bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl)
 {
 	int movetype, i, attackentity;
-	float attack_skill, jumper, croucher, dist, strafechange_time;
+	float attack_skill, dist, strafechange_time;
 	float attack_dist, attack_range;
 	vec3_t forward, backward, sideward, hordir, up = { 0, 0, 1 };
 	aas_entityinfo_t entinfo;
@@ -1404,8 +1403,7 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl)
 	memset(&moveresult, 0, sizeof (bot_moveresult_t));
 
 	attack_skill = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_SKILL, 0, 1);
-	jumper = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_JUMPER, 0, 1);
-	croucher = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_CROUCHER, 0, 1);
+	attack_dist = trap_Characteristic_BFloat(bs->character, CHARACTERISTIC_ATTACK_DISTANCE, 0, MAX_WEAPON_RANGE);
 
 	// if the bot is really stupid
 	if (attack_skill < 0.2) {
@@ -1424,33 +1422,11 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl)
 
 	movetype = MOVE_WALK;
 
-	if (bs->attackcrouch_time < FloatTime() - 1) {
-		if (random() < jumper) {
-			movetype = MOVE_JUMP;
-		} else if (bs->attackcrouch_time < FloatTime() - 1 && random() < croucher) {
-			// wait at least one second before crouching again
-			bs->attackcrouch_time = FloatTime() + croucher * 5;
-		}
-	}
-	if (bs->attackcrouch_time > FloatTime()) {
-		movetype = MOVE_CROUCH;
-	}
-
-	if (movetype == MOVE_JUMP) {
-		// if jumped last frame
-		if (bs->attackjump_time > FloatTime()) {
-			movetype = MOVE_WALK;
-		} else {
-			bs->attackjump_time = FloatTime() + 1;
-		}
-	}
-
 	if (bs->cur_ps.weapon == WP_GAUNTLET) {
 		attack_dist = 0;
 		attack_range = 0;
 	} else {
-		attack_dist = IDEAL_ATTACKDIST;
-		attack_range = 40;
+		attack_range = 0.4 * attack_dist;
 	}
 
 	// if the bot is stupid
@@ -1473,15 +1449,15 @@ bot_moveresult_t BotAttackMove(bot_state_t *bs, int tfl)
 	bs->attackstrafe_time += bs->thinktime;
 
 	// get the strafe change time
-	strafechange_time = 0.4 + (1 - attack_skill) * 0.2;
+	strafechange_time = 0.1;
+
 	if (attack_skill > 0.7) {
 		strafechange_time += crandom() * 0.2;
 	}
 
 	// if the strafe direction should be changed
 	if (bs->attackstrafe_time > strafechange_time) {
-		// some magic number :)
-		if (random() > 0.935) {
+		if (random() > 0.1) {
 			// flip the strafe direction
 			bs->flags ^= BFL_STRAFERIGHT;
 			bs->attackstrafe_time = 0;
@@ -2273,6 +2249,10 @@ void BotCheckAttack(bot_state_t *bs)
 	bsp_trace_t trace;
 	aas_entityinfo_t entinfo;
 	vec3_t mins = { -8, -8, -8 }, maxs = { 8, 8, 8 };
+
+	if (!bot_shoot.integer) {
+		return;
+	}
 
 	attackentity = bs->enemy;
 
@@ -3846,6 +3826,7 @@ void BotSetupDeathmatchAI(void)
 	trap_Cvar_Register(&bot_testrchat, "bot_testrchat", "0", 0);
 	trap_Cvar_Register(&bot_challenge, "bot_challenge", "0", 0);
 	trap_Cvar_Register(&bot_predictobstacles, "bot_predictobstacles", "1", 0);
+	trap_Cvar_Register(&bot_shoot, "bot_shoot", "1", 0);
 
 	if (g_gametype.integer == GT_CTF) {
 		trap_BotGetLevelItemGoal(-1, "Red Flag", &ctf_redflag);

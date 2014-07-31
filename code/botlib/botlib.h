@@ -54,8 +54,7 @@ struct weaponinfo_s;
 
 //Print types
 enum {
-	PRT_DEBUG1,
-	PRT_DEBUG2,
+	PRT_DEBUG,
 	PRT_MESSAGE,
 	PRT_WARNING,
 	PRT_ERROR,

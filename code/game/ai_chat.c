@@ -1015,11 +1015,11 @@ int BotChat_Random(bot_state_t *bs)
 
 float BotChatTime(bot_state_t *bs)
 {
-	// int cpm;
-
-	// cpm = trap_Characteristic_BInteger(bs->character, CHARACTERISTIC_CHAT_CPM, 1, 4000);
-
-	return 2.0;	// (float) trap_BotChatLength(bs->cs) * 30 / cpm;
+	if (trap_BotChatLength(bs->cs) < 5) {
+		// the bot uses a chat bind
+		return 0;
+	}
+	return 30 * trap_BotChatLength(bs->cs);
 }
 
 void BotChatTest(bot_state_t *bs)

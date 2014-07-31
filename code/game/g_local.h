@@ -648,7 +648,7 @@ void		G_InitBots(qboolean restart);
 char		*G_GetBotInfoByNumber(int num);
 char		*G_GetBotInfoByName(const char *name);
 qboolean	G_BotConnect(int clientNum, qboolean restart);
-void		G_AddBot(const char *name, float skill, const char *team, const char *altname);
+int			G_AddBot(const char *name, float skill, const char *team, const char *altname);
 void		BotInterbreedEndMatch(void);
 
 //
@@ -781,6 +781,7 @@ extern vmCvar_t	sv_fps;
 extern vmCvar_t	g_timeoutAllowed;
 extern vmCvar_t	g_timeoutTime;
 extern vmCvar_t	g_timeinDelay;
+extern vmCvar_t	g_botSkill;
 
 void	trap_Print(const char *text);
 void	trap_Error(const char *text) __attribute__((noreturn));

@@ -36,30 +36,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //  >  0.7 && <  1.0 = random strafe direction change
 #define CHARACTERISTIC_ATTACK_SKILL					2	// float [0, 1]
 
+#define CHARACTERISTIC_ATTACK_DISTANCE				3	// float
+
 // weapon weight file
-#define CHARACTERISTIC_WEAPONWEIGHTS				3	// string
+#define CHARACTERISTIC_WEAPONWEIGHTS				4	// string
 
 // view angle difference to angle change factor
-#define CHARACTERISTIC_VIEW_FACTOR					4	// float <0, 1]
+#define CHARACTERISTIC_VIEW_FACTOR					5	// float [0, 1]
 
 // maximum view angle change
-#define CHARACTERISTIC_VIEW_MAXCHANGE				5	// float [1, 360]
+#define CHARACTERISTIC_VIEW_MAXCHANGE				6	// float [1, 360]
 
 // reaction time in seconds
-#define CHARACTERISTIC_REACTIONTIME					6	// float [0, 5]
+#define CHARACTERISTIC_REACTIONTIME					7	// float [0, 5]
 
 // accuracy when aiming
-#define CHARACTERISTIC_AIM_ACCURACY					7	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY					8	// float [0, 1]
 
 // weapon specific aim accuracy
-#define CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN		8	// float [0, 1]
-#define CHARACTERISTIC_AIM_ACCURACY_SHOTGUN			9	// float [0, 1]
-#define CHARACTERISTIC_AIM_ACCURACY_ROCKETLAUNCHER	10	// float [0, 1]
-#define CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER	11	// float [0, 1]
-#define CHARACTERISTIC_AIM_ACCURACY_LIGHTNING		12
-#define CHARACTERISTIC_AIM_ACCURACY_PLASMAGUN		13	// float [0, 1]
-#define CHARACTERISTIC_AIM_ACCURACY_RAILGUN			14
-#define CHARACTERISTIC_AIM_ACCURACY_BFG10K			15	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY_MACHINEGUN		9	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY_SHOTGUN			10	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY_ROCKETLAUNCHER	11	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY_GRENADELAUNCHER	12	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY_LIGHTNING		13
+#define CHARACTERISTIC_AIM_ACCURACY_PLASMAGUN		14	// float [0, 1]
+#define CHARACTERISTIC_AIM_ACCURACY_RAILGUN			15
+#define CHARACTERISTIC_AIM_ACCURACY_BFG10K			16	// float [0, 1]
 
 // skill when aiming
 //  > 0.0 && <  0.9 = aim is affected by enemy movement
@@ -67,22 +69,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //  > 0.8 && <= 1.0 = enemy exact movement leading
 //  > 0.5 && <= 1.0 = prediction shots when enemy is not visible
 //  > 0.6 && <= 1.0 = splash damage by shooting nearby geometry
-#define CHARACTERISTIC_AIM_SKILL					16	// float [0, 1]
+#define CHARACTERISTIC_AIM_SKILL					17	// float [0, 1]
 
 // weapon specific aim skill
-#define CHARACTERISTIC_AIM_SKILL_ROCKETLAUNCHER		17	// float [0, 1]
-#define CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER	18	// float [0, 1]
-#define CHARACTERISTIC_AIM_SKILL_PLASMAGUN			19	// float [0, 1]
-#define CHARACTERISTIC_AIM_SKILL_BFG10K				20	// float [0, 1]
+#define CHARACTERISTIC_AIM_SKILL_ROCKETLAUNCHER		18	// float [0, 1]
+#define CHARACTERISTIC_AIM_SKILL_GRENADELAUNCHER	19	// float [0, 1]
+#define CHARACTERISTIC_AIM_SKILL_PLASMAGUN			20	// float [0, 1]
+#define CHARACTERISTIC_AIM_SKILL_BFG10K				21	// float [0, 1]
 
 // file with chats
-#define CHARACTERISTIC_CHAT_FILE					21	// string
+#define CHARACTERISTIC_CHAT_FILE					22	// string
 
 // name of the chat character
-#define CHARACTERISTIC_CHAT_NAME					22	// string
-
-// characters per minute type speed
-#define CHARACTERISTIC_CHAT_CPM						23	// integer [1, 4000]
+#define CHARACTERISTIC_CHAT_NAME					23	// string
 
 // tendency to insult/praise
 #define CHARACTERISTIC_CHAT_INSULT					24	// float [0, 1]
@@ -108,7 +107,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // tendency to chat when hit while talking
 #define CHARACTERISTIC_CHAT_HITTALKING				31	// float [0, 1]
 
-// tendency to chat when bot was hit but didn't dye
+// tendency to chat when bot was hit but didn't die
 #define CHARACTERISTIC_CHAT_HITNODEATH				32	// float [0, 1]
 
 // tendency to chat when bot hit the enemy but enemy didn't die
@@ -131,9 +130,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 // tendency to jump using a weapon
 #define CHARACTERISTIC_WEAPONJUMPING				38	// float [0, 1]
-
-// tendency to use the grapple hook when available
-#define CHARACTERISTIC_GRAPPLE_USER					39	// float [0, 1]	// use this!!
 
 // item weight file
 #define CHARACTERISTIC_ITEMWEIGHTS					40	// string

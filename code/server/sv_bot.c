@@ -142,6 +142,10 @@ static __attribute__ ((format (printf, 2, 3))) void QDECL BotImport_Print(int ty
 	va_end(ap);
 
 	switch(type) {
+		case PRT_DEBUG: {
+			// Com_Printf("BotLib: %s", str);
+			break;
+		}
 		case PRT_MESSAGE: {
 			Com_Printf("BotLib: %s", str);
 			break;
@@ -498,7 +502,7 @@ void SV_BotInitCvars(void) {
 	Cvar_Get("bot_testsolid", "0", CVAR_CHEAT);			//test for solid areas
 	Cvar_Get("bot_testclusters", "0", CVAR_CHEAT);		//test the AAS clusters
 	Cvar_Get("bot_fastchat", "0", 0);					//fast chatting bots
-	Cvar_Get("bot_nochat", "0", 0);						//disable chats
+	Cvar_Get("bot_nochat", "1", 0);						//disable chats
 	Cvar_Get("bot_pause", "0", CVAR_CHEAT);				//pause the bots thinking
 	Cvar_Get("bot_report", "0", CVAR_CHEAT);			//get a full report in ctf
 	Cvar_Get("bot_grapple", "0", 0);					//enable grapple

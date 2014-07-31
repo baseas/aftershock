@@ -100,6 +100,7 @@ vmCvar_t	sv_fps;
 vmCvar_t	g_timeoutAllowed;
 vmCvar_t	g_timeoutTime;
 vmCvar_t	g_timeinDelay;
+vmCvar_t	g_botSkill;
 
 static	cvarTable_t		gameCvarTable[] = {
 	// don't override the cheat state set by the system
@@ -175,7 +176,8 @@ static	cvarTable_t		gameCvarTable[] = {
 	{ &sv_fps, "sv_fps", "40", CVAR_SYSTEMINFO | CVAR_SERVERINFO, 0, qfalse },
 	{ &g_timeoutAllowed, "g_timeoutAllowed", "1", CVAR_ARCHIVE, 0, qfalse },
 	{ &g_timeoutTime, "g_timeoutTime", "60", CVAR_ARCHIVE, 0, qfalse },
-	{ &g_timeinDelay, "g_timeinDelay", "1", CVAR_ARCHIVE, 0, qfalse }
+	{ &g_timeinDelay, "g_timeinDelay", "1", CVAR_ARCHIVE, 0, qfalse },
+	{ &g_botSkill, "g_botSkill", "1", CVAR_ARCHIVE, 0, qfalse }
 };
 
 static	int		gameCvarTableSize = ARRAY_LEN(gameCvarTable);

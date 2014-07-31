@@ -980,7 +980,8 @@ void ClientSpawn(gentity_t *ent)
 	ent->die = player_die;
 	ent->waterlevel = 0;
 	ent->watertype = 0;
-	ent->flags = 0;
+	ent->flags &= ~FL_NO_KNOCKBACK;
+	ent->flags &= ~FL_FORCE_GESTURE;
 
 	VectorCopy(playerMins, ent->r.mins);
 	VectorCopy(playerMaxs, ent->r.maxs);

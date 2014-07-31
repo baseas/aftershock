@@ -30,20 +30,7 @@ static char		*g_botInfos[MAX_BOTS];
 int				g_numArenas;
 static char		*g_arenaInfos[MAX_ARENAS];
 
-#define BOT_BEGIN_DELAY_BASE		2000
-#define BOT_BEGIN_DELAY_INCREMENT	1500
-
-#define BOT_SPAWN_QUEUE_DEPTH	16
-
 vmCvar_t	bot_minplayers;
-
-float trap_Cvar_VariableValue(const char *var_name)
-{
-	char buf[128];
-
-	trap_Cvar_VariableStringBuffer(var_name, buf, sizeof(buf));
-	return atof(buf);
-}
 
 int G_ParseInfos(char *buf, int max, char *infos[])
 {
@@ -210,7 +197,7 @@ void G_AddRandomBot(int team)
 		if (i >= g_maxclients.integer) {
 			num--;
 			if (num <= 0) {
-				skill = trap_Cvar_VariableValue("g_spSkill");
+				skill = g_botSkill.integer;
 				if (team == TEAM_RED) teamstr = "red";
 				else if (team == TEAM_BLUE) teamstr = "blue";
 				else teamstr = "";
@@ -379,7 +366,7 @@ qboolean G_BotConnect(int clientNum, qboolean restart)
 	return qtrue;
 }
 
-void G_AddBot(const char *name, float skill, const char *team, const char *altname)
+int G_AddBot(const char *name, float skill, const char *team, const char *altname)
 {
 	int				clientNum;
 	char			*botinfo;
@@ -393,7 +380,7 @@ void G_AddBot(const char *name, float skill, const char *team, const char *altna
 	if (clientNum == -1) {
 		G_Printf(S_COLOR_RED "Unable to add bot. All player slots are in use.\n");
 		G_Printf(S_COLOR_RED "Start server with more 'open' slots (or check setting of sv_maxclients cvar).\n");
-		return;
+		return 1;
 	}
 
 	// get the botinfo from bots.txt
@@ -401,7 +388,7 @@ void G_AddBot(const char *name, float skill, const char *team, const char *altna
 	if (!botinfo) {
 		G_Printf(S_COLOR_RED "Error: Bot '%s' not defined\n", name);
 		trap_BotFreeClient(clientNum);
-		return;
+		return 1;
 	}
 
 	// create the bot's userinfo
@@ -431,7 +418,7 @@ void G_AddBot(const char *name, float skill, const char *team, const char *altna
 	if (!*s) {
 		trap_Print(S_COLOR_RED "Error: bot has no aifile specified\n");
 		trap_BotFreeClient(clientNum);
-		return;
+		return 1;
 	}
 	Info_SetValueForKey(userinfo, "characterfile", s);
 
@@ -455,11 +442,11 @@ void G_AddBot(const char *name, float skill, const char *team, const char *altna
 
 	// have it connect to the game as a normal client
 	if (ClientConnect(clientNum, qtrue, qtrue)) {
-		return;
+		return 1;
 	}
 
 	ClientBegin(clientNum);
-	return;
+	return 0;
 }
 
 static void G_LoadBotsFromFile(char *filename)
