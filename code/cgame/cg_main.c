@@ -250,7 +250,7 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_crosshairSize, "cg_crosshairSize" },
 	{ &cg_crosshairHealth, "cg_crosshairHealth" },
 	{ &cg_crosshairHitColor, "cg_crosshairHitColor" },
-	{ &cg_crosshairHitColorTime, "cg_crosshairHitTime" },
+	{ &cg_crosshairHitColorTime, "cg_crosshairHitColorTime" },
 	{ &cg_crosshairHitColorStyle, "cg_crosshairHitColorStyle" },
 	{ &cg_crosshairHitPulse, "cg_crosshairHitPulse" },
 	{ &cg_crosshairPickupPulse, "cg_crosshairPickupPulse" },
