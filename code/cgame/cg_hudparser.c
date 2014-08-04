@@ -561,8 +561,8 @@ static void CG_HudEdit(void)
 void CG_Hud_f(void)
 {
 	const char	*cmd;
-	const char	*usage = "usage: hud <command> <arguments>\n"
-		"commands are: edit, reset, save, load\n";
+	const char	*usage = "Usage: hud <command> <arguments>\n"
+		"Commands are: edit, reset, save, load\n";
 
 	if (trap_Argc() == 1) {
 		CG_Printf("%s", usage);

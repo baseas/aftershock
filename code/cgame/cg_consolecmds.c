@@ -35,9 +35,8 @@ Debugging command to print the current position
 */
 static void CG_Viewpos_f(void)
 {
-	CG_Printf ("(%i %i %i) : %i\n", (int)cg.refdef.vieworg[0],
-		(int)cg.refdef.vieworg[1], (int)cg.refdef.vieworg[2], 
-		(int)cg.refdefViewAngles[YAW]);
+	CG_Printf("(%g %g %g) : %g\n", cg.refdef.vieworg[0], cg.refdef.vieworg[1],
+		cg.refdef.vieworg[2], cg.refdefViewAngles[YAW]);
 }
 
 static void CG_ScoresDown_f(void)
@@ -132,6 +131,22 @@ static void CG_StartOrbit_f(void)
 	}
 }
 
+/**
+Create a cvar that teleports to the current position when executed.
+Example: savepos pos1; vstr pos1;
+*/
+static void CG_Savepos_f(void)
+{
+	if (trap_Argc() != 2) {
+		CG_Printf("Usage: savepos <cvar name>\n");
+		return;
+	}
+
+	trap_Cvar_Set(BG_Argv(1), va("setviewpos %g %g %g %g", cg.predictedPlayerState.origin[0],
+		cg.predictedPlayerState.origin[1], cg.predictedPlayerState.origin[2],
+		cg.predictedPlayerState.viewangles[YAW]));
+}
+
 static consoleCommand_t	commands[] = {
 	{ "testgun", CG_TestGun_f },
 	{ "testmodel", CG_TestModel_f },
@@ -156,7 +171,8 @@ static consoleCommand_t	commands[] = {
 	{ "tell_target", CG_TellTarget_f },
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "startOrbit", CG_StartOrbit_f },
-	{ "hud", CG_Hud_f }
+	{ "hud", CG_Hud_f },
+	{ "savepos", CG_Savepos_f }
 };
 
 /**

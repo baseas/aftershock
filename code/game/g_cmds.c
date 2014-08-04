@@ -1051,6 +1051,11 @@ static void Cmd_SetViewpos_f(gentity_t *ent)
 	angles[YAW] = atof(BG_Argv(4));
 
 	TeleportPlayer(ent, origin, angles);
+
+	// reset the velocity added by the teleport effect
+	ent->client->ps.velocity[0] = 0;
+	ent->client->ps.velocity[1] = 0;
+	ent->client->ps.velocity[2] = 0;
 }
 
 static void Cmd_DropArmor_f(gentity_t *ent)
