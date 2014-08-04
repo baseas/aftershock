@@ -508,6 +508,22 @@ static char *ClientCleanName(const char *in, char *out, int outSize)
 	return NULL;
 }
 
+void ClientScreenPrint(gentity_t *ent, const char *fmt, ...)
+{
+	int		clientNum;
+	va_list	args;
+	char	text[MAX_STRING_CHARS];
+	char	buffer[MAX_STRING_CHARS];
+
+	clientNum = (ent ? ent - g_entities : -1);
+	va_start(args, fmt);
+	Q_vsnprintf(text, sizeof text, fmt, args);
+	va_end(args);
+
+	Com_sprintf(buffer, sizeof buffer, "screenprint \"%s\"", text);
+	trap_SendServerCommand(clientNum, buffer);
+}
+
 void ClientPrint(gentity_t *ent, const char *fmt, ...)
 {
 	int		clientNum;
@@ -660,7 +676,8 @@ restarts.
 */
 char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 {
-	char		*value;
+	char		name[MAX_NETNAME];
+	char		*value, *nameError;
 	gclient_t	*client;
 	char		userinfo[MAX_INFO_STRING];
 	gentity_t	*ent;
@@ -675,15 +692,16 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 
 	value = Info_ValueForKey(userinfo, "ip");
 
+	nameError = Info_ValueForKey(userinfo, "name");
+	nameError = ClientCleanName(nameError, name, sizeof name);
+
 	// we don't check password for bots and local client
 	// NOTE: local client <-> "ip" "localhost"
 	// this means this client is not running in our current process
 	if (!isBot && strcmp(value, "localhost")) {
-		char	name[MAX_NETNAME];
-		value = Info_ValueForKey(userinfo, "name");
-		value = ClientCleanName(value, name, sizeof name);
-		if (value) {
-			return value;
+		// check for invalid player name
+		if (nameError) {
+			return nameError;
 		}
 
 		// check for a password
@@ -722,14 +740,14 @@ char *ClientConnect(int clientNum, qboolean firstTime, qboolean isBot)
 		}
 	}
 
+	// don't do the "xxx connected" messages if they were caried over from previous level
+	if (firstTime) {
+		ClientScreenPrint(NULL, "%s ^7connected", name);
+	}
+
 	// get and distribute relevent paramters
 	G_LogPrintf("ClientConnect: %i\n", clientNum);
 	ClientUserinfoChanged(clientNum);
-
-	// don't do the "xxx connected" messages if they were caried over from previous level
-	if (firstTime) {
-		trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname));
-	}
 
 	if (g_gametype.integer >= GT_TEAM && client->sess.sessionTeam != TEAM_SPECTATOR) {
 		LogTeamChange(client, -1);
@@ -779,11 +797,6 @@ void ClientBegin(int clientNum)
 	// locate ent at a spawn point
 	ClientSpawn(ent);
 
-	if (client->sess.sessionTeam != TEAM_SPECTATOR) {
-		if (g_gametype.integer != GT_TOURNAMENT ) {
-			trap_SendServerCommand(-1, va("print \"%s" S_COLOR_WHITE " entered the game\n\"", client->pers.netname));
-		}
-	}
 	G_LogPrintf("ClientBegin: %i\n", clientNum);
 
 	// count current clients and rank for scoreboard
@@ -1189,7 +1202,7 @@ void G_DefragScore(gclient_t *client)
 		G_SendScoreboard(client);
 	}
 
-	ClientPrint(NULL, "%s ^7reached the finish line in %.3f.", client->pers.netname,
+	ClientScreenPrint(NULL, "%s ^7reached the finish line in %.3f.", client->pers.netname,
 		-client->ps.stats[STAT_DEFRAG_TIME]  / 1000.0f);
 }
 

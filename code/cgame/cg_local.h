@@ -1144,7 +1144,9 @@ extern vmCvar_t		cg_thirdPerson;
 extern vmCvar_t		cg_lagometer;
 extern vmCvar_t		cg_drawAttacker;
 extern vmCvar_t		cg_chatTime;
+extern vmCvar_t		cg_chatBeep;
 extern vmCvar_t		cg_teamChatTime;
+extern vmCvar_t		cg_teamChatBeep;
 extern vmCvar_t		cg_deathNoticeTime;
 extern vmCvar_t		cg_stats;
 extern vmCvar_t		cg_buildScript;
@@ -1451,6 +1453,7 @@ void		CG_InitConsoleCommands(void);
 // cg_servercmds.c
 //
 void	CG_ExecuteNewServerCommands(int latestSequence);
+void	CG_AddScreenMessage(const char *str, qboolean teamChat);
 void	CG_ParseServerinfo(void);
 void	CG_SetConfigValues(void);
 void	CG_ShaderStateChanged(void);

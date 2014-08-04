@@ -354,16 +354,6 @@ static void CG_ConfigStringModified(void)
 	}
 }
 
-static void CG_AddChatMessage(msgItem_t list[CHAT_HEIGHT + 1], const char *str)
-{
-	int	i;
-	for (i = CHAT_HEIGHT - 1; i > 0; --i) {
-		list[i] = list[i - 1];
-	}
-	list[i].time = cg.time;
-	Q_strncpyz(list[i].message, str, sizeof list[i].message);
-}
-
 /**
 The server has issued a map_restart, so the next snapshot
 is completely new and should not be interpolated to.
@@ -464,6 +454,13 @@ static void CG_ServerCommand(void)
 		return;
 	}
 
+	if (!strcmp(cmd, "screenprint")) {
+		Q_strncpyz(text, BG_Argv(1), sizeof text);
+		CG_AddScreenMessage(text, qfalse);
+		CG_Printf("%s\n", text);
+		return;
+	}
+
 	if (!strcmp(cmd, "s")) {
 		CG_ParseScores();
 		return;
@@ -478,19 +475,23 @@ static void CG_ServerCommand(void)
 		if (cg_teamChatsOnly.integer) {
 			return;
 		}
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-		Q_strncpyz(text, BG_Argv(1), MAX_SAY_TEXT);
+		if (cg_teamChatBeep.integer) {
+			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
+		}
+		Q_strncpyz(text, BG_Argv(1), sizeof text);
 		CG_RemoveChatEscapeChar(text);
-		CG_AddChatMessage(cgs.chatMessages, text);
+		CG_AddScreenMessage(text, qfalse);
 		CG_Printf("%s\n", text);
 		return;
 	}
 
 	if (!strcmp(cmd, "tchat")) {
-		trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
-		Q_strncpyz(text, BG_Argv(1), MAX_SAY_TEXT);
+		if (cg_chatBeep.integer) {
+			trap_S_StartLocalSound(cgs.media.talkSound, CHAN_LOCAL_SOUND);
+		}
+		Q_strncpyz(text, BG_Argv(1), sizeof text);
 		CG_RemoveChatEscapeChar(text);
-		CG_AddChatMessage(cgs.teamChatMessages, text);
+		CG_AddScreenMessage(text, qtrue);
 		CG_Printf("%s\n", text);
 		return;
 	}
@@ -524,6 +525,20 @@ static void CG_ServerCommand(void)
 	}
 
 	CG_Printf("Unknown client game command: %s\n", cmd);
+}
+
+void CG_AddScreenMessage(const char *str, qboolean teamChat)
+{
+	int			i;
+	msgItem_t	*list;
+
+	list = (teamChat ? cgs.teamChatMessages : cgs.chatMessages);
+
+	for (i = CHAT_HEIGHT - 1; i > 0; --i) {
+		list[i] = list[i - 1];
+	}
+	list[i].time = cg.time;
+	Q_strncpyz(list[i].message, str, sizeof list[i].message);
 }
 
 /**

@@ -503,7 +503,8 @@ static void CG_PrintTeamChange(clientInfo_t *cl)
 		return;
 	}
 
-	CG_CenterPrint(str);
+	CG_AddScreenMessage(str, qfalse);
+	CG_Printf("%s\n", str);
 }
 
 /**
@@ -635,7 +636,7 @@ void CG_NewClientInfo(int clientNum)
 	// isolate the player's name
 	v = Info_ValueForKey(configstring, "n");
 	if (oldValid && strcmp(v, ci->name)) {
-		CG_Printf("%s" S_COLOR_WHITE " renamed to %s\n", ci->name, v);
+		CG_Printf("%s ^7renamed to %s\n", ci->name, v);
 	}
 	Q_strncpyz(ci->name, v, sizeof ci->name);
 

@@ -139,7 +139,9 @@ vmCvar_t	cg_thirdPersonAngle;
 vmCvar_t	cg_lagometer;
 vmCvar_t	cg_drawAttacker;
 vmCvar_t	cg_chatTime;
+vmCvar_t	cg_chatBeep;
 vmCvar_t	cg_teamChatTime;
+vmCvar_t	cg_teamChatBeep;
 vmCvar_t	cg_deathNoticeTime;
 vmCvar_t	cg_stats;
 vmCvar_t	cg_buildScript;
@@ -278,7 +280,9 @@ static cvarTable_t cvarTable[] = {
 	{ &cg_thirdPersonAngle, "cg_thirdPersonAngle" },
 	{ &cg_thirdPerson, "cg_thirdPerson" },
 	{ &cg_chatTime, "cg_chatTime" },
+	{ &cg_chatBeep, "cg_chatBeep" },
 	{ &cg_teamChatTime, "cg_teamChatTime" },
+	{ &cg_teamChatBeep, "cg_teamChatBeep" },
 	{ &cg_deathNoticeTime, "cg_deathNoticeTime" },
 	{ &cg_predictItems, "cg_predictItems" },
 	{ &cg_drawTeamOverlay, "cg_drawTeamOverlay" },

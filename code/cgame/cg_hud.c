@@ -285,9 +285,12 @@ static void CG_DrawHudPowerupIcon(int hudnumber, powerup_t powerup)
 	CG_DrawHudIcon(hudnumber, cg_items[ITEM_INDEX(item)].icon);
 }
 
-static void CG_DrawHudChat(int hudnumber, msgItem_t list[CHAT_HEIGHT], int duration, int index)
+static void CG_DrawHudChat(int hudnumber, qboolean teamChat, int duration, int index)
 {
-	int	i;
+	int			i;
+	msgItem_t	*list;
+
+	list = (teamChat ? cgs.teamChatMessages : cgs.chatMessages);
 
 	// find the index of the oldest chat message to display
 	for (i = 0; i < CHAT_HEIGHT; ++i) {
@@ -1682,8 +1685,8 @@ void CG_DrawHud()
 	}
 
 	for (i = 0; i < CHAT_HEIGHT; ++i) {
-		CG_DrawHudChat(HUD_CHAT1 + i, cgs.chatMessages, cg_chatTime.integer, i);
-		CG_DrawHudChat(HUD_TEAMCHAT1 + i, cgs.teamChatMessages, cg_teamChatTime.integer, i);
+		CG_DrawHudChat(HUD_CHAT1 + i, qfalse, cg_chatTime.integer, i);
+		CG_DrawHudChat(HUD_TEAMCHAT1 + i, qtrue, cg_teamChatTime.integer, i);
 	}
 
 	for (i = 0; i < DEATHNOTICE_HEIGHT; ++i) {

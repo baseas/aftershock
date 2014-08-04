@@ -598,6 +598,7 @@ void	QDECL	G_Error(const char *fmt, ...) __attribute__((noreturn, format(printf,
 // g_client.c
 //
 char	*ClientConnect(int clientNum, qboolean firstTime, qboolean isBot);
+void	ClientScreenPrint(gentity_t *ent, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 void	ClientPrint(gentity_t *ent, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
 void	ClientUserinfoChanged(int clientNum);
 void	ClientDisconnect(int clientNum);
