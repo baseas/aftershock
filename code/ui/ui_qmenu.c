@@ -124,7 +124,7 @@ static void Text_Draw(menutext_s *t)
 		color = t->color;
 	}
 
-	UI_DrawString(x, y, buff, t->style, color);
+	SCR_DrawString(x, y, buff, SMALLCHAR_SIZE, t->style, color);
 }
 
 static void BText_Init(menutext_s *t)
@@ -168,9 +168,9 @@ static void Button_Draw(menubutton_s *b)
 		color = colorBlack;
 	}
 
-	style = b->style | UI_SMALLFONT;
+	style = b->style | FONT_SMALL;
 	if (Menu_ItemAtCursor(b->generic.parent) == b) {
-		style |= UI_PULSE;
+		style |= FONT_PULSE;
 		shader = uis.buttonHover;
 	} else {
 		shader = uis.button;
@@ -178,10 +178,10 @@ static void Button_Draw(menubutton_s *b)
 
 	UI_DrawHandlePic(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, shader);
 
-	w = UI_ProportionalStringWidth(b->string) * sizeScale;
+	w = SCR_PropStringWidth(b->string) * sizeScale;
 	h = PROP_HEIGHT * sizeScale;
 
-	UI_DrawProportionalString(x + (BUTTON_WIDTH - w) / 2, y + (BUTTON_HEIGHT - h) / 2,
+	SCR_DrawPropString(x + (BUTTON_WIDTH - w) / 2, y + (BUTTON_HEIGHT - h) / 2,
 		b->string, style, color);
 }
 
@@ -199,7 +199,7 @@ static void BText_Draw(menutext_s *t)
 		color = t->color;
 	}
 
-	UI_DrawBannerString(x, y, t->string, t->style, color);
+	SCR_DrawBannerString(x, y, t->string, t->style, color);
 }
 
 static void PText_Init(menutext_s *t)
@@ -207,11 +207,11 @@ static void PText_Init(menutext_s *t)
 	float	x, y, w, h;
 	float	sizeScale;
 
-	sizeScale = UI_ProportionalSizeScale(t->style);
+	sizeScale = (t->style & FONT_SMALL ? PROP_SMALL_SIZE_SCALE : 1.0f);
 
 	x = t->generic.x;
 	y = t->generic.y;
-	w = UI_ProportionalStringWidth(t->string) * sizeScale;
+	w = SCR_PropStringWidth(t->string) * sizeScale;
 	h =	PROP_HEIGHT * sizeScale;
 
 	if (t->generic.flags & QMF_RIGHT_JUSTIFY) {
@@ -244,13 +244,13 @@ static void PText_Draw(menutext_s *t)
 	style = t->style;
 	if (t->generic.flags & QMF_PULSEIFFOCUS) {
 		if (Menu_ItemAtCursor(t->generic.parent) == t) {
-			style |= UI_PULSE;
+			style |= FONT_PULSE;
 		} else {
-			style |= UI_INVERSE;
+			style |= FONT_INVERSE;
 		}
 	}
 
-	UI_DrawProportionalString(x, y, t->string, style, color);
+	SCR_DrawPropString(x, y, t->string, style, color);
 }
 
 void Bitmap_Init(menubitmap_s *b)
@@ -370,9 +370,9 @@ static void Action_Init(menuaction_s *a)
 
 	// left justify text
 	a->generic.left = a->generic.x;
-	a->generic.right = a->generic.x + len*BIGCHAR_WIDTH;
+	a->generic.right = a->generic.x + len*BIGCHAR_SIZE;
 	a->generic.top = a->generic.y;
-	a->generic.bottom = a->generic.y + BIGCHAR_HEIGHT;
+	a->generic.bottom = a->generic.y + BIGCHAR_SIZE;
 }
 
 static void Action_Draw(menuaction_s *a)
@@ -389,24 +389,24 @@ static void Action_Draw(menuaction_s *a)
 		&& (a->generic.parent->cursor == a->generic.menuPosition))
 	{
 		color = text_color_highlight;
-		style = UI_PULSE;
+		style = FONT_PULSE;
 	} else if ((a->generic.flags & QMF_HIGHLIGHT_IF_FOCUS)
 		&& (a->generic.parent->cursor == a->generic.menuPosition))
 	{
 		color = text_color_highlight;
 	} else if (a->generic.flags & QMF_BLINK) {
-		style = UI_BLINK;
+		style = FONT_BLINK;
 		color = text_color_highlight;
 	}
 
 	x = a->generic.x;
 	y = a->generic.y;
 
-	UI_DrawString(x, y, a->generic.name, UI_LEFT|style, color);
+	SCR_DrawString(x, y, a->generic.name, SMALLCHAR_SIZE, style, color);
 
 	if (a->generic.parent->cursor == a->generic.menuPosition) {
 		// draw cursor
-		UI_DrawChar(x - BIGCHAR_WIDTH, y, 13, UI_LEFT|UI_BLINK, color);
+		SCR_DrawString(x - BIGCHAR_SIZE, y, "\15", SMALLCHAR_SIZE, FONT_BLINK, color);
 	}
 }
 
@@ -421,10 +421,10 @@ static void RadioButton_Init(menuradiobutton_s *rb)
 		len = 0;
 	}
 
-	rb->generic.left = rb->generic.x - (len+1)*SMALLCHAR_WIDTH;
-	rb->generic.right = rb->generic.x + 6*SMALLCHAR_WIDTH;
+	rb->generic.left = rb->generic.x - (len+1)*SMALLCHAR_SIZE;
+	rb->generic.right = rb->generic.x + 6*SMALLCHAR_SIZE;
 	rb->generic.top = rb->generic.y;
-	rb->generic.bottom = rb->generic.y + SMALLCHAR_HEIGHT;
+	rb->generic.bottom = rb->generic.y + SMALLCHAR_SIZE;
 }
 
 static sfxHandle_t RadioButton_Key(menuradiobutton_s *rb, int key)
@@ -470,23 +470,23 @@ static void RadioButton_Draw(menuradiobutton_s *rb)
 
 	if (rb->generic.flags & QMF_GRAYED) {
 		color = text_color_disabled;
-		style = UI_LEFT|UI_SMALLFONT;
+		style = 0;
 	} else if (focus) {
 		color = text_color_highlight;
-		style = UI_LEFT|UI_PULSE|UI_SMALLFONT;
+		style = FONT_PULSE;
 	} else {
 		color = text_color_normal;
-		style = UI_LEFT|UI_SMALLFONT;
+		style = 0;
 	}
 
 	if (rb->generic.name) {
-		UI_DrawString(x + SMALLCHAR_WIDTH, y, rb->generic.name, UI_LEFT | UI_SMALLFONT, color);
+		SCR_DrawString(x + SMALLCHAR_SIZE, y, rb->generic.name, SMALLCHAR_SIZE, style, color);
 	}
 
 	if (!rb->curvalue) {
-		UI_DrawHandlePic(x - SMALLCHAR_WIDTH, y, 16, 16, uis.rb_off);
+		UI_DrawHandlePic(x - SMALLCHAR_SIZE, y, 16, 16, uis.rb_off);
 	} else {
-		UI_DrawHandlePic(x - SMALLCHAR_WIDTH, y, 16, 16, uis.rb_on);
+		UI_DrawHandlePic(x - SMALLCHAR_SIZE, y, 16, 16, uis.rb_on);
 	}
 }
 
@@ -501,10 +501,10 @@ static void Slider_Init(menuslider_s *s)
 		len = 0;
 	}
 
-	s->generic.left = s->generic.x - (len+1)*SMALLCHAR_WIDTH;
-	s->generic.right = s->generic.x + (SLIDER_RANGE+2+1)*SMALLCHAR_WIDTH;
+	s->generic.left = s->generic.x - (len+1)*SMALLCHAR_SIZE;
+	s->generic.right = s->generic.x + (SLIDER_RANGE+2+1)*SMALLCHAR_SIZE;
 	s->generic.top = s->generic.y;
-	s->generic.bottom = s->generic.y + SMALLCHAR_HEIGHT;
+	s->generic.bottom = s->generic.y + SMALLCHAR_SIZE;
 }
 
 static sfxHandle_t Slider_Key(menuslider_s *s, int key)
@@ -515,9 +515,9 @@ static sfxHandle_t Slider_Key(menuslider_s *s, int key)
 
 	switch (key) {
 	case K_MOUSE1:
-		x = uis.cursorx - s->generic.x - 2*SMALLCHAR_WIDTH;
+		x = uis.cursorx - s->generic.x - 2*SMALLCHAR_SIZE;
 		oldvalue = s->curvalue;
-		s->curvalue = (x/(float)(SLIDER_RANGE*SMALLCHAR_WIDTH)) * (s->maxvalue-s->minvalue) + s->minvalue;
+		s->curvalue = (x/(float)(SLIDER_RANGE*SMALLCHAR_SIZE)) * (s->maxvalue-s->minvalue) + s->minvalue;
 
 		if (s->curvalue < s->minvalue)
 			s->curvalue = s->minvalue;
@@ -576,22 +576,21 @@ static void Slider_Draw(menuslider_s *s)
 
 	if (s->generic.flags & QMF_GRAYED) {
 		color = text_color_disabled;
-		style = UI_SMALLFONT;
+		style = 0;
 	} else if (focus) {
 		color  = text_color_highlight;
-		style = UI_SMALLFONT | UI_PULSE;
+		style = FONT_PULSE;
 	} else {
 		color = text_color_normal;
-		style = UI_SMALLFONT;
+		style = 0;
 	}
 
 	// draw label
-	UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, UI_RIGHT|style, color);
+	SCR_DrawString(x - SMALLCHAR_SIZE, y, s->generic.name, SMALLCHAR_SIZE, style | FONT_RIGHT, color);
 
 	// draw slider
 	trap_R_SetColor(color);
-	UI_DrawHandlePic(x + SMALLCHAR_WIDTH, y, 96, 16, sliderBar);
-	trap_R_SetColor(NULL);
+	UI_DrawHandlePic(x + SMALLCHAR_SIZE, y, 96, 16, sliderBar);
 
 	// clamp thumb
 	if (s->maxvalue > s->minvalue)	{
@@ -607,13 +606,13 @@ static void Slider_Draw(menuslider_s *s)
 	}
 
 	// draw thumb
-	if (style & UI_PULSE) {
+	if (style & FONT_PULSE) {
 		button = sliderButton_1;
 	} else {
 		button = sliderButton_0;
 	}
 
-	UI_DrawHandlePic((int)(x + 2*SMALLCHAR_WIDTH + (SLIDER_RANGE-1)*SMALLCHAR_WIDTH* s->range) - 2, y - 2, 12, 20, button);
+	UI_DrawHandlePic((int)(x + 2*SMALLCHAR_SIZE + (SLIDER_RANGE-1)*SMALLCHAR_SIZE* s->range) - 2, y - 2, 12, 20, button);
 }
 
 static void SpinControl_Init(menulist_s *s)
@@ -623,12 +622,12 @@ static void SpinControl_Init(menulist_s *s)
 	const char* str;
 
 	if (s->generic.name) {
-		len = strlen(s->generic.name) * SMALLCHAR_WIDTH;
+		len = strlen(s->generic.name) * SMALLCHAR_SIZE;
 	} else {
 		len = 0;
 	}
 
-	s->generic.left	= s->generic.x - SMALLCHAR_WIDTH - len;
+	s->generic.left	= s->generic.x - SMALLCHAR_SIZE - len;
 
 	len = s->numitems = 0;
 	while ((str = s->itemnames[s->numitems]) != 0) {
@@ -641,8 +640,8 @@ static void SpinControl_Init(menulist_s *s)
 	}
 
 	s->generic.top = s->generic.y;
-	s->generic.right = s->generic.x + (len+1)*SMALLCHAR_WIDTH;
-	s->generic.bottom = s->generic.y + SMALLCHAR_HEIGHT;
+	s->generic.right = s->generic.x + (len+1)*SMALLCHAR_SIZE;
+	s->generic.bottom = s->generic.y + SMALLCHAR_SIZE;
 }
 
 static sfxHandle_t SpinControl_Key(menulist_s *s, int key)
@@ -679,35 +678,34 @@ static void SpinControl_Draw(menulist_s *s)
 {
 	float	*color;
 	float	x, y;
-	int		style;
+	int		style = 0;
 	qboolean focus;
 
 	x = s->generic.x;
 	y =	s->generic.y;
 
-	style = UI_SMALLFONT;
 	focus = (s->generic.parent->cursor == s->generic.menuPosition);
 
 	if (s->generic.flags & QMF_GRAYED) {
 		color = text_color_disabled;
 	} else if (focus) {
 		color = text_color_highlight;
-		style |= UI_PULSE;
+		style |= FONT_PULSE;
 	} else if (s->generic.flags & QMF_BLINK) {
 		color = text_color_highlight;
-		style |= UI_BLINK;
+		style |= FONT_BLINK;
 	} else {
 		color = text_color_normal;
 	}
 
 	if (focus) {
 		// draw cursor
-		UI_FillRect(s->generic.left, s->generic.top, s->generic.right-s->generic.left+1, s->generic.bottom-s->generic.top+1, listbar_color);
-		UI_DrawChar(x, y, 13, UI_CENTER|UI_BLINK|UI_SMALLFONT, color);
+		SCR_FillRect(s->generic.left, s->generic.top, s->generic.right-s->generic.left+1, s->generic.bottom-s->generic.top+1, listbar_color);
+		SCR_DrawString(x, y, "\15", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, color);
 	}
 
-	UI_DrawString(x - SMALLCHAR_WIDTH, y, s->generic.name, style|UI_RIGHT, color);
-	UI_DrawString(x + SMALLCHAR_WIDTH, y, s->itemnames[s->curvalue], style|UI_LEFT, color);
+	SCR_DrawString(x - SMALLCHAR_SIZE, y, s->generic.name, SMALLCHAR_SIZE, style | FONT_RIGHT, color);
+	SCR_DrawString(x + SMALLCHAR_SIZE, y, s->itemnames[s->curvalue], SMALLCHAR_SIZE, style, color);
 }
 
 static void ScrollList_Init(menulist_s *l)
@@ -725,12 +723,12 @@ static void ScrollList_Init(menulist_s *l)
 		l->seperation = 3;
 	}
 
-	w = ((l->width + l->seperation) * l->columns - l->seperation) * SMALLCHAR_WIDTH;
+	w = ((l->width + l->seperation) * l->columns - l->seperation) * SMALLCHAR_SIZE;
 
 	l->generic.left = l->generic.x;
 	l->generic.top = l->generic.y;
 	l->generic.right = l->generic.x + w;
-	l->generic.bottom = l->generic.y + l->height * SMALLCHAR_HEIGHT;
+	l->generic.bottom = l->generic.y + l->height * SMALLCHAR_SIZE;
 
 	if (l->generic.flags & QMF_CENTER_JUSTIFY) {
 		l->generic.left -= w / 2;
@@ -757,14 +755,14 @@ sfxHandle_t ScrollList_Key(menulist_s *l, int key)
 			// check scroll region
 			x = l->generic.x;
 			y = l->generic.y;
-			w = ((l->width + l->seperation) * l->columns - l->seperation) * SMALLCHAR_WIDTH;
+			w = ((l->width + l->seperation) * l->columns - l->seperation) * SMALLCHAR_SIZE;
 			if (l->generic.flags & QMF_CENTER_JUSTIFY) {
 				x -= w / 2;
 			}
-			if (UI_CursorInRect(x, y, w, l->height*SMALLCHAR_HEIGHT)) {
-				cursorx = (uis.cursorx - x)/SMALLCHAR_WIDTH;
+			if (UI_CursorInRect(x, y, w, l->height*SMALLCHAR_SIZE)) {
+				cursorx = (uis.cursorx - x)/SMALLCHAR_SIZE;
 				column = cursorx / (l->width + l->seperation);
-				cursory = (uis.cursory - y)/SMALLCHAR_HEIGHT;
+				cursory = (uis.cursory - y)/SMALLCHAR_SIZE;
 				index = column * l->height + cursory;
 				if (l->top + index < l->numitems) {
 					l->oldvalue = l->curvalue;
@@ -1029,31 +1027,31 @@ void ScrollList_Draw(menulist_s *l)
 			if (i == l->curvalue) {
 				u = x - 2;
 				if (l->generic.flags & QMF_CENTER_JUSTIFY) {
-					u -= (l->width * SMALLCHAR_WIDTH) / 2 + 1;
+					u -= (l->width * SMALLCHAR_SIZE) / 2 + 1;
 				}
 
-				UI_FillRect(u, y, l->width*SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT+2, listbar_color);
+				SCR_FillRect(u, y, l->width*SMALLCHAR_SIZE, SMALLCHAR_SIZE+2, listbar_color);
 				color = text_color_highlight;
 
 				if (hasfocus) {
-					style = UI_PULSE|UI_LEFT|UI_SMALLFONT;
+					style = FONT_PULSE;
 				} else {
-					style = UI_LEFT|UI_SMALLFONT;
+					style = 0;
 				}
 			} else {
 				color = text_color_normal;
-				style = UI_LEFT|UI_SMALLFONT;
+				style = 0;
 			}
 
 			if (l->generic.flags & QMF_CENTER_JUSTIFY) {
-				style |= UI_CENTER;
+				style |= FONT_CENTER;
 			}
 
-			UI_DrawString(x, y, l->itemnames[i], style, color);
+			SCR_DrawString(x, y, l->itemnames[i], SMALLCHAR_SIZE, style, color);
 
-			y += SMALLCHAR_HEIGHT;
+			y += SMALLCHAR_SIZE;
 		}
-		x += (l->width + l->seperation) * SMALLCHAR_WIDTH;
+		x += (l->width + l->seperation) * SMALLCHAR_SIZE;
 	}
 }
 
@@ -1301,9 +1299,9 @@ void Menu_Draw(menuframework_s *menu)
 				h =	itemptr->bottom - itemptr->top + 1;
 
 				if (itemptr->flags & QMF_HASMOUSEFOCUS) {
-					UI_DrawRect(x, y, w, h, colorYellow);
+					SCR_DrawRect(x, y, w, h, 1.0f, colorYellow);
 				} else {
-					UI_DrawRect(x, y, w, h, colorWhite);
+					SCR_DrawRect(x, y, w, h, 1.0f, colorWhite);
 				}
 			}
 		}

@@ -502,14 +502,14 @@ static void Controls_Update(void)
 	}
 
 	// position controls
-	y = (SCREEN_HEIGHT - j * SMALLCHAR_HEIGHT) / 2;
-	for (j = 0; (control = controls[j]); j++, y += SMALLCHAR_HEIGHT) {
+	y = (SCREEN_HEIGHT - j * SMALLCHAR_SIZE) / 2;
+	for (j = 0; (control = controls[j]); j++, y += SMALLCHAR_SIZE) {
 		control->x      = 320;
 		control->y      = y;
-		control->left   = 320 - 19*SMALLCHAR_WIDTH;
-		control->right  = 320 + 21*SMALLCHAR_WIDTH;
+		control->left   = 320 - 19*SMALLCHAR_SIZE;
+		control->right  = 320 + 21*SMALLCHAR_SIZE;
 		control->top    = y;
-		control->bottom = y + SMALLCHAR_HEIGHT;
+		control->bottom = y + SMALLCHAR_SIZE;
 	}
 
 	if (s_controls.waitingforkey) {
@@ -590,32 +590,37 @@ static void Controls_DrawKeyBinding(void *self)
 	}
 
 	if (c) {
-		UI_FillRect(a->generic.left, a->generic.top, a->generic.right-a->generic.left+1, a->generic.bottom-a->generic.top+1, listbar_color);
+		SCR_FillRect(a->generic.left, a->generic.top, a->generic.right-a->generic.left+1, a->generic.bottom-a->generic.top+1, listbar_color);
 
-		UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT|UI_SMALLFONT|UI_PULSE, text_color_highlight);
+		SCR_DrawString(x + SMALLCHAR_SIZE, y, name, SMALLCHAR_SIZE, FONT_PULSE, text_color_highlight);
 
 		if (s_controls.waitingforkey) {
-			UI_DrawChar(x, y, '=', UI_CENTER|UI_BLINK|UI_SMALLFONT, text_color_highlight);
-			UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80, "Waiting for new key ... ESCAPE to cancel", UI_SMALLFONT|UI_CENTER|UI_PULSE, colorWhite);
+			SCR_DrawString(x, y, "=", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, text_color_highlight);
+			SCR_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80,
+				"Waiting for new key ... ESCAPE to cancel", SMALLCHAR_SIZE, FONT_CENTER | FONT_PULSE, colorWhite);
 		} else {
-			UI_DrawChar(x, y, 13, UI_CENTER|UI_BLINK|UI_SMALLFONT, text_color_highlight);
-			UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78, "Press ENTER or CLICK to change", UI_SMALLFONT|UI_CENTER, colorWhite);
-			UI_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82, "Press BACKSPACE to clear", UI_SMALLFONT|UI_CENTER, colorWhite);
+			SCR_DrawString(x, y, "\15", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, text_color_highlight);
+			SCR_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78,
+				"Press ENTER or CLICK to change", SMALLCHAR_SIZE, FONT_CENTER, colorWhite);
+			SCR_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82,
+				"Press BACKSPACE to clear", SMALLCHAR_SIZE, FONT_CENTER, colorWhite);
 		}
 	} else {
 		if (a->generic.flags & QMF_GRAYED) {
-			UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT|UI_SMALLFONT, text_color_disabled);
+			SCR_DrawString(x - SMALLCHAR_SIZE, y, g_bindings[a->generic.id].label,
+				SMALLCHAR_SIZE, FONT_RIGHT, text_color_disabled);
 		} else {
-			UI_DrawString(x - SMALLCHAR_WIDTH, y, g_bindings[a->generic.id].label, UI_RIGHT|UI_SMALLFONT, controls_binding_color);
-			UI_DrawString(x + SMALLCHAR_WIDTH, y, name, UI_LEFT|UI_SMALLFONT, controls_binding_color);
+			SCR_DrawString(x - SMALLCHAR_SIZE, y, g_bindings[a->generic.id].label,
+				SMALLCHAR_SIZE, FONT_RIGHT, controls_binding_color);
+			SCR_DrawString(x + SMALLCHAR_SIZE, y, name, SMALLCHAR_SIZE, 0, controls_binding_color);
 		}
 	}
 }
 
 static void Controls_StatusBar(void *self)
 {
-	UI_DrawProportionalString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80,
-		"Use Arrow Keys or CLICK to change", UI_SMALLFONT|UI_CENTER, colorWhite);
+	SCR_DrawPropString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80,
+		"Use Arrow Keys or CLICK to change", FONT_SMALL | FONT_CENTER, colorWhite);
 }
 
 static void Controls_DrawPlayer(void *self)
@@ -821,8 +826,10 @@ static void Controls_ResetDefaults_Action(qboolean result)
 
 static void Controls_ResetDefaults_Draw(void)
 {
-	UI_DrawProportionalString(SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset all", UI_CENTER|UI_SMALLFONT, color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "controls to their default values.", UI_CENTER|UI_SMALLFONT, color_yellow);
+	SCR_DrawPropString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset all",
+		FONT_CENTER | FONT_SMALL, color_yellow);
+	SCR_DrawPropString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "controls to their default values.",
+		FONT_CENTER | FONT_SMALL, color_yellow);
 }
 
 static void Controls_MenuEvent(void* ptr, int event)
@@ -939,7 +946,7 @@ static void Controls_MenuInit(void)
 	s_controls.banner.generic.y		= 16;
 	s_controls.banner.string		= "CONTROLS";
 	s_controls.banner.color			= color_white;
-	s_controls.banner.style			= UI_CENTER;
+	s_controls.banner.style			= FONT_CENTER;
 
 	s_controls.looking.generic.type		= MTYPE_PTEXT;
 	s_controls.looking.generic.flags	= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -948,7 +955,7 @@ static void Controls_MenuInit(void)
 	s_controls.looking.generic.x		= 152;
 	s_controls.looking.generic.y		= 240 - 2 * PROP_HEIGHT;
 	s_controls.looking.string			= "LOOK";
-	s_controls.looking.style			= UI_RIGHT;
+	s_controls.looking.style			= FONT_RIGHT;
 	s_controls.looking.color			= color_red;
 
 	s_controls.movement.generic.type		= MTYPE_PTEXT;
@@ -958,7 +965,7 @@ static void Controls_MenuInit(void)
 	s_controls.movement.generic.x			= 152;
 	s_controls.movement.generic.y			= 240 - PROP_HEIGHT;
 	s_controls.movement.string				= "MOVE";
-	s_controls.movement.style				= UI_RIGHT;
+	s_controls.movement.style				= FONT_RIGHT;
 	s_controls.movement.color				= color_red;
 
 	s_controls.weapons.generic.type		= MTYPE_PTEXT;
@@ -968,7 +975,7 @@ static void Controls_MenuInit(void)
 	s_controls.weapons.generic.x		= 152;
 	s_controls.weapons.generic.y		= 240;
 	s_controls.weapons.string			= "SHOOT";
-	s_controls.weapons.style			= UI_RIGHT;
+	s_controls.weapons.style			= FONT_RIGHT;
 	s_controls.weapons.color			= color_red;
 
 	s_controls.misc.generic.type		= MTYPE_PTEXT;
@@ -978,7 +985,7 @@ static void Controls_MenuInit(void)
 	s_controls.misc.generic.x			= 152;
 	s_controls.misc.generic.y			= 240 + PROP_HEIGHT;
 	s_controls.misc.string				= "MISC";
-	s_controls.misc.style				= UI_RIGHT;
+	s_controls.misc.style				= FONT_RIGHT;
 	s_controls.misc.color				= color_red;
 
 	s_controls.back.generic.type		= MTYPE_BITMAP;
@@ -1219,7 +1226,7 @@ static void Controls_MenuInit(void)
 	s_controls.name.generic.x		= 320;
 	s_controls.name.generic.y		= 440;
 	s_controls.name.string			= playername;
-	s_controls.name.style			= UI_CENTER;
+	s_controls.name.style			= FONT_CENTER;
 	s_controls.name.color			= text_color_normal;
 
 	Menu_AddItem(&s_controls.menu, &s_controls.banner);

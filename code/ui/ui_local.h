@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../ui/ui_public.h"
 #include "../client/keycodes.h"
 #include "../game/bg_public.h"
+#include "../ui/scr_public.h"
 
 #define MENU_XPOS				90
 
@@ -533,19 +534,10 @@ extern qboolean		UI_ConsoleCommand(int realTime);
 extern float		UI_ClampCvar(float min, float max, float value);
 extern void			UI_DrawNamedPic(float x, float y, float width, float height, const char *picname);
 extern void			UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader); 
-extern void			UI_FillRect(float x, float y, float width, float height, const float *color);
-extern void			UI_DrawRect(float x, float y, float width, float height, const float *color);
 extern void			UI_UpdateScreen(void);
 extern void			UI_LerpColor(vec4_t a, vec4_t b, vec4_t c, float t);
-extern void			UI_DrawBannerString(int x, int y, const char* str, int style, vec4_t color);
-extern float		UI_ProportionalSizeScale(int style);
-extern void			UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t color);
 extern void			UI_DrawProportionalString_AutoWrapped(int x, int ystart, int xmax, int ystep, const char* str, int style, vec4_t color);
-extern int			UI_ProportionalStringWidth(const char* str);
-extern void			UI_DrawString(int x, int y, const char* str, int style, vec4_t color);
-extern void			UI_DrawChar(int x, int y, int ch, int style, vec4_t color);
 extern qboolean 	UI_CursorInRect (int x, int y, int width, int height);
-extern void			UI_AdjustFrom640(float *x, float *y, float *w, float *h);
 extern void			UI_DrawTextBox (int x, int y, int width, int lines);
 extern qboolean		UI_IsFullscreen(void);
 extern void			UI_SetActiveMenu(uiMenuCommand_t menu);

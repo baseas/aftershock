@@ -195,7 +195,7 @@ static void UI_AddBotsMenu_GetSortedBotNums(void)
 
 static void UI_AddBotsMenu_Draw(void)
 {
-	UI_DrawBannerString(320, 16, "ADD BOTS", UI_CENTER, color_white);
+	SCR_DrawBannerString(320, 16, "ADD BOTS", FONT_CENTER, color_white);
 	UI_DrawNamedPic(320-233, 240-166, 466, 332, ART_BACKGROUND);
 
 	// standard menu drawing
@@ -261,7 +261,7 @@ static void UI_AddBotsMenu_Init(void)
 		addBotsMenuInfo.bots[n].generic.callback	= UI_AddBotsMenu_BotEvent;
 		addBotsMenuInfo.bots[n].string				= addBotsMenuInfo.botnames[n];
 		addBotsMenuInfo.bots[n].color				= color_orange;
-		addBotsMenuInfo.bots[n].style				= UI_LEFT|UI_SMALLFONT;
+		addBotsMenuInfo.bots[n].style				= FONT_SMALL;
 	}
 
 	y += 12;
@@ -274,7 +274,7 @@ static void UI_AddBotsMenu_Init(void)
 	addBotsMenuInfo.skill.itemnames			= skillNames;
 	addBotsMenuInfo.skill.curvalue			= Com_Clamp(0, 4, (int)trap_Cvar_VariableValue("g_botSkill") - 1);
 
-	y += SMALLCHAR_HEIGHT;
+	y += SMALLCHAR_SIZE;
 	addBotsMenuInfo.team.generic.type		= MTYPE_SPINCONTROL;
 	addBotsMenuInfo.team.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	addBotsMenuInfo.team.generic.x			= 320;

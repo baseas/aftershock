@@ -685,13 +685,13 @@ static void CG_AddSpawnpoints(void)
 
 		switch (cg.spawnTeam[i]) {
 		case TEAM_FREE:
-			CG_SetRGBA(re.shaderRGBA, colorGreen);
+			SCR_SetRGBA(re.shaderRGBA, colorGreen);
 			break;
 		case TEAM_RED:
-			CG_SetRGBA(re.shaderRGBA, colorRed);
+			SCR_SetRGBA(re.shaderRGBA, colorRed);
 			break;
 		case TEAM_BLUE:
-			CG_SetRGBA(re.shaderRGBA, colorBlue);
+			SCR_SetRGBA(re.shaderRGBA, colorBlue);
 			break;
 		default:
 			continue;

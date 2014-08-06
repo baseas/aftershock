@@ -105,7 +105,7 @@ static void LoadConfig_MenuInit(void)
 	s_configs.banner.generic.y		= 16;
 	s_configs.banner.string			= "LOAD CONFIG";
 	s_configs.banner.color			= color_white;
-	s_configs.banner.style			= UI_CENTER;
+	s_configs.banner.style			= FONT_CENTER;
 
 	s_configs.arrows.generic.type	= MTYPE_BITMAP;
 	s_configs.arrows.generic.name	= ART_ARROWS;

@@ -105,7 +105,7 @@ static void ServerInfo_MenuDraw(void)
 	char			value[MAX_INFO_VALUE];
 	int				i = 0, y;
 
-	y = SCREEN_HEIGHT/2 - s_serverinfo.numlines*(SMALLCHAR_HEIGHT)/2 - 20;
+	y = SCREEN_HEIGHT / 2 - s_serverinfo.numlines * SMALLCHAR_SIZE / 2 - 20;
 	s = s_serverinfo.info;
 	while (s && i < s_serverinfo.numlines) {
 		Info_NextPair(&s, key, value);
@@ -113,12 +113,12 @@ static void ServerInfo_MenuDraw(void)
 			break;
 		}
 
-		Q_strcat(key, MAX_INFO_KEY, ":"); 
+		Q_strcat(key, MAX_INFO_KEY, ":");
 
-		UI_DrawString(SCREEN_WIDTH*0.50 - 8,y,key,UI_RIGHT|UI_SMALLFONT,color_red);
-		UI_DrawString(SCREEN_WIDTH*0.50 + 8,y,value,UI_LEFT|UI_SMALLFONT,text_color_normal);
+		SCR_DrawString(SCREEN_WIDTH / 2 - 8, y, key, SMALLCHAR_SIZE, FONT_RIGHT, color_red);
+		SCR_DrawString(SCREEN_WIDTH / 2 + 8, y, value, SMALLCHAR_SIZE, 0, text_color_normal);
 
-		y += SMALLCHAR_HEIGHT;
+		y += SMALLCHAR_SIZE;
 		i++;
 	}
 
@@ -164,7 +164,7 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.banner.generic.y		= 16;
 	s_serverinfo.banner.string			= "SERVER INFO";
 	s_serverinfo.banner.color			= color_white;
-	s_serverinfo.banner.style			= UI_CENTER;
+	s_serverinfo.banner.style			= FONT_CENTER;
 
 	s_serverinfo.add.generic.type		= MTYPE_PTEXT;
 	s_serverinfo.add.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -173,7 +173,7 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.add.generic.x			= 320;
 	s_serverinfo.add.generic.y			= 371;
 	s_serverinfo.add.string				= "ADD TO FAVORITES";
-	s_serverinfo.add.style				= UI_CENTER|UI_SMALLFONT;
+	s_serverinfo.add.style				= FONT_CENTER | FONT_SMALL;
 	s_serverinfo.add.color				= color_red;
 	if (trap_Cvar_VariableValue("sv_running")) {
 		s_serverinfo.add.generic.flags |= QMF_GRAYED;

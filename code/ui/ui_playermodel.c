@@ -322,7 +322,7 @@ static void PlayerModel_DrawPlayer(void *self)
 	b = (menubitmap_s*) self;
 
 	if (trap_MemoryRemaining() <= LOW_MEMORY) {
-		UI_DrawProportionalString(b->generic.x, b->generic.y + b->height / 2, "LOW MEMORY", UI_LEFT, color_red);
+		SCR_DrawPropString(b->generic.x, b->generic.y + b->height / 2, "LOW MEMORY", 0, color_red);
 		return;
 	}
 
@@ -476,7 +476,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.banner.generic.y		= 16;
 	s_playermodel.banner.string			= "PLAYER MODEL";
 	s_playermodel.banner.color			= color_white;
-	s_playermodel.banner.style			= UI_CENTER;
+	s_playermodel.banner.style			= FONT_CENTER;
 
 	s_playermodel.ports.generic.type	= MTYPE_BITMAP;
 	s_playermodel.ports.generic.name	= MODEL_PORTS;
@@ -524,7 +524,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.playername.generic.x		= 320;
 	s_playermodel.playername.generic.y		= 440;
 	s_playermodel.playername.string			= playername;
-	s_playermodel.playername.style			= UI_CENTER;
+	s_playermodel.playername.style			= FONT_CENTER;
 	s_playermodel.playername.color			= text_color_normal;
 
 	s_playermodel.modelname.generic.type	= MTYPE_PTEXT;
@@ -532,7 +532,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.modelname.generic.x		= 497;
 	s_playermodel.modelname.generic.y		= 54;
 	s_playermodel.modelname.string			= modelname;
-	s_playermodel.modelname.style			= UI_CENTER;
+	s_playermodel.modelname.style			= FONT_CENTER;
 	s_playermodel.modelname.color			= text_color_normal;
 
 	s_playermodel.skinname.generic.type		= MTYPE_PTEXT;
@@ -540,7 +540,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.skinname.generic.x		= 497;
 	s_playermodel.skinname.generic.y		= 394;
 	s_playermodel.skinname.string			= skinname;
-	s_playermodel.skinname.style			= UI_CENTER;
+	s_playermodel.skinname.style			= FONT_CENTER;
 	s_playermodel.skinname.color			= text_color_normal;
 
 	s_playermodel.player.generic.type		= MTYPE_BITMAP;

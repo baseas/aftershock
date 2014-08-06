@@ -254,7 +254,7 @@ void Con_CheckResize (void)
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
 	short	tbuf[CON_TEXTSIZE];
 
-	width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
+	width = (SCREEN_WIDTH / SMALLCHAR_SIZE) - 2;
 
 	if (width == con.linewidth)
 		return;
@@ -478,14 +478,14 @@ void Con_DrawInput (void) {
 		return;
 	}
 
-	y = con.vislines - ( SMALLCHAR_HEIGHT * 2 );
+	y = con.vislines - ( SMALLCHAR_SIZE * 2 );
 
 	re.SetColor( con.color );
 
-	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_WIDTH, y, ']' );
+	SCR_DrawSmallChar( con.xadjust + 1 * SMALLCHAR_SIZE, y, ']' );
 
-	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_WIDTH, y,
-		SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue );
+	Field_Draw( &g_consoleField, con.xadjust + 2 * SMALLCHAR_SIZE, y,
+		SCREEN_WIDTH - 3 * SMALLCHAR_SIZE, qtrue, qtrue );
 }
 
 
@@ -510,15 +510,15 @@ void Con_DrawChatInput (void)
 	}
 
 	if (chat_team) {
-		SCR_DrawSmallStringExt(SMALLCHAR_WIDTH, 0, "Team Say:", colorWhite, qfalse, qtrue);
+		SCR_DrawSmallStringExt(SMALLCHAR_SIZE, 0, "Team Say:", colorWhite, qfalse, qtrue);
 		skip = 11;
 	} else {
-		SCR_DrawSmallStringExt(SMALLCHAR_WIDTH, 0, "Say:", colorWhite, qfalse, qtrue);
+		SCR_DrawSmallStringExt(SMALLCHAR_SIZE, 0, "Say:", colorWhite, qfalse, qtrue);
 		skip = 6;
 	}
 
-	Field_Draw( &chatField, skip * SMALLCHAR_WIDTH, 0,
-		SCREEN_WIDTH - ( skip + 1 ) * SMALLCHAR_WIDTH, qtrue, qtrue );
+	Field_Draw( &chatField, skip * SMALLCHAR_SIZE, 0,
+		SCREEN_WIDTH - ( skip + 1 ) * SMALLCHAR_SIZE, qtrue, qtrue );
 }
 
 /*
@@ -572,16 +572,16 @@ void Con_DrawSolidConsole( float frac ) {
 	i = strlen( Q3_VERSION );
 
 	for (x=0 ; x<i ; x++) {
-		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,
-			lines - SMALLCHAR_HEIGHT, Q3_VERSION[x] );
+		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_SIZE,
+			lines - SMALLCHAR_SIZE, Q3_VERSION[x] );
 	}
 
 
 	// draw the text
 	con.vislines = lines;
-	rows = (lines-SMALLCHAR_WIDTH)/SMALLCHAR_WIDTH;		// rows of text to draw
+	rows = (lines-SMALLCHAR_SIZE)/SMALLCHAR_SIZE;		// rows of text to draw
 
-	y = lines - (SMALLCHAR_HEIGHT*3);
+	y = lines - (SMALLCHAR_SIZE*3);
 
 	// draw from the bottom up
 	if (con.display != con.current)
@@ -589,8 +589,8 @@ void Con_DrawSolidConsole( float frac ) {
 	// draw arrows to show the buffer is backscrolled
 		re.SetColor( g_color_table[ColorIndex(COLOR_RED)] );
 		for (x=0 ; x<con.linewidth ; x+=4)
-			SCR_DrawSmallChar( con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, '^' );
-		y -= SMALLCHAR_HEIGHT;
+			SCR_DrawSmallChar( con.xadjust + (x+1)*SMALLCHAR_SIZE, y, '^' );
+		y -= SMALLCHAR_SIZE;
 		rows--;
 	}
 	
@@ -603,7 +603,7 @@ void Con_DrawSolidConsole( float frac ) {
 	currentColor = 7;
 	re.SetColor( g_color_table[currentColor] );
 
-	for (i=0 ; i<rows ; i++, y -= SMALLCHAR_HEIGHT, row--)
+	for (i=0 ; i<rows ; i++, y -= SMALLCHAR_SIZE, row--)
 	{
 		if (row < 0)
 			break;
@@ -623,7 +623,7 @@ void Con_DrawSolidConsole( float frac ) {
 				currentColor = (text[x]>>8)&7;
 				re.SetColor( g_color_table[currentColor] );
 			}
-			SCR_DrawSmallChar(  con.xadjust + (x+1)*SMALLCHAR_WIDTH, y, text[x] & 0xff );
+			SCR_DrawSmallChar(  con.xadjust + (x+1)*SMALLCHAR_SIZE, y, text[x] & 0xff );
 		}
 	}
 

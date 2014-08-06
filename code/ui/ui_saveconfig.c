@@ -83,15 +83,15 @@ static void UI_SaveConfigMenu_SavenameDraw(void *self)
 	f = (menufield_s *) self;
 
 	if (f == Menu_ItemAtCursor(&saveConfig.menu)) {
-		style = UI_LEFT|UI_PULSE|UI_SMALLFONT;
+		style = FONT_PULSE | FONT_SMALL;
 		color = text_color_highlight;
 	} else {
-		style = UI_LEFT|UI_SMALLFONT;
+		style = FONT_SMALL;
 		color = colorRed;
 	}
 
-	UI_DrawProportionalString(320, 192, "Enter filename:", UI_CENTER|UI_SMALLFONT, color_orange);
-	UI_FillRect(f->generic.x, f->generic.y, f->field.widthInChars*SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, colorBlack);
+	SCR_DrawPropString(320, 192, "Enter filename:", FONT_SMALL, color_orange);
+	SCR_FillRect(f->generic.x, f->generic.y, f->field.widthInChars * SMALLCHAR_SIZE, SMALLCHAR_SIZE, colorBlack);
 	MField_Draw(&f->field, f->generic.x, f->generic.y, style, color);
 }
 
@@ -108,7 +108,7 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.banner.generic.y			= 16;
 	saveConfig.banner.string			= "SAVE CONFIG";
 	saveConfig.banner.color				= color_white;
-	saveConfig.banner.style				= UI_CENTER;
+	saveConfig.banner.style				= FONT_CENTER;
 
 	saveConfig.background.generic.type		= MTYPE_BITMAP;
 	saveConfig.background.generic.name		= ART_BACKGROUND;
@@ -127,8 +127,8 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.savename.generic.y			= 155+72;
 	saveConfig.savename.generic.left		= 240;
 	saveConfig.savename.generic.top			= 155+72;
-	saveConfig.savename.generic.right		= 233 + 20*SMALLCHAR_WIDTH;
-	saveConfig.savename.generic.bottom		= 155+72 + SMALLCHAR_HEIGHT+2;
+	saveConfig.savename.generic.right		= 233 + 20 * SMALLCHAR_SIZE;
+	saveConfig.savename.generic.bottom		= 155 + 72 + SMALLCHAR_SIZE + 2;
 
 	saveConfig.back.generic.type		= MTYPE_BITMAP;
 	saveConfig.back.generic.name		= ART_BACK0;

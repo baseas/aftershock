@@ -1092,7 +1092,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.banner.generic.x		= 320;
 	g_arenaservers.banner.generic.y		= 16;
 	g_arenaservers.banner.string		= "ARENA SERVERS";
-	g_arenaservers.banner.style			= UI_CENTER | UI_DROPSHADOW;
+	g_arenaservers.banner.style			= FONT_CENTER | FONT_SHADOW;
 	g_arenaservers.banner.color			= color_red;
 
 	y = 80;
@@ -1124,9 +1124,9 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.showempty.generic.x			= 400;
 	g_arenaservers.showempty.generic.y			= y;
 
-	y += SMALLCHAR_HEIGHT;
+	y += SMALLCHAR_SIZE;
 
-	style = UI_DROPSHADOW | UI_SMALLFONT | UI_RIGHT;
+	style = FONT_SHADOW | FONT_SMALL | FONT_RIGHT;
 
 	g_arenaservers.labelHost.generic.type		= MTYPE_PTEXT;
 	g_arenaservers.labelHost.generic.flags		= QMF_PULSEIFFOCUS;
@@ -1142,7 +1142,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelMap.generic.flags		= QMF_PULSEIFFOCUS;
 	g_arenaservers.labelMap.generic.callback	= ArenaServers_Event;
 	g_arenaservers.labelMap.generic.id			= ID_LABEL_MAP;
-	g_arenaservers.labelMap.generic.x			= x + 20 * SMALLCHAR_WIDTH;
+	g_arenaservers.labelMap.generic.x			= x + 20 * SMALLCHAR_SIZE;
 	g_arenaservers.labelMap.generic.y			= y;
 	g_arenaservers.labelMap.string				= "Map";
 	g_arenaservers.labelMap.color				= color_red;
@@ -1152,7 +1152,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelPlayers.generic.flags		= QMF_PULSEIFFOCUS;
 	g_arenaservers.labelPlayers.generic.callback	= ArenaServers_Event;
 	g_arenaservers.labelPlayers.generic.id			= ID_LABEL_PLAYERS;
-	g_arenaservers.labelPlayers.generic.x			= x + 40 * SMALLCHAR_WIDTH;
+	g_arenaservers.labelPlayers.generic.x			= x + 40 * SMALLCHAR_SIZE;
 	g_arenaservers.labelPlayers.generic.y			= y;
 	g_arenaservers.labelPlayers.string				= "Players";
 	g_arenaservers.labelPlayers.color				= color_red;
@@ -1162,7 +1162,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelType.generic.flags		= QMF_PULSEIFFOCUS;
 	g_arenaservers.labelType.generic.callback	= ArenaServers_Event;
 	g_arenaservers.labelType.generic.id			= ID_LABEL_TYPE;
-	g_arenaservers.labelType.generic.x			= x + 50 * SMALLCHAR_WIDTH;
+	g_arenaservers.labelType.generic.x			= x + 50 * SMALLCHAR_SIZE;
 	g_arenaservers.labelType.generic.y			= y;
 	g_arenaservers.labelType.string				= "Type";
 	g_arenaservers.labelType.color				= color_red;
@@ -1172,13 +1172,13 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelPing.generic.flags		= QMF_PULSEIFFOCUS;
 	g_arenaservers.labelPing.generic.callback	= ArenaServers_Event;
 	g_arenaservers.labelPing.generic.id			= ID_LABEL_PING;
-	g_arenaservers.labelPing.generic.x			= x + 60 * SMALLCHAR_WIDTH;
+	g_arenaservers.labelPing.generic.x			= x + 60 * SMALLCHAR_SIZE;
 	g_arenaservers.labelPing.generic.y			= y;
 	g_arenaservers.labelPing.string				= "Ping";
 	g_arenaservers.labelPing.color				= color_red;
 	g_arenaservers.labelPing.style				= style;
 
-	y += 3 * SMALLCHAR_HEIGHT;
+	y += 3 * SMALLCHAR_SIZE;
 	g_arenaservers.list.generic.type			= MTYPE_SCROLLLIST;
 	g_arenaservers.list.generic.flags			= QMF_HIGHLIGHT_IF_FOCUS;
 	g_arenaservers.list.generic.id				= ID_LIST;
@@ -1234,15 +1234,15 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.status.generic.x			= 320;
 	g_arenaservers.status.generic.y			= y;
 	g_arenaservers.status.string			= statusbuffer;
-	g_arenaservers.status.style				= UI_CENTER|UI_SMALLFONT;
+	g_arenaservers.status.style				= FONT_CENTER;
 	g_arenaservers.status.color				= menu_text_color;
 
-	y += SMALLCHAR_HEIGHT;
+	y += SMALLCHAR_SIZE;
 	g_arenaservers.statusbar.generic.type   = MTYPE_TEXT;
 	g_arenaservers.statusbar.generic.x	    = 320;
 	g_arenaservers.statusbar.generic.y	    = y;
 	g_arenaservers.statusbar.string	        = "";
-	g_arenaservers.statusbar.style	        = UI_CENTER|UI_SMALLFONT;
+	g_arenaservers.statusbar.style	        = FONT_CENTER;
 	g_arenaservers.statusbar.color	        = text_color_normal;
 
 	g_arenaservers.back.generic.type		= MTYPE_BUTTON;
@@ -1289,7 +1289,7 @@ static void ArenaServers_MenuInit(void)
 	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.labelType);
 	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.labelPlayers);
 
-//	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.mappic);
+	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.mappic);
 	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.status);
 	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.statusbar);
 	Menu_AddItem(&g_arenaservers.menu, (void*) &g_arenaservers.arrows);

@@ -333,13 +333,13 @@ static void CG_Missile(centity_t *cent)
 
 		ent.customShader = cgs.media.plasmaBallShader;
 		CG_GetWeaponColor(color, ci, WPCOLOR_PLASMA);
-		CG_SetRGBA(ent.shaderRGBA, color);
+		SCR_SetRGBA(ent.shaderRGBA, color);
 		trap_R_AddRefEntityToScene(&ent);
 		return;
 	} else if (weapon->item->giTag == WP_GRENADE_LAUNCHER) {
 		ent.customShader = cgs.media.grenadeShader;
 		CG_GetWeaponColor(color, ci, WPCOLOR_GRENADE);
-		CG_SetRGBA(ent.shaderRGBA, color);
+		SCR_SetRGBA(ent.shaderRGBA, color);
 	}
 
 	// flicker between two skins

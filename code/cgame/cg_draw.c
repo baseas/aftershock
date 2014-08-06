@@ -33,56 +33,18 @@ char	systemChat[256];
 char	teamChat1[256];
 char	teamChat2[256];
 
-void CG_Draw3DModel(float x, float y, float w, float h, qhandle_t model,
-	qhandle_t skin, vec3_t origin, vec3_t angles)
-{
-	refdef_t		refdef;
-	refEntity_t		ent;
-
-	CG_AdjustFrom640(&x, &y, &w, &h);
-
-	memset(&refdef, 0, sizeof(refdef));
-
-	memset(&ent, 0, sizeof(ent));
-	AnglesToAxis(angles, ent.axis);
-	VectorCopy(origin, ent.origin);
-	ent.hModel = model;
-	ent.customSkin = skin;
-	ent.renderfx = RF_NOSHADOW;		// no stencil shadows
-
-	refdef.rdflags = RDF_NOWORLDMODEL;
-
-	AxisClear(refdef.viewaxis);
-
-	refdef.fov_x = 30;
-	refdef.fov_y = 30;
-
-	refdef.x = x;
-	refdef.y = y;
-	refdef.width = w;
-	refdef.height = h;
-
-	refdef.time = cg.time;
-
-	trap_R_ClearScene();
-	trap_R_AddRefEntityToScene(&ent);
-	trap_R_RenderScene(&refdef);
-}
-
 /* UPPER RIGHT CORNER */
 
 static float CG_DrawSnapshot(float y)
 {
-	char		*s;
-	int			w;
+	char	*s;
 
 	s = va("time:%i snap:%i cmd:%i", cg.snap->serverTime,
 		cg.latestSnapshotNum, cgs.serverCommandSequence);
-	w = CG_DrawStrlen(s) * BIGCHAR_WIDTH;
 
-	CG_DrawBigString(635 - w, y + 2, s, 1.0F);
+	SCR_DrawString(635, y + 2, s, BIGCHAR_SIZE, FONT_RIGHT, colorWhite);
 
-	return y + BIGCHAR_HEIGHT + 4;
+	return y + BIGCHAR_SIZE + 4;
 }
 
 static void CG_GetColorForHealth(int health, int armor, vec4_t hcolor)
@@ -154,7 +116,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 		ci = &cgs.clientinfo[sortedTeamPlayers[i]];
 		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
 			plyrs++;
-			len = CG_DrawStrlen(ci->name);
+			len = SCR_Strlen(ci->name);
 			if (len > pwidth)
 				pwidth = len;
 		}
@@ -171,7 +133,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	for (i = 1; i < MAX_LOCATIONS; i++) {
 		p = CG_ConfigString(CS_LOCATIONS + i);
 		if (p && *p) {
-			len = CG_DrawStrlen(p);
+			len = SCR_Strlen(p);
 			if (len > lwidth)
 				lwidth = len;
 		}
@@ -180,7 +142,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	if (lwidth > TEAM_OVERLAY_MAXLOCATION_WIDTH)
 		lwidth = TEAM_OVERLAY_MAXLOCATION_WIDTH;
 
-	w = (pwidth + lwidth + 4 + 7) * TINYCHAR_WIDTH;
+	w = (pwidth + lwidth + 4 + 7) * TINYCHAR_SIZE;
 
 	if (right) {
 		x = 640 - w;
@@ -188,7 +150,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 		x = 0;
 	}
 
-	h = plyrs * TINYCHAR_HEIGHT;
+	h = plyrs * TINYCHAR_SIZE;
 
 	if (upper) {
 		ret_y = y + h;
@@ -212,50 +174,47 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 	for (i = 0; i < count; i++) {
 		ci = &cgs.clientinfo[sortedTeamPlayers[i]];
 		if (ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
+			char	string[MAX_STRING_CHARS];
 
 			hcolor[0] = hcolor[1] = hcolor[2] = hcolor[3] = 1.0;
 
-			xx = x + TINYCHAR_WIDTH;
+			xx = x + TINYCHAR_SIZE;
 
-			CG_DrawStringExt(xx, y,
-				ci->name, hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH);
+			Q_strncpyz(string, ci->name, MIN(sizeof string, TEAM_OVERLAY_MAXNAME_WIDTH));
+			SCR_DrawString(xx, y, string, TINYCHAR_SIZE, 0, hcolor);
 
 			if (lwidth) {
 				p = CG_ConfigString(CS_LOCATIONS + ci->location);
 				if (!p || !*p)
 					p = "unknown";
-//				len = CG_DrawStrlen(p);
+//				len = SCR_Strlen(p);
 //				if (len > lwidth)
 //					len = lwidth;
 
-//				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth +
-//					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
-				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth;
-				CG_DrawStringExt(xx, y,
-					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
-					TEAM_OVERLAY_MAXLOCATION_WIDTH);
+//				xx = x + TINYCHAR_SIZE * 2 + TINYCHAR_SIZE * pwidth +
+//					((lwidth/2 - len/2) * TINYCHAR_SIZE);
+				xx = x + TINYCHAR_SIZE * 2 + TINYCHAR_SIZE * pwidth;
+				Q_strncpyz(string, p, MIN(sizeof string, TEAM_OVERLAY_MAXLOCATION_WIDTH));
+				SCR_DrawString(xx, y, p, TINYCHAR_SIZE, 0, hcolor);
 			}
 
 			CG_GetColorForHealth(ci->health, ci->armor, hcolor);
 
 			Com_sprintf(st, sizeof(st), "%3i %3i", ci->health, ci->armor);
 
-			xx = x + TINYCHAR_WIDTH * 3 +
-				TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
+			xx = x + TINYCHAR_SIZE * 3 +
+				TINYCHAR_SIZE * pwidth + TINYCHAR_SIZE * lwidth;
 
-			CG_DrawStringExt(xx, y,
-				st, hcolor, qfalse, qfalse,
-				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+			SCR_DrawString(xx, y, st, TINYCHAR_SIZE, 0, hcolor);
 
 			// draw weapon icon
-			xx += TINYCHAR_WIDTH * 3;
+			xx += TINYCHAR_SIZE * 3;
 
 			if (cg_weapons[ci->weapon].weaponIcon) {
-				CG_DrawAdjustPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
+				CG_DrawAdjustPic(xx, y, TINYCHAR_SIZE, TINYCHAR_SIZE,
 					cg_weapons[ci->weapon].weaponIcon);
 			} else {
-				CG_DrawAdjustPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
+				CG_DrawAdjustPic(xx, y, TINYCHAR_SIZE, TINYCHAR_SIZE,
 					cgs.media.deferShader);
 			}
 
@@ -263,7 +222,7 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 			if (right) {
 				xx = x;
 			} else {
-				xx = x + w - TINYCHAR_WIDTH;
+				xx = x + w - TINYCHAR_SIZE;
 			}
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
 				if (ci->powerups & (1 << j)) {
@@ -271,18 +230,18 @@ static float CG_DrawTeamOverlay(float y, qboolean right, qboolean upper)
 					item = BG_FindItemForPowerup(j);
 
 					if (item) {
-						CG_DrawAdjustPic(xx, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
+						CG_DrawAdjustPic(xx, y, TINYCHAR_SIZE, TINYCHAR_SIZE,
 						trap_R_RegisterShader(item->icon));
 						if (right) {
-							xx -= TINYCHAR_WIDTH;
+							xx -= TINYCHAR_SIZE;
 						} else {
-							xx += TINYCHAR_WIDTH;
+							xx += TINYCHAR_SIZE;
 						}
 					}
 				}
 			}
 
-			y += TINYCHAR_HEIGHT;
+			y += TINYCHAR_SIZE;
 		}
 	}
 
@@ -371,7 +330,6 @@ static void CG_DrawDisconnect(void)
 	int			cmdNum;
 	usercmd_t	cmd;
 	const char	*s;
-	int			w;
 
 	// draw the phone jack if we are completely past our buffers
 	cmdNum = trap_GetCurrentCmdNumber() - CMD_BACKUP + 1;
@@ -386,8 +344,7 @@ static void CG_DrawDisconnect(void)
 
 	// also add text in center of screen
 	s = "Connection Interrupted";
-	w = CG_StringWidth(BIGCHAR_WIDTH, s);
-	CG_DrawBigString(320 - w/2, 100, s, 1.0F);
+	SCR_DrawString(SCREEN_WIDTH / 2, 100, s, BIGCHAR_SIZE, FONT_CENTER, colorWhite);
 }
 
 /* CENTER PRINTING */
@@ -418,7 +375,7 @@ static void CG_DrawCenterString(void)
 {
 	char	*start;
 	int		l;
-	float	x, y;
+	float	y;
 	float	*color;
 
 	if (!cg.centerPrintTime) {
@@ -429,8 +386,6 @@ static void CG_DrawCenterString(void)
 	if (!color) {
 		return;
 	}
-
-	trap_R_SetColor(color);
 
 	start = cg.centerPrint;
 
@@ -447,10 +402,9 @@ static void CG_DrawCenterString(void)
 		}
 		linebuffer[l] = 0;
 
-		x = (SCREEN_WIDTH - CG_StringWidth(BIGCHAR_WIDTH, linebuffer)) / 2;
-		CG_DrawStringExt(x, y, linebuffer, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
+		SCR_DrawString(SCREEN_WIDTH / 2, y, linebuffer, BIGCHAR_SIZE, FONT_CENTER, color);
 
-		y += BIGCHAR_HEIGHT;
+		y += BIGCHAR_SIZE;
 		while (*start && (*start != '\n')) {
 			start++;
 		}
@@ -544,7 +498,7 @@ static void CG_DrawCrosshair(void)
 
 	x = cg_crosshairX.integer;
 	y = cg_crosshairY.integer;
-	CG_AdjustFrom640(&x, &y, &w, &h);
+	SCR_AdjustFrom640(&x, &y, &w, &h);
 
 	ca = cg_drawCrosshair.integer;
 	if (ca < 0) {
@@ -644,8 +598,7 @@ static void CG_DrawStats(void)
 
 	x += 15;
 
-	CG_DrawStringExt(x, y + 15, cgs.clientinfo[cg.snap->ps.clientNum].name,
-		colorWhite, qfalse, qtrue, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+	SCR_DrawString(x, y + 15, cgs.clientinfo[cg.snap->ps.clientNum].name, TINYCHAR_SIZE, 0, colorWhite);
 
 	for (i = WP_MACHINEGUN; i < WP_NUM_WEAPONS; ++i) {
 		if (!cg_weapons[i].registered) {
@@ -657,9 +610,9 @@ static void CG_DrawStats(void)
 			int accuracy = (int) ((float) stats->enemyHits[i] / (float) stats->shots[i] * 100.0f);
 			str = va("%i %% (%i/%i)", accuracy, stats->enemyHits[i], stats->shots[i]);
 		} else {
-			str = va("-");
+			str = "-";
 		}
-		CG_DrawSmallString(x + iconsize, yy, str, 1.0f);
+		SCR_DrawString(x + iconsize, yy, str, SMALLCHAR_SIZE, 0, colorWhite);
 	}
 }
 

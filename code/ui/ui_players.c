@@ -625,7 +625,7 @@ void UI_DrawPlayer(float x, float y, float w, float h, playerInfo_t *pi, int tim
 		}
 	}
 
-	UI_AdjustFrom640(&x, &y, &w, &h);
+	SCR_AdjustFrom640(&x, &y, &w, &h);
 
 	y -= jumpHeight;
 

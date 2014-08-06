@@ -2123,6 +2123,7 @@ Q3CGOBJ_ = \
   $(B)/$(BASEGAME)/cgame/bg_pmove.o \
   $(B)/$(BASEGAME)/cgame/bg_slidemove.o \
   $(B)/$(BASEGAME)/cgame/bg_lib.o \
+  $(B)/$(BASEGAME)/cgame/scr_draw.o \
   $(B)/$(BASEGAME)/cgame/cg_consolecmds.o \
   $(B)/$(BASEGAME)/cgame/cg_draw.o \
   $(B)/$(BASEGAME)/cgame/cg_drawtools.o \
@@ -2222,6 +2223,7 @@ Q3UIOBJ_ = \
   $(B)/$(BASEGAME)/ui/ui_main.o \
   $(B)/$(BASEGAME)/ui/bg_misc.o \
   $(B)/$(BASEGAME)/ui/bg_lib.o \
+  $(B)/$(BASEGAME)/ui/scr_draw.o \
   $(B)/$(BASEGAME)/ui/ui_addbots.o \
   $(B)/$(BASEGAME)/ui/ui_atoms.o \
   $(B)/$(BASEGAME)/ui/ui_confirm.o \
@@ -2400,10 +2402,16 @@ endif
 $(B)/$(BASEGAME)/cgame/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_CGAME_CC)
 
+$(B)/$(BASEGAME)/cgame/scr_%.o: $(Q3UIDIR)/scr_%.c
+	$(DO_CGAME_CC)
+
 $(B)/$(BASEGAME)/cgame/%.o: $(CGDIR)/%.c
 	$(DO_CGAME_CC)
 
 $(B)/$(BASEGAME)/cgame/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_CGAME_Q3LCC)
+
+$(B)/$(BASEGAME)/cgame/scr_%.asm: $(Q3UIDIR)/scr_%.c $(Q3LCC)
 	$(DO_CGAME_Q3LCC)
 
 $(B)/$(BASEGAME)/cgame/%.asm: $(CGDIR)/%.c $(Q3LCC)
@@ -2418,10 +2426,16 @@ $(B)/$(BASEGAME)/game/%.asm: $(GDIR)/%.c $(Q3LCC)
 $(B)/$(BASEGAME)/ui/bg_%.o: $(GDIR)/bg_%.c
 	$(DO_UI_CC)
 
+$(B)/$(BASEGAME)/ui/scr_%.o: $(Q3UIDIR)/scr_%.c
+	$(DO_UI_CC)
+
 $(B)/$(BASEGAME)/ui/%.o: $(Q3UIDIR)/%.c
 	$(DO_UI_CC)
 
 $(B)/$(BASEGAME)/ui/bg_%.asm: $(GDIR)/bg_%.c $(Q3LCC)
+	$(DO_UI_Q3LCC)
+
+$(B)/$(BASEGAME)/ui/scr_%.asm: $(Q3UIDIR)/bg_%.c $(Q3LCC)
 	$(DO_UI_Q3LCC)
 
 $(B)/$(BASEGAME)/ui/%.asm: $(Q3UIDIR)/%.c $(Q3LCC)

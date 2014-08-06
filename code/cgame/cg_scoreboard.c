@@ -27,10 +27,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_MAXDISPLAY			11
 #define SB_INFOICON_SIZE		8
 
-#define SB_CHAR_WIDTH			5
-#define SB_CHAR_HEIGHT			9
-#define SB_MEDCHAR_WIDTH 		6
-#define SB_MEDCHAR_HEIGHT		10
+#define SB_CHAR_SIZE			5
+#define SB_MEDCHAR_SIZE 		8
 
 #define SB_WIDTH				640
 #define SB_HEIGHT				410
@@ -57,7 +55,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define SB_SPEC_WIDTH			(SB_WIDTH - 340)
 #define SB_SPEC_X				(SCREEN_WIDTH/2 - SB_SPEC_WIDTH/2)
 #define SB_SPEC_Y				370
-#define SB_SPEC_MAXCHAR			(SB_SPEC_WIDTH/SB_MEDCHAR_WIDTH)
+#define SB_SPEC_MAXCHAR			(SB_SPEC_WIDTH/SB_MEDCHAR_SIZE)
 
 #define SB_TOURNEY_WIDTH		(SB_WIDTH/2 - 40)
 #define SB_TOURNEY_HEIGHT		16
@@ -100,8 +98,7 @@ static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t 
 	y += h/2;
 
 	if (!ci) {
-		CG_DrawStringExt(x, y - SB_MEDCHAR_HEIGHT / 2, "...", colorWhite, qfalse, qfalse,
-			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 31);
+		SCR_DrawString(x, y - SB_MEDCHAR_SIZE / 2, "...", SB_MEDCHAR_SIZE, 0, colorWhite);
 		return;
 	}
 
@@ -112,10 +109,9 @@ static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t 
 
 	es = &cg_entities[ci - cgs.clientinfo].currentState;
 
-	CG_FillRect(x, y - h / 2, w, h, color);
+	SCR_FillRect(x, y - h / 2, w, h, color);
 
-	CG_DrawStringExt(x, y - SB_MEDCHAR_HEIGHT/2, ci->name, colorWhite, qfalse, qfalse,
-		SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 31);
+	SCR_DrawString(x, y - SB_MEDCHAR_SIZE / 2, ci->name, SB_MEDCHAR_SIZE, 0, colorWhite);
 
 	if (cgs.warmup == 0) {
 		Com_sprintf(string, sizeof string, "%d", ci->score);
@@ -123,8 +119,7 @@ static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t 
 		Q_strncpyz(string, "-", sizeof string);
 	}
 
-	CG_DrawStringExt(x + w*0.7, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
-		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+	SCR_DrawString(x + w * 0.7, y - SB_MEDCHAR_SIZE / 2, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 
 	if (ci->ping == -1) {
 		Com_sprintf(string, sizeof string, "-");
@@ -132,25 +127,22 @@ static void CG_DrawClientScore(float x, float y, float w, float h, clientInfo_t 
 		Com_sprintf(string, sizeof string, "%i", ci->ping);
 	}
 
-	CG_DrawStringExt(x + w*0.8, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
-		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 3);
+	SCR_DrawString(x + w * 0.8, y - SB_MEDCHAR_SIZE / 2, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 
 	time = cg.time - ci->enterTime;
 	Com_sprintf(string, sizeof string, "%i", time / 60 / 1000);
-	CG_DrawStringExt(x + w*0.88, y - SB_MEDCHAR_HEIGHT/2, string, colorWhite,
-		qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 3);
+	SCR_DrawString(x + w * 0.88, y - SB_MEDCHAR_SIZE / 2, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 
 	if (cgs.gametype == GT_ELIMINATION) {
-		if (h >= SB_CHAR_HEIGHT*2) {
+		if (h >= SB_CHAR_SIZE*2) {
 			Com_sprintf(string, sizeof string, "%i", ci->damageDone / 100);
-			CG_DrawStringExt(x + w*0.96, y - SB_CHAR_HEIGHT, string, colorGreen, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+			SCR_DrawString(x + w * 0.96, y - SB_CHAR_SIZE, string, SB_CHAR_SIZE, 0, colorGreen);
 			Com_sprintf(string, sizeof string, "%i", ci->damageTaken / 100);
-			CG_DrawStringExt(x + w*0.96, y, string, colorRed, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+			SCR_DrawString(x + w * 0.96, y, string, SB_CHAR_SIZE, 0, colorRed);
 		} else {
 			Com_sprintf(string, sizeof string, "^2%i^7/^1%i",
 				ci->damageDone / 100, ci->damageTaken / 100);
-			CG_DrawStringExt(x + w*0.96, y - SB_CHAR_HEIGHT/2, string, colorWhite,
-				qfalse, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+			SCR_DrawString(x + w * 0.96, y - SB_CHAR_SIZE / 2, string, SB_CHAR_SIZE, 0, colorWhite);
 		}
 	}
 
@@ -190,13 +182,13 @@ static void CG_TeamScoreboard(float x, float y, float w, float h, team_t team, f
 	transparent[2] = 0;
 	transparent[3] = 0;
 
-	CG_DrawStringExt(x, y, "Name", colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
-	CG_DrawStringExt(x + w*0.7, y, "Score", colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+	SCR_DrawString(x, y, "Name", SB_CHAR_SIZE, 0, colorWhite);
+	SCR_DrawString(x + w * 0.7, y, "Score", SB_CHAR_SIZE, 0, colorWhite);
 	CG_DrawAdjustPic(x + w*0.8, y, SB_INFOICON_SIZE, SB_INFOICON_SIZE, cgs.media.sbPing);
 	CG_DrawAdjustPic(x + w*0.88, y, SB_INFOICON_SIZE, SB_INFOICON_SIZE, cgs.media.sbClock);
 
 	if (cgs.gametype == GT_ELIMINATION) {
-		CG_DrawStringExt(x + w*0.96, y, "Dmg", colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+		SCR_DrawString(x + w * 0.96, y, "Dmg", SB_CHAR_SIZE, 0, colorWhite);
 	}
 
 	y += 20;
@@ -251,8 +243,8 @@ static void CG_DrawSpecs(void)
 	clientInfo_t	*ci;
 
 	strcpy(string, "Spectators");
-	CG_DrawStringExt(SB_SPEC_X + SB_SPEC_WIDTH / 2 - CG_StringWidth(SMALLCHAR_WIDTH, string) / 2,
-		SB_SPEC_Y, string, colorYellow, qtrue, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+	SCR_DrawString(SB_SPEC_X + SB_SPEC_WIDTH / 2, SB_SPEC_Y, string,
+		SMALLCHAR_SIZE, FONT_CENTER, colorYellow);
 
 	y = SB_SPEC_Y + 20;
 	string[0] = '\0';
@@ -286,11 +278,10 @@ static void CG_DrawSpecs(void)
 			Q_strcat(string, sizeof string, ci->name);
 		}
 
-		if (CG_DrawStrlen(string) + CG_DrawStrlen(ci->name) + 3 > SB_SPEC_MAXCHAR) {
-			CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
-				SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		if (SCR_Strlen(string) + SCR_Strlen(ci->name) + 3 > SB_SPEC_MAXCHAR) {
+			SCR_DrawString(SB_SPEC_X, y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 			string[0] = '\0';
-			y += SB_MEDCHAR_HEIGHT;
+			y += SB_MEDCHAR_SIZE;
 			numLine++;
 			if (numLine >= 3) {
 				break;
@@ -305,16 +296,14 @@ static void CG_DrawSpecs(void)
 
 	if (*string) {
 		// draw the last spectator line
-		CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
-			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(SB_SPEC_X, y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 	} else if (numLine >= 3) {
 		// draw the local client if he hasn't been drawn yet
 		strcpy(string, "... ");
 		if (!localDrawn) {
 			Q_strcat(string, sizeof string, cgs.clientinfo[cg.clientNum].name);
 		}
-		CG_DrawStringExt(SB_SPEC_X, y, string, colorWhite, qfalse, qfalse,
-			SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(SB_SPEC_X, y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 	}
 }
 
@@ -331,8 +320,7 @@ static void CG_DrawPicBar(picBar_t *tab, int count, float x, float y, float w, f
 		strcpy(string, va("%i", tab[i].val));
 		if (tab[i].percent) {
 			strcat(string, "%");
-			CG_DrawStringExt(picBarX + h + 3, y - SB_MEDCHAR_HEIGHT / 2, string, colorWhite, qtrue,
-				qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+			SCR_DrawString(picBarX + h + 3, y - SB_MEDCHAR_SIZE / 2, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 		}
 	}
 }
@@ -357,8 +345,7 @@ static void CG_DrawMapInfo(void)
 	bsp[0] = '\0';
 
 	Com_sprintf(string, sizeof string, "%s // %s", map, cgs.gametypeShortName);
-	CG_DrawStringExt(SB_XPOS + 10, SB_YPOS + 2, string, colorWhite, qtrue,
-		qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0);
+	SCR_DrawString(SB_XPOS + 10, SB_YPOS + 2, string, TINYCHAR_SIZE, 0, colorWhite);
 }
 
 static void CG_DrawTeamScoreboard(void)
@@ -373,21 +360,18 @@ static void CG_DrawTeamScoreboard(void)
 
 	// scores
 	Com_sprintf(string, sizeof string, "^1%i ", cgs.scores1);
-	CG_DrawStringExt(SCREEN_WIDTH / 2 - CG_StringWidth(GIANTCHAR_WIDTH, string), SB_TEAM_Y,
-		string, colorWhite, qfalse, qtrue, GIANTCHAR_WIDTH, GIANTCHAR_HEIGHT, 0);
+	SCR_DrawString(SCREEN_WIDTH / 2, SB_TEAM_Y, string, GIANTCHAR_SIZE, FONT_RIGHT, colorWhite);
 
 	Com_sprintf(string, sizeof string, " ^4%i", cgs.scores2);
-	CG_DrawStringExt(SCREEN_WIDTH / 2, SB_TEAM_Y,
-		string, colorWhite, qfalse, qtrue, GIANTCHAR_WIDTH, GIANTCHAR_HEIGHT, 0);
+	SCR_DrawString(SCREEN_WIDTH / 2, SB_TEAM_Y, string, GIANTCHAR_SIZE, 0, colorWhite);
 
 	strcpy(string, "to");
-	CG_DrawStringExt(SCREEN_WIDTH / 2 - CG_StringWidth(SMALLCHAR_WIDTH, string) / 2,
-		SB_TEAM_Y + 25, string, colorWhite, qtrue, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+	SCR_DrawString(SCREEN_WIDTH / 2, SB_TEAM_Y + 25, string, SMALLCHAR_SIZE, FONT_CENTER, colorWhite);
 
 	// team red
 	strcpy(string, "Team red");
-	CG_DrawStringExt(SB_TEAM_RED_X + SB_TEAM_WIDTH / 2 - CG_StringWidth(BIGCHAR_WIDTH, string) / 2,
-		SB_TEAM_Y + 15, string, colorRed, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
+	SCR_DrawString(SB_TEAM_RED_X + SB_TEAM_WIDTH / 2,
+		SB_TEAM_Y + 15, string, BIGCHAR_SIZE, FONT_CENTER, colorRed);
 	CG_TeamScoreboard(SB_TEAM_RED_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT, TEAM_RED, color, SB_MAXDISPLAY);
 	if (cgs.redLocked) {
 		CG_DrawAdjustPic(0, SB_TEAM_Y, 32, 32, cgs.media.sbLocked);
@@ -400,8 +384,8 @@ static void CG_DrawTeamScoreboard(void)
 
 	// team blue
 	strcpy(string, "Team blue");
-	CG_DrawStringExt(SB_TEAM_BLUE_X + SB_TEAM_WIDTH / 2 - CG_StringWidth(BIGCHAR_WIDTH, string) / 2,
-		SB_TEAM_Y + 15, string, colorBlue, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
+	SCR_DrawString(SB_TEAM_BLUE_X + SB_TEAM_WIDTH / 2,
+		SB_TEAM_Y + 15, string, BIGCHAR_SIZE, FONT_CENTER, colorBlue);
 	CG_TeamScoreboard(SB_TEAM_BLUE_X, SB_TEAM_Y + 65, SB_TEAM_WIDTH, SB_TEAM_HEIGHT,
 		TEAM_BLUE, color, SB_MAXDISPLAY);
 	if (cgs.blueLocked) {
@@ -481,9 +465,9 @@ static void CG_DrawTourneyScoreboard(void)
 		} else {
 			strcpy(string, va("%i %i", cgs.scores2, cgs.scores1));
 		}
-		CG_DrawStringExt(x - CG_StringWidth(GIANTCHAR_WIDTH, string) / 2, y, string, colorWhite, qtrue, qtrue, GIANTCHAR_WIDTH, GIANTCHAR_HEIGHT, 0);
+		SCR_DrawString(x, y, string, GIANTCHAR_SIZE, FONT_CENTER, colorWhite);
 		strcpy(string, "to");
-		CG_DrawStringExt(x - CG_StringWidth(SMALLCHAR_WIDTH, string)/2, y + 25, string, colorWhite, qtrue, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		SCR_DrawString(x, y + 25, string, SMALLCHAR_SIZE, FONT_CENTER, colorWhite);
 	}
 
 	// players headers
@@ -504,8 +488,7 @@ static void CG_DrawTourneyScoreboard(void)
 		}
 
 		Com_sprintf(string, sizeof string, "^7(^2%i^7/^1%i^7) %s", ci->wins, ci->losses, ci->name);
-		CG_DrawStringExt(x + side * w / 2 - CG_StringWidth(SMALLCHAR_WIDTH, string) / 2, y + 15,
-			string, colorWhite, qfalse, qtrue, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * w / 2, y + 15, string, SMALLCHAR_SIZE, FONT_CENTER, colorWhite);
 
 		if (!ci->botSkill) {
 			CG_DrawAdjustPic(x + side*w*0.8 - offset * SB_INFOICON_SIZE, y + 30, SB_INFOICON_SIZE,
@@ -517,8 +500,8 @@ static void CG_DrawTourneyScoreboard(void)
 			Com_sprintf(string, sizeof string, "%i", ci->ping);
 		}
 
-		CG_DrawStringExt(x + side*w*0.8 - side * SB_INFOICON_SIZE * 2 - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string),
-			y + 30, string, colorWhite, qfalse, qtrue, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * w * 0.8 - side * SB_INFOICON_SIZE * 2 - offset * SCR_StringWidth(string, SB_MEDCHAR_SIZE),
+			y + 30, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 
 		if (!ci->botSkill && cgs.warmup < 0 && cgs.startWhenReady) {
 			if (ci->ready) {
@@ -526,8 +509,7 @@ static void CG_DrawTourneyScoreboard(void)
 			} else {
 				Q_strncpyz(string, "^1Not ready", sizeof string);
 			}
-			CG_DrawStringExt(x + side*w/2 - CG_StringWidth(SB_MEDCHAR_WIDTH, string) / 2, y + 30,
-				string, colorWhite, qfalse, qtrue, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+			SCR_DrawString(x + side * w / 2, y + 30, string, SB_MEDCHAR_SIZE, FONT_CENTER, colorWhite);
 		}
 	}
 
@@ -535,11 +517,9 @@ static void CG_DrawTourneyScoreboard(void)
 	y += 60;
 	for (side =- 1; side < loop; side += 2) {
 		Q_strncpyz(string, "Acc.", sizeof string);
-		CG_DrawStringExt(x + side*0.3*w - CG_StringWidth(SB_CHAR_WIDTH, string) / 2, y, string,
-			colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * 0.3 * w, y, string, SB_CHAR_SIZE, FONT_CENTER, colorWhite);
 		Q_strncpyz(string, "Hit/Fired", sizeof string);
-		CG_DrawStringExt(x + side*0.6*w - CG_StringWidth(SB_CHAR_WIDTH, string) / 2, y, string,
-			colorWhite, qtrue, qfalse, SB_CHAR_WIDTH, SB_CHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * 0.6 * w, y, string, SB_CHAR_SIZE, FONT_CENTER, colorWhite);
 	}
 
 	y += 20;
@@ -558,8 +538,7 @@ static void CG_DrawTourneyScoreboard(void)
 			} else {
 				strcpy(string, "-%");
 			}
-			CG_DrawStringExt(x + side*0.3*w - CG_StringWidth(SB_MEDCHAR_WIDTH, string)/2, y,
-				string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+			SCR_DrawString(x + side * 0.3 * w, y, string, SB_MEDCHAR_SIZE, FONT_CENTER, colorWhite);
 
 			// hit/fired
 			if (stats->shots[i]) {
@@ -567,8 +546,7 @@ static void CG_DrawTourneyScoreboard(void)
 			} else {
 				strcpy(string, "-/-");
 			}
-			CG_DrawStringExt(x + side*0.6*w - CG_StringWidth(SB_MEDCHAR_WIDTH, string)/2, y,
-				string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+			SCR_DrawString(x + side * 0.6 * w, y, string, SB_MEDCHAR_SIZE, FONT_CENTER, colorWhite);
 
 		}
 		y += h + 10;
@@ -576,37 +554,37 @@ static void CG_DrawTourneyScoreboard(void)
 
 	// picked up armor/health and dmg done
 	for (side = -1; side < loop; side += 2) {
-		y = SB_TOURNEY_PICKUP_Y + h/2 - SB_MEDCHAR_HEIGHT / 2;
+		y = SB_TOURNEY_PICKUP_Y + h/2 - SB_MEDCHAR_SIZE / 2;
 		offset = (side < 0 ? 0 : 1);
 		ci = (side < 0 ? ci1 : ci2);
 
 		item = BG_FindItem("Mega Health");
 		CG_DrawAdjustPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
 		Com_sprintf(string, sizeof string, "%i", ci->megaHealth);
-		CG_DrawStringExt(x + side*(w - h*2) - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string), y,
-			string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * (w - h * 2) - offset * SCR_StringWidth(string, SB_MEDCHAR_SIZE),
+			y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 		y += h + 10;
 
 		item = BG_FindItem("Red Armor");
 		CG_DrawAdjustPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
 		Com_sprintf(string, sizeof string, "%i", ci->redArmor);
-		CG_DrawStringExt(x + side*(w - h*2) - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string), y,
-			string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side*(w - h * 2) - offset * SCR_StringWidth(string, SB_MEDCHAR_SIZE),
+			y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 		y += h + 10;
 
 		item = BG_FindItem("Yellow Armor");
 		CG_DrawAdjustPic(x + side*w - offset*h, y, h, h, cg_items[ITEM_INDEX(item)].icon);
 		Com_sprintf(string, sizeof string, "%i", ci->yellowArmor);
-		CG_DrawStringExt(x + side*(w - h*2) - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string), y,
-			string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * (w - h * 2) - offset * SCR_StringWidth(string, SB_MEDCHAR_SIZE),
+			y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 		y += h + 10;
 
 		strcpy(string, "Dmg.");
-		CG_DrawStringExt(x + side*w - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string), y,
-			string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * w - offset * SCR_StringWidth(string, SB_MEDCHAR_SIZE),
+			y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 		Com_sprintf(string, sizeof string, "%i", ci->damageDone);
-		CG_DrawStringExt(x + side*(w - h*2) - offset * CG_StringWidth(SB_MEDCHAR_WIDTH, string), y,
-			string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+		SCR_DrawString(x + side * (w - h * 2) - offset * SCR_StringWidth(string, SB_MEDCHAR_SIZE),
+			y, string, SB_MEDCHAR_SIZE, 0, colorWhite);
 
 	}
 
@@ -614,8 +592,7 @@ static void CG_DrawTourneyScoreboard(void)
 	y = SB_TOURNEY_AWARD_Y;
 
 	strcpy(string, "Awards");
-	CG_DrawStringExt(x - CG_StringWidth(SB_MEDCHAR_WIDTH, string) / 2, y - SB_MEDCHAR_HEIGHT / 2,
-		string, colorWhite, qtrue, qfalse, SB_MEDCHAR_WIDTH, SB_MEDCHAR_HEIGHT, 0);
+	SCR_DrawString(x, y - SB_MEDCHAR_SIZE / 2, string, SB_MEDCHAR_SIZE, FONT_CENTER, colorWhite);
 
 	picBar[0].pic = cgs.media.medalExcellent;
 	picBar[0].percent = qfalse;
@@ -690,8 +667,7 @@ static void CG_DrawSingleScoreboard(void)
 		place = CG_PlaceString(cg.snap->ps.persistant[PERS_RANK] + 1);
 		Com_sprintf(string, sizeof string, "%s place with %i",
 			place, cg.snap->ps.persistant[PERS_SCORE]);
-		CG_DrawStringExt(SCREEN_WIDTH / 2 - CG_StringWidth(BIGCHAR_WIDTH, string) / 2,
-			SB_FFA_Y, string, colorWhite, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0);
+		SCR_DrawString(SCREEN_WIDTH / 2, SB_FFA_Y, string, BIGCHAR_SIZE, FONT_CENTER, colorWhite);
 	}
 
 	// one team scoreboard

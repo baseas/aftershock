@@ -25,6 +25,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "../qcommon/q_shared.h"
 #include "../renderercommon/tr_types.h"
 #include "../game/bg_public.h"
+#include "../ui/scr_public.h"
 #include "cg_public.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
@@ -953,8 +954,7 @@ typedef struct {
 	vec4_t		color;
 	vec4_t		bgcolor;
 	qboolean	fill;
-	float		fontWidth;
-	float		fontHeight;
+	float		fontSize;
 	char		*image;
 	char		*text;
 	int			textAlign;
@@ -1262,28 +1262,12 @@ void	CG_DrawActiveFrame(int serverTime, stereoFrame_t stereoView, qboolean demoP
 //
 // cg_drawtools.c
 //
-void	CG_AdjustFrom640(float *x, float *y, float *w, float *h);
 float	CG_AdjustWidth(float width);
-void	CG_FillRect(float x, float y, float width, float height, const float *color);
 void	CG_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
 void	CG_DrawAdjustPic(float x, float y, float width, float height, qhandle_t hShader);
-void	CG_DrawString(float x, float y, const char *string, 
-			float charWidth, float charHeight, const float *modulate);
-void	CG_DrawStringExt(float x, float y, const char *string, const float *setColor, 
-			qboolean forceColor, qboolean shadow, float charWidth, float charHeight, int maxChars);
-void	CG_DrawBigString(float x, float y, const char *s, float alpha);
-void	CG_DrawBigStringColor(float x, float y, const char *s, vec4_t color);
-void	CG_DrawSmallString(float x, float y, const char *s, float alpha);
-void	CG_DrawSmallStringColor(float x, float y, const char *s, vec4_t color);
-float	CG_StringWidth(float size, const char *str);
-int		CG_DrawStrlen(const char *str);
 float	*CG_FadeColor(int startMsec, int totalMsec);
 float	*CG_TeamColor(int team);
 void	CG_TileClear(void);
-void	UI_DrawProportionalString(int x, int y, const char* str, int style, vec4_t color);
-void	CG_DrawRect(float x, float y, float width, float height, float size, const float *color);
-void	CG_SetRGBA(byte incolor[4], vec4_t color);
-int		CG_ParseColor(vec4_t incolor, const char *str);
 
 //
 // cg_draw.c

@@ -212,7 +212,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.banner.generic.y			= 16;
 	soundOptionsInfo.banner.string				= "SYSTEM SETUP";
 	soundOptionsInfo.banner.color				= color_white;
-	soundOptionsInfo.banner.style				= UI_CENTER;
+	soundOptionsInfo.banner.style				= FONT_CENTER;
 
 	soundOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	soundOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -221,7 +221,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.graphics.generic.x			= 216;
 	soundOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
 	soundOptionsInfo.graphics.string			= "GRAPHICS";
-	soundOptionsInfo.graphics.style				= UI_RIGHT;
+	soundOptionsInfo.graphics.style				= FONT_RIGHT;
 	soundOptionsInfo.graphics.color				= color_red;
 
 	soundOptionsInfo.display.generic.type		= MTYPE_PTEXT;
@@ -231,7 +231,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.display.generic.x			= 216;
 	soundOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
 	soundOptionsInfo.display.string				= "DISPLAY";
-	soundOptionsInfo.display.style				= UI_RIGHT;
+	soundOptionsInfo.display.style				= FONT_RIGHT;
 	soundOptionsInfo.display.color				= color_red;
 
 	soundOptionsInfo.sound.generic.type			= MTYPE_PTEXT;
@@ -241,7 +241,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sound.generic.x			= 216;
 	soundOptionsInfo.sound.generic.y			= 240;
 	soundOptionsInfo.sound.string				= "SOUND";
-	soundOptionsInfo.sound.style				= UI_RIGHT;
+	soundOptionsInfo.sound.style				= FONT_RIGHT;
 	soundOptionsInfo.sound.color				= color_red;
 
 	soundOptionsInfo.network.generic.type		= MTYPE_PTEXT;
@@ -251,10 +251,10 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.network.generic.x			= 216;
 	soundOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
 	soundOptionsInfo.network.string				= "NETWORK";
-	soundOptionsInfo.network.style				= UI_RIGHT;
+	soundOptionsInfo.network.style				= FONT_RIGHT;
 	soundOptionsInfo.network.color				= color_red;
 
-	y = 240 - 2 * (BIGCHAR_HEIGHT + 2);
+	y = 240 - 2 * (BIGCHAR_SIZE + 2);
 	soundOptionsInfo.sfxvolume.generic.type		= MTYPE_SLIDER;
 	soundOptionsInfo.sfxvolume.generic.name		= "Effects Volume:";
 	soundOptionsInfo.sfxvolume.generic.flags	= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -265,7 +265,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.sfxvolume.minvalue			= 0;
 	soundOptionsInfo.sfxvolume.maxvalue			= 10;
 
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 	soundOptionsInfo.musicvolume.generic.type		= MTYPE_SLIDER;
 	soundOptionsInfo.musicvolume.generic.name		= "Music Volume:";
 	soundOptionsInfo.musicvolume.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -276,7 +276,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.musicvolume.minvalue			= 0;
 	soundOptionsInfo.musicvolume.maxvalue			= 10;
 
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 	soundOptionsInfo.soundSystem.generic.type		= MTYPE_SPINCONTROL;
 	soundOptionsInfo.soundSystem.generic.name		= "Sound System:";
 	soundOptionsInfo.soundSystem.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -286,7 +286,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.soundSystem.generic.y			= y;
 	soundOptionsInfo.soundSystem.itemnames			= soundSystem_items;
 
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 	soundOptionsInfo.quality.generic.type		= MTYPE_SPINCONTROL;
 	soundOptionsInfo.quality.generic.name		= "SDL Sound Quality:";
 	soundOptionsInfo.quality.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -297,7 +297,7 @@ static void UI_SoundOptionsMenu_Init(void)
 	soundOptionsInfo.quality.itemnames			= quality_items;
 
 /*
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 	soundOptionsInfo.a3d.generic.type			= MTYPE_RADIOBUTTON;
 	soundOptionsInfo.a3d.generic.name			= "A3D:";
 	soundOptionsInfo.a3d.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;

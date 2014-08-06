@@ -278,15 +278,15 @@ void CG_SetModelColor(clientInfo_t *ci, refEntity_t *head, refEntity_t *torso,
 	refEntity_t *legs, int state)
 {
 	if ((state & EF_DEAD) && cg_deadBodyDarken.integer) {
-		CG_SetRGBA(head->shaderRGBA, cgs.media.deadBodyColor);
-		CG_SetRGBA(torso->shaderRGBA, cgs.media.deadBodyColor);
-		CG_SetRGBA(legs->shaderRGBA, cgs.media.deadBodyColor);
+		SCR_SetRGBA(head->shaderRGBA, cgs.media.deadBodyColor);
+		SCR_SetRGBA(torso->shaderRGBA, cgs.media.deadBodyColor);
+		SCR_SetRGBA(legs->shaderRGBA, cgs.media.deadBodyColor);
 		return;
 	}
 
-	CG_SetRGBA(head->shaderRGBA, ci->model->headColor);
-	CG_SetRGBA(torso->shaderRGBA, ci->model->torsoColor);
-	CG_SetRGBA(legs->shaderRGBA, ci->model->legsColor);
+	SCR_SetRGBA(head->shaderRGBA, ci->model->headColor);
+	SCR_SetRGBA(torso->shaderRGBA, ci->model->torsoColor);
+	SCR_SetRGBA(legs->shaderRGBA, ci->model->legsColor);
 }
 
 static void CG_ParseModelString(char *str, char **model, char **skin)

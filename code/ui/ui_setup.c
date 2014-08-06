@@ -66,8 +66,10 @@ static void Setup_ResetDefaults_Action(qboolean result)
 
 static void Setup_ResetDefaults_Draw(void)
 {
-	UI_DrawProportionalString(SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset *ALL*", UI_CENTER|UI_SMALLFONT, color_yellow);
-	UI_DrawProportionalString(SCREEN_WIDTH/2, 356 + PROP_HEIGHT * 1, "options to their default values.", UI_CENTER|UI_SMALLFONT, color_yellow);
+	SCR_DrawPropString(SCREEN_WIDTH / 2, 356,
+		"WARNING: This will reset *ALL*", FONT_CENTER | FONT_SMALL, color_yellow);
+	SCR_DrawPropString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1,
+		"options to their default values.", FONT_CENTER | FONT_SMALL, color_yellow);
 }
 
 static void UI_SetupMenu_Event(void *ptr, int event)
@@ -118,7 +120,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.banner.generic.y					= 16;
 	setupMenuInfo.banner.string						= "SETUP";
 	setupMenuInfo.banner.color						= color_white;
-	setupMenuInfo.banner.style						= UI_CENTER;
+	setupMenuInfo.banner.style						= FONT_CENTER;
 
 	y = 134;
 	setupMenuInfo.setupplayer.generic.type			= MTYPE_PTEXT;
@@ -129,7 +131,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupplayer.generic.callback		= UI_SetupMenu_Event; 
 	setupMenuInfo.setupplayer.string				= "PLAYER";
 	setupMenuInfo.setupplayer.color					= color_red;
-	setupMenuInfo.setupplayer.style					= UI_CENTER;
+	setupMenuInfo.setupplayer.style					= FONT_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.setupcontrols.generic.type		= MTYPE_PTEXT;
@@ -140,7 +142,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupcontrols.generic.callback	= UI_SetupMenu_Event; 
 	setupMenuInfo.setupcontrols.string				= "CONTROLS";
 	setupMenuInfo.setupcontrols.color				= color_red;
-	setupMenuInfo.setupcontrols.style				= UI_CENTER;
+	setupMenuInfo.setupcontrols.style				= FONT_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.setupsystem.generic.type			= MTYPE_PTEXT;
@@ -151,7 +153,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupsystem.generic.callback		= UI_SetupMenu_Event; 
 	setupMenuInfo.setupsystem.string				= "SYSTEM";
 	setupMenuInfo.setupsystem.color					= color_red;
-	setupMenuInfo.setupsystem.style					= UI_CENTER;
+	setupMenuInfo.setupsystem.style					= FONT_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
 	setupMenuInfo.game.generic.type					= MTYPE_PTEXT;
@@ -162,7 +164,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.game.generic.callback				= UI_SetupMenu_Event; 
 	setupMenuInfo.game.string						= "GAME OPTIONS";
 	setupMenuInfo.game.color						= color_red;
-	setupMenuInfo.game.style						= UI_CENTER;
+	setupMenuInfo.game.style						= FONT_CENTER;
 
 	if (!trap_Cvar_VariableValue("cl_paused")) {
 #if 0
@@ -175,7 +177,7 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event; 
 		setupMenuInfo.load.string						= "LOAD";
 		setupMenuInfo.load.color						= color_red;
-		setupMenuInfo.load.style						= UI_CENTER;
+		setupMenuInfo.load.style						= FONT_CENTER;
 
 		y += SETUP_MENU_VERTICAL_SPACING;
 		setupMenuInfo.save.generic.type					= MTYPE_PTEXT;
@@ -186,7 +188,7 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event; 
 		setupMenuInfo.save.string						= "SAVE";
 		setupMenuInfo.save.color						= color_red;
-		setupMenuInfo.save.style						= UI_CENTER;
+		setupMenuInfo.save.style						= FONT_CENTER;
 #endif
 
 		y += SETUP_MENU_VERTICAL_SPACING;
@@ -198,7 +200,7 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event; 
 		setupMenuInfo.defaults.string					= "DEFAULTS";
 		setupMenuInfo.defaults.color					= color_red;
-		setupMenuInfo.defaults.style					= UI_CENTER;
+		setupMenuInfo.defaults.style					= FONT_CENTER;
 	}
 
 	setupMenuInfo.back.generic.type					= MTYPE_BITMAP;

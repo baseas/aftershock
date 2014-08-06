@@ -71,23 +71,23 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 	char dlSizeBuf[64], totalSizeBuf[64], xferRateBuf[64], dlTimeBuf[64];
 	int xferRate;
 	int width, leftWidth;
-	int style = UI_LEFT|UI_SMALLFONT|UI_DROPSHADOW;
+	int style = FONT_SMALL | FONT_SHADOW;
 	const char *s;
 
 	downloadSize = trap_Cvar_VariableValue("cl_downloadSize");
 	downloadCount = trap_Cvar_VariableValue("cl_downloadCount");
 	downloadTime = trap_Cvar_VariableValue("cl_downloadTime");
 
-	leftWidth = UI_ProportionalStringWidth(dlText) * UI_ProportionalSizeScale(style);
-	width = UI_ProportionalStringWidth(etaText) * UI_ProportionalSizeScale(style);
+	leftWidth = SCR_PropStringWidth(dlText) * PROP_SMALL_SIZE_SCALE;
+	width = SCR_PropStringWidth(etaText) * PROP_SMALL_SIZE_SCALE;
 	if (width > leftWidth) leftWidth = width;
-	width = UI_ProportionalStringWidth(xferText) * UI_ProportionalSizeScale(style);
+	width = SCR_PropStringWidth(xferText) * PROP_SMALL_SIZE_SCALE;
 	if (width > leftWidth) leftWidth = width;
 	leftWidth += 16;
 
-	UI_DrawProportionalString(8, 128, dlText, style, color_white);
-	UI_DrawProportionalString(8, 160, etaText, style, color_white);
-	UI_DrawProportionalString(8, 224, xferText, style, color_white);
+	SCR_DrawPropString(8, 128, dlText, style, color_white);
+	SCR_DrawPropString(8, 160, etaText, style, color_white);
+	SCR_DrawPropString(8, 224, xferText, style, color_white);
 
 	if (downloadSize > 0) {
 		s = va("%s (%d%%)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize));
@@ -95,14 +95,14 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 		s = downloadName;
 	}
 
-	UI_DrawProportionalString(leftWidth, 128, s, style, color_white);
+	SCR_DrawPropString(leftWidth, 128, s, style, color_white);
 
 	UI_ReadableSize(dlSizeBuf,		sizeof dlSizeBuf,		downloadCount);
 	UI_ReadableSize(totalSizeBuf,	sizeof totalSizeBuf,	downloadSize);
 
 	if (downloadCount < 4096 || !downloadTime) {
-		UI_DrawProportionalString(leftWidth, 160, "estimating", style, color_white);
-		UI_DrawProportionalString(leftWidth, 192,
+		SCR_DrawPropString(leftWidth, 160, "estimating", style, color_white);
+		SCR_DrawPropString(leftWidth, 192,
 			va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
 	} else {
 	  if ((uis.realtime - downloadTime) / 1000) {
@@ -124,24 +124,24 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 			UI_PrintTime (dlTimeBuf, sizeof dlTimeBuf, n);
 				//(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
-			UI_DrawProportionalString(leftWidth, 160,
+			SCR_DrawPropString(leftWidth, 160,
 				dlTimeBuf, style, color_white);
-			UI_DrawProportionalString(leftWidth, 192,
+			SCR_DrawPropString(leftWidth, 192,
 				va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
 		} else {
-			UI_DrawProportionalString(leftWidth, 160,
+			SCR_DrawPropString(leftWidth, 160,
 				"estimating", style, color_white);
 			if (downloadSize) {
-				UI_DrawProportionalString(leftWidth, 192,
+				SCR_DrawPropString(leftWidth, 192,
 					va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
 			} else {
-				UI_DrawProportionalString(leftWidth, 192,
+				SCR_DrawPropString(leftWidth, 192,
 					va("(%s copied)", dlSizeBuf), style, color_white);
 			}
 		}
 
 		if (xferRate) {
-			UI_DrawProportionalString(leftWidth, 224,
+			SCR_DrawPropString(leftWidth, 224,
 				va("%s/Sec", xferRateBuf), style, color_white);
 		}
 	}
@@ -169,19 +169,22 @@ void UI_DrawConnectScreen(qboolean overlay) {
 
 	info[0] = '\0';
 	if (trap_GetConfigString(CS_SERVERINFO, info, sizeof(info))) {
-		UI_DrawProportionalString(320, 16, va("Loading %s", Info_ValueForKey(info, "mapname")), UI_BIGFONT|UI_CENTER|UI_DROPSHADOW, color_white);
+		SCR_DrawPropString(320, 16, va("Loading %s", Info_ValueForKey(info, "mapname")),
+			FONT_CENTER | FONT_SHADOW, color_white);
 	}
 
-	UI_DrawProportionalString(320, 64, va("Connecting to %s", cstate.servername), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color);
-	//UI_DrawProportionalString(320, 96, "Press Esc to abort", UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color);
+	SCR_DrawPropString(320, 64, va("Connecting to %s", cstate.servername),
+		FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
+	//SCR_DrawPropString(320, 96, "Press Esc to abort", FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
 
 	// display global MOTD at bottom
-	UI_DrawProportionalString(SCREEN_WIDTH/2, SCREEN_HEIGHT-32,
-		Info_ValueForKey(cstate.updateInfoString, "motd"), UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color);
+	SCR_DrawPropString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,
+		Info_ValueForKey(cstate.updateInfoString, "motd"), FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
 
 	// print any server info (server full, bad version, etc)
 	if (cstate.connState < CA_CONNECTED) {
-		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color);
+		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString,
+			FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
 	}
 
 #if 0
@@ -238,7 +241,7 @@ void UI_DrawConnectScreen(qboolean overlay) {
 		return;
 	}
 
-	UI_DrawProportionalString(320, 128, s, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, color_white);
+	SCR_DrawPropString(320, 128, s, FONT_CENTER | FONT_SMALL| FONT_SHADOW, color_white);
 
 	// password required / connection rejected information goes here
 }

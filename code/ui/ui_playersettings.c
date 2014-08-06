@@ -71,14 +71,14 @@ static void PlayerSettings_DrawName(void *self)
 	y = f->generic.y;
 	focus = (f->generic.parent->cursor == f->generic.menuPosition);
 
-	style = UI_LEFT | UI_BIGFONT;
+	style = 0;
 	color = text_color_normal;
 	if (focus) {
-		style |= UI_PULSE;
+		style |= FONT_PULSE;
 		color = text_color_highlight;
 	}
 
-	UI_DrawProportionalString(basex, y, "Name", style, color);
+	SCR_DrawPropString(basex, y, "Name", style, color);
 
 	// draw the actual name
 	basex += 64;
@@ -98,9 +98,9 @@ static void PlayerSettings_DrawName(void *self)
 				continue;
 			}
 		}
-		UI_DrawChar(x, y, c, style, color);
+		SCR_DrawString(x, y, va("%c", c), SMALLCHAR_SIZE, style, color);
 		txt++;
-		x += BIGCHAR_WIDTH;
+		x += BIGCHAR_SIZE;
 	}
 
 	// draw cursor if we have focus
@@ -111,10 +111,11 @@ static void PlayerSettings_DrawName(void *self)
 			c = 10;
 		}
 
-		style &= ~UI_PULSE;
-		style |= UI_BLINK;
+		style &= ~FONT_PULSE;
+		style |= FONT_BLINK;
 
-		UI_DrawChar(basex + f->field.cursor * BIGCHAR_WIDTH, y, c, style, color_white);
+		SCR_DrawString(basex + f->field.cursor * BIGCHAR_SIZE, y,
+			va("%c", c), BIGCHAR_SIZE, style, color_white);
 	}
 }
 
@@ -169,7 +170,7 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.banner.generic.y		= 16;
 	s_playersettings.banner.string			= "PLAYER SETTINGS";
 	s_playersettings.banner.color			= color_white;
-	s_playersettings.banner.style			= UI_CENTER;
+	s_playersettings.banner.style			= FONT_CENTER;
 
 	y = 144;
 	s_playersettings.name.generic.type			= MTYPE_FIELD;

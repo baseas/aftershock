@@ -68,25 +68,29 @@ static void DriverInfo_MenuDraw(void)
 
 	Menu_Draw(&s_driverinfo.menu);
 
-	UI_DrawString(320, 80, "VENDOR", UI_CENTER|UI_SMALLFONT, color_red);
-	UI_DrawString(320, 152, "PIXELFORMAT", UI_CENTER|UI_SMALLFONT, color_red);
-	UI_DrawString(320, 192, "EXTENSIONS", UI_CENTER|UI_SMALLFONT, color_red);
+	SCR_DrawString(320, 80, "VENDOR", SMALLCHAR_SIZE, FONT_CENTER, color_red);
+	SCR_DrawString(320, 152, "PIXELFORMAT", SMALLCHAR_SIZE, FONT_CENTER, color_red);
+	SCR_DrawString(320, 192, "EXTENSIONS", SMALLCHAR_SIZE, FONT_CENTER, color_red);
 
-	UI_DrawString(320, 80+16, uis.glconfig.vendor_string, UI_CENTER|UI_SMALLFONT, text_color_normal);
-	UI_DrawString(320, 96+16, uis.glconfig.version_string, UI_CENTER|UI_SMALLFONT, text_color_normal);
-	UI_DrawString(320, 112+16, uis.glconfig.renderer_string, UI_CENTER|UI_SMALLFONT, text_color_normal);
-	UI_DrawString(320, 152+16, va ("color(%d-bits) Z(%d-bits) stencil(%d-bits)", uis.glconfig.colorBits, uis.glconfig.depthBits, uis.glconfig.stencilBits), UI_CENTER|UI_SMALLFONT, text_color_normal);
+	SCR_DrawString(320, 80 + 16, uis.glconfig.vendor_string, SMALLCHAR_SIZE, FONT_CENTER, text_color_normal);
+	SCR_DrawString(320, 96 + 16, uis.glconfig.version_string, SMALLCHAR_SIZE, FONT_CENTER, text_color_normal);
+	SCR_DrawString(320, 112 + 16, uis.glconfig.renderer_string, SMALLCHAR_SIZE, FONT_CENTER, text_color_normal);
+	SCR_DrawString(320, 152 + 16, va("color(%d-bits) Z(%d-bits) stencil(%d-bits)",
+		uis.glconfig.colorBits, uis.glconfig.depthBits, uis.glconfig.stencilBits),
+		SMALLCHAR_SIZE, FONT_CENTER, text_color_normal);
 
 	// double column
 	y = 192+16;
 	for (i = 0; i < s_driverinfo.numstrings / 2; i++) {
-		UI_DrawString(320-4, y, s_driverinfo.strings[i*2], UI_RIGHT|UI_SMALLFONT, text_color_normal);
-		UI_DrawString(320+4, y, s_driverinfo.strings[i*2+1], UI_LEFT|UI_SMALLFONT, text_color_normal);
-		y += SMALLCHAR_HEIGHT;
+		SCR_DrawString(320 - 4, y, s_driverinfo.strings[i * 2], SMALLCHAR_SIZE, FONT_RIGHT, text_color_normal);
+		SCR_DrawString(320 + 4, y, s_driverinfo.strings[i * 2 + 1], SMALLCHAR_SIZE, 0, text_color_normal);
+		y += SMALLCHAR_SIZE;
 	}
 
-	if (s_driverinfo.numstrings & 1)
-		UI_DrawString(320, y, s_driverinfo.strings[s_driverinfo.numstrings-1], UI_CENTER|UI_SMALLFONT, text_color_normal);
+	if (s_driverinfo.numstrings & 1) {
+		SCR_DrawString(320, y, s_driverinfo.strings[s_driverinfo.numstrings - 1],
+			SMALLCHAR_SIZE, FONT_CENTER, text_color_normal);
+	}
 }
 
 void DriverInfo_Cache(void)
@@ -121,7 +125,7 @@ static void UI_DriverInfo_Menu(void)
 	s_driverinfo.banner.generic.y		= 16;
 	s_driverinfo.banner.string			= "DRIVER INFO";
 	s_driverinfo.banner.color			= color_white;
-	s_driverinfo.banner.style			= UI_CENTER;
+	s_driverinfo.banner.style			= FONT_CENTER;
 
 	s_driverinfo.back.generic.type		= MTYPE_BITMAP;
 	s_driverinfo.back.generic.name		= DRIVERINFO_BACK0;
@@ -779,7 +783,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.banner.generic.y		= 16;
 	s_graphicsoptions.banner.string			= "SYSTEM SETUP";
 	s_graphicsoptions.banner.color			= color_white;
-	s_graphicsoptions.banner.style			= UI_CENTER;
+	s_graphicsoptions.banner.style			= FONT_CENTER;
 
 	s_graphicsoptions.graphics.generic.type		= MTYPE_PTEXT;
 	s_graphicsoptions.graphics.generic.flags	= QMF_RIGHT_JUSTIFY;
@@ -788,7 +792,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.graphics.generic.x		= 216;
 	s_graphicsoptions.graphics.generic.y		= 240 - 2 * PROP_HEIGHT;
 	s_graphicsoptions.graphics.string			= "GRAPHICS";
-	s_graphicsoptions.graphics.style			= UI_RIGHT;
+	s_graphicsoptions.graphics.style			= FONT_RIGHT;
 	s_graphicsoptions.graphics.color			= color_red;
 
 	s_graphicsoptions.display.generic.type		= MTYPE_PTEXT;
@@ -798,7 +802,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.display.generic.x			= 216;
 	s_graphicsoptions.display.generic.y			= 240 - PROP_HEIGHT;
 	s_graphicsoptions.display.string			= "DISPLAY";
-	s_graphicsoptions.display.style				= UI_RIGHT;
+	s_graphicsoptions.display.style				= FONT_RIGHT;
 	s_graphicsoptions.display.color				= color_red;
 
 	s_graphicsoptions.sound.generic.type		= MTYPE_PTEXT;
@@ -808,7 +812,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.sound.generic.x			= 216;
 	s_graphicsoptions.sound.generic.y			= 240;
 	s_graphicsoptions.sound.string				= "SOUND";
-	s_graphicsoptions.sound.style				= UI_RIGHT;
+	s_graphicsoptions.sound.style				= FONT_RIGHT;
 	s_graphicsoptions.sound.color				= color_red;
 
 	s_graphicsoptions.network.generic.type		= MTYPE_PTEXT;
@@ -818,10 +822,10 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.network.generic.x			= 216;
 	s_graphicsoptions.network.generic.y			= 240 + PROP_HEIGHT;
 	s_graphicsoptions.network.string			= "NETWORK";
-	s_graphicsoptions.network.style				= UI_RIGHT;
+	s_graphicsoptions.network.style				= FONT_RIGHT;
 	s_graphicsoptions.network.color				= color_red;
 
-	y = 240 - 7 * (BIGCHAR_HEIGHT + 2);
+	y = 240 - 7 * (BIGCHAR_SIZE + 2);
 	s_graphicsoptions.list.generic.type		= MTYPE_SPINCONTROL;
 	s_graphicsoptions.list.generic.name		= "Graphics Settings:";
 	s_graphicsoptions.list.generic.flags	= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -830,7 +834,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.list.generic.callback	= GraphicsOptions_Event;
 	s_graphicsoptions.list.generic.id		= ID_LIST;
 	s_graphicsoptions.list.itemnames		= s_graphics_options_names;
-	y += 2 * (BIGCHAR_HEIGHT + 2);
+	y += 2 * (BIGCHAR_SIZE + 2);
 
 	s_graphicsoptions.driver.generic.type	= MTYPE_SPINCONTROL;
 	s_graphicsoptions.driver.generic.name	= "GL Driver:";
@@ -839,7 +843,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.driver.generic.y		= y;
 	s_graphicsoptions.driver.itemnames		= s_driver_names;
 	s_graphicsoptions.driver.curvalue		= (uis.glconfig.driverType == GLDRV_VOODOO);
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_allowExtensions"
 	s_graphicsoptions.allow_extensions.generic.type		= MTYPE_SPINCONTROL;
@@ -848,7 +852,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.allow_extensions.generic.x		= 400;
 	s_graphicsoptions.allow_extensions.generic.y		= y;
 	s_graphicsoptions.allow_extensions.itemnames		= enabled_names;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	s_graphicsoptions.ratio.generic.type		= MTYPE_SPINCONTROL;
 	s_graphicsoptions.ratio.generic.name		= "Aspect Ratio:";
@@ -858,7 +862,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.ratio.itemnames			= ratios;
 	s_graphicsoptions.ratio.generic.callback	= GraphicsOptions_Event;
 	s_graphicsoptions.ratio.generic.id			= ID_RATIO;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_mode"
 	s_graphicsoptions.mode.generic.type		= MTYPE_SPINCONTROL;
@@ -869,7 +873,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.mode.itemnames		= resolutions;
 	s_graphicsoptions.mode.generic.callback	= GraphicsOptions_Event;
 	s_graphicsoptions.mode.generic.id		= ID_MODE;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_fullscreen"
 	s_graphicsoptions.fs.generic.type	= MTYPE_SPINCONTROL;
@@ -878,7 +882,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.fs.generic.x		= 400;
 	s_graphicsoptions.fs.generic.y		= y;
 	s_graphicsoptions.fs.itemnames		= enabled_names;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_vertexLight"
 	s_graphicsoptions.lighting.generic.type		= MTYPE_SPINCONTROL;
@@ -887,7 +891,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.lighting.generic.x		= 400;
 	s_graphicsoptions.lighting.generic.y		= y;
 	s_graphicsoptions.lighting.itemnames		= lighting_names;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_lodBias" & "subdivisions"
 	s_graphicsoptions.geometry.generic.type		= MTYPE_SPINCONTROL;
@@ -896,7 +900,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.geometry.generic.x		= 400;
 	s_graphicsoptions.geometry.generic.y		= y;
 	s_graphicsoptions.geometry.itemnames		= quality_names;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_picmip"
 	s_graphicsoptions.tq.generic.type		= MTYPE_SLIDER;
@@ -907,7 +911,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.tq.minvalue			= 0;
 	s_graphicsoptions.tq.maxvalue			= 3;
 	s_graphicsoptions.tq.generic.callback	= GraphicsOptions_TQEvent;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_textureBits"
 	s_graphicsoptions.texturebits.generic.type	= MTYPE_SPINCONTROL;
@@ -916,7 +920,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.texturebits.generic.x		= 400;
 	s_graphicsoptions.texturebits.generic.y		= y;
 	s_graphicsoptions.texturebits.itemnames		= tq_names;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	// references/modifies "r_textureMode"
 	s_graphicsoptions.filter.generic.type	= MTYPE_SPINCONTROL;
@@ -925,7 +929,7 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.filter.generic.x		= 400;
 	s_graphicsoptions.filter.generic.y		= y;
 	s_graphicsoptions.filter.itemnames		= filter_names;
-	y += 2*BIGCHAR_HEIGHT;
+	y += 2*BIGCHAR_SIZE;
 
 	s_graphicsoptions.driverinfo.generic.type		= MTYPE_PTEXT;
 	s_graphicsoptions.driverinfo.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -934,9 +938,9 @@ void GraphicsOptions_MenuInit(void)
 	s_graphicsoptions.driverinfo.generic.x			= 320;
 	s_graphicsoptions.driverinfo.generic.y			= y;
 	s_graphicsoptions.driverinfo.string				= "Driver Info";
-	s_graphicsoptions.driverinfo.style				= UI_CENTER|UI_SMALLFONT;
+	s_graphicsoptions.driverinfo.style				= FONT_CENTER|FONT_SMALL;
 	s_graphicsoptions.driverinfo.color				= color_red;
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 
 	s_graphicsoptions.back.generic.type		= MTYPE_BITMAP;
 	s_graphicsoptions.back.generic.name		= GRAPHICSOPTIONS_BACK0;

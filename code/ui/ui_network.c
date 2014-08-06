@@ -124,7 +124,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.banner.generic.y			= 16;
 	networkOptionsInfo.banner.string			= "SYSTEM SETUP";
 	networkOptionsInfo.banner.color				= color_white;
-	networkOptionsInfo.banner.style				= UI_CENTER;
+	networkOptionsInfo.banner.style				= FONT_CENTER;
 
 	networkOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	networkOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -133,7 +133,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.graphics.generic.x			= 216;
 	networkOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
 	networkOptionsInfo.graphics.string				= "GRAPHICS";
-	networkOptionsInfo.graphics.style				= UI_RIGHT;
+	networkOptionsInfo.graphics.style				= FONT_RIGHT;
 	networkOptionsInfo.graphics.color				= color_red;
 
 	networkOptionsInfo.display.generic.type			= MTYPE_PTEXT;
@@ -143,7 +143,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.display.generic.x			= 216;
 	networkOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
 	networkOptionsInfo.display.string				= "DISPLAY";
-	networkOptionsInfo.display.style				= UI_RIGHT;
+	networkOptionsInfo.display.style				= FONT_RIGHT;
 	networkOptionsInfo.display.color				= color_red;
 
 	networkOptionsInfo.sound.generic.type			= MTYPE_PTEXT;
@@ -153,7 +153,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.sound.generic.x				= 216;
 	networkOptionsInfo.sound.generic.y				= 240;
 	networkOptionsInfo.sound.string					= "SOUND";
-	networkOptionsInfo.sound.style					= UI_RIGHT;
+	networkOptionsInfo.sound.style					= FONT_RIGHT;
 	networkOptionsInfo.sound.color					= color_red;
 
 	networkOptionsInfo.network.generic.type			= MTYPE_PTEXT;
@@ -163,10 +163,10 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.generic.x			= 216;
 	networkOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
 	networkOptionsInfo.network.string				= "NETWORK";
-	networkOptionsInfo.network.style				= UI_RIGHT;
+	networkOptionsInfo.network.style				= FONT_RIGHT;
 	networkOptionsInfo.network.color				= color_red;
 
-	y = 240 - 1 * (BIGCHAR_HEIGHT+2);
+	y = 240 - 1 * (BIGCHAR_SIZE+2);
 	networkOptionsInfo.rate.generic.type		= MTYPE_SPINCONTROL;
 	networkOptionsInfo.rate.generic.name		= "Data Rate:";
 	networkOptionsInfo.rate.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;

@@ -109,7 +109,8 @@ static void Main_MenuDraw(void)
 	vec4_t			color = {0.5, 0, 0, 1};
 
 	if (strlen(s_errorMessage.errorMessage)) {
-		UI_DrawProportionalString_AutoWrapped(MENU_XPOS, 192, 600, 20, s_errorMessage.errorMessage, UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, menu_text_color);
+		UI_DrawProportionalString_AutoWrapped(MENU_XPOS, 192, 600, 20, s_errorMessage.errorMessage,
+			FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
 	} else {
 		// standard menu drawing
 		Menu_Draw(&s_main.menu);
@@ -123,13 +124,13 @@ static void Main_MenuDraw(void)
 		UI_DrawNamedPic(65, y, 10, 15, "white_arrow_small");
 	}
 
-	UI_DrawString(320, 450, "aftershock-fps.com", UI_CENTER | UI_SMALLFONT | UI_DROPSHADOW, color);
+	SCR_DrawString(320, 450, "aftershock-fps.com", SMALLCHAR_SIZE, FONT_CENTER | FONT_SHADOW, color);
 }
 
 void UI_MainMenu(void)
 {
 	int		y;
-	int		style = UI_SMALLFONT;
+	int		style = FONT_SMALL;
 
 	trap_Cvar_Set("sv_killserver", "1");
 

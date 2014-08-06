@@ -35,6 +35,7 @@ void MField_Draw(mfield_t *edit, int x, int y, int style, vec4_t color)
 	int		prestep;
 	int		cursorChar;
 	char	str[MAX_STRING_CHARS];
+	int		fontStyle = 0;
 
 	drawLen = edit->widthInChars;
 	len = strlen(edit->buffer) + 1;
@@ -63,10 +64,29 @@ void MField_Draw(mfield_t *edit, int x, int y, int style, vec4_t color)
 	memcpy(str, edit->buffer + prestep, drawLen);
 	str[drawLen] = 0;
 
-	UI_DrawString(x, y, str, style, color);
+	if (style & FONT_SMALL) {
+		charw = SMALLCHAR_SIZE;
+	} else {
+		charw = BIGCHAR_SIZE;
+	}
+
+	if (style & FONT_CENTER) {
+		fontStyle |= FONT_CENTER;
+	} else if (style & FONT_RIGHT) {
+		fontStyle |= FONT_RIGHT;
+	}
+
+	if (style & FONT_PULSE) {
+		fontStyle |= FONT_PULSE;
+	}
+	if (style & FONT_BLINK) {
+		fontStyle |= FONT_BLINK;
+	}
+
+	SCR_DrawString(x, y, str, charw, fontStyle, color);
 
 	// draw the cursor
-	if (!(style & UI_PULSE)) {
+	if (!(style & FONT_PULSE)) {
 		return;
 	}
 
@@ -76,26 +96,19 @@ void MField_Draw(mfield_t *edit, int x, int y, int style, vec4_t color)
 		cursorChar = 10;
 	}
 
-	style &= ~UI_PULSE;
-	style |= UI_BLINK;
+	style &= ~FONT_PULSE;
+	style |= FONT_BLINK;
 
-	if (style & UI_SMALLFONT) {
-		charw = SMALLCHAR_WIDTH;
-	} else if (style & UI_GIANTFONT) {
-		charw = GIANTCHAR_WIDTH;
-	} else {
-		charw = BIGCHAR_WIDTH;
-	}
-
-	if (style & UI_CENTER) {
+	if (style & FONT_CENTER) {
 		len = strlen(str);
 		x = x - len*charw/2;
-	} else if (style & UI_RIGHT) {
+	} else if (style & FONT_RIGHT) {
 		len = strlen(str);
 		x = x - len*charw;
 	}
 
-	UI_DrawChar(x + (edit->cursor - prestep) * charw, y, cursorChar, style & ~(UI_CENTER|UI_RIGHT), color);
+	SCR_DrawString(x + (edit->cursor - prestep) * charw, y, va("%c", cursorChar),
+		charw, fontStyle & ~(FONT_CENTER | FONT_RIGHT), color);
 }
 
 void MField_Paste(mfield_t *edit)
@@ -271,11 +284,11 @@ void MenuField_Init(menufield_s* m)
 	MField_Clear(&m->field);
 
 	if (m->generic.flags & QMF_SMALLFONT) {
-		w = SMALLCHAR_WIDTH;
-		h = SMALLCHAR_HEIGHT;
+		w = SMALLCHAR_SIZE;
+		h = SMALLCHAR_SIZE;
 	} else {
-		w = BIGCHAR_WIDTH;
-		h = BIGCHAR_HEIGHT;
+		w = BIGCHAR_SIZE;
+		h = BIGCHAR_SIZE;
 	}
 
 	if (m->generic.name) {
@@ -303,16 +316,16 @@ void MenuField_Draw(menufield_s *f)
 	y =	f->generic.y;
 
 	if (f->generic.flags & QMF_SMALLFONT) {
-		w = SMALLCHAR_WIDTH;
-		style = UI_SMALLFONT;
+		w = SMALLCHAR_SIZE;
+		style = FONT_SMALL;
 	} else {
-		w = BIGCHAR_WIDTH;
-		style = UI_BIGFONT;
+		w = BIGCHAR_SIZE;
+		style = 0;
 	}
 
 	if (Menu_ItemAtCursor(f->generic.parent) == f) {
 		focus = qtrue;
-		style |= UI_PULSE;
+		style |= FONT_PULSE;
 	} else {
 		focus = qfalse;
 	}
@@ -327,12 +340,12 @@ void MenuField_Draw(menufield_s *f)
 
 	if (focus) {
 		// draw cursor
-		UI_FillRect(f->generic.left, f->generic.top, f->generic.right-f->generic.left+1, f->generic.bottom-f->generic.top+1, listbar_color);
-		UI_DrawChar(x, y, 13, UI_CENTER|UI_BLINK|style, color);
+		SCR_FillRect(f->generic.left, f->generic.top, f->generic.right-f->generic.left+1, f->generic.bottom-f->generic.top+1, listbar_color);
+		SCR_DrawString(x, y, "\15", w, FONT_CENTER | FONT_BLINK, color);
 	}
 
 	if (f->generic.name) {
-		UI_DrawString(x - w, y, f->generic.name, style|UI_RIGHT, color);
+		SCR_DrawString(x - w, y, f->generic.name, w, FONT_RIGHT, color);
 	}
 
 	MField_Draw(&f->field, x + w, y, style, color);

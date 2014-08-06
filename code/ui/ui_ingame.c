@@ -155,7 +155,7 @@ void InGame_MenuInit(void)
 	s_ingame.team.generic.callback		= InGame_Event;
 	s_ingame.team.string				= "START";
 	s_ingame.team.color					= color_red;
-	s_ingame.team.style					= UI_CENTER|UI_SMALLFONT;
+	s_ingame.team.style					= FONT_CENTER|FONT_SMALL;
 
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.addbots.generic.type		= MTYPE_PTEXT;
@@ -166,7 +166,7 @@ void InGame_MenuInit(void)
 	s_ingame.addbots.generic.callback	= InGame_Event;
 	s_ingame.addbots.string				= "ADD BOTS";
 	s_ingame.addbots.color				= color_red;
-	s_ingame.addbots.style				= UI_CENTER|UI_SMALLFONT;
+	s_ingame.addbots.style				= FONT_CENTER|FONT_SMALL;
 	if (!trap_Cvar_VariableValue("sv_running") || !trap_Cvar_VariableValue("bot_enable")) {
 		s_ingame.addbots.generic.flags |= QMF_GRAYED;
 	}
@@ -180,7 +180,7 @@ void InGame_MenuInit(void)
 	s_ingame.removebots.generic.callback	= InGame_Event;
 	s_ingame.removebots.string				= "REMOVE BOTS";
 	s_ingame.removebots.color				= color_red;
-	s_ingame.removebots.style				= UI_CENTER|UI_SMALLFONT;
+	s_ingame.removebots.style				= FONT_CENTER|FONT_SMALL;
 	if (!trap_Cvar_VariableValue("sv_running") || !trap_Cvar_VariableValue("bot_enable")) {
 		s_ingame.removebots.generic.flags |= QMF_GRAYED;
 	}
@@ -194,7 +194,7 @@ void InGame_MenuInit(void)
 	s_ingame.setup.generic.callback		= InGame_Event;
 	s_ingame.setup.string				= "SETUP";
 	s_ingame.setup.color				= color_red;
-	s_ingame.setup.style				= UI_CENTER|UI_SMALLFONT;
+	s_ingame.setup.style				= FONT_CENTER|FONT_SMALL;
 
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.server.generic.type		= MTYPE_PTEXT;
@@ -205,7 +205,7 @@ void InGame_MenuInit(void)
 	s_ingame.server.generic.callback	= InGame_Event;
 	s_ingame.server.string				= "SERVER INFO";
 	s_ingame.server.color				= color_red;
-	s_ingame.server.style				= UI_CENTER|UI_SMALLFONT;
+	s_ingame.server.style				= FONT_CENTER|FONT_SMALL;
 
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.restart.generic.type		= MTYPE_PTEXT;
@@ -216,7 +216,7 @@ void InGame_MenuInit(void)
 	s_ingame.restart.generic.callback	= InGame_Event;
 	s_ingame.restart.string				= "RESTART ARENA";
 	s_ingame.restart.color				= color_red;
-	s_ingame.restart.style				= UI_CENTER|UI_SMALLFONT;
+	s_ingame.restart.style				= FONT_CENTER|FONT_SMALL;
 	if (!trap_Cvar_VariableValue("sv_running")) {
 		s_ingame.restart.generic.flags |= QMF_GRAYED;
 	}
@@ -230,7 +230,7 @@ void InGame_MenuInit(void)
 	s_ingame.resume.generic.callback		= InGame_Event;
 	s_ingame.resume.string					= "RESUME GAME";
 	s_ingame.resume.color					= color_red;
-	s_ingame.resume.style					= UI_CENTER|UI_SMALLFONT;
+	s_ingame.resume.style					= FONT_CENTER|FONT_SMALL;
 
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.leave.generic.type			= MTYPE_PTEXT;
@@ -241,7 +241,7 @@ void InGame_MenuInit(void)
 	s_ingame.leave.generic.callback		= InGame_Event;
 	s_ingame.leave.string				= "LEAVE ARENA";
 	s_ingame.leave.color				= color_red;
-	s_ingame.leave.style				= UI_CENTER|UI_SMALLFONT;
+	s_ingame.leave.style				= FONT_CENTER|FONT_SMALL;
 
 	y += INGAME_MENU_VERTICAL_SPACING;
 	s_ingame.quit.generic.type			= MTYPE_PTEXT;
@@ -252,7 +252,7 @@ void InGame_MenuInit(void)
 	s_ingame.quit.generic.callback		= InGame_Event;
 	s_ingame.quit.string				= "EXIT GAME";
 	s_ingame.quit.color					= color_red;
-	s_ingame.quit.style					= UI_CENTER|UI_SMALLFONT;
+	s_ingame.quit.style					= FONT_CENTER|FONT_SMALL;
 
 	Menu_AddItem(&s_ingame.menu, &s_ingame.frame);
 	Menu_AddItem(&s_ingame.menu, &s_ingame.team);

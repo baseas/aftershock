@@ -189,7 +189,7 @@ static void UI_RemoveBotsMenu_Init(void)
 	removeBotsMenuInfo.banner.generic.y			= 16;
 	removeBotsMenuInfo.banner.string			= "REMOVE BOTS";
 	removeBotsMenuInfo.banner.color				= color_white;
-	removeBotsMenuInfo.banner.style				= UI_CENTER;
+	removeBotsMenuInfo.banner.style				= FONT_CENTER;
 
 	removeBotsMenuInfo.background.generic.type	= MTYPE_BITMAP;
 	removeBotsMenuInfo.background.generic.name	= ART_BACKGROUND;
@@ -236,7 +236,7 @@ static void UI_RemoveBotsMenu_Init(void)
 		removeBotsMenuInfo.bots[n].generic.callback	= UI_RemoveBotsMenu_BotEvent;
 		removeBotsMenuInfo.bots[n].string			= removeBotsMenuInfo.botnames[n];
 		removeBotsMenuInfo.bots[n].color			= color_orange;
-		removeBotsMenuInfo.bots[n].style			= UI_LEFT|UI_SMALLFONT;
+		removeBotsMenuInfo.bots[n].style			= FONT_SMALL;
 	}
 
 	removeBotsMenuInfo.delete.generic.type		= MTYPE_BITMAP;

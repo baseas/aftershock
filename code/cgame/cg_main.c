@@ -794,41 +794,41 @@ static void CG_RegisterModels(void)
 static int CG_UpdateColor(vmCvar_t *cvar)
 {
 	if (cvar == &cg_teamHeadColor) {
-		CG_ParseColor(cgs.media.teamModel.headColor, cvar->string);
+		SCR_ParseColor(cgs.media.teamModel.headColor, cvar->string);
 	} else if (cvar == &cg_teamTorsoColor) {
-		CG_ParseColor(cgs.media.teamModel.torsoColor, cvar->string);
+		SCR_ParseColor(cgs.media.teamModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_teamLegsColor) {
-		CG_ParseColor(cgs.media.teamModel.legsColor, cvar->string);
+		SCR_ParseColor(cgs.media.teamModel.legsColor, cvar->string);
 	} else if (cvar == &cg_enemyHeadColor) {
-		CG_ParseColor(cgs.media.enemyModel.headColor, cvar->string);
+		SCR_ParseColor(cgs.media.enemyModel.headColor, cvar->string);
 	} else if (cvar == &cg_enemyTorsoColor) {
-		CG_ParseColor(cgs.media.enemyModel.torsoColor, cvar->string);
+		SCR_ParseColor(cgs.media.enemyModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_enemyLegsColor) {
-		 CG_ParseColor(cgs.media.enemyModel.legsColor, cvar->string);
+		 SCR_ParseColor(cgs.media.enemyModel.legsColor, cvar->string);
 	} else if (cvar == &cg_redHeadColor) {
-		CG_ParseColor(cgs.media.redTeamModel.headColor, cvar->string);
+		SCR_ParseColor(cgs.media.redTeamModel.headColor, cvar->string);
 	} else if (cvar == &cg_redTorsoColor) {
-		CG_ParseColor(cgs.media.redTeamModel.torsoColor, cvar->string);
+		SCR_ParseColor(cgs.media.redTeamModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_redLegsColor) {
-		CG_ParseColor(cgs.media.redTeamModel.legsColor, cvar->string);
+		SCR_ParseColor(cgs.media.redTeamModel.legsColor, cvar->string);
 	} else if (cvar == &cg_blueHeadColor) {
-		CG_ParseColor(cgs.media.blueTeamModel.headColor, cvar->string);
+		SCR_ParseColor(cgs.media.blueTeamModel.headColor, cvar->string);
 	} else if (cvar == &cg_blueTorsoColor) {
-		CG_ParseColor(cgs.media.blueTeamModel.torsoColor, cvar->string);
+		SCR_ParseColor(cgs.media.blueTeamModel.torsoColor, cvar->string);
 	} else if (cvar == &cg_blueLegsColor) {
-		CG_ParseColor(cgs.media.blueTeamModel.legsColor, cvar->string);
+		SCR_ParseColor(cgs.media.blueTeamModel.legsColor, cvar->string);
 	} else if (cvar == &cg_deadBodyColor) {
-		CG_ParseColor(cgs.media.deadBodyColor, cvar->string);
+		SCR_ParseColor(cgs.media.deadBodyColor, cvar->string);
 	} else if (cvar == &cg_crosshairColor) {
-		CG_ParseColor(cgs.media.crosshairColor, cvar->string);
+		SCR_ParseColor(cgs.media.crosshairColor, cvar->string);
 	} else if (cvar == &cg_crosshairHitColor) {
-		CG_ParseColor(cgs.media.crosshairHitColor, cvar->string);
+		SCR_ParseColor(cgs.media.crosshairHitColor, cvar->string);
 	} else if (cvar == &cg_teamWeaponColor) {
-		CG_ParseColor(cgs.media.teamModel.weaponColor, cvar->string);
+		SCR_ParseColor(cgs.media.teamModel.weaponColor, cvar->string);
 	} else if (cvar == &cg_enemyWeaponColor) {
-		CG_ParseColor(cgs.media.enemyModel.weaponColor, cvar->string);
-		CG_ParseColor(cgs.media.redTeamModel.weaponColor, cvar->string);
-		CG_ParseColor(cgs.media.blueTeamModel.weaponColor, cvar->string);
+		SCR_ParseColor(cgs.media.enemyModel.weaponColor, cvar->string);
+		SCR_ParseColor(cgs.media.redTeamModel.weaponColor, cvar->string);
+		SCR_ParseColor(cgs.media.blueTeamModel.weaponColor, cvar->string);
 	} else {
 		return 1;
 	}

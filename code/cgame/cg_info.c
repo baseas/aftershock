@@ -88,11 +88,9 @@ void CG_DrawInformation(void)
 	// the first 150 rows are reserved for the client connection
 	// screen to write into
 	if (cg.showInfoScreen) {
-		UI_DrawProportionalString(320, 128-32, "Loading... ",
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+		SCR_DrawPropString(320, 128 - 32, "Loading... ", FONT_CENTER | FONT_SHADOW, colorWhite);
 	} else if (!cg.showInfo) {
-		UI_DrawProportionalString(320, 128-32, "Awaiting snapshot...",
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+		SCR_DrawPropString(320, 128 - 32, "Awaiting snapshot...", FONT_CENTER | FONT_SHADOW, colorWhite);
 	}
 
 	// draw info string information
@@ -105,23 +103,20 @@ void CG_DrawInformation(void)
 		// server hostname
 		Q_strncpyz(buf, Info_ValueForKey(info, "sv_hostname"), 1024);
 		Q_CleanStr(buf);
-		UI_DrawProportionalString(320, y, buf,
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+		SCR_DrawPropString(320, y, buf, FONT_CENTER | FONT_SHADOW, colorWhite);
 		y += PROP_HEIGHT;
 
 		// pure server
 		s = Info_ValueForKey(sysInfo, "sv_pure");
 		if (s[0] == '1') {
-			UI_DrawProportionalString(320, y, "Pure Server",
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+			SCR_DrawPropString(320, y, "Pure Server", FONT_CENTER | FONT_SHADOW, colorWhite);
 			y += PROP_HEIGHT;
 		}
 
 		// server-specific message of the day
 		s = CG_ConfigString(CS_MOTD);
 		if (s[0]) {
-			UI_DrawProportionalString(320, y, s,
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+			SCR_DrawPropString(320, y, s, FONT_CENTER | FONT_SHADOW, colorWhite);
 			y += PROP_HEIGHT;
 		}
 
@@ -132,35 +127,30 @@ void CG_DrawInformation(void)
 	// map-specific message (long map name)
 	s = CG_ConfigString(CS_MESSAGE);
 	if (s[0]) {
-		UI_DrawProportionalString(320, y, s,
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorYellow);
+		SCR_DrawPropString(320, y, s, FONT_CENTER | FONT_SHADOW, colorYellow);
 		y += PROP_HEIGHT;
 	}
 
 	// cheats warning
 	s = Info_ValueForKey(sysInfo, "sv_cheats");
 	if (s[0] == '1') {
-		UI_DrawProportionalString(320, y, "CHEATS ARE ENABLED",
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+		SCR_DrawPropString(320, y, "CHEATS ARE ENABLED", FONT_CENTER | FONT_SHADOW, colorWhite);
 		y += PROP_HEIGHT;
 	}
 
-	UI_DrawProportionalString(320, y, cgs.gametypeName,
-		UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+	SCR_DrawPropString(320, y, cgs.gametypeName, FONT_CENTER | FONT_SHADOW, colorWhite);
 	y += PROP_HEIGHT;
-		
+
 	value = atoi(Info_ValueForKey(info, "timelimit"));
 	if (value) {
-		UI_DrawProportionalString(320, y, va("timelimit %i", value),
-			UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+		SCR_DrawPropString(320, y, "timelimit %d", FONT_CENTER | FONT_SHADOW, colorWhite);
 		y += PROP_HEIGHT;
 	}
 
 	if (cgs.gametype == GT_FFA) {
 		value = atoi(Info_ValueForKey(info, "fraglimit"));
 		if (value) {
-			UI_DrawProportionalString(320, y, va("fraglimit %i", value),
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+			SCR_DrawPropString(320, y, va("fraglimit %d", value), FONT_CENTER | FONT_SHADOW, colorWhite);
 			y += PROP_HEIGHT;
 		}
 	}
@@ -168,8 +158,7 @@ void CG_DrawInformation(void)
 	if (cgs.gametype >= GT_CTF) {
 		value = atoi(Info_ValueForKey(info, "capturelimit"));
 		if (value) {
-			UI_DrawProportionalString(320, y, va("capturelimit %i", value),
-				UI_CENTER|UI_SMALLFONT|UI_DROPSHADOW, colorWhite);
+			SCR_DrawPropString(320, y, va("capturelimit %d", value), FONT_CENTER | FONT_SHADOW, colorWhite);
 			y += PROP_HEIGHT;
 		}
 	}

@@ -72,7 +72,7 @@ void CG_RailTrail(clientInfo_t *ci, vec3_t start, vec3_t end)
 	VectorCopy(end, re->oldorigin);
 
 	CG_GetWeaponColor(le->color, ci, WPCOLOR_RAILTRAIL);
-	CG_SetRGBA(re->shaderRGBA, le->color);
+	SCR_SetRGBA(re->shaderRGBA, le->color);
 
 	AxisClear(re->axis);
 }
@@ -167,7 +167,7 @@ static void CG_ProjectileTrail(centity_t *ent, const weaponInfo_t *wi)
 			re->customShader = cgs.media.railCoreShader;
 
 			Vector4Copy(color, le->color);
-			CG_SetRGBA(re->shaderRGBA, color);
+			SCR_SetRGBA(re->shaderRGBA, color);
 
 			VectorCopy(lastPosSaved, re->origin);
 			VectorCopy(lastPos, re->oldorigin);
@@ -572,7 +572,7 @@ static void CG_LightningBolt(centity_t *cent, vec3_t origin)
 	beam.reType = RT_LIGHTNING;
 
 	CG_GetWeaponColor(color, ci, WPCOLOR_LIGHTNING);
-	CG_SetRGBA(beam.shaderRGBA, color);
+	SCR_SetRGBA(beam.shaderRGBA, color);
 
 	style = cg_lightningStyle.integer;
 	if (style < 0) {
@@ -691,7 +691,7 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent,
 			Vector4Scale(color, (cg.time - cent->pe.railFireTime) / 1500.0f, color);
 		}
 
-		CG_SetRGBA(gun.shaderRGBA, color);
+		SCR_SetRGBA(gun.shaderRGBA, color);
 	}
 
 	gun.hModel = weapon->weaponModel;
@@ -784,7 +784,7 @@ void CG_AddPlayerWeapon(refEntity_t *parent, playerState_t *ps, centity_t *cent,
 			color[3] = 1.0f;
 		}
 
-		CG_SetRGBA(flash.shaderRGBA, color);
+		SCR_SetRGBA(flash.shaderRGBA, color);
 
 		CG_PositionRotatedEntityOnTag(&flash, &gun, weapon->weaponModel, "tag_flash");
 		trap_R_AddRefEntityToScene(&flash);
@@ -1266,7 +1266,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		le->light = light;
 		VectorCopy(lightColor, le->lightColor);
 
-		CG_SetRGBA(le->refEntity.shaderRGBA, color);
+		SCR_SetRGBA(le->refEntity.shaderRGBA, color);
 	}
 
 	// impact mark

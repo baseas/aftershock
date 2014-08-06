@@ -35,7 +35,7 @@ static void CG_HudParseColor(const char *arg, int *teamColor, vec4_t color)
 	} else if (!strcmp(token1, "enemy")) {
 		*teamColor = 2;
 	} else {
-		CG_ParseColor(color, token1);
+		SCR_ParseColor(color, token1);
 	}
 
 	token2 = COM_Parse((char **) &arg);
@@ -90,7 +90,7 @@ static void Prop_ColorPrint(hudElement_t *element, char *buffer, int length)
 
 static void Prop_FontSizePrint(hudElement_t *element, char *buffer, int length)
 {
-	Com_sprintf(buffer, length, "%g %g", element->fontWidth, element->fontHeight);
+	Com_sprintf(buffer, length, "%g", element->fontSize);
 }
 
 static void Prop_FillPrint(hudElement_t *element, char *buffer, int length)
@@ -171,17 +171,7 @@ static void Prop_Color(hudElement_t *element, const char *arg)
 
 static void Prop_FontSize(hudElement_t *element, const char *arg)
 {
-	char	*token;
-
-	token = COM_Parse((char **) &arg);
-	element->fontWidth = atof(token);
-
-	token = COM_Parse((char **) &arg);
-	if (*token == '\0') {
-		element->fontHeight = element->fontWidth;
-		return;
-	}
-	element->fontHeight = atof(token);
+	element->fontSize = atof(arg);
 }
 
 static void Prop_Fill(hudElement_t *element, const char *arg)
@@ -339,8 +329,7 @@ static void CG_HudElementReset(hudElement_t *element)
 	memset(element->bgcolor, 0, sizeof *element->bgcolor);
 	Vector4Copy(colorWhite, element->color);
 
-	element->fontWidth = 8;
-	element->fontHeight = 12;
+	element->fontSize = 10;
 }
 
 static void CG_SetProperty(hudElement_t *element, const char *key, const char *value)
@@ -390,11 +379,7 @@ static void CG_PrintElements(void)
 	int	i;
 	CG_Printf("Hud element names are: ");
 	for (i = 0; hudTags[i]; i++) {
-		if (i % 2) {
-			CG_Printf(S_COLOR_YELLOW);
-		}
-
-		CG_Printf("%s", hudTags[i]);
+		CG_Printf("^%c%s", (i % 2 ? '3' : '7'), hudTags[i]);
 
 		if (hudTags[i + 1]) {
 			CG_Printf(", ");

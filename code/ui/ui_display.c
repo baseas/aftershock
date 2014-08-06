@@ -106,7 +106,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.banner.generic.y			= 16;
 	displayOptionsInfo.banner.string			= "SYSTEM SETUP";
 	displayOptionsInfo.banner.color				= color_white;
-	displayOptionsInfo.banner.style				= UI_CENTER;
+	displayOptionsInfo.banner.style				= FONT_CENTER;
 
 	displayOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	displayOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -115,7 +115,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.graphics.generic.x			= 216;
 	displayOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
 	displayOptionsInfo.graphics.string				= "GRAPHICS";
-	displayOptionsInfo.graphics.style				= UI_RIGHT;
+	displayOptionsInfo.graphics.style				= FONT_RIGHT;
 	displayOptionsInfo.graphics.color				= color_red;
 
 	displayOptionsInfo.display.generic.type			= MTYPE_PTEXT;
@@ -125,7 +125,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.display.generic.x			= 216;
 	displayOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
 	displayOptionsInfo.display.string				= "DISPLAY";
-	displayOptionsInfo.display.style				= UI_RIGHT;
+	displayOptionsInfo.display.style				= FONT_RIGHT;
 	displayOptionsInfo.display.color				= color_red;
 
 	displayOptionsInfo.sound.generic.type			= MTYPE_PTEXT;
@@ -135,7 +135,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.sound.generic.x				= 216;
 	displayOptionsInfo.sound.generic.y				= 240;
 	displayOptionsInfo.sound.string					= "SOUND";
-	displayOptionsInfo.sound.style					= UI_RIGHT;
+	displayOptionsInfo.sound.style					= FONT_RIGHT;
 	displayOptionsInfo.sound.color					= color_red;
 
 	displayOptionsInfo.network.generic.type			= MTYPE_PTEXT;
@@ -145,10 +145,10 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.network.generic.x			= 216;
 	displayOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
 	displayOptionsInfo.network.string				= "NETWORK";
-	displayOptionsInfo.network.style				= UI_RIGHT;
+	displayOptionsInfo.network.style				= FONT_RIGHT;
 	displayOptionsInfo.network.color				= color_red;
 
-	y = 240 - 1 * (BIGCHAR_HEIGHT+2);
+	y = 240 - 1 * (BIGCHAR_SIZE+2);
 	displayOptionsInfo.brightness.generic.type		= MTYPE_SLIDER;
 	displayOptionsInfo.brightness.generic.name		= "Brightness:";
 	displayOptionsInfo.brightness.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
@@ -162,7 +162,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 		displayOptionsInfo.brightness.generic.flags |= QMF_GRAYED;
 	}
 
-	y += BIGCHAR_HEIGHT+2;
+	y += BIGCHAR_SIZE+2;
 	displayOptionsInfo.screensize.generic.type		= MTYPE_SLIDER;
 	displayOptionsInfo.screensize.generic.name		= "Screen Size:";
 	displayOptionsInfo.screensize.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
