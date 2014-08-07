@@ -4290,3 +4290,16 @@ void CL_ShowIP_f(void) {
 	Sys_ShowIP();
 }
 
+void CL_GetClipboardData(char *buf, int buflen)
+{
+	char	*cbd;
+
+	cbd = Sys_GetClipboardData();
+	if (!cbd) {
+		*buf = 0;
+		return;
+	}
+	Q_strncpyz(buf, cbd, buflen);
+	Z_Free(cbd);
+}
+

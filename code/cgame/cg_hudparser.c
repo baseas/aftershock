@@ -226,6 +226,7 @@ struct {
 };
 
 static const char *hudTags[] = {
+	"ChatInput",
 	"AmmoMessage",
 	"AttackerIcon",
 	"AttackerName",

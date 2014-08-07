@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 // cg_main.c -- initialization and primary entry point for cgame
 
 #include "cg_local.h"
+#include "../client/keycodes.h"
 
 #define FLT_MIN		-1e5
 #define FLT_MAX		+1e5
@@ -908,6 +909,9 @@ void CG_Init(int serverMessageNum, int serverCommandSequence, int clientNum)
 	memset(cg_weapons, 0, sizeof cg_weapons);
 	memset(cg_items, 0, sizeof cg_items);
 
+	cgs.chatField.widthInChars = 30;
+	cgs.chatField.maxchars = 50;
+
 	for (i = 0; i < MAX_CLIENTS; ++i) {
 		cg.sortedClients[i] = i;
 	}
@@ -1001,7 +1005,42 @@ type 0 - no event handling
 */
 void CG_EventHandling(int type) { }
 
-void CG_KeyEvent(int key, qboolean down) { }
+void CG_KeyEvent(int key, qboolean down)
+{
+	if (!cgs.activeChat) {
+		return;
+	}
+	if (key == K_ENTER || key == K_KP_ENTER) {
+		trap_Key_SetCatcher(0);
+
+		if (!cgs.chatField.buffer[0]) {
+			return;
+		}
+
+		switch (cgs.activeChat) {
+		case SAY_ALL:
+			trap_SendClientCommand(va("say \"%s\"", cgs.chatField.buffer));
+			break;
+		case SAY_TEAM:
+			trap_SendClientCommand(va("say_team \"%s\"", cgs.chatField.buffer));
+			break;
+		case SAY_TELL:
+			break;
+		default:
+			break;
+		}
+
+		cgs.activeChat = 0;
+	} else if (key == K_ESCAPE || key == K_MOUSE1) {
+		trap_Key_SetCatcher(0);
+		cgs.activeChat = 0;
+	} else if (key & K_CHAR_FLAG) {
+		key &= ~K_CHAR_FLAG;
+		MField_CharEvent(&cgs.chatField, key);
+	} else {
+		MField_KeyDownEvent(&cgs.chatField, key);
+	}
+}
 
 void CG_MouseEvent(int x, int y) { }
 

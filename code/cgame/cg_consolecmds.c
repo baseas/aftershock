@@ -147,6 +147,36 @@ static void CG_Savepos_f(void)
 		cg.predictedPlayerState.viewangles[YAW]));
 }
 
+static void CG_MessageMode_f(void)
+{
+	cgs.activeChat = SAY_ALL;
+	MField_Clear(&cgs.chatField);
+	trap_Key_SetCatcher(KEYCATCH_CGAME);
+}
+
+static void CG_MessageMode2_f(void)
+{
+	cgs.activeChat = SAY_TEAM;
+	MField_Clear(&cgs.chatField);
+	trap_Key_SetCatcher(KEYCATCH_CGAME);
+}
+
+static void CG_MessageMode3_f(void)
+{
+	cgs.activeChat = SAY_TELL;
+	cgs.chatPlayerNum = CG_CrosshairPlayer();
+	MField_Clear(&cgs.chatField);
+	trap_Key_SetCatcher(KEYCATCH_CGAME);
+}
+
+static void CG_MessageMode4_f(void)
+{
+	cgs.activeChat = SAY_TELL;
+	cgs.chatPlayerNum = CG_LastAttacker();
+	MField_Clear(&cgs.chatField);
+	trap_Key_SetCatcher(KEYCATCH_CGAME);
+}
+
 static consoleCommand_t	commands[] = {
 	{ "testgun", CG_TestGun_f },
 	{ "testmodel", CG_TestModel_f },
@@ -172,7 +202,11 @@ static consoleCommand_t	commands[] = {
 	{ "tell_attacker", CG_TellAttacker_f },
 	{ "startOrbit", CG_StartOrbit_f },
 	{ "hud", CG_Hud_f },
-	{ "savepos", CG_Savepos_f }
+	{ "savepos", CG_Savepos_f },
+	{ "messagemode", CG_MessageMode_f },
+	{ "messagemode2", CG_MessageMode2_f },
+	{ "messagemode3", CG_MessageMode3_f },
+	{ "messagemode4", CG_MessageMode4_f }
 };
 
 /**

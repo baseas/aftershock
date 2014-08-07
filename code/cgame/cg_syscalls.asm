@@ -89,6 +89,9 @@ equ trap_R_AddPolysToScene				-86
 equ trap_R_inPVS						-87
 equ trap_FS_Seek						-88
 equ trap_Ini_Section					-89
+equ trap_Key_GetOverstrikeMode			-90
+equ trap_Key_SetOverstrikeMode			-91
+equ trap_GetClipboardData				-92
 
 equ memset						-101
 equ memcpy						-102

@@ -56,9 +56,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define	MAX_SAY_TEXT	150
 
-#define SAY_ALL		0
-#define SAY_TEAM	1
-#define SAY_TELL	2
+#define SAY_ALL		1
+#define SAY_TEAM	2
+#define SAY_TELL	3
 
 //
 // config strings are a general means of communicating variable length strings

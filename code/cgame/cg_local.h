@@ -859,6 +859,7 @@ typedef struct {
 } cgMedia_t;
 
 enum {
+	HUD_CHATINPUT,
 	HUD_AMMOWARNING,
 	HUD_ATTACKERICON,
 	HUD_ATTACKERNAME,
@@ -1080,6 +1081,10 @@ typedef struct {
 	// media
 	cgMedia_t		media;
 	hudElement_t	hud[HUD_MAX];
+
+	mfield_t	chatField;
+	int			activeChat;
+	int			chatPlayerNum;
 
 	// for elimination
 	int			redLivingCount;
@@ -1644,4 +1649,10 @@ void		trap_startCamera(int time);
 qboolean	trap_getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
 
 qboolean	trap_GetEntityToken(char *buffer, int bufferSize);
+
+// for mfield
+qboolean	trap_Key_IsDown(int keynum);
+qboolean	trap_Key_GetOverstrikeMode(void);
+void		trap_Key_SetOverstrikeMode(qboolean state);
+void		trap_GetClipboardData(char *buf, int bufsize);
 

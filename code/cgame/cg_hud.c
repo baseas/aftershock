@@ -438,6 +438,41 @@ static void CG_ScanForCrosshairEntity(void)
 	cg.crosshairClientTime = cg.time;
 }
 
+static void Hud_ChatInput(int hudnumber)
+{
+	hudElement_t	*hudelement;
+	int				style = 0;
+	const char		*prefix;
+
+	switch (cgs.activeChat) {
+	case SAY_ALL:
+		prefix = "Say: ";
+		break;
+	case SAY_TEAM:
+		prefix = "Say team: ";
+		break;
+	case SAY_TELL:
+		if (cgs.chatPlayerNum < 0 || !cgs.clientinfo[cgs.chatPlayerNum].infoValid) {
+			prefix = "Tell <nobody>: ";
+		} else {
+			prefix = va("Tell %10s^7: ", cgs.clientinfo[cgs.chatPlayerNum].name);
+		}
+		break;
+	default:
+		return;
+	}
+
+	hudelement = &cgs.hud[hudnumber];
+
+	if (hudelement->textStyle & 1) {
+		style |= FONT_SHADOW;
+	}
+
+	SCR_DrawString(hudelement->xpos, hudelement->ypos, prefix, hudelement->fontSize, style, hudelement->color);
+	MField_Draw(&cgs.chatField, hudelement->xpos + SCR_StringWidth(prefix, hudelement->fontSize),
+		hudelement->ypos, hudelement->fontSize, style, hudelement->color);
+}
+
 static void Hud_HealthIcon(int hudnumber)
 {
 	switch (cg.snap->ps.persistant[PERS_TEAM]) {
@@ -1632,6 +1667,7 @@ void CG_DrawHud()
 		void		(*func)(int);
 		qboolean	drawWhenDead;
 	} hudCallbacks[] = {
+		{ HUD_CHATINPUT, &Hud_ChatInput, qtrue },
 		{ HUD_HEALTHICON, &Hud_HealthIcon, qfalse },
 		{ HUD_HEALTHCOUNT, &Hud_Health, qfalse },
 		{ HUD_ARMORICON, &Hud_ArmorIcon, qfalse },

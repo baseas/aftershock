@@ -170,14 +170,6 @@ typedef struct {
 } menucommon_s;
 
 typedef struct {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
-	int		maxchars;
-} mfield_t;
-
-typedef struct {
 	menucommon_s	generic;
 	mfield_t		field;
 } menufield_s;
@@ -291,10 +283,6 @@ extern char	*ui_medalSounds[];
 //
 // ui_mfield.c
 //
-extern void			MField_Clear(mfield_t *edit);
-extern void			MField_KeyDownEvent(mfield_t *edit, int key);
-extern void			MField_CharEvent(mfield_t *edit, int ch);
-extern void			MField_Draw(mfield_t *edit, int x, int y, int style, vec4_t color);
 extern void			MenuField_Init(menufield_s* m);
 extern void			MenuField_Draw(menufield_s *f);
 extern sfxHandle_t	MenuField_Key(menufield_s* m, int* key);

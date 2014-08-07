@@ -125,6 +125,21 @@ int trap_Ini_Section(iniSection_t *section, fileHandle_t fp)
 	return syscall(CG_INI_SECTION, section, fp);
 }
 
+qboolean trap_Key_GetOverstrikeMode(void)
+{
+	return syscall(CG_GETOVERSTRIKEMODE);
+}
+
+void trap_Key_SetOverstrikeMode(qboolean state)
+{
+	syscall(CG_SETOVERSTRIKEMODE, state);
+}
+
+void trap_GetClipboardData(char *buf, int bufsize)
+{
+	syscall(CG_GETCLIPBOARDDATA, buf, bufsize);
+}
+
 void trap_SendConsoleCommand(const char *text)
 {
 	syscall(CG_SENDCONSOLECOMMAND, text);

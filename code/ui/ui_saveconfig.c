@@ -86,13 +86,13 @@ static void UI_SaveConfigMenu_SavenameDraw(void *self)
 		style = FONT_PULSE | FONT_SMALL;
 		color = text_color_highlight;
 	} else {
-		style = FONT_SMALL;
+		style = 0;
 		color = colorRed;
 	}
 
 	SCR_DrawPropString(320, 192, "Enter filename:", FONT_SMALL, color_orange);
 	SCR_FillRect(f->generic.x, f->generic.y, f->field.widthInChars * SMALLCHAR_SIZE, SMALLCHAR_SIZE, colorBlack);
-	MField_Draw(&f->field, f->generic.x, f->generic.y, style, color);
+	MField_Draw(&f->field, f->generic.x, f->generic.y, SMALLCHAR_SIZE, style, color);
 }
 
 static void UI_SaveConfigMenu_Init(void)

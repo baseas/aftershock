@@ -602,8 +602,14 @@ intptr_t CL_CgameSystemCalls( intptr_t *args ) {
 		return Key_GetKey( VMA(1) );
 	case CG_INI_SECTION:
 		return Ini_Section(VMA(1), args[2]);
-
-
+	case CG_GETOVERSTRIKEMODE:
+		return Key_GetOverstrikeMode();
+	case CG_SETOVERSTRIKEMODE:
+		Key_SetOverstrikeMode(args[1]);
+		return 0;
+	case CG_GETCLIPBOARDDATA:
+		CL_GetClipboardData(VMA(1), args[2]);
+		return 0;
 
 	case CG_MEMSET:
 		Com_Memset( VMA(1), args[2], args[3] );
