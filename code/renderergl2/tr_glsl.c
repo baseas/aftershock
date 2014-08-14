@@ -79,10 +79,12 @@ static uniformInfo_t uniformsInfo[] =
 	{ "u_ShadowMap",  GLSL_INT },
 	{ "u_ShadowMap2", GLSL_INT },
 	{ "u_ShadowMap3", GLSL_INT },
+	{ "u_ShadowMap4", GLSL_INT },
 
 	{ "u_ShadowMvp",  GLSL_MAT16 },
 	{ "u_ShadowMvp2", GLSL_MAT16 },
 	{ "u_ShadowMvp3", GLSL_MAT16 },
+	{ "u_ShadowMvp4", GLSL_MAT16 },
 
 	{ "u_EnableTextures", GLSL_VEC4 },
 
@@ -321,6 +323,18 @@ static void GLSL_GetShaderHeader( GLenum shaderType, const GLcharARB *extra, cha
 	Q_strcat(dest, size,
 			 va("#ifndef r_FBufScale\n#define r_FBufScale vec2(%f, %f)\n#endif\n", fbufWidthScale, fbufHeightScale));
 
+	if (r_materialGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_materialGamma\n#define r_materialGamma %f\n#endif\n", r_materialGamma->value));
+
+	if (r_lightGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_lightGamma\n#define r_lightGamma %f\n#endif\n", r_lightGamma->value));
+
+	if (r_framebufferGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_framebufferGamma\n#define r_framebufferGamma %f\n#endif\n", r_framebufferGamma->value));
+
+	if (r_tonemapGamma->value != 1.0f)
+		Q_strcat(dest, size, va("#ifndef r_tonemapGamma\n#define r_tonemapGamma %f\n#endif\n", r_tonemapGamma->value));
+
 	if (extra)
 	{
 		Q_strcat(dest, size, extra);
@@ -388,24 +402,30 @@ static int GLSL_LoadGPUShaderText(const char *name, const char *fallback,
 		Com_sprintf(filename, sizeof(filename), "glsl/%s_fp.glsl", name);
 	}
 
-	ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
-	size = ri.FS_ReadFile(filename, (void **)&buffer);
+	if ( r_externalGLSL->integer ) {
+		size = ri.FS_ReadFile(filename, (void **)&buffer);
+	} else {
+		size = 0;
+		buffer = NULL;
+	}
+
 	if(!buffer)
 	{
 		if (fallback)
 		{
-			ri.Printf(PRINT_DEVELOPER, "couldn't load, using fallback\n");
+			ri.Printf(PRINT_DEVELOPER, "...loading built-in '%s'\n", filename);
 			shaderText = fallback;
 			size = strlen(shaderText);
 		}
 		else
 		{
-			ri.Printf(PRINT_DEVELOPER, "couldn't load!\n");
+			ri.Printf(PRINT_DEVELOPER, "couldn't load '%s'\n", filename);
 			return 0;
 		}
 	}
 	else
 	{
+		ri.Printf(PRINT_DEVELOPER, "...loading '%s'\n", filename);
 		shaderText = buffer;
 	}
 
@@ -1284,7 +1304,8 @@ void GLSL_InitGPUShaders(void)
 	if (r_shadowFilter->integer >= 2)
 		Q_strcat(extradefines, 1024, "#define USE_SHADOW_FILTER2\n");
 
-	Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
+	if (r_shadowCascadeZFar->integer != 0)
+		Q_strcat(extradefines, 1024, "#define USE_SHADOW_CASCADE\n");
 
 	Q_strcat(extradefines, 1024, va("#define r_shadowMapSize %d\n", r_shadowMapSize->integer));
 	Q_strcat(extradefines, 1024, va("#define r_shadowCascadeZFar %f\n", r_shadowCascadeZFar->value));
@@ -1302,6 +1323,7 @@ void GLSL_InitGPUShaders(void)
 	GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP,  TB_SHADOWMAP);
 	GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP2, TB_SHADOWMAP2);
 	GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP3, TB_SHADOWMAP3);
+	GLSL_SetUniformInt(&tr.shadowmaskShader, UNIFORM_SHADOWMAP4, TB_SHADOWMAP4);
 	qglUseProgramObjectARB(0);
 
 	GLSL_FinishGPUShader(&tr.shadowmaskShader);

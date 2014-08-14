@@ -104,6 +104,8 @@ cvar_t  *r_mergeLeafSurfaces;
 
 cvar_t  *r_cameraExposure;
 
+cvar_t  *r_externalGLSL;
+
 cvar_t  *r_hdr;
 cvar_t  *r_floatLightmap;
 cvar_t  *r_postProcess;
@@ -119,7 +121,10 @@ cvar_t  *r_forceAutoExposure;
 cvar_t  *r_forceAutoExposureMin;
 cvar_t  *r_forceAutoExposureMax;
 
-cvar_t  *r_srgb;
+cvar_t  *r_materialGamma;
+cvar_t  *r_lightGamma;
+cvar_t  *r_framebufferGamma;
+cvar_t  *r_tonemapGamma;
 
 cvar_t  *r_depthPrepass;
 cvar_t  *r_ssao;
@@ -136,7 +141,6 @@ cvar_t  *r_baseNormalY;
 cvar_t  *r_baseParallax;
 cvar_t  *r_baseSpecular;
 cvar_t  *r_baseGloss;
-cvar_t  *r_recalcMD3Normals;
 cvar_t  *r_mergeLightmaps;
 cvar_t  *r_dlightMode;
 cvar_t  *r_pshadowDist;
@@ -1161,6 +1165,8 @@ void R_Register( void )
 	r_greyscale = ri.Cvar_Get("r_greyscale", "0", CVAR_ARCHIVE | CVAR_LATCH);
 	ri.Cvar_CheckRange(r_greyscale, 0, 1, qfalse);
 
+	r_externalGLSL = ri.Cvar_Get( "r_externalGLSL", "0", CVAR_LATCH );
+
 	r_hdr = ri.Cvar_Get( "r_hdr", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_floatLightmap = ri.Cvar_Get( "r_floatLightmap", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_postProcess = ri.Cvar_Get( "r_postProcess", "1", CVAR_ARCHIVE );
@@ -1178,7 +1184,10 @@ void R_Register( void )
 
 	r_cameraExposure = ri.Cvar_Get( "r_cameraExposure", "0", CVAR_CHEAT );
 
-	r_srgb = ri.Cvar_Get( "r_srgb", "0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_materialGamma = ri.Cvar_Get( "r_materialGamma", "1.0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_lightGamma = ri.Cvar_Get( "r_lightGamma", "1.0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_framebufferGamma = ri.Cvar_Get( "r_framebufferGamma", "1.0", CVAR_ARCHIVE | CVAR_LATCH );
+	r_tonemapGamma = ri.Cvar_Get( "r_tonemapGamma", "1.0", CVAR_ARCHIVE | CVAR_LATCH );
 
 	r_depthPrepass = ri.Cvar_Get( "r_depthPrepass", "1", CVAR_ARCHIVE );
 	r_ssao = ri.Cvar_Get( "r_ssao", "0", CVAR_LATCH | CVAR_ARCHIVE );
@@ -1197,7 +1206,6 @@ void R_Register( void )
 	r_baseGloss = ri.Cvar_Get( "r_baseGloss", "0.3", CVAR_ARCHIVE | CVAR_LATCH );
 	r_dlightMode = ri.Cvar_Get( "r_dlightMode", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_pshadowDist = ri.Cvar_Get( "r_pshadowDist", "128", CVAR_ARCHIVE );
-	r_recalcMD3Normals = ri.Cvar_Get( "r_recalcMD3Normals", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_mergeLightmaps = ri.Cvar_Get( "r_mergeLightmaps", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_imageUpsample = ri.Cvar_Get( "r_imageUpsample", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_imageUpsampleMaxSize = ri.Cvar_Get( "r_imageUpsampleMaxSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
@@ -1214,9 +1222,9 @@ void R_Register( void )
 	r_sunShadows = ri.Cvar_Get( "r_sunShadows", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowFilter = ri.Cvar_Get( "r_shadowFilter", "1", CVAR_ARCHIVE | CVAR_LATCH );
 	r_shadowMapSize = ri.Cvar_Get( "r_shadowMapSize", "1024", CVAR_ARCHIVE | CVAR_LATCH );
-	r_shadowCascadeZNear = ri.Cvar_Get( "r_shadowCascadeZNear", "4", CVAR_ARCHIVE | CVAR_LATCH );
-	r_shadowCascadeZFar = ri.Cvar_Get( "r_shadowCascadeZFar", "3072", CVAR_ARCHIVE | CVAR_LATCH );
-	r_shadowCascadeZBias = ri.Cvar_Get( "r_shadowCascadeZBias", "-320", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowCascadeZNear = ri.Cvar_Get( "r_shadowCascadeZNear", "8", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowCascadeZFar = ri.Cvar_Get( "r_shadowCascadeZFar", "1024", CVAR_ARCHIVE | CVAR_LATCH );
+	r_shadowCascadeZBias = ri.Cvar_Get( "r_shadowCascadeZBias", "0", CVAR_ARCHIVE | CVAR_LATCH );
 	r_ignoreDstAlpha = ri.Cvar_Get( "r_ignoreDstAlpha", "1", CVAR_ARCHIVE | CVAR_LATCH );
 
 	//
