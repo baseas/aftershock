@@ -20,14 +20,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
-/*
-=======================================================================
-
-MAIN MENU
-
-=======================================================================
-*/
-
+// ui_menu.c
 
 #include "ui_local.h"
 
@@ -67,7 +60,7 @@ static void MainMenu_ExitAction(void)
 	trap_Cmd_ExecuteText(EXEC_APPEND, "quit\n");
 }
 
-void Main_MenuEvent (void* ptr, int event)
+void Main_MenuEvent (void *ptr, int event)
 {
 	if (event != QM_ACTIVATED) {
 		return;
@@ -110,7 +103,7 @@ static void Main_MenuDraw(void)
 
 	if (strlen(s_errorMessage.errorMessage)) {
 		UI_DrawProportionalString_AutoWrapped(MENU_XPOS, 192, 600, 20, s_errorMessage.errorMessage,
-			FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
+			FONT_CENTER | FONT_SMALL | FONT_SHADOW, colorMenuText);
 	} else {
 		// standard menu drawing
 		Menu_Draw(&s_main.menu);
@@ -165,7 +158,7 @@ void UI_MainMenu(void)
 	s_main.singleplayer.generic.id			= ID_SINGLEPLAYER;
 	s_main.singleplayer.generic.callback	= Main_MenuEvent;
 	s_main.singleplayer.string				= "CREATE GAME";
-	s_main.singleplayer.color				= color_red;
+	s_main.singleplayer.color				= colorRed;
 	s_main.singleplayer.style				= style;
 
 	y += MAIN_MENU_VERTICAL_SPACING;
@@ -176,7 +169,7 @@ void UI_MainMenu(void)
 	s_main.multiplayer.generic.id			= ID_MULTIPLAYER;
 	s_main.multiplayer.generic.callback		= Main_MenuEvent;
 	s_main.multiplayer.string				= "MULTIPLAYER";
-	s_main.multiplayer.color				= color_red;
+	s_main.multiplayer.color				= colorRed;
 	s_main.multiplayer.style				= style;
 
 	y += MAIN_MENU_VERTICAL_SPACING;
@@ -187,7 +180,7 @@ void UI_MainMenu(void)
 	s_main.setup.generic.id					= ID_SETUP;
 	s_main.setup.generic.callback			= Main_MenuEvent;
 	s_main.setup.string						= "SETUP";
-	s_main.setup.color						= color_red;
+	s_main.setup.color						= colorRed;
 	s_main.setup.style						= style;
 
 	y += MAIN_MENU_VERTICAL_SPACING;
@@ -198,7 +191,7 @@ void UI_MainMenu(void)
 	s_main.demos.generic.id					= ID_DEMOS;
 	s_main.demos.generic.callback			= Main_MenuEvent;
 	s_main.demos.string						= "DEMOS";
-	s_main.demos.color						= color_red;
+	s_main.demos.color						= colorRed;
 	s_main.demos.style						= style;
 
 	y += MAIN_MENU_VERTICAL_SPACING;
@@ -209,7 +202,7 @@ void UI_MainMenu(void)
 	s_main.exit.generic.id					= ID_EXIT;
 	s_main.exit.generic.callback			= Main_MenuEvent;
 	s_main.exit.string						= "EXIT";
-	s_main.exit.color						= color_red;
+	s_main.exit.color						= colorRed;
 	s_main.exit.style						= style;
 
 	Menu_AddItem(&s_main.menu, &s_main.singleplayer);

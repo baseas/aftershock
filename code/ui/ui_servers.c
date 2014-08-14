@@ -84,18 +84,7 @@ enum {
 	GAMES_CTF
 };
 
-static const char *master_items[] = {
-	"Local",
-	"Internet1",
-	"Internet2",
-	"Internet3",
-	"Internet4",
-	"Internet5",
-	"Favorites",
-	NULL
-};
-
-static char* gamenames[] = {
+static char *gamenames[] = {
 	"DM ",	// deathmatch
 	"1v1",	// tournament
 	"SP ",	// single player
@@ -1092,8 +1081,8 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.banner.generic.x		= 320;
 	g_arenaservers.banner.generic.y		= 16;
 	g_arenaservers.banner.string		= "ARENA SERVERS";
+	g_arenaservers.banner.color			= colorBanner;
 	g_arenaservers.banner.style			= FONT_CENTER | FONT_SHADOW;
-	g_arenaservers.banner.color			= color_red;
 
 	y = 80;
 	x = 90;
@@ -1135,7 +1124,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelHost.generic.x			= x;
 	g_arenaservers.labelHost.generic.y			= y;
 	g_arenaservers.labelHost.string				= "Host";
-	g_arenaservers.labelHost.color				= color_red;
+	g_arenaservers.labelHost.color				= colorRed;
 	g_arenaservers.labelHost.style				= style;
 
 	g_arenaservers.labelMap.generic.type		= MTYPE_PTEXT;
@@ -1145,7 +1134,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelMap.generic.x			= x + 20 * SMALLCHAR_SIZE;
 	g_arenaservers.labelMap.generic.y			= y;
 	g_arenaservers.labelMap.string				= "Map";
-	g_arenaservers.labelMap.color				= color_red;
+	g_arenaservers.labelMap.color				= colorRed;
 	g_arenaservers.labelMap.style				= style;
 
 	g_arenaservers.labelPlayers.generic.type		= MTYPE_PTEXT;
@@ -1155,7 +1144,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelPlayers.generic.x			= x + 40 * SMALLCHAR_SIZE;
 	g_arenaservers.labelPlayers.generic.y			= y;
 	g_arenaservers.labelPlayers.string				= "Players";
-	g_arenaservers.labelPlayers.color				= color_red;
+	g_arenaservers.labelPlayers.color				= colorRed;
 	g_arenaservers.labelPlayers.style				= style;
 
 	g_arenaservers.labelType.generic.type		= MTYPE_PTEXT;
@@ -1165,7 +1154,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelType.generic.x			= x + 50 * SMALLCHAR_SIZE;
 	g_arenaservers.labelType.generic.y			= y;
 	g_arenaservers.labelType.string				= "Type";
-	g_arenaservers.labelType.color				= color_red;
+	g_arenaservers.labelType.color				= colorRed;
 	g_arenaservers.labelType.style				= style;
 
 	g_arenaservers.labelPing.generic.type		= MTYPE_PTEXT;
@@ -1175,7 +1164,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.labelPing.generic.x			= x + 60 * SMALLCHAR_SIZE;
 	g_arenaservers.labelPing.generic.y			= y;
 	g_arenaservers.labelPing.string				= "Ping";
-	g_arenaservers.labelPing.color				= color_red;
+	g_arenaservers.labelPing.color				= colorRed;
 	g_arenaservers.labelPing.style				= style;
 
 	y += 3 * SMALLCHAR_SIZE;
@@ -1235,7 +1224,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.status.generic.y			= y;
 	g_arenaservers.status.string			= statusbuffer;
 	g_arenaservers.status.style				= FONT_CENTER;
-	g_arenaservers.status.color				= menu_text_color;
+	g_arenaservers.status.color				= colorMenuText;
 
 	y += SMALLCHAR_SIZE;
 	g_arenaservers.statusbar.generic.type   = MTYPE_TEXT;
@@ -1243,7 +1232,7 @@ static void ArenaServers_MenuInit(void)
 	g_arenaservers.statusbar.generic.y	    = y;
 	g_arenaservers.statusbar.string	        = "";
 	g_arenaservers.statusbar.style	        = FONT_CENTER;
-	g_arenaservers.statusbar.color	        = text_color_normal;
+	g_arenaservers.statusbar.color	        = colorTextNormal;
 
 	g_arenaservers.back.generic.type		= MTYPE_BUTTON;
 	g_arenaservers.back.generic.flags		= QMF_LEFT_JUSTIFY;

@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-#define ART_SAVE0			"menu/art/save_0"
-#define ART_SAVE1			"menu/art/save_1"
 #define ART_BACKGROUND		"menu/art/cut_frame"
 
 enum {
@@ -42,8 +38,8 @@ typedef struct {
 	menutext_s		banner;
 	menubitmap_s	background;
 	menufield_s		savename;
-	menubitmap_s	back;
-	menubitmap_s	save;
+	menubutton_s	back;
+	menubutton_s	save;
 } saveConfig_t;
 
 static saveConfig_t		saveConfig;
@@ -84,13 +80,13 @@ static void UI_SaveConfigMenu_SavenameDraw(void *self)
 
 	if (f == Menu_ItemAtCursor(&saveConfig.menu)) {
 		style = FONT_PULSE | FONT_SMALL;
-		color = text_color_highlight;
+		color = colorTextHighlight;
 	} else {
 		style = 0;
 		color = colorRed;
 	}
 
-	SCR_DrawPropString(320, 192, "Enter filename:", FONT_SMALL, color_orange);
+	SCR_DrawPropString(320, 192, "Enter filename:", FONT_SMALL, colorOrange);
 	SCR_FillRect(f->generic.x, f->generic.y, f->field.widthInChars * SMALLCHAR_SIZE, SMALLCHAR_SIZE, colorBlack);
 	MField_Draw(&f->field, f->generic.x, f->generic.y, SMALLCHAR_SIZE, style, color);
 }
@@ -107,8 +103,8 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.banner.generic.x			= 320;
 	saveConfig.banner.generic.y			= 16;
 	saveConfig.banner.string			= "SAVE CONFIG";
-	saveConfig.banner.color				= color_white;
-	saveConfig.banner.style				= FONT_CENTER;
+	saveConfig.banner.color				= colorBanner;
+	saveConfig.banner.style				= FONT_CENTER | FONT_SHADOW;
 
 	saveConfig.background.generic.type		= MTYPE_BITMAP;
 	saveConfig.background.generic.name		= ART_BACKGROUND;
@@ -130,27 +126,25 @@ static void UI_SaveConfigMenu_Init(void)
 	saveConfig.savename.generic.right		= 233 + 20 * SMALLCHAR_SIZE;
 	saveConfig.savename.generic.bottom		= 155 + 72 + SMALLCHAR_SIZE + 2;
 
-	saveConfig.back.generic.type		= MTYPE_BITMAP;
-	saveConfig.back.generic.name		= ART_BACK0;
-	saveConfig.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	saveConfig.back.generic.type		= MTYPE_BUTTON;
+	saveConfig.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	saveConfig.back.generic.id			= ID_BACK;
 	saveConfig.back.generic.callback	= UI_SaveConfigMenu_BackEvent;
 	saveConfig.back.generic.x			= 0;
 	saveConfig.back.generic.y			= 480-64;
 	saveConfig.back.width				= 128;
 	saveConfig.back.height				= 64;
-	saveConfig.back.focuspic			= ART_BACK1;
+	saveConfig.back.string				= "Back";
 
-	saveConfig.save.generic.type		= MTYPE_BITMAP;
-	saveConfig.save.generic.name		= ART_SAVE0;
-	saveConfig.save.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
+	saveConfig.save.generic.type		= MTYPE_BUTTON;
+	saveConfig.save.generic.flags		= QMF_RIGHT_JUSTIFY;
 	saveConfig.save.generic.id			= ID_SAVE;
 	saveConfig.save.generic.callback	= UI_SaveConfigMenu_SaveEvent;
 	saveConfig.save.generic.x			= 640;
 	saveConfig.save.generic.y			= 480-64;
 	saveConfig.save.width				= 128;
 	saveConfig.save.height				= 64;
-	saveConfig.save.focuspic			= ART_SAVE1;
+	saveConfig.save.string				= "Save";
 
 	Menu_AddItem(&saveConfig.menu, &saveConfig.banner);
 	Menu_AddItem(&saveConfig.menu, &saveConfig.background);
@@ -161,10 +155,6 @@ static void UI_SaveConfigMenu_Init(void)
 
 void UI_SaveConfigMenu_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_SAVE0);
-	trap_R_RegisterShaderNoMip(ART_SAVE1);
 	trap_R_RegisterShaderNoMip(ART_BACKGROUND);
 }
 

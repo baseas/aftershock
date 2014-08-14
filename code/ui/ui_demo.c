@@ -108,7 +108,7 @@ static void Demos_MenuInit(void)
 	s_demos.banner.generic.x		= 320;
 	s_demos.banner.generic.y		= 16;
 	s_demos.banner.string			= "DEMOS";
-	s_demos.banner.color			= color_red;
+	s_demos.banner.color			= colorBanner;
 	s_demos.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	s_demos.arrows.generic.type		= MTYPE_BITMAP;

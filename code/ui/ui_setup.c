@@ -26,9 +26,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define SETUP_MENU_VERTICAL_SPACING		34
 
-#define ART_BACK0		"menu/art/back_0"
-#define ART_BACK1		"menu/art/back_1"
-
 enum {
 	ID_CUSTOMIZEPLAYER = 10,
 	ID_CUSTOMIZECONTROLS,
@@ -49,7 +46,7 @@ typedef struct {
 	menutext_s		setupsystem;
 	menutext_s		game;
 	menutext_s		defaults;
-	menubitmap_s	back;
+	menubutton_s	back;
 } setupMenuInfo_t;
 
 static setupMenuInfo_t	setupMenuInfo;
@@ -67,9 +64,9 @@ static void Setup_ResetDefaults_Action(qboolean result)
 static void Setup_ResetDefaults_Draw(void)
 {
 	SCR_DrawPropString(SCREEN_WIDTH / 2, 356,
-		"WARNING: This will reset *ALL*", FONT_CENTER | FONT_SMALL, color_yellow);
+		"WARNING: This will reset *ALL*", FONT_CENTER | FONT_SMALL, colorYellow);
 	SCR_DrawPropString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1,
-		"options to their default values.", FONT_CENTER | FONT_SMALL, color_yellow);
+		"options to their default values.", FONT_CENTER | FONT_SMALL, colorYellow);
 }
 
 static void UI_SetupMenu_Event(void *ptr, int event)
@@ -119,8 +116,8 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.banner.generic.x					= 320;
 	setupMenuInfo.banner.generic.y					= 16;
 	setupMenuInfo.banner.string						= "SETUP";
-	setupMenuInfo.banner.color						= color_white;
-	setupMenuInfo.banner.style						= FONT_CENTER;
+	setupMenuInfo.banner.color						= colorBanner;
+	setupMenuInfo.banner.style						= FONT_CENTER | FONT_SHADOW;
 
 	y = 134;
 	setupMenuInfo.setupplayer.generic.type			= MTYPE_PTEXT;
@@ -130,7 +127,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupplayer.generic.id			= ID_CUSTOMIZEPLAYER;
 	setupMenuInfo.setupplayer.generic.callback		= UI_SetupMenu_Event; 
 	setupMenuInfo.setupplayer.string				= "PLAYER";
-	setupMenuInfo.setupplayer.color					= color_red;
+	setupMenuInfo.setupplayer.color					= colorRed;
 	setupMenuInfo.setupplayer.style					= FONT_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
@@ -141,7 +138,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupcontrols.generic.id			= ID_CUSTOMIZECONTROLS;
 	setupMenuInfo.setupcontrols.generic.callback	= UI_SetupMenu_Event; 
 	setupMenuInfo.setupcontrols.string				= "CONTROLS";
-	setupMenuInfo.setupcontrols.color				= color_red;
+	setupMenuInfo.setupcontrols.color				= colorRed;
 	setupMenuInfo.setupcontrols.style				= FONT_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
@@ -152,7 +149,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.setupsystem.generic.id			= ID_SYSTEMCONFIG;
 	setupMenuInfo.setupsystem.generic.callback		= UI_SetupMenu_Event; 
 	setupMenuInfo.setupsystem.string				= "SYSTEM";
-	setupMenuInfo.setupsystem.color					= color_red;
+	setupMenuInfo.setupsystem.color					= colorRed;
 	setupMenuInfo.setupsystem.style					= FONT_CENTER;
 
 	y += SETUP_MENU_VERTICAL_SPACING;
@@ -163,7 +160,7 @@ static void UI_SetupMenu_Init(void)
 	setupMenuInfo.game.generic.id					= ID_GAME;
 	setupMenuInfo.game.generic.callback				= UI_SetupMenu_Event; 
 	setupMenuInfo.game.string						= "GAME OPTIONS";
-	setupMenuInfo.game.color						= color_red;
+	setupMenuInfo.game.color						= colorRed;
 	setupMenuInfo.game.style						= FONT_CENTER;
 
 	if (!trap_Cvar_VariableValue("cl_paused")) {
@@ -176,7 +173,7 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.load.generic.id					= ID_LOAD;
 		setupMenuInfo.load.generic.callback				= UI_SetupMenu_Event; 
 		setupMenuInfo.load.string						= "LOAD";
-		setupMenuInfo.load.color						= color_red;
+		setupMenuInfo.load.color						= colorRed;
 		setupMenuInfo.load.style						= FONT_CENTER;
 
 		y += SETUP_MENU_VERTICAL_SPACING;
@@ -187,7 +184,7 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.save.generic.id					= ID_SAVE;
 		setupMenuInfo.save.generic.callback				= UI_SetupMenu_Event; 
 		setupMenuInfo.save.string						= "SAVE";
-		setupMenuInfo.save.color						= color_red;
+		setupMenuInfo.save.color						= colorRed;
 		setupMenuInfo.save.style						= FONT_CENTER;
 #endif
 
@@ -199,20 +196,19 @@ static void UI_SetupMenu_Init(void)
 		setupMenuInfo.defaults.generic.id				= ID_DEFAULTS;
 		setupMenuInfo.defaults.generic.callback			= UI_SetupMenu_Event; 
 		setupMenuInfo.defaults.string					= "DEFAULTS";
-		setupMenuInfo.defaults.color					= color_red;
+		setupMenuInfo.defaults.color					= colorRed;
 		setupMenuInfo.defaults.style					= FONT_CENTER;
 	}
 
-	setupMenuInfo.back.generic.type					= MTYPE_BITMAP;
-	setupMenuInfo.back.generic.name					= ART_BACK0;
-	setupMenuInfo.back.generic.flags				= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
-	setupMenuInfo.back.generic.id					= ID_BACK;
-	setupMenuInfo.back.generic.callback				= UI_SetupMenu_Event;
-	setupMenuInfo.back.generic.x					= 0;
-	setupMenuInfo.back.generic.y					= 480-64;
-	setupMenuInfo.back.width						= 128;
-	setupMenuInfo.back.height						= 64;
-	setupMenuInfo.back.focuspic						= ART_BACK1;
+	setupMenuInfo.back.generic.type		= MTYPE_BUTTON;
+	setupMenuInfo.back.generic.flags	= QMF_LEFT_JUSTIFY;
+	setupMenuInfo.back.generic.id		= ID_BACK;
+	setupMenuInfo.back.generic.callback	= UI_SetupMenu_Event;
+	setupMenuInfo.back.generic.x		= 0;
+	setupMenuInfo.back.generic.y		= 480-64;
+	setupMenuInfo.back.width			= 128;
+	setupMenuInfo.back.height			= 64;
+	setupMenuInfo.back.string			= "Back";
 
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.banner);
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.setupplayer);
@@ -225,11 +221,7 @@ static void UI_SetupMenu_Init(void)
 	Menu_AddItem(&setupMenuInfo.menu, &setupMenuInfo.back);
 }
 
-void UI_SetupMenu_Cache(void)
-{
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-}
+void UI_SetupMenu_Cache(void) { }
 
 void UI_SetupMenu(void)
 {

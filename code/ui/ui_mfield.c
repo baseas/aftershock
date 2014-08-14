@@ -80,16 +80,16 @@ void MenuField_Draw(menufield_s *f)
 	}
 
 	if (f->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else if (focus) {
-		color = text_color_highlight;
+		color = colorTextHighlight;
 	} else {
-		color = text_color_normal;
+		color = colorTextNormal;
 	}
 
 	if (focus) {
 		// draw cursor
-		SCR_FillRect(f->generic.left, f->generic.top, f->generic.right-f->generic.left+1, f->generic.bottom-f->generic.top+1, listbar_color);
+		SCR_FillRect(f->generic.left, f->generic.top, f->generic.right-f->generic.left+1, f->generic.bottom-f->generic.top+1, colorListbar);
 		SCR_DrawString(x, y, "\15", w, FONT_CENTER | FONT_BLINK, color);
 	}
 

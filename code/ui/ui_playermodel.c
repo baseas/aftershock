@@ -22,8 +22,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 //
 #include "ui_local.h"
 
-#define MODEL_BACK0			"menu/art/back_0"
-#define MODEL_BACK1			"menu/art/back_1"
 #define MODEL_SELECT		"menu/art/opponents_select"
 #define MODEL_SELECTED		"menu/art/opponents_selected"
 #define MODEL_PORTS			"menu/art/player_models_ports"
@@ -33,9 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define LOW_MEMORY			(5 * 1024 * 1024)
 
-static char* playermodel_artlist[] = {
-	MODEL_BACK0,
-	MODEL_BACK1,
+static char *playermodel_artlist[] = {
 	MODEL_SELECT,
 	MODEL_SELECTED,
 	MODEL_PORTS,
@@ -82,7 +78,7 @@ typedef struct {
 	menubitmap_s	picbuttons[MAX_MODELSPERPAGE];
 	menubitmap_s	ports;
 	menutext_s		banner;
-	menubitmap_s	back;
+	menubutton_s	back;
 	menubitmap_s	player;
 	menubitmap_s	arrows;
 	menubitmap_s	left;
@@ -180,30 +176,31 @@ static void PlayerModel_SaveChanges(void)
 	trap_Cvar_Set("team_headmodel", s_playermodel.modelskin);
 }
 
-static void PlayerModel_MenuEvent(void* ptr, int event)
+static void PlayerModel_MenuEvent(void *ptr, int event)
 {
-	if (event != QM_ACTIVATED)
+	if (event != QM_ACTIVATED) {
 		return;
+	}
 
-	switch (((menucommon_s *)ptr)->id) {
-		case ID_PREVPAGE:
-			if (s_playermodel.modelpage > 0) {
-				s_playermodel.modelpage--;
-				PlayerModel_UpdateGrid();
-			}
-			break;
+	switch (((menucommon_s *) ptr)->id) {
+	case ID_PREVPAGE:
+		if (s_playermodel.modelpage > 0) {
+			s_playermodel.modelpage--;
+			PlayerModel_UpdateGrid();
+		}
+		break;
 
-		case ID_NEXTPAGE:
-			if (s_playermodel.modelpage < s_playermodel.numpages - 1) {
-				s_playermodel.modelpage++;
-				PlayerModel_UpdateGrid();
-			}
-			break;
+	case ID_NEXTPAGE:
+		if (s_playermodel.modelpage < s_playermodel.numpages - 1) {
+			s_playermodel.modelpage++;
+			PlayerModel_UpdateGrid();
+		}
+		break;
 
-		case ID_BACK:
-			PlayerModel_SaveChanges();
-			UI_PopMenu();
-			break;
+	case ID_BACK:
+		PlayerModel_SaveChanges();
+		UI_PopMenu();
+		break;
 	}
 }
 
@@ -213,60 +210,60 @@ static sfxHandle_t PlayerModel_MenuKey(int key)
 	int				picnum;
 
 	switch (key) {
-		case K_KP_LEFTARROW:
-		case K_LEFTARROW:
-			m = Menu_ItemAtCursor(&s_playermodel.menu);
-			picnum = m->id - ID_PLAYERPIC0;
-			if (picnum >= 0 && picnum <= 15) {
-				if (picnum > 0) {
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor-1);
-					return (menu_move_sound);
-				} else if (s_playermodel.modelpage > 0) {
-					s_playermodel.modelpage--;
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor+15);
-					PlayerModel_UpdateGrid();
-					return (menu_move_sound);
-				} else {
-					return (menu_buzz_sound);
-				}
+	case K_KP_LEFTARROW:
+	case K_LEFTARROW:
+		m = Menu_ItemAtCursor(&s_playermodel.menu);
+		picnum = m->id - ID_PLAYERPIC0;
+		if (picnum >= 0 && picnum <= 15) {
+			if (picnum > 0) {
+				Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor - 1);
+				return (menu_move_sound);
+			} else if (s_playermodel.modelpage > 0) {
+				s_playermodel.modelpage--;
+				Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor + 15);
+				PlayerModel_UpdateGrid();
+				return (menu_move_sound);
+			} else {
+				return (menu_buzz_sound);
 			}
-			break;
+		}
+		break;
 
-		case K_KP_RIGHTARROW:
-		case K_RIGHTARROW:
-			m = Menu_ItemAtCursor(&s_playermodel.menu);
-			picnum = m->id - ID_PLAYERPIC0;
-			if (picnum >= 0 && picnum <= 15) {
-				if ((picnum < 15) && (s_playermodel.modelpage*MAX_MODELSPERPAGE + picnum+1 < s_playermodel.nummodels)) {
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor+1);
-					return (menu_move_sound);
-				} else if ((picnum == 15) && (s_playermodel.modelpage < s_playermodel.numpages-1)) {
-					s_playermodel.modelpage++;
-					Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor-15);
-					PlayerModel_UpdateGrid();
-					return menu_move_sound;
-				} else {
-					return menu_buzz_sound;
-				}
+	case K_KP_RIGHTARROW:
+	case K_RIGHTARROW:
+		m = Menu_ItemAtCursor(&s_playermodel.menu);
+		picnum = m->id - ID_PLAYERPIC0;
+		if (picnum >= 0 && picnum <= 15) {
+			if ((picnum < 15) && (s_playermodel.modelpage*MAX_MODELSPERPAGE + picnum + 1 < s_playermodel.nummodels)) {
+				Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor + 1);
+				return (menu_move_sound);
+			} else if ((picnum == 15) && (s_playermodel.modelpage < s_playermodel.numpages - 1)) {
+				s_playermodel.modelpage++;
+				Menu_SetCursor(&s_playermodel.menu,s_playermodel.menu.cursor - 15);
+				PlayerModel_UpdateGrid();
+				return menu_move_sound;
+			} else {
+				return menu_buzz_sound;
 			}
-			break;
+		}
+		break;
 
-		case K_MOUSE2:
-		case K_ESCAPE:
-			PlayerModel_SaveChanges();
-			break;
+	case K_MOUSE2:
+	case K_ESCAPE:
+		PlayerModel_SaveChanges();
+		break;
 	}
 
 	return Menu_DefaultKey(&s_playermodel.menu, key);
 }
 
-static void PlayerModel_PicEvent(void* ptr, int event)
+static void PlayerModel_PicEvent(void *ptr, int event)
 {
-	int				modelnum;
-	int				maxlen;
-	char*			buffptr;
-	char*			pdest;
-	int				i;
+	int		modelnum;
+	int		maxlen;
+	char	*buffptr;
+	char	*pdest;
+	int		i;
 
 	if (event != QM_ACTIVATED)
 		return;
@@ -278,7 +275,7 @@ static void PlayerModel_PicEvent(void* ptr, int event)
 	}
 
 	// set selected
-	i = ((menucommon_s*)ptr)->id - ID_PLAYERPIC0;
+	i = ((menucommon_s *) ptr)->id - ID_PLAYERPIC0;
 	s_playermodel.pics[i].generic.flags       |= QMF_HIGHLIGHT;
 	s_playermodel.picbuttons[i].generic.flags &= ~QMF_PULSEIFFOCUS;
 
@@ -322,7 +319,7 @@ static void PlayerModel_DrawPlayer(void *self)
 	b = (menubitmap_s*) self;
 
 	if (trap_MemoryRemaining() <= LOW_MEMORY) {
-		SCR_DrawPropString(b->generic.x, b->generic.y + b->height / 2, "LOW MEMORY", 0, color_red);
+		SCR_DrawPropString(b->generic.x, b->generic.y + b->height / 2, "LOW MEMORY", 0, colorRed);
 		return;
 	}
 
@@ -475,8 +472,8 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.banner.generic.x		= 320;
 	s_playermodel.banner.generic.y		= 16;
 	s_playermodel.banner.string			= "PLAYER MODEL";
-	s_playermodel.banner.color			= color_white;
-	s_playermodel.banner.style			= FONT_CENTER;
+	s_playermodel.banner.color			= colorBanner;
+	s_playermodel.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	s_playermodel.ports.generic.type	= MTYPE_BITMAP;
 	s_playermodel.ports.generic.name	= MODEL_PORTS;
@@ -525,7 +522,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.playername.generic.y		= 440;
 	s_playermodel.playername.string			= playername;
 	s_playermodel.playername.style			= FONT_CENTER;
-	s_playermodel.playername.color			= text_color_normal;
+	s_playermodel.playername.color			= colorTextNormal;
 
 	s_playermodel.modelname.generic.type	= MTYPE_PTEXT;
 	s_playermodel.modelname.generic.flags	= QMF_CENTER_JUSTIFY|QMF_INACTIVE;
@@ -533,7 +530,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.modelname.generic.y		= 54;
 	s_playermodel.modelname.string			= modelname;
 	s_playermodel.modelname.style			= FONT_CENTER;
-	s_playermodel.modelname.color			= text_color_normal;
+	s_playermodel.modelname.color			= colorTextNormal;
 
 	s_playermodel.skinname.generic.type		= MTYPE_PTEXT;
 	s_playermodel.skinname.generic.flags	= QMF_CENTER_JUSTIFY|QMF_INACTIVE;
@@ -541,7 +538,7 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.skinname.generic.y		= 394;
 	s_playermodel.skinname.string			= skinname;
 	s_playermodel.skinname.style			= FONT_CENTER;
-	s_playermodel.skinname.color			= text_color_normal;
+	s_playermodel.skinname.color			= colorTextNormal;
 
 	s_playermodel.player.generic.type		= MTYPE_BITMAP;
 	s_playermodel.player.generic.flags		= QMF_INACTIVE;
@@ -579,16 +576,15 @@ static void PlayerModel_MenuInit(void)
 	s_playermodel.right.height				= 32;
 	s_playermodel.right.focuspic			= MODEL_ARROWSR;
 
-	s_playermodel.back.generic.type		= MTYPE_BITMAP;
-	s_playermodel.back.generic.name		= MODEL_BACK0;
-	s_playermodel.back.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_playermodel.back.generic.type		= MTYPE_BUTTON;
+	s_playermodel.back.generic.flags	= QMF_LEFT_JUSTIFY;
 	s_playermodel.back.generic.callback	= PlayerModel_MenuEvent;
 	s_playermodel.back.generic.id		= ID_BACK;
 	s_playermodel.back.generic.x		= 0;
 	s_playermodel.back.generic.y		= 480-64;
 	s_playermodel.back.width			= 128;
 	s_playermodel.back.height			= 64;
-	s_playermodel.back.focuspic			= MODEL_BACK1;
+	s_playermodel.back.string			= "Back";
 
 	Menu_AddItem(&s_playermodel.menu, &s_playermodel.banner);
 	Menu_AddItem(&s_playermodel.menu, &s_playermodel.ports);

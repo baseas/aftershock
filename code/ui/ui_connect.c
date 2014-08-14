@@ -85,9 +85,9 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 	if (width > leftWidth) leftWidth = width;
 	leftWidth += 16;
 
-	SCR_DrawPropString(8, 128, dlText, style, color_white);
-	SCR_DrawPropString(8, 160, etaText, style, color_white);
-	SCR_DrawPropString(8, 224, xferText, style, color_white);
+	SCR_DrawPropString(8, 128, dlText, style, colorWhite);
+	SCR_DrawPropString(8, 160, etaText, style, colorWhite);
+	SCR_DrawPropString(8, 224, xferText, style, colorWhite);
 
 	if (downloadSize > 0) {
 		s = va("%s (%d%%)", downloadName, (int)((float)downloadCount * 100.0f / downloadSize));
@@ -95,15 +95,15 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 		s = downloadName;
 	}
 
-	SCR_DrawPropString(leftWidth, 128, s, style, color_white);
+	SCR_DrawPropString(leftWidth, 128, s, style, colorWhite);
 
 	UI_ReadableSize(dlSizeBuf,		sizeof dlSizeBuf,		downloadCount);
 	UI_ReadableSize(totalSizeBuf,	sizeof totalSizeBuf,	downloadSize);
 
 	if (downloadCount < 4096 || !downloadTime) {
-		SCR_DrawPropString(leftWidth, 160, "estimating", style, color_white);
+		SCR_DrawPropString(leftWidth, 160, "estimating", style, colorWhite);
 		SCR_DrawPropString(leftWidth, 192,
-			va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+			va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, colorWhite);
 	} else {
 	  if ((uis.realtime - downloadTime) / 1000) {
 			xferRate = downloadCount / ((uis.realtime - downloadTime) / 1000);
@@ -125,24 +125,24 @@ static void UI_DisplayDownloadInfo(const char *downloadName)
 				//(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
 			SCR_DrawPropString(leftWidth, 160,
-				dlTimeBuf, style, color_white);
+				dlTimeBuf, style, colorWhite);
 			SCR_DrawPropString(leftWidth, 192,
-				va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+				va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, colorWhite);
 		} else {
 			SCR_DrawPropString(leftWidth, 160,
-				"estimating", style, color_white);
+				"estimating", style, colorWhite);
 			if (downloadSize) {
 				SCR_DrawPropString(leftWidth, 192,
-					va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, color_white);
+					va("(%s of %s copied)", dlSizeBuf, totalSizeBuf), style, colorWhite);
 			} else {
 				SCR_DrawPropString(leftWidth, 192,
-					va("(%s copied)", dlSizeBuf), style, color_white);
+					va("(%s copied)", dlSizeBuf), style, colorWhite);
 			}
 		}
 
 		if (xferRate) {
 			SCR_DrawPropString(leftWidth, 224,
-				va("%s/Sec", xferRateBuf), style, color_white);
+				va("%s/Sec", xferRateBuf), style, colorWhite);
 		}
 	}
 }
@@ -160,7 +160,7 @@ void UI_DrawConnectScreen(qboolean overlay) {
 
 	if (!overlay) {
 		// draw the dialog background
-		trap_R_SetColor(color_white);
+		trap_R_SetColor(colorWhite);
 		UI_DrawHandlePic(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, uis.menuBackShader);
 	}
 
@@ -170,21 +170,21 @@ void UI_DrawConnectScreen(qboolean overlay) {
 	info[0] = '\0';
 	if (trap_GetConfigString(CS_SERVERINFO, info, sizeof(info))) {
 		SCR_DrawPropString(320, 16, va("Loading %s", Info_ValueForKey(info, "mapname")),
-			FONT_CENTER | FONT_SHADOW, color_white);
+			FONT_CENTER | FONT_SHADOW, colorWhite);
 	}
 
 	SCR_DrawPropString(320, 64, va("Connecting to %s", cstate.servername),
-		FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
-	//SCR_DrawPropString(320, 96, "Press Esc to abort", FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
+		FONT_CENTER | FONT_SMALL | FONT_SHADOW, colorMenuText);
+	//SCR_DrawPropString(320, 96, "Press Esc to abort", FONT_CENTER | FONT_SMALL | FONT_SHADOW, colorMenuText);
 
 	// display global MOTD at bottom
 	SCR_DrawPropString(SCREEN_WIDTH / 2, SCREEN_HEIGHT - 32,
-		Info_ValueForKey(cstate.updateInfoString, "motd"), FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
+		Info_ValueForKey(cstate.updateInfoString, "motd"), FONT_CENTER | FONT_SMALL | FONT_SHADOW, colorMenuText);
 
 	// print any server info (server full, bad version, etc)
 	if (cstate.connState < CA_CONNECTED) {
 		UI_DrawProportionalString_AutoWrapped(320, 192, 630, 20, cstate.messageString,
-			FONT_CENTER | FONT_SMALL | FONT_SHADOW, menu_text_color);
+			FONT_CENTER | FONT_SMALL | FONT_SHADOW, colorMenuText);
 	}
 
 #if 0
@@ -241,7 +241,7 @@ void UI_DrawConnectScreen(qboolean overlay) {
 		return;
 	}
 
-	SCR_DrawPropString(320, 128, s, FONT_CENTER | FONT_SMALL| FONT_SHADOW, color_white);
+	SCR_DrawPropString(320, 128, s, FONT_CENTER | FONT_SMALL| FONT_SHADOW, colorWhite);
 
 	// password required / connection rejected information goes here
 }

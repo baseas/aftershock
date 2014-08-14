@@ -38,24 +38,17 @@ static qhandle_t	sliderBar;
 static qhandle_t	sliderButton_0;
 static qhandle_t	sliderButton_1;
 
-vec4_t menu_text_color		= { 1.0f, 1.0f, 1.0f, 1.0f };
-vec4_t menu_dim_colo		= { 0.0f, 0.0f, 0.0f, 0.75f };
-vec4_t color_black			= { 0.00f, 0.00f, 0.00f, 1.00f };
-vec4_t color_white			= { 1.00f, 1.00f, 1.00f, 1.00f };
-vec4_t color_yellow			= { 1.00f, 1.00f, 0.00f, 1.00f };
-vec4_t color_blue			= { 0.00f, 0.00f, 1.00f, 1.00f };
-vec4_t color_lightOrange	= { 1.00f, 0.68f, 0.00f, 1.00f };
-vec4_t color_orange			= { 1.00f, 0.43f, 0.00f, 1.00f };
-vec4_t color_red			= { 1.00f, 0.00f, 0.00f, 1.00f };
-vec4_t color_dim			= { 0.00f, 0.00f, 0.00f, 0.25f };
+vec4_t colorMenuText	= { 1.00f, 1.00f, 1.00f, 1.00f };
+vec4_t colorOrange		= { 1.00f, 0.43f, 0.00f, 1.00f };
 
 // current color scheme
-vec4_t pulse_color			= { 1.00f, 1.00f, 1.00f, 1.00f };
-vec4_t text_color_disabled	= { 0.50f, 0.50f, 0.50f, 1.00f };	// light gray
-vec4_t text_color_normal	= { 1.00f, 0.43f, 0.00f, 1.00f };	// light orange
-vec4_t text_color_highlight	= { 1.00f, 1.00f, 0.00f, 1.00f };	// bright yellow
-vec4_t listbar_color		= { 1.00f, 0.43f, 0.00f, 0.30f };	// transluscent orange
-vec4_t text_color_status	= { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white
+vec4_t colorBanner			= { 1.00f, 0.00f, 0.00f, 1.00f };
+vec4_t colorPulse			= { 1.00f, 1.00f, 1.00f, 1.00f };
+vec4_t colorTextDisabled	= { 0.50f, 0.50f, 0.50f, 1.00f };	// light gray
+vec4_t colorTextNormal		= { 1.00f, 0.43f, 0.00f, 1.00f };	// light orange
+vec4_t colorTextHighlight	= { 1.00f, 1.00f, 0.00f, 1.00f };	// bright yellow
+vec4_t colorListbar			= { 1.00f, 0.43f, 0.00f, 0.30f };	// transluscent orange
+vec4_t colorTextStatus		= { 1.00f, 1.00f, 1.00f, 1.00f };	// bright white
 
 // action widget
 static void	Action_Init(menuaction_s *a);
@@ -119,7 +112,7 @@ static void Text_Draw(menutext_s *t)
 	}
 
 	if (t->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else {
 		color = t->color;
 	}
@@ -153,17 +146,16 @@ static void Button_Init(menubutton_s *b)
 
 static void Button_Draw(menubutton_s *b)
 {
-	float	x, y, w, h;
+	float	x, y;
 	int		style;
 	float	*color;
 	qhandle_t	shader;
-	const float sizeScale = 1;
 
 	x = b->generic.left;
 	y = b->generic.top;
 
 	if (b->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else {
 		color = colorBlack;
 	}
@@ -171,18 +163,18 @@ static void Button_Draw(menubutton_s *b)
 	style = b->style | FONT_SMALL;
 	if (Menu_ItemAtCursor(b->generic.parent) == b) {
 		style |= FONT_PULSE;
-		shader = uis.buttonHover;
+		trap_R_SetColor(colorOrange);
+		shader = uis.button;
+		// shader = uis.buttonHover;
 	} else {
+		trap_R_SetColor(colorYellow);
 		shader = uis.button;
 	}
 
 	UI_DrawHandlePic(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, shader);
 
-	w = SCR_PropStringWidth(b->string) * sizeScale;
-	h = PROP_HEIGHT * sizeScale;
-
-	SCR_DrawPropString(x + (BUTTON_WIDTH - w) / 2, y + (BUTTON_HEIGHT - h) / 2,
-		b->string, style, color);
+	SCR_DrawString(x + BUTTON_WIDTH / 2, y + (BUTTON_HEIGHT - 14) / 2,
+		b->string, 14, style | FONT_CENTER, color);
 }
 
 static void BText_Draw(menutext_s *t)
@@ -194,7 +186,7 @@ static void BText_Draw(menutext_s *t)
 	y = t->generic.y;
 
 	if (t->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else {
 		color = t->color;
 	}
@@ -236,7 +228,7 @@ static void PText_Draw(menutext_s *t)
 	y = t->generic.y;
 
 	if (t->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else {
 		color = t->color;
 	}
@@ -336,7 +328,7 @@ void Bitmap_Draw(menubitmap_s *b)
 				tempcolor[2] = b->focuscolor[2];
 				color = tempcolor;
 			} else {
-				color = pulse_color;
+				color = colorPulse;
 			}
 			color[3] = 0.5+0.5*sin(uis.realtime/PULSE_DIVISOR);
 
@@ -382,21 +374,21 @@ static void Action_Draw(menuaction_s *a)
 	float*	color;
 
 	style = 0;
-	color = menu_text_color;
+	color = colorMenuText;
 	if (a->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else if ((a->generic.flags & QMF_PULSEIFFOCUS)
 		&& (a->generic.parent->cursor == a->generic.menuPosition))
 	{
-		color = text_color_highlight;
+		color = colorTextHighlight;
 		style = FONT_PULSE;
 	} else if ((a->generic.flags & QMF_HIGHLIGHT_IF_FOCUS)
 		&& (a->generic.parent->cursor == a->generic.menuPosition))
 	{
-		color = text_color_highlight;
+		color = colorTextHighlight;
 	} else if (a->generic.flags & QMF_BLINK) {
 		style = FONT_BLINK;
-		color = text_color_highlight;
+		color = colorTextHighlight;
 	}
 
 	x = a->generic.x;
@@ -469,24 +461,26 @@ static void RadioButton_Draw(menuradiobutton_s *rb)
 	focus = (rb->generic.parent->cursor == rb->generic.menuPosition);
 
 	if (rb->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 		style = 0;
 	} else if (focus) {
-		color = text_color_highlight;
+		color = colorTextHighlight;
 		style = FONT_PULSE;
 	} else {
-		color = text_color_normal;
+		color = colorTextNormal;
 		style = 0;
 	}
 
 	if (rb->generic.name) {
-		SCR_DrawString(x + SMALLCHAR_SIZE, y, rb->generic.name, SMALLCHAR_SIZE, style, color);
+		SCR_DrawString(x + 18, y, rb->generic.name, SMALLCHAR_SIZE, style, color);
 	}
 
+	y += (SMALLCHAR_SIZE - 16) / 2;
+
 	if (!rb->curvalue) {
-		UI_DrawHandlePic(x - SMALLCHAR_SIZE, y, 16, 16, uis.rb_off);
+		UI_DrawHandlePic(x, y, 16, 16, uis.rb_off);
 	} else {
-		UI_DrawHandlePic(x - SMALLCHAR_SIZE, y, 16, 16, uis.rb_on);
+		UI_DrawHandlePic(x, y, 16, 16, uis.rb_on);
 	}
 }
 
@@ -575,13 +569,13 @@ static void Slider_Draw(menuslider_s *s)
 	focus = (s->generic.parent->cursor == s->generic.menuPosition);
 
 	if (s->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 		style = 0;
 	} else if (focus) {
-		color  = text_color_highlight;
+		color  = colorTextHighlight;
 		style = FONT_PULSE;
 	} else {
-		color = text_color_normal;
+		color = colorTextNormal;
 		style = 0;
 	}
 
@@ -687,20 +681,20 @@ static void SpinControl_Draw(menulist_s *s)
 	focus = (s->generic.parent->cursor == s->generic.menuPosition);
 
 	if (s->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else if (focus) {
-		color = text_color_highlight;
+		color = colorTextHighlight;
 		style |= FONT_PULSE;
 	} else if (s->generic.flags & QMF_BLINK) {
-		color = text_color_highlight;
+		color = colorTextHighlight;
 		style |= FONT_BLINK;
 	} else {
-		color = text_color_normal;
+		color = colorTextNormal;
 	}
 
 	if (focus) {
 		// draw cursor
-		SCR_FillRect(s->generic.left, s->generic.top, s->generic.right-s->generic.left+1, s->generic.bottom-s->generic.top+1, listbar_color);
+		SCR_FillRect(s->generic.left, s->generic.top, s->generic.right-s->generic.left+1, s->generic.bottom-s->generic.top+1, colorListbar);
 		SCR_DrawString(x, y, "\15", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, color);
 	}
 
@@ -1030,8 +1024,8 @@ void ScrollList_Draw(menulist_s *l)
 					u -= (l->width * SMALLCHAR_SIZE) / 2 + 1;
 				}
 
-				SCR_FillRect(u, y, l->width*SMALLCHAR_SIZE, SMALLCHAR_SIZE+2, listbar_color);
-				color = text_color_highlight;
+				SCR_FillRect(u, y, l->width*SMALLCHAR_SIZE, SMALLCHAR_SIZE+2, colorListbar);
+				color = colorTextHighlight;
 
 				if (hasfocus) {
 					style = FONT_PULSE;
@@ -1039,7 +1033,7 @@ void ScrollList_Draw(menulist_s *l)
 					style = 0;
 				}
 			} else {
-				color = text_color_normal;
+				color = colorTextNormal;
 				style = 0;
 			}
 

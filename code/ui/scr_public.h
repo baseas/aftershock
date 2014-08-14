@@ -42,6 +42,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define BLINK_DIVISOR		200
 #define PULSE_DIVISOR		75
 
+#define NUM_CROSSHAIRS		19
+
 enum {
 	FONT_CENTER = (1 << 0),		// align center
 	FONT_RIGHT = (1 << 1),		// align right

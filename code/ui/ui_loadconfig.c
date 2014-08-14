@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"	
-#define ART_FIGHT0			"menu/art/load_0"
-#define ART_FIGHT1			"menu/art/load_1"
 #define ART_ARROWS			"menu/art/arrows_horz_0"
 #define ART_ARROWLEFT		"menu/art/arrows_horz_left"
 #define ART_ARROWRIGHT		"menu/art/arrows_horz_right"
@@ -56,8 +52,8 @@ typedef struct {
 	menubitmap_s	arrows;
 	menubitmap_s	left;
 	menubitmap_s	right;
-	menubitmap_s	back;
-	menubitmap_s	go;
+	menubutton_s	back;
+	menubutton_s	go;
 
 	char			names[NAMEBUFSIZE];
 	char*			configlist[MAX_CONFIGS];
@@ -104,8 +100,8 @@ static void LoadConfig_MenuInit(void)
 	s_configs.banner.generic.x		= 320;
 	s_configs.banner.generic.y		= 16;
 	s_configs.banner.string			= "LOAD CONFIG";
-	s_configs.banner.color			= color_white;
-	s_configs.banner.style			= FONT_CENTER;
+	s_configs.banner.color			= colorBanner;
+	s_configs.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	s_configs.arrows.generic.type	= MTYPE_BITMAP;
 	s_configs.arrows.generic.name	= ART_ARROWS;
@@ -135,27 +131,25 @@ static void LoadConfig_MenuInit(void)
 	s_configs.right.height				= ARROWS_HEIGHT;
 	s_configs.right.focuspic			= ART_ARROWRIGHT;
 
-	s_configs.back.generic.type		= MTYPE_BITMAP;
-	s_configs.back.generic.name		= ART_BACK0;
-	s_configs.back.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_configs.back.generic.type		= MTYPE_BUTTON;
+	s_configs.back.generic.flags	= QMF_LEFT_JUSTIFY;
 	s_configs.back.generic.id		= ID_BACK;
 	s_configs.back.generic.callback	= LoadConfig_MenuEvent;
 	s_configs.back.generic.x		= 0;
 	s_configs.back.generic.y		= 480-64;
 	s_configs.back.width			= 128;
 	s_configs.back.height			= 64;
-	s_configs.back.focuspic			= ART_BACK1;
+	s_configs.back.string			= "Back";
 
-	s_configs.go.generic.type		= MTYPE_BITMAP;
-	s_configs.go.generic.name		= ART_FIGHT0;
-	s_configs.go.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_configs.go.generic.type		= MTYPE_BUTTON;
+	s_configs.go.generic.flags		= QMF_RIGHT_JUSTIFY;
 	s_configs.go.generic.id			= ID_GO;
 	s_configs.go.generic.callback	= LoadConfig_MenuEvent;
 	s_configs.go.generic.x			= 640;
 	s_configs.go.generic.y			= 480-64;
 	s_configs.go.width				= 128;
 	s_configs.go.height				= 64;
-	s_configs.go.focuspic			= ART_FIGHT1;
+	s_configs.go.string				= "Go";
 
 	// scan for configs
 	s_configs.list.generic.type		= MTYPE_SCROLLLIST;
@@ -206,10 +200,6 @@ static void LoadConfig_MenuInit(void)
 
 void UI_LoadConfig_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_FIGHT0);
-	trap_R_RegisterShaderNoMip(ART_FIGHT1);
 	trap_R_RegisterShaderNoMip(ART_ARROWS);
 	trap_R_RegisterShaderNoMip(ART_ARROWLEFT);
 	trap_R_RegisterShaderNoMip(ART_ARROWRIGHT);

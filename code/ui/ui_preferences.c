@@ -24,23 +24,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0				"menu/art/back_0"
-#define ART_BACK1				"menu/art/back_1"
-
 #define PREFERENCES_X_POS		360
-#define	NUM_CROSSHAIRS			10
 
 enum {
 	ID_CROSSHAIR = 127,
 	ID_SIMPLEITEMS,
 	ID_HIGHQUALITYSKY,
-	ID_EJECTINGBRASS,
+	ID_MUZZLEFLASH,
 	ID_WALLMARKS,
 	ID_DYNAMICLIGHTS,
 	ID_IDENTIFYTARGET,
-	ID_SYNCEVERYFRAME,
-	ID_FORCEMODEL,
-	ID_DRAWTEAMOVERLAY,
 	ID_ALLOWDOWNLOAD,
 	ID_BACK
 };
@@ -52,7 +45,7 @@ typedef struct {
 
 	menulist_s			crosshair;
 	menuradiobutton_s	simpleitems;
-	menuradiobutton_s	brass;
+	menuradiobutton_s	muzzle;
 	menuradiobutton_s	wallmarks;
 	menuradiobutton_s	dynamiclights;
 	menuradiobutton_s	identifytarget;
@@ -61,33 +54,22 @@ typedef struct {
 	menuradiobutton_s	forcemodel;
 	menulist_s			drawteamoverlay;
 	menuradiobutton_s	allowdownload;
-	menubitmap_s		back;
+	menubutton_s		back;
 
 	qhandle_t			crosshairShader[NUM_CROSSHAIRS];
 } preferences_t;
 
 static preferences_t s_preferences;
 
-static const char *teamoverlay_names[] = {
-	"off",
-	"upper right",
-	"lower right",
-	"lower left",
-	NULL
-};
-
 static void Preferences_SetMenuItems(void)
 {
 	s_preferences.crosshair.curvalue		= (int)trap_Cvar_VariableValue("cg_drawCrosshair") % NUM_CROSSHAIRS;
 	s_preferences.simpleitems.curvalue		= trap_Cvar_VariableValue("cg_simpleItems") != 0;
-	s_preferences.brass.curvalue			= trap_Cvar_VariableValue("cg_brassTime") != 0;
+	s_preferences.muzzle.curvalue			= trap_Cvar_VariableValue("cg_muzzleFlash") != 0;
 	s_preferences.wallmarks.curvalue		= trap_Cvar_VariableValue("cg_marks") != 0;
 	s_preferences.identifytarget.curvalue	= trap_Cvar_VariableValue("cg_drawCrosshairNames") != 0;
 	s_preferences.dynamiclights.curvalue	= trap_Cvar_VariableValue("r_dynamiclight") != 0;
 	s_preferences.highqualitysky.curvalue	= trap_Cvar_VariableValue ("r_fastsky") == 0;
-	s_preferences.synceveryframe.curvalue	= trap_Cvar_VariableValue("r_finish") != 0;
-	s_preferences.forcemodel.curvalue		= trap_Cvar_VariableValue("cg_forcemodel") != 0;
-	s_preferences.drawteamoverlay.curvalue	= Com_Clamp(0, 3, trap_Cvar_VariableValue("cg_drawTeamOverlay"));
 	s_preferences.allowdownload.curvalue	= trap_Cvar_VariableValue("cl_allowDownload") != 0;
 }
 
@@ -110,11 +92,11 @@ static void Preferences_Event(void* ptr, int notification)
 		trap_Cvar_SetValue("r_fastsky", !s_preferences.highqualitysky.curvalue);
 		break;
 
-	case ID_EJECTINGBRASS:
-		if (s_preferences.brass.curvalue)
-			trap_Cvar_Reset("cg_brassTime");
+	case ID_MUZZLEFLASH:
+		if (s_preferences.muzzle.curvalue)
+			trap_Cvar_Reset("cg_muzzleTime");
 		else
-			trap_Cvar_SetValue("cg_brassTime", 0);
+			trap_Cvar_SetValue("cg_muzzleTime", 0);
 		break;
 
 	case ID_WALLMARKS:
@@ -127,18 +109,6 @@ static void Preferences_Event(void* ptr, int notification)
 
 	case ID_IDENTIFYTARGET:
 		trap_Cvar_SetValue("cg_drawCrosshairNames", s_preferences.identifytarget.curvalue);
-		break;
-
-	case ID_SYNCEVERYFRAME:
-		trap_Cvar_SetValue("r_finish", s_preferences.synceveryframe.curvalue);
-		break;
-
-	case ID_FORCEMODEL:
-		trap_Cvar_SetValue("cg_forcemodel", s_preferences.forcemodel.curvalue);
-		break;
-
-	case ID_DRAWTEAMOVERLAY:
-		trap_Cvar_SetValue("cg_drawTeamOverlay", s_preferences.drawteamoverlay.curvalue);
 		break;
 
 	case ID_ALLOWDOWNLOAD:
@@ -167,20 +137,21 @@ static void Crosshair_Draw(void *self)
 	focus = (s->generic.parent->cursor == s->generic.menuPosition);
 
 	if (s->generic.flags & QMF_GRAYED) {
-		color = text_color_disabled;
+		color = colorTextDisabled;
 	} else if (focus) {
-		color = text_color_highlight;
+		color = colorTextHighlight;
 		fontStyle |= FONT_PULSE;
 	} else if (s->generic.flags & QMF_BLINK) {
-		color = text_color_highlight;
+		color = colorTextHighlight;
 		fontStyle |= FONT_BLINK;
 	} else {
-		color = text_color_normal;
+		color = colorTextNormal;
 	}
 
 	if (focus) {
 		// draw cursor
-		SCR_FillRect(s->generic.left, s->generic.top, s->generic.right-s->generic.left+1, s->generic.bottom-s->generic.top+1, listbar_color);
+		SCR_FillRect(s->generic.left, s->generic.top, s->generic.right - s->generic.left + 1,
+			s->generic.bottom - s->generic.top + 1, colorListbar);
 		SCR_DrawString(x, y, "\15", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, color);
 	}
 
@@ -188,14 +159,16 @@ static void Crosshair_Draw(void *self)
 	if (!s->curvalue) {
 		return;
 	}
-	UI_DrawHandlePic(x + SMALLCHAR_SIZE, y - 4, 24, 24, s_preferences.crosshairShader[s->curvalue]);
+
+	y += (SMALLCHAR_SIZE - 24) / 2;
+	UI_DrawHandlePic(x + SMALLCHAR_SIZE, y, 24, 24, s_preferences.crosshairShader[s->curvalue]);
 }
 
 static void Preferences_MenuInit(void)
 {
-	int				y;
+	int	y;
 
-	memset(&s_preferences, 0 ,sizeof(preferences_t));
+	memset(&s_preferences, 0, sizeof s_preferences);
 
 	Preferences_Cache();
 
@@ -206,8 +179,8 @@ static void Preferences_MenuInit(void)
 	s_preferences.banner.generic.x		= 320;
 	s_preferences.banner.generic.y		= 16;
 	s_preferences.banner.string			= "GAME OPTIONS";
-	s_preferences.banner.color			= color_white;
-	s_preferences.banner.style			= FONT_CENTER;
+	s_preferences.banner.color			= colorBanner;
+	s_preferences.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	y = 144;
 	s_preferences.crosshair.generic.type		= MTYPE_SPINCONTROL;
@@ -218,7 +191,7 @@ static void Preferences_MenuInit(void)
 	s_preferences.crosshair.generic.callback	= Preferences_Event;
 	s_preferences.crosshair.generic.ownerdraw	= Crosshair_Draw;
 	s_preferences.crosshair.generic.id			= ID_CROSSHAIR;
-	s_preferences.crosshair.generic.top			= y - 4;
+	s_preferences.crosshair.generic.top			= y - 10;
 	s_preferences.crosshair.generic.bottom		= y + 20;
 	s_preferences.crosshair.generic.left		= PREFERENCES_X_POS - ((strlen(s_preferences.crosshair.generic.name) + 1) * SMALLCHAR_SIZE);
 	s_preferences.crosshair.generic.right		= PREFERENCES_X_POS + 48;
@@ -226,7 +199,7 @@ static void Preferences_MenuInit(void)
 
 	y += BIGCHAR_SIZE + 2 + 4;
 	s_preferences.simpleitems.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.simpleitems.generic.name		= "Simple Items:";
+	s_preferences.simpleitems.generic.name		= "Simple Items";
 	s_preferences.simpleitems.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.simpleitems.generic.callback	= Preferences_Event;
 	s_preferences.simpleitems.generic.id		= ID_SIMPLEITEMS;
@@ -235,7 +208,7 @@ static void Preferences_MenuInit(void)
 
 	y += BIGCHAR_SIZE;
 	s_preferences.wallmarks.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.wallmarks.generic.name		= "Marks on Walls:";
+	s_preferences.wallmarks.generic.name		= "Marks on Walls";
 	s_preferences.wallmarks.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.wallmarks.generic.callback	= Preferences_Event;
 	s_preferences.wallmarks.generic.id			= ID_WALLMARKS;
@@ -243,17 +216,17 @@ static void Preferences_MenuInit(void)
 	s_preferences.wallmarks.generic.y			= y;
 
 	y += BIGCHAR_SIZE + 2;
-	s_preferences.brass.generic.type			= MTYPE_RADIOBUTTON;
-	s_preferences.brass.generic.name			= "Ejecting Brass:";
-	s_preferences.brass.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	s_preferences.brass.generic.callback		= Preferences_Event;
-	s_preferences.brass.generic.id				= ID_EJECTINGBRASS;
-	s_preferences.brass.generic.x				= PREFERENCES_X_POS;
-	s_preferences.brass.generic.y				= y;
+	s_preferences.muzzle.generic.type			= MTYPE_RADIOBUTTON;
+	s_preferences.muzzle.generic.name			= "Muzzle Flash";
+	s_preferences.muzzle.generic.flags			= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	s_preferences.muzzle.generic.callback		= Preferences_Event;
+	s_preferences.muzzle.generic.id				= ID_MUZZLEFLASH;
+	s_preferences.muzzle.generic.x				= PREFERENCES_X_POS;
+	s_preferences.muzzle.generic.y				= y;
 
 	y += BIGCHAR_SIZE + 2;
 	s_preferences.dynamiclights.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.dynamiclights.generic.name		= "Dynamic Lights:";
+	s_preferences.dynamiclights.generic.name		= "Dynamic Lights";
 	s_preferences.dynamiclights.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.dynamiclights.generic.callback	= Preferences_Event;
 	s_preferences.dynamiclights.generic.id			= ID_DYNAMICLIGHTS;
@@ -262,7 +235,7 @@ static void Preferences_MenuInit(void)
 
 	y += BIGCHAR_SIZE + 2;
 	s_preferences.identifytarget.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.identifytarget.generic.name		= "Identify Target:";
+	s_preferences.identifytarget.generic.name		= "Identify Target";
 	s_preferences.identifytarget.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.identifytarget.generic.callback	= Preferences_Event;
 	s_preferences.identifytarget.generic.id			= ID_IDENTIFYTARGET;
@@ -271,7 +244,7 @@ static void Preferences_MenuInit(void)
 
 	y += BIGCHAR_SIZE + 2;
 	s_preferences.highqualitysky.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.highqualitysky.generic.name		= "High Quality Sky:";
+	s_preferences.highqualitysky.generic.name		= "High Quality Sky";
 	s_preferences.highqualitysky.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.highqualitysky.generic.callback	= Preferences_Event;
 	s_preferences.highqualitysky.generic.id			= ID_HIGHQUALITYSKY;
@@ -279,36 +252,8 @@ static void Preferences_MenuInit(void)
 	s_preferences.highqualitysky.generic.y			= y;
 
 	y += BIGCHAR_SIZE + 2;
-	s_preferences.synceveryframe.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.synceveryframe.generic.name		= "Sync Every Frame:";
-	s_preferences.synceveryframe.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	s_preferences.synceveryframe.generic.callback	= Preferences_Event;
-	s_preferences.synceveryframe.generic.id			= ID_SYNCEVERYFRAME;
-	s_preferences.synceveryframe.generic.x			= PREFERENCES_X_POS;
-	s_preferences.synceveryframe.generic.y			= y;
-
-	y += BIGCHAR_SIZE + 2;
-	s_preferences.forcemodel.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.forcemodel.generic.name		= "Force Player Models:";
-	s_preferences.forcemodel.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	s_preferences.forcemodel.generic.callback	= Preferences_Event;
-	s_preferences.forcemodel.generic.id			= ID_FORCEMODEL;
-	s_preferences.forcemodel.generic.x			= PREFERENCES_X_POS;
-	s_preferences.forcemodel.generic.y			= y;
-
-	y += BIGCHAR_SIZE + 2;
-	s_preferences.drawteamoverlay.generic.type		= MTYPE_SPINCONTROL;
-	s_preferences.drawteamoverlay.generic.name		= "Draw Team Overlay:";
-	s_preferences.drawteamoverlay.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	s_preferences.drawteamoverlay.generic.callback	= Preferences_Event;
-	s_preferences.drawteamoverlay.generic.id		= ID_DRAWTEAMOVERLAY;
-	s_preferences.drawteamoverlay.generic.x			= PREFERENCES_X_POS;
-	s_preferences.drawteamoverlay.generic.y			= y;
-	s_preferences.drawteamoverlay.itemnames			= teamoverlay_names;
-
-	y += BIGCHAR_SIZE + 2;
 	s_preferences.allowdownload.generic.type		= MTYPE_RADIOBUTTON;
-	s_preferences.allowdownload.generic.name		= "Automatic Downloading:";
+	s_preferences.allowdownload.generic.name		= "Automatic Downloading";
 	s_preferences.allowdownload.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
 	s_preferences.allowdownload.generic.callback	= Preferences_Event;
 	s_preferences.allowdownload.generic.id			= ID_ALLOWDOWNLOAD;
@@ -317,28 +262,24 @@ static void Preferences_MenuInit(void)
 
 	y += BIGCHAR_SIZE + 2;
 	s_preferences.back.generic.type		= MTYPE_BITMAP;
-	s_preferences.back.generic.name		= ART_BACK0;
-	s_preferences.back.generic.flags	= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_preferences.back.generic.flags	= QMF_LEFT_JUSTIFY;
 	s_preferences.back.generic.callback	= Preferences_Event;
 	s_preferences.back.generic.id		= ID_BACK;
 	s_preferences.back.generic.x		= 0;
 	s_preferences.back.generic.y		= 480-64;
 	s_preferences.back.width			= 128;
 	s_preferences.back.height			= 64;
-	s_preferences.back.focuspic			= ART_BACK1;
+	s_preferences.back.string			= "Back";
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.banner);
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.crosshair);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.simpleitems);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.wallmarks);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.brass);
+	Menu_AddItem(&s_preferences.menu, &s_preferences.muzzle);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.dynamiclights);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.identifytarget);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.highqualitysky);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.synceveryframe);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.forcemodel);
-	Menu_AddItem(&s_preferences.menu, &s_preferences.drawteamoverlay);
 	Menu_AddItem(&s_preferences.menu, &s_preferences.allowdownload);
 
 	Menu_AddItem(&s_preferences.menu, &s_preferences.back);
@@ -348,12 +289,10 @@ static void Preferences_MenuInit(void)
 
 void Preferences_Cache(void)
 {
-	int		n;
+	int	i;
 
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	for (n = 0; n < NUM_CROSSHAIRS; n++) {
-		s_preferences.crosshairShader[n] = trap_R_RegisterShaderNoMip(va("gfx/2d/crosshair%c", 'a' + n));
+	for (i = 0; i < NUM_CROSSHAIRS; i++) {
+		s_preferences.crosshairShader[i] = trap_R_RegisterShaderNoMip(va("crosshair%d", i));
 	}
 }
 

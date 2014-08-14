@@ -20,24 +20,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 //
+// ui_serverinfo.c
+
 #include "ui_local.h"
 
-#define SERVERINFO_BACK0	"menu/art/back_0"
-#define SERVERINFO_BACK1	"menu/art/back_1"
-
-static char *serverinfo_artlist[] = {
-	SERVERINFO_BACK0,
-	SERVERINFO_BACK1,
-	NULL
+enum {
+	ID_ADD = 100,
+	ID_BACK
 };
-
-#define ID_ADD		100
-#define ID_BACK		101
 
 typedef struct {
 	menuframework_s	menu;
 	menutext_s		banner;
-	menubitmap_s	back;
+	menubutton_s	back;
 	menutext_s		add;
 	char			info[MAX_INFO_STRING];
 	int				numlines;
@@ -61,7 +56,7 @@ void Favorites_Add(void)
 
 	best = 0;
 	for (i = 0; i < MAX_FAVORITESERVERS; i++) {
-		trap_Cvar_VariableStringBuffer(va("server%d",i+1), adrstr, sizeof adrstr);
+		trap_Cvar_VariableStringBuffer(va("server%d", i + 1), adrstr, sizeof adrstr);
 		if (!Q_stricmp(serverbuff, adrstr)) {
 			// already in list
 			return;
@@ -74,27 +69,24 @@ void Favorites_Add(void)
 	}
 
 	if (best) {
-		trap_Cvar_Set(va("server%d",best), serverbuff);
+		trap_Cvar_Set(va("server%d", best), serverbuff);
 	}
 }
 
 static void ServerInfo_Event(void *ptr, int event)
 {
-	switch (((menucommon_s *)ptr)->id) {
-		case ID_ADD:
-			if (event != QM_ACTIVATED)
-				break;
+	if (event != QM_ACTIVATED) {
+		return;
+	}
 
-			Favorites_Add();
-			UI_PopMenu();
-			break;
-
-		case ID_BACK:
-			if (event != QM_ACTIVATED)
-				break;
-
-			UI_PopMenu();
-			break;
+	switch (((menucommon_s *) ptr)->id) {
+	case ID_ADD:
+		Favorites_Add();
+		UI_PopMenu();
+		break;
+	case ID_BACK:
+		UI_PopMenu();
+		break;
 	}
 }
 
@@ -115,8 +107,8 @@ static void ServerInfo_MenuDraw(void)
 
 		Q_strcat(key, MAX_INFO_KEY, ":");
 
-		SCR_DrawString(SCREEN_WIDTH / 2 - 8, y, key, SMALLCHAR_SIZE, FONT_RIGHT, color_red);
-		SCR_DrawString(SCREEN_WIDTH / 2 + 8, y, value, SMALLCHAR_SIZE, 0, text_color_normal);
+		SCR_DrawString(SCREEN_WIDTH / 2 - 8, y, key, SMALLCHAR_SIZE, FONT_RIGHT, colorRed);
+		SCR_DrawString(SCREEN_WIDTH / 2 + 8, y, value, SMALLCHAR_SIZE, 0, colorTextNormal);
 
 		y += SMALLCHAR_SIZE;
 		i++;
@@ -130,18 +122,7 @@ static sfxHandle_t ServerInfo_MenuKey(int key)
 	return (Menu_DefaultKey(&s_serverinfo.menu, key));
 }
 
-void ServerInfo_Cache(void)
-{
-	int	i;
-
-	// touch all our pics
-	for (i=0; ;i++)
-	{
-		if (!serverinfo_artlist[i])
-			break;
-		trap_R_RegisterShaderNoMip(serverinfo_artlist[i]);
-	}
-}
+void ServerInfo_Cache(void) { }
 
 void UI_ServerInfoMenu(void)
 {
@@ -163,8 +144,8 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.banner.generic.x		= 320;
 	s_serverinfo.banner.generic.y		= 16;
 	s_serverinfo.banner.string			= "SERVER INFO";
-	s_serverinfo.banner.color			= color_white;
-	s_serverinfo.banner.style			= FONT_CENTER;
+	s_serverinfo.banner.color			= colorBanner;
+	s_serverinfo.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	s_serverinfo.add.generic.type		= MTYPE_PTEXT;
 	s_serverinfo.add.generic.flags		= QMF_CENTER_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -174,21 +155,20 @@ void UI_ServerInfoMenu(void)
 	s_serverinfo.add.generic.y			= 371;
 	s_serverinfo.add.string				= "ADD TO FAVORITES";
 	s_serverinfo.add.style				= FONT_CENTER | FONT_SMALL;
-	s_serverinfo.add.color				= color_red;
+	s_serverinfo.add.color				= colorRed;
 	if (trap_Cvar_VariableValue("sv_running")) {
 		s_serverinfo.add.generic.flags |= QMF_GRAYED;
 	}
 
-	s_serverinfo.back.generic.type		= MTYPE_BITMAP;
-	s_serverinfo.back.generic.name		= SERVERINFO_BACK0;
-	s_serverinfo.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_serverinfo.back.generic.type		= MTYPE_BUTTON;
+	s_serverinfo.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	s_serverinfo.back.generic.callback	= ServerInfo_Event;
 	s_serverinfo.back.generic.id		= ID_BACK;
 	s_serverinfo.back.generic.x			= 0;
 	s_serverinfo.back.generic.y			= 480-64;
 	s_serverinfo.back.width				= 128;
 	s_serverinfo.back.height			= 64;
-	s_serverinfo.back.focuspic			= SERVERINFO_BACK1;
+	s_serverinfo.back.string			= "Back";
 
 	trap_GetConfigString(CS_SERVERINFO, s_serverinfo.info, MAX_INFO_STRING);
 

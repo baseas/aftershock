@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0	"menu/art/back_0"
-#define ART_BACK1	"menu/art/back_1"
-
 enum {
 	ID_GRAPHICS = 10,
 	ID_DISPLAY,
@@ -57,7 +54,7 @@ typedef struct {
 
 	menulist_s		rate;
 
-	menubitmap_s	back;
+	menubutton_s	back;
 } networkOptionsInfo_t;
 
 static networkOptionsInfo_t	networkOptionsInfo;
@@ -123,8 +120,8 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.banner.generic.x			= 320;
 	networkOptionsInfo.banner.generic.y			= 16;
 	networkOptionsInfo.banner.string			= "SYSTEM SETUP";
-	networkOptionsInfo.banner.color				= color_white;
-	networkOptionsInfo.banner.style				= FONT_CENTER;
+	networkOptionsInfo.banner.color				= colorBanner;
+	networkOptionsInfo.banner.style				= FONT_CENTER | FONT_SHADOW;
 
 	networkOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	networkOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -134,7 +131,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
 	networkOptionsInfo.graphics.string				= "GRAPHICS";
 	networkOptionsInfo.graphics.style				= FONT_RIGHT;
-	networkOptionsInfo.graphics.color				= color_red;
+	networkOptionsInfo.graphics.color				= colorRed;
 
 	networkOptionsInfo.display.generic.type			= MTYPE_PTEXT;
 	networkOptionsInfo.display.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -144,7 +141,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
 	networkOptionsInfo.display.string				= "DISPLAY";
 	networkOptionsInfo.display.style				= FONT_RIGHT;
-	networkOptionsInfo.display.color				= color_red;
+	networkOptionsInfo.display.color				= colorRed;
 
 	networkOptionsInfo.sound.generic.type			= MTYPE_PTEXT;
 	networkOptionsInfo.sound.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -154,7 +151,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.sound.generic.y				= 240;
 	networkOptionsInfo.sound.string					= "SOUND";
 	networkOptionsInfo.sound.style					= FONT_RIGHT;
-	networkOptionsInfo.sound.color					= color_red;
+	networkOptionsInfo.sound.color					= colorRed;
 
 	networkOptionsInfo.network.generic.type			= MTYPE_PTEXT;
 	networkOptionsInfo.network.generic.flags		= QMF_RIGHT_JUSTIFY;
@@ -164,7 +161,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
 	networkOptionsInfo.network.string				= "NETWORK";
 	networkOptionsInfo.network.style				= FONT_RIGHT;
-	networkOptionsInfo.network.color				= color_red;
+	networkOptionsInfo.network.color				= colorRed;
 
 	y = 240 - 1 * (BIGCHAR_SIZE+2);
 	networkOptionsInfo.rate.generic.type		= MTYPE_SPINCONTROL;
@@ -176,16 +173,15 @@ static void UI_NetworkOptionsMenu_Init(void)
 	networkOptionsInfo.rate.generic.y			= y;
 	networkOptionsInfo.rate.itemnames			= rate_items;
 
-	networkOptionsInfo.back.generic.type		= MTYPE_BITMAP;
-	networkOptionsInfo.back.generic.name		= ART_BACK0;
-	networkOptionsInfo.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	networkOptionsInfo.back.generic.type		= MTYPE_BUTTON;
+	networkOptionsInfo.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	networkOptionsInfo.back.generic.callback	= UI_NetworkOptionsMenu_Event;
 	networkOptionsInfo.back.generic.id			= ID_BACK;
 	networkOptionsInfo.back.generic.x			= 0;
 	networkOptionsInfo.back.generic.y			= 480-64;
 	networkOptionsInfo.back.width				= 128;
 	networkOptionsInfo.back.height				= 64;
-	networkOptionsInfo.back.focuspic			= ART_BACK1;
+	networkOptionsInfo.back.string				= "Back";
 
 	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.banner);
 	Menu_AddItem(&networkOptionsInfo.menu, (void *) &networkOptionsInfo.graphics);
@@ -209,11 +205,7 @@ static void UI_NetworkOptionsMenu_Init(void)
 	}
 }
 
-void UI_NetworkOptionsMenu_Cache(void)
-{
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-}
+void UI_NetworkOptionsMenu_Cache(void) { }
 
 void UI_NetworkOptionsMenu(void)
 {

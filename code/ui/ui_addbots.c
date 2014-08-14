@@ -24,10 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-#define ART_FIGHT0			"menu/art/accept_0"
-#define ART_FIGHT1			"menu/art/accept_1"
 #define ART_BACKGROUND		"menu/art/addbotframe"
 #define ART_ARROWS			"menu/art/arrows_vert_0"
 #define ART_ARROWUP			"menu/art/arrows_vert_top"
@@ -58,8 +54,8 @@ typedef struct {
 	menutext_s		bots[7];
 	menulist_s		skill;
 	menulist_s		team;
-	menubitmap_s	go;
-	menubitmap_s	back;
+	menubutton_s	go;
+	menubutton_s	back;
 
 	int				numBots;
 	int				delay;
@@ -115,9 +111,9 @@ static void UI_AddBotsMenu_BotEvent(void* ptr, int event)
 		return;
 	}
 
-	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = color_orange;
+	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = colorOrange;
 	addBotsMenuInfo.selectedBotNum = ((menucommon_s*)ptr)->id - ID_BOTNAME0;
-	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = color_white;
+	addBotsMenuInfo.bots[addBotsMenuInfo.selectedBotNum].color = colorWhite;
 }
 
 static void UI_AddBotsMenu_BackEvent(void* ptr, int event)
@@ -195,7 +191,7 @@ static void UI_AddBotsMenu_GetSortedBotNums(void)
 
 static void UI_AddBotsMenu_Draw(void)
 {
-	SCR_DrawBannerString(320, 16, "ADD BOTS", FONT_CENTER, color_white);
+	SCR_DrawBannerString(320, 16, "ADD BOTS", FONT_CENTER, colorWhite);
 	UI_DrawNamedPic(320-233, 240-166, 466, 332, ART_BACKGROUND);
 
 	// standard menu drawing
@@ -260,7 +256,7 @@ static void UI_AddBotsMenu_Init(void)
 		addBotsMenuInfo.bots[n].generic.y			= y;
 		addBotsMenuInfo.bots[n].generic.callback	= UI_AddBotsMenu_BotEvent;
 		addBotsMenuInfo.bots[n].string				= addBotsMenuInfo.botnames[n];
-		addBotsMenuInfo.bots[n].color				= color_orange;
+		addBotsMenuInfo.bots[n].color				= colorOrange;
 		addBotsMenuInfo.bots[n].style				= FONT_SMALL;
 	}
 
@@ -288,31 +284,29 @@ static void UI_AddBotsMenu_Init(void)
 		addBotsMenuInfo.team.generic.flags	= QMF_GRAYED;
 	}
 
-	addBotsMenuInfo.go.generic.type			= MTYPE_BITMAP;
-	addBotsMenuInfo.go.generic.name			= ART_FIGHT0;
-	addBotsMenuInfo.go.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	addBotsMenuInfo.go.generic.type			= MTYPE_BUTTON;
+	addBotsMenuInfo.go.generic.flags		= QMF_LEFT_JUSTIFY;
 	addBotsMenuInfo.go.generic.id			= ID_GO;
 	addBotsMenuInfo.go.generic.callback		= UI_AddBotsMenu_FightEvent;
 	addBotsMenuInfo.go.generic.x			= 320+128-128;
 	addBotsMenuInfo.go.generic.y			= 256+128-64;
-	addBotsMenuInfo.go.width  				= 128;
+	addBotsMenuInfo.go.width				= 128;
 	addBotsMenuInfo.go.height  				= 64;
-	addBotsMenuInfo.go.focuspic				= ART_FIGHT1;
+	addBotsMenuInfo.go.string				= "Go";
 
-	addBotsMenuInfo.back.generic.type		= MTYPE_BITMAP;
-	addBotsMenuInfo.back.generic.name		= ART_BACK0;
-	addBotsMenuInfo.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	addBotsMenuInfo.back.generic.type		= MTYPE_BUTTON;
+	addBotsMenuInfo.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	addBotsMenuInfo.back.generic.id			= ID_BACK;
 	addBotsMenuInfo.back.generic.callback	= UI_AddBotsMenu_BackEvent;
 	addBotsMenuInfo.back.generic.x			= 320-128;
 	addBotsMenuInfo.back.generic.y			= 256+128-64;
 	addBotsMenuInfo.back.width				= 128;
 	addBotsMenuInfo.back.height				= 64;
-	addBotsMenuInfo.back.focuspic			= ART_BACK1;
+	addBotsMenuInfo.back.string				= "Back";
 
 	addBotsMenuInfo.baseBotNum = 0;
 	addBotsMenuInfo.selectedBotNum = 0;
-	addBotsMenuInfo.bots[0].color = color_white;
+	addBotsMenuInfo.bots[0].color = colorWhite;
 
 	UI_AddBotsMenu_GetSortedBotNums();
 	UI_AddBotsMenu_SetBotNames();
@@ -332,10 +326,6 @@ static void UI_AddBotsMenu_Init(void)
 
 void UI_AddBots_Cache(void)
 {
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-	trap_R_RegisterShaderNoMip(ART_FIGHT0);
-	trap_R_RegisterShaderNoMip(ART_FIGHT1);
 	trap_R_RegisterShaderNoMip(ART_BACKGROUND);
 	trap_R_RegisterShaderNoMip(ART_ARROWS);
 	trap_R_RegisterShaderNoMip(ART_ARROWUP);

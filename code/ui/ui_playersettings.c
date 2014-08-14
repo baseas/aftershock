@@ -24,17 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0			"menu/art/back_0"
-#define ART_BACK1			"menu/art/back_1"
-#define ART_FX_BASE			"menu/art/fx_base"
-#define ART_FX_BLUE			"menu/art/fx_blue"
-#define ART_FX_CYAN			"menu/art/fx_cyan"
-#define ART_FX_GREEN		"menu/art/fx_grn"
-#define ART_FX_RED			"menu/art/fx_red"
-#define ART_FX_TEAL			"menu/art/fx_teal"
-#define ART_FX_WHITE		"menu/art/fx_white"
-#define ART_FX_YELLOW		"menu/art/fx_yel"
-
 #define MAX_NAMELENGTH	20
 
 enum {
@@ -44,13 +33,9 @@ enum {
 
 typedef struct {
 	menuframework_s		menu;
-
 	menutext_s			banner;
-	menubitmap_s		player;
-
 	menufield_s			name;
-
-	menubitmap_s		back;
+	menubutton_s		back;
 } playersettings_t;
 
 static playersettings_t	s_playersettings;
@@ -72,10 +57,10 @@ static void PlayerSettings_DrawName(void *self)
 	focus = (f->generic.parent->cursor == f->generic.menuPosition);
 
 	style = 0;
-	color = text_color_normal;
+	color = colorTextNormal;
 	if (focus) {
 		style |= FONT_PULSE;
-		color = text_color_highlight;
+		color = colorTextHighlight;
 	}
 
 	SCR_DrawPropString(basex, y, "Name", style, color);
@@ -115,7 +100,7 @@ static void PlayerSettings_DrawName(void *self)
 		style |= FONT_BLINK;
 
 		SCR_DrawString(basex + f->field.cursor * BIGCHAR_SIZE, y,
-			va("%c", c), BIGCHAR_SIZE, style, color_white);
+			va("%c", c), BIGCHAR_SIZE, style, colorWhite);
 	}
 }
 
@@ -169,8 +154,8 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.banner.generic.x		= 320;
 	s_playersettings.banner.generic.y		= 16;
 	s_playersettings.banner.string			= "PLAYER SETTINGS";
-	s_playersettings.banner.color			= color_white;
-	s_playersettings.banner.style			= FONT_CENTER;
+	s_playersettings.banner.color			= colorBanner;
+	s_playersettings.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	y = 144;
 	s_playersettings.name.generic.type			= MTYPE_FIELD;
@@ -185,16 +170,15 @@ static void PlayerSettings_MenuInit(void)
 	s_playersettings.name.generic.right			= 192 + 200;
 	s_playersettings.name.generic.bottom		= y + 2 * PROP_HEIGHT;
 
-	s_playersettings.back.generic.type			= MTYPE_BITMAP;
-	s_playersettings.back.generic.name			= ART_BACK0;
-	s_playersettings.back.generic.flags			= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_playersettings.back.generic.type			= MTYPE_BUTTON;
+	s_playersettings.back.generic.flags			= QMF_LEFT_JUSTIFY;
 	s_playersettings.back.generic.id			= ID_BACK;
 	s_playersettings.back.generic.callback		= PlayerSettings_MenuEvent;
 	s_playersettings.back.generic.x				= 0;
 	s_playersettings.back.generic.y				= 480-64;
 	s_playersettings.back.width					= 128;
 	s_playersettings.back.height				= 64;
-	s_playersettings.back.focuspic				= ART_BACK1;
+	s_playersettings.back.string				= "Back";
 
 	Menu_AddItem(&s_playersettings.menu, &s_playersettings.banner);
 
@@ -203,11 +187,7 @@ static void PlayerSettings_MenuInit(void)
 	PlayerSettings_SetMenuItems();
 }
 
-void PlayerSettings_Cache(void)
-{
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-}
+void PlayerSettings_Cache(void) { }
 
 void UI_PlayerSettingsMenu(void)
 {

@@ -30,6 +30,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	#define WHITE_SHADER uis.whiteShader
 #endif
 
+#define SQUEEZE		0.8f
+
 static int	propMapB[26][3] = {
 	{ 11, 12, 33 },
 	{ 49, 12, 31 },
@@ -489,9 +491,9 @@ void SCR_DrawString(float x, float y, const char *string, float size, int style,
 #endif
 
 	if (style & FONT_CENTER) {
-		x -= SCR_Strlen(string) * charWidth / 2 * 0.9f;
+		x -= SCR_Strlen(string) * charWidth / 2 * SQUEEZE;
 	} else if (style & FONT_RIGHT) {
-		x -= SCR_Strlen(string) * charWidth * 0.9f;
+		x -= SCR_Strlen(string) * charWidth * SQUEEZE;
 	}
 
 	if (style & FONT_SHADOW) {
@@ -517,7 +519,7 @@ void SCR_DrawString(float x, float y, const char *string, float size, int style,
 			continue;
 		}
 		SCR_DrawChar(xx, y, charWidth, charHeight, *s);
-		xx += charWidth * 0.9f;
+		xx += charWidth * SQUEEZE;
 		cnt++;
 		s++;
 	}
@@ -526,9 +528,9 @@ void SCR_DrawString(float x, float y, const char *string, float size, int style,
 float SCR_StringWidth(const char *string, float size)
 {
 #ifdef CGAME
-	return SCR_Strlen(string) * CG_AdjustWidth(size) * 0.9f;
+	return SCR_Strlen(string) * CG_AdjustWidth(size) * SQUEEZE;
 #else
-	return SCR_Strlen(string) * size * 0.9f;
+	return SCR_Strlen(string) * size * SQUEEZE;
 #endif
 }
 

@@ -24,21 +24,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define SPECIFYSERVER_BACK0		"menu/art/back_0"
-#define SPECIFYSERVER_BACK1		"menu/art/back_1"
-#define SPECIFYSERVER_FIGHT0	"menu/art/fight_0"
-#define SPECIFYSERVER_FIGHT1	"menu/art/fight_1"
-
-#define ID_SPECIFYSERVERBACK	102
-#define ID_SPECIFYSERVERGO		103
-
-static char *specifyserver_artlist[] =
-{
-	SPECIFYSERVER_BACK0,	
-	SPECIFYSERVER_BACK1,	
-	SPECIFYSERVER_FIGHT0,
-	SPECIFYSERVER_FIGHT1,
-	NULL
+enum {
+	ID_SPECIFYSERVERBACK = 100,
+	ID_SPECIFYSERVERGO
 };
 
 typedef struct {
@@ -46,8 +34,8 @@ typedef struct {
 	menutext_s		banner;
 	menufield_s		domain;
 	menufield_s		port;
-	menubitmap_s	go;
-	menubitmap_s	back;
+	menubutton_s	go;
+	menubutton_s	back;
 } specifyserver_t;
 
 static specifyserver_t	s_specifyserver;
@@ -95,7 +83,7 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.banner.generic.x	= 320;
 	s_specifyserver.banner.generic.y	= 16;
 	s_specifyserver.banner.string		= "SPECIFY SERVER";
-	s_specifyserver.banner.color		= color_white;
+	s_specifyserver.banner.color		= colorWhite;
 	s_specifyserver.banner.style		= FONT_CENTER;
 
 	s_specifyserver.domain.generic.type			= MTYPE_FIELD;
@@ -114,27 +102,25 @@ void SpecifyServer_MenuInit(void)
 	s_specifyserver.port.field.widthInChars	= 6;
 	s_specifyserver.port.field.maxchars		= 5;
 
-	s_specifyserver.go.generic.type		= MTYPE_BITMAP;
-	s_specifyserver.go.generic.name		= SPECIFYSERVER_FIGHT0;
-	s_specifyserver.go.generic.flags	= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_specifyserver.go.generic.type		= MTYPE_BUTTON;
+	s_specifyserver.go.generic.flags	= QMF_RIGHT_JUSTIFY;
 	s_specifyserver.go.generic.callback	= SpecifyServer_Event;
 	s_specifyserver.go.generic.id		= ID_SPECIFYSERVERGO;
 	s_specifyserver.go.generic.x		= 640;
 	s_specifyserver.go.generic.y		= 480-64;
 	s_specifyserver.go.width			= 128;
 	s_specifyserver.go.height			= 64;
-	s_specifyserver.go.focuspic			= SPECIFYSERVER_FIGHT1;
+	s_specifyserver.go.string			= "Go";
 
-	s_specifyserver.back.generic.type		= MTYPE_BITMAP;
-	s_specifyserver.back.generic.name		= SPECIFYSERVER_BACK0;
-	s_specifyserver.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_specifyserver.back.generic.type		= MTYPE_BUTTON;
+	s_specifyserver.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	s_specifyserver.back.generic.callback	= SpecifyServer_Event;
 	s_specifyserver.back.generic.id			= ID_SPECIFYSERVERBACK;
 	s_specifyserver.back.generic.x			= 0;
 	s_specifyserver.back.generic.y			= 480-64;
 	s_specifyserver.back.width				= 128;
 	s_specifyserver.back.height				= 64;
-	s_specifyserver.back.focuspic			= SPECIFYSERVER_BACK1;
+	s_specifyserver.back.string				= "Back";
 
 	Menu_AddItem(&s_specifyserver.menu, &s_specifyserver.banner);
 	Menu_AddItem(&s_specifyserver.menu, &s_specifyserver.domain);
@@ -145,18 +131,7 @@ void SpecifyServer_MenuInit(void)
 	Com_sprintf(s_specifyserver.port.field.buffer, 6, "%i", 27960);
 }
 
-void SpecifyServer_Cache(void)
-{
-	int	i;
-
-	// touch all our pics
-	for (i = 0; ; i++) {
-		if (!specifyserver_artlist[i]) {
-			break;
-		}
-		trap_R_RegisterShaderNoMip(specifyserver_artlist[i]);
-	}
-}
+void SpecifyServer_Cache(void) { }
 
 void UI_SpecifyServerMenu(void)
 {

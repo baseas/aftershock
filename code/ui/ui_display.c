@@ -30,7 +30,6 @@ enum {
 	ID_SOUND,
 	ID_NETWORK,
 	ID_BRIGHTNESS,
-	ID_SCREENSIZE,
 	ID_BACK
 };
 
@@ -44,8 +43,7 @@ typedef struct {
 	menutext_s		sound;
 	menutext_s		network;
 
-	menuslider_s	brightness;
-	menuslider_s	screensize;
+	menufield_s		brightness;
 
 	menubutton_s	back;
 } displayOptionsInfo_t;
@@ -78,11 +76,7 @@ static void UI_DisplayOptionsMenu_Event(void* ptr, int event)
 		break;
 
 	case ID_BRIGHTNESS:
-		trap_Cvar_SetValue("r_gamma", displayOptionsInfo.brightness.curvalue / 10.0f);
-		break;
-	
-	case ID_SCREENSIZE:
-		trap_Cvar_SetValue("cg_viewsize", displayOptionsInfo.screensize.curvalue * 10);
+		trap_Cvar_SetValue("r_gamma", atof(displayOptionsInfo.brightness.field.buffer) / 100);
 		break;
 
 	case ID_BACK:
@@ -105,8 +99,8 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.banner.generic.x			= 320;
 	displayOptionsInfo.banner.generic.y			= 16;
 	displayOptionsInfo.banner.string			= "SYSTEM SETUP";
-	displayOptionsInfo.banner.color				= color_white;
-	displayOptionsInfo.banner.style				= FONT_CENTER;
+	displayOptionsInfo.banner.color				= colorBanner;
+	displayOptionsInfo.banner.style				= FONT_CENTER | FONT_SHADOW;
 
 	displayOptionsInfo.graphics.generic.type		= MTYPE_PTEXT;
 	displayOptionsInfo.graphics.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -116,7 +110,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.graphics.generic.y			= 240 - 2 * PROP_HEIGHT;
 	displayOptionsInfo.graphics.string				= "GRAPHICS";
 	displayOptionsInfo.graphics.style				= FONT_RIGHT;
-	displayOptionsInfo.graphics.color				= color_red;
+	displayOptionsInfo.graphics.color				= colorRed;
 
 	displayOptionsInfo.display.generic.type			= MTYPE_PTEXT;
 	displayOptionsInfo.display.generic.flags		= QMF_RIGHT_JUSTIFY;
@@ -126,7 +120,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.display.generic.y			= 240 - PROP_HEIGHT;
 	displayOptionsInfo.display.string				= "DISPLAY";
 	displayOptionsInfo.display.style				= FONT_RIGHT;
-	displayOptionsInfo.display.color				= color_red;
+	displayOptionsInfo.display.color				= colorRed;
 
 	displayOptionsInfo.sound.generic.type			= MTYPE_PTEXT;
 	displayOptionsInfo.sound.generic.flags			= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -136,7 +130,7 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.sound.generic.y				= 240;
 	displayOptionsInfo.sound.string					= "SOUND";
 	displayOptionsInfo.sound.style					= FONT_RIGHT;
-	displayOptionsInfo.sound.color					= color_red;
+	displayOptionsInfo.sound.color					= colorRed;
 
 	displayOptionsInfo.network.generic.type			= MTYPE_PTEXT;
 	displayOptionsInfo.network.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -146,32 +140,21 @@ static void UI_DisplayOptionsMenu_Init(void)
 	displayOptionsInfo.network.generic.y			= 240 + PROP_HEIGHT;
 	displayOptionsInfo.network.string				= "NETWORK";
 	displayOptionsInfo.network.style				= FONT_RIGHT;
-	displayOptionsInfo.network.color				= color_red;
+	displayOptionsInfo.network.color				= colorRed;
 
 	y = 240 - 1 * (BIGCHAR_SIZE+2);
-	displayOptionsInfo.brightness.generic.type		= MTYPE_SLIDER;
+	displayOptionsInfo.brightness.generic.type		= MTYPE_FIELD;
 	displayOptionsInfo.brightness.generic.name		= "Brightness:";
-	displayOptionsInfo.brightness.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
+	displayOptionsInfo.brightness.generic.flags		= QMF_NUMBERSONLY | QMF_SMALLFONT;
 	displayOptionsInfo.brightness.generic.callback	= UI_DisplayOptionsMenu_Event;
 	displayOptionsInfo.brightness.generic.id		= ID_BRIGHTNESS;
 	displayOptionsInfo.brightness.generic.x			= 400;
 	displayOptionsInfo.brightness.generic.y			= y;
-	displayOptionsInfo.brightness.minvalue			= 5;
-	displayOptionsInfo.brightness.maxvalue			= 20;
+	displayOptionsInfo.brightness.field.widthInChars	= 3;
+	displayOptionsInfo.brightness.field.maxchars		= 3;
 	if (!uis.glconfig.deviceSupportsGamma) {
 		displayOptionsInfo.brightness.generic.flags |= QMF_GRAYED;
 	}
-
-	y += BIGCHAR_SIZE+2;
-	displayOptionsInfo.screensize.generic.type		= MTYPE_SLIDER;
-	displayOptionsInfo.screensize.generic.name		= "Screen Size:";
-	displayOptionsInfo.screensize.generic.flags		= QMF_PULSEIFFOCUS|QMF_SMALLFONT;
-	displayOptionsInfo.screensize.generic.callback	= UI_DisplayOptionsMenu_Event;
-	displayOptionsInfo.screensize.generic.id		= ID_SCREENSIZE;
-	displayOptionsInfo.screensize.generic.x			= 400;
-	displayOptionsInfo.screensize.generic.y			= y;
-	displayOptionsInfo.screensize.minvalue			= 3;
-    displayOptionsInfo.screensize.maxvalue			= 10;
 
 	displayOptionsInfo.back.generic.type		= MTYPE_BUTTON;
 	displayOptionsInfo.back.generic.flags		= QMF_LEFT_JUSTIFY;
@@ -187,11 +170,10 @@ static void UI_DisplayOptionsMenu_Init(void)
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.sound);
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.network);
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.brightness);
-	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.screensize);
 	Menu_AddItem(&displayOptionsInfo.menu, (void *) &displayOptionsInfo.back);
 
-	displayOptionsInfo.brightness.curvalue = trap_Cvar_VariableValue("r_gamma") * 10;
-	displayOptionsInfo.screensize.curvalue = trap_Cvar_VariableValue("cg_viewsize")/10;
+	Com_sprintf(displayOptionsInfo.brightness.field.buffer, sizeof displayOptionsInfo.brightness.field.buffer,
+		"%g", trap_Cvar_VariableValue("r_gamma") * 100);
 }
 
 void UI_DisplayOptionsMenu_Cache(void) { }

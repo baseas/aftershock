@@ -24,9 +24,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "ui_local.h"
 
-#define ART_BACK0	"menu/art/back_0"
-#define ART_BACK1	"menu/art/back_1"
-
 typedef struct {
 	char	*command;
 	char	*label;
@@ -189,13 +186,12 @@ typedef struct {
 	int					playerWeapon;
 	qboolean			playerChat;
 
-	menubitmap_s		back;
-	menutext_s			name;
+	menubutton_s		back;
 } controls_t;
 
 static controls_t s_controls;
 
-static vec4_t controls_binding_color  = { 1.00f, 0.43f, 0.00f, 1.00f };
+static vec4_t colorControlsBinding  = { 1.00f, 0.43f, 0.00f, 1.00f };
 
 static bind_t g_bindings[] = {
 	{ "+scores",		"Show Scores",		ID_SHOWSCORES,	ANIM_IDLE,		-1,	-1 },
@@ -520,10 +516,6 @@ static void Controls_Update(void)
 
 		// enable action item
 		((menucommon_s*)(s_controls.menu.items[s_controls.menu.cursor]))->flags &= ~QMF_GRAYED;
-
-		// don't gray out player's name
-		s_controls.name.generic.flags &= ~QMF_GRAYED;
-
 		return;
 	}
 
@@ -590,16 +582,18 @@ static void Controls_DrawKeyBinding(void *self)
 	}
 
 	if (c) {
-		SCR_FillRect(a->generic.left, a->generic.top, a->generic.right-a->generic.left+1, a->generic.bottom-a->generic.top+1, listbar_color);
+		SCR_FillRect(a->generic.left, a->generic.top, a->generic.right-a->generic.left+1, a->generic.bottom-a->generic.top+1, colorListbar);
 
-		SCR_DrawString(x + SMALLCHAR_SIZE, y, name, SMALLCHAR_SIZE, FONT_PULSE, text_color_highlight);
+		SCR_DrawString(x - SMALLCHAR_SIZE, y, g_bindings[a->generic.id].label,
+			SMALLCHAR_SIZE, FONT_RIGHT, colorControlsBinding);
+		SCR_DrawString(x + SMALLCHAR_SIZE, y, name, SMALLCHAR_SIZE, FONT_PULSE, colorTextHighlight);
 
 		if (s_controls.waitingforkey) {
-			SCR_DrawString(x, y, "=", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, text_color_highlight);
+			SCR_DrawString(x, y, "=", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, colorTextHighlight);
 			SCR_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80,
 				"Waiting for new key ... ESCAPE to cancel", SMALLCHAR_SIZE, FONT_CENTER | FONT_PULSE, colorWhite);
 		} else {
-			SCR_DrawString(x, y, "\15", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, text_color_highlight);
+			SCR_DrawString(x, y, "\15", SMALLCHAR_SIZE, FONT_CENTER | FONT_BLINK, colorTextHighlight);
 			SCR_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.78,
 				"Press ENTER or CLICK to change", SMALLCHAR_SIZE, FONT_CENTER, colorWhite);
 			SCR_DrawString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.82,
@@ -608,19 +602,13 @@ static void Controls_DrawKeyBinding(void *self)
 	} else {
 		if (a->generic.flags & QMF_GRAYED) {
 			SCR_DrawString(x - SMALLCHAR_SIZE, y, g_bindings[a->generic.id].label,
-				SMALLCHAR_SIZE, FONT_RIGHT, text_color_disabled);
+				SMALLCHAR_SIZE, FONT_RIGHT, colorTextDisabled);
 		} else {
 			SCR_DrawString(x - SMALLCHAR_SIZE, y, g_bindings[a->generic.id].label,
-				SMALLCHAR_SIZE, FONT_RIGHT, controls_binding_color);
-			SCR_DrawString(x + SMALLCHAR_SIZE, y, name, SMALLCHAR_SIZE, 0, controls_binding_color);
+				SMALLCHAR_SIZE, FONT_RIGHT, colorControlsBinding);
+			SCR_DrawString(x + SMALLCHAR_SIZE, y, name, SMALLCHAR_SIZE, 0, colorControlsBinding);
 		}
 	}
-}
-
-static void Controls_StatusBar(void *self)
-{
-	SCR_DrawPropString(SCREEN_WIDTH * 0.50, SCREEN_HEIGHT * 0.80,
-		"Use Arrow Keys or CLICK to change", FONT_SMALL | FONT_CENTER, colorWhite);
 }
 
 static void Controls_DrawPlayer(void *self)
@@ -827,9 +815,9 @@ static void Controls_ResetDefaults_Action(qboolean result)
 static void Controls_ResetDefaults_Draw(void)
 {
 	SCR_DrawPropString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 0, "WARNING: This will reset all",
-		FONT_CENTER | FONT_SMALL, color_yellow);
+		FONT_CENTER | FONT_SMALL, colorYellow);
 	SCR_DrawPropString(SCREEN_WIDTH / 2, 356 + PROP_HEIGHT * 1, "controls to their default values.",
-		FONT_CENTER | FONT_SMALL, color_yellow);
+		FONT_CENTER | FONT_SMALL, colorYellow);
 }
 
 static void Controls_MenuEvent(void* ptr, int event)
@@ -929,8 +917,6 @@ static void Controls_InitWeapons(void)
 
 static void Controls_MenuInit(void)
 {
-	static char playername[32];
-
 	// zero set all our globals
 	memset(&s_controls, 0 ,sizeof(controls_t));
 
@@ -945,8 +931,8 @@ static void Controls_MenuInit(void)
 	s_controls.banner.generic.x		= 320;
 	s_controls.banner.generic.y		= 16;
 	s_controls.banner.string		= "CONTROLS";
-	s_controls.banner.color			= color_white;
-	s_controls.banner.style			= FONT_CENTER;
+	s_controls.banner.color			= colorBanner;
+	s_controls.banner.style			= FONT_CENTER | FONT_SHADOW;
 
 	s_controls.looking.generic.type		= MTYPE_PTEXT;
 	s_controls.looking.generic.flags	= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -956,7 +942,7 @@ static void Controls_MenuInit(void)
 	s_controls.looking.generic.y		= 240 - 2 * PROP_HEIGHT;
 	s_controls.looking.string			= "LOOK";
 	s_controls.looking.style			= FONT_RIGHT;
-	s_controls.looking.color			= color_red;
+	s_controls.looking.color			= colorRed;
 
 	s_controls.movement.generic.type		= MTYPE_PTEXT;
 	s_controls.movement.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -966,7 +952,7 @@ static void Controls_MenuInit(void)
 	s_controls.movement.generic.y			= 240 - PROP_HEIGHT;
 	s_controls.movement.string				= "MOVE";
 	s_controls.movement.style				= FONT_RIGHT;
-	s_controls.movement.color				= color_red;
+	s_controls.movement.color				= colorRed;
 
 	s_controls.weapons.generic.type		= MTYPE_PTEXT;
 	s_controls.weapons.generic.flags	= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -976,7 +962,7 @@ static void Controls_MenuInit(void)
 	s_controls.weapons.generic.y		= 240;
 	s_controls.weapons.string			= "SHOOT";
 	s_controls.weapons.style			= FONT_RIGHT;
-	s_controls.weapons.color			= color_red;
+	s_controls.weapons.color			= colorRed;
 
 	s_controls.misc.generic.type		= MTYPE_PTEXT;
 	s_controls.misc.generic.flags		= QMF_RIGHT_JUSTIFY|QMF_PULSEIFFOCUS;
@@ -986,18 +972,17 @@ static void Controls_MenuInit(void)
 	s_controls.misc.generic.y			= 240 + PROP_HEIGHT;
 	s_controls.misc.string				= "MISC";
 	s_controls.misc.style				= FONT_RIGHT;
-	s_controls.misc.color				= color_red;
+	s_controls.misc.color				= colorRed;
 
-	s_controls.back.generic.type		= MTYPE_BITMAP;
-	s_controls.back.generic.name		= ART_BACK0;
-	s_controls.back.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS;
+	s_controls.back.generic.type		= MTYPE_BUTTON;
+	s_controls.back.generic.flags		= QMF_LEFT_JUSTIFY;
 	s_controls.back.generic.x			= 0;
 	s_controls.back.generic.y			= 480-64;
 	s_controls.back.generic.id			= ID_BACK;
 	s_controls.back.generic.callback	= Controls_MenuEvent;
 	s_controls.back.width				= 128;
 	s_controls.back.height				= 64;
-	s_controls.back.focuspic			= ART_BACK1;
+	s_controls.back.string				= "Back";
 
 	s_controls.player.generic.type		= MTYPE_BITMAP;
 	s_controls.player.generic.flags		= QMF_INACTIVE;
@@ -1145,7 +1130,6 @@ static void Controls_MenuInit(void)
 	s_controls.autoswitch.generic.name		= "Autoswitch Weapons";
 	s_controls.autoswitch.generic.id		= ID_AUTOSWITCH;
 	s_controls.autoswitch.generic.callback	= Controls_MenuEvent;
-	s_controls.autoswitch.generic.statusbar	= Controls_StatusBar;
 
 	s_controls.sensitivity.generic.type			= MTYPE_FIELD;
 	s_controls.sensitivity.generic.x			= SCREEN_WIDTH / 2;
@@ -1153,7 +1137,6 @@ static void Controls_MenuInit(void)
 	s_controls.sensitivity.generic.name			= "Sensitivity";
 	s_controls.sensitivity.generic.id			= ID_MOUSESPEED;
 	s_controls.sensitivity.generic.callback		= Controls_MenuEvent;
-	s_controls.sensitivity.generic.statusbar	= Controls_StatusBar;
 	s_controls.sensitivity.field.widthInChars	= 6;
 	s_controls.sensitivity.field.maxchars		= 6;
 
@@ -1163,7 +1146,6 @@ static void Controls_MenuInit(void)
 	s_controls.fov.generic.name			= "Field of View";
 	s_controls.fov.generic.id			= ID_FOV;
 	s_controls.fov.generic.callback		= Controls_MenuEvent;
-	s_controls.fov.generic.statusbar	= Controls_StatusBar;
 	s_controls.fov.field.widthInChars	= 6;
 	s_controls.fov.field.maxchars		= 6;
 
@@ -1173,7 +1155,6 @@ static void Controls_MenuInit(void)
 	s_controls.zoomfov.generic.name			= "Zoom FOV";
 	s_controls.zoomfov.generic.id			= ID_ZOOMFOV;
 	s_controls.zoomfov.generic.callback		= Controls_MenuEvent;
-	s_controls.zoomfov.generic.statusbar	= Controls_StatusBar;
 	s_controls.zoomfov.field.widthInChars	= 6;
 	s_controls.zoomfov.field.maxchars		= 6;
 
@@ -1183,7 +1164,6 @@ static void Controls_MenuInit(void)
 	s_controls.zoomscaling.generic.name			= "Zoom Scaling";
 	s_controls.zoomscaling.generic.id			= ID_ZOOMSCALING;
 	s_controls.zoomscaling.generic.callback		= Controls_MenuEvent;
-	s_controls.zoomscaling.generic.statusbar	= Controls_StatusBar;
 
 	s_controls.gesture.generic.type			= MTYPE_ACTION;
 	s_controls.gesture.generic.flags		= QMF_LEFT_JUSTIFY|QMF_PULSEIFFOCUS|QMF_GRAYED|QMF_HIDDEN;
@@ -1221,17 +1201,8 @@ static void Controls_MenuInit(void)
 	s_controls.togglemenu.generic.ownerdraw	= Controls_DrawKeyBinding;
 	s_controls.togglemenu.generic.id		= ID_TOGGLEMENU;
 
-	s_controls.name.generic.type	= MTYPE_PTEXT;
-	s_controls.name.generic.flags	= QMF_CENTER_JUSTIFY|QMF_INACTIVE;
-	s_controls.name.generic.x		= 320;
-	s_controls.name.generic.y		= 440;
-	s_controls.name.string			= playername;
-	s_controls.name.style			= FONT_CENTER;
-	s_controls.name.color			= text_color_normal;
-
 	Menu_AddItem(&s_controls.menu, &s_controls.banner);
 	Menu_AddItem(&s_controls.menu, &s_controls.player);
-	Menu_AddItem(&s_controls.menu, &s_controls.name);
 
 	Menu_AddItem(&s_controls.menu, &s_controls.looking);
 	Menu_AddItem(&s_controls.menu, &s_controls.movement);
@@ -1277,9 +1248,6 @@ static void Controls_MenuInit(void)
 
 	Menu_AddItem(&s_controls.menu, &s_controls.back);
 
-	trap_Cvar_VariableStringBuffer("name", s_controls.name.string, 16);
-	Q_CleanStr(s_controls.name.string);
-
 	// initialize the configurable cvars
 	Controls_InitCvars();
 
@@ -1299,11 +1267,7 @@ static void Controls_MenuInit(void)
 	Controls_Update();
 }
 
-void Controls_Cache(void)
-{
-	trap_R_RegisterShaderNoMip(ART_BACK0);
-	trap_R_RegisterShaderNoMip(ART_BACK1);
-}
+void Controls_Cache(void) { }
 
 void UI_ControlsMenu(void)
 {
