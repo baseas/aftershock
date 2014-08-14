@@ -1096,11 +1096,6 @@ void CG_EntityEvent(centity_t *cent, vec3_t position)
 	case EV_DEATH2:
 	case EV_DEATH3:
 		DEBUGNAME("EV_DEATHx");
-
-		if (cg_zoomOutOnDeath.integer) {
-			cg.zoomed = qfalse;
-		}
-
 		if (CG_WaterLevel(cent) >= 1) {
 			trap_S_StartSound(NULL, es->number, CHAN_VOICE, CG_CustomSound(es->number, "*drown.wav"));
 		} else {

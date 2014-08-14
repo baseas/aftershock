@@ -441,6 +441,10 @@ void CG_TransitionPlayerState(playerState_t *ps, playerState_t *ops)
 		CG_CheckLocalSounds(ps, ops);
 	}
 
+	if (ps->stats[STAT_HEALTH] < 0 && cg_zoomOutOnDeath.integer) {
+		cg.zoomed = qfalse;
+	}
+
 	// check for going low on ammo
 	CG_CheckAmmo();
 
